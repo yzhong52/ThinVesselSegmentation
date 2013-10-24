@@ -1,0 +1,108 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="3d data structure">
+      <UniqueIdentifier>{0895db59-0037-4e11-bcf1-62876fd6b5b5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="others">
+      <UniqueIdentifier>{5bf8842c-8925-4cf9-9ddd-5f4545cbc0a6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Validation">
+      <UniqueIdentifier>{7d3d3e7c-4617-4175-9925-e4b46ed68694}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Viewer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Data3D.h">
+      <Filter>3d data structure</Filter>
+    </ClInclude>
+    <ClInclude Include="Image3D.h">
+      <Filter>3d data structure</Filter>
+    </ClInclude>
+    <ClInclude Include="Kernel3D.h">
+      <Filter>3d data structure</Filter>
+    </ClInclude>
+    <ClInclude Include="smart_assert.h">
+      <Filter>others</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>others</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>others</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageProcessing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VesselDetector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Validation.h">
+      <Filter>Validation</Filter>
+    </ClInclude>
+    <ClInclude Include="RingsDeduction.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Vesselness.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Neigbour3D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ImageProcessor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VesselDetector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Viewer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Kernel3D.cpp">
+      <Filter>3d data structure</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>others</Filter>
+    </ClCompile>
+    <ClCompile Include="Validation_Rings_Reduction.cpp">
+      <Filter>Validation</Filter>
+    </ClCompile>
+    <ClCompile Include="Validation_Hessian_3D.cpp">
+      <Filter>Validation</Filter>
+    </ClCompile>
+    <ClCompile Include="Validation.cpp">
+      <Filter>Validation</Filter>
+    </ClCompile>
+    <ClCompile Include="RingsDeduction.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Vesselness.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Neigbour3D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
