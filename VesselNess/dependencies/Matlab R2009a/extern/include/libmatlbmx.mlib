@@ -1,0 +1,123 @@
+/* 
+ * $Revision: 1.4.4.1 $  $Date: 2004/07/16 18:19:16 $ 
+ */
+/*
+ * Copyright 1984-2001 The MathWorks, Inc.
+ * All Rights Reserved.
+ */
+
+target="C";
+include="libmatlbm.h";
+timestamp="Wed Feb 27 12:31:45 EST 2002";
+
+deblank{
+  nin    = 1;       /* number of M inputs */
+  nout   = 1;       /* number of M outputs */
+  scope  = global;
+  cname  = mlfDeblank;   /* mxArray in and out */
+  nargin = 0;       /* nargin  not used */
+  nargout= 0;       /* nargout not used */
+  reqin  = 1;       /* minimum number of inputs */
+  reqout = 1;       /* minimum number of outputs */
+}
+
+intersect{
+  nin    = 3;       /* number of M inputs */
+  nout   = 3;       /* number of M outputs */
+  scope  = global;
+  cname  = mlfIntersect;   /* mxArray in and out */
+  cname  = mlfNintersect;   /* used nargout */
+  cname  = mlfVintersect;   /* output ignored */
+  nargin = 0;       /* nargin  not used */
+  nargout= 1;       /* nargout used */
+  reqin  = 1;       /* minimum number of inputs */
+  reqout = 1;       /* minimum number of outputs */
+}
+
+ismember{
+  nin    = 3;       /* number of M inputs */
+  nout   = 2;       /* number of M outputs */
+  scope  = global;
+  cname  = mlfIsmember;   /* mxArray in and out */
+  cname  = mlfNIsmember;   /* used nargout */
+  cname  = mlfVIsmember;   /* output ignored */
+  nargin = 0;       /* nargin  not used */
+  nargout= 1;       /* nargout used */
+  reqin  = 1;       /* minimum number of inputs */
+  reqout = 1;       /* minimum number of outputs */
+}
+
+setdiff{
+  nin    = 3;       /* number of M inputs */
+  nout   = 2;       /* number of M outputs */
+  scope  = global;
+  cname  = mlfSetdiff;   /* mxArray in and out */
+  cname  = mlfNSetdiff;   /* used nargout */
+  cname  = mlfVSetdiff;   /* output ignored */
+  nargin = 0;       /* nargin  not used */
+  nargout= 1;       /* nargout used */
+  reqin  = 1;       /* minimum number of inputs */
+  reqout = 1;       /* minimum number of outputs */
+}
+
+setxor{
+  nin    = 3;       /* number of M inputs */
+  nout   = 3;       /* number of M outputs */
+  scope  = global;
+  cname  = mlfSetxor;   /* mxArray in and out */
+  cname  = mlfNsetxor;   /* used nargout */
+  cname  = mlfVsetxor;   /* output ignored */
+  nargin = 0;       /* nargin  not used */
+  nargout= 1;       /* nargout used */
+  reqin  = 1;       /* minimum number of inputs */
+  reqout = 1;       /* minimum number of outputs */
+}
+
+strcat{
+  nin    = 1;       /* number of M inputs */
+  nout   = 1;       /* number of M outputs */
+  scope  = global;
+  varargin;         /* vargin used */
+  cname  = mlfStrcat;   /* mxArray in and out */
+  nargin = 0;       /* nargin  not used */
+  nargout= 0;       /* nargout not used */
+  reqin  = 1;       /* minimum number of inputs */
+  reqout = 1;       /* minimum number of outputs */
+}
+
+strmatch{
+  nin    = 3;       /* number of M inputs */
+  nout   = 1;       /* number of M outputs */
+  scope  = global;
+  cname  = mlfStrmatch;   /* mxArray in and out */
+  nargin = 0;       /* nargin  not used */
+  nargout= 0;       /* nargout not used */
+  reqin  = 1;       /* minimum number of inputs */
+  reqout = 1;       /* minimum number of outputs */
+}
+
+union{
+  nin    = 3;       /* number of M inputs */
+  nout   = 3;       /* number of M outputs */
+  scope  = global;
+  cname  = mlfUnion;   /* mxArray in and out */
+  cname  = mlfNunion;   /* used nargout */
+  cname  = mlfVunion;   /* output ignored */
+  nargin = 0;       /* nargin  not used */
+  nargout= 1;       /* nargout used */
+  reqin  = 1;       /* minimum number of inputs */
+  reqout = 1;       /* minimum number of outputs */
+}
+
+unique{
+  nin    = 2;       /* number of M inputs */
+  nout   = 3;       /* number of M outputs */
+  scope  = global;
+  cname  = mlfUnique;   /* mxArray in and out */
+  cname  = mlfNunique;   /* used nargout */
+  cname  = mlfVunique;   /* output ignored */
+  nargin = 0;       /* nargin  not used */
+  nargout= 1;       /* nargout used */
+  reqin  = 1;       /* minimum number of inputs */
+  reqout = 1;       /* minimum number of outputs */
+}

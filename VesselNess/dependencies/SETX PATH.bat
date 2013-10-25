@@ -1,0 +1,8 @@
+
+SET NEW_USER_PATH=%CD%\freeglut 2.8.1\lib\x64;%NEW_USER_PATH%
+
+SET NEW_USER_PATH=%CD%\freeglut 2.8.1\lib\x64;%NEW_USER_PATH%
+
+setx PATH "%NEW_USER_PATH%"
+
+PAUSE
