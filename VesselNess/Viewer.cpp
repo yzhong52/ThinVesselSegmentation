@@ -2,14 +2,24 @@
 #include "Image3D.h"
 #include "Vesselness.h"
 
-// Yuchen: Adding glut for OpenCV
+// Yuchen: Adding free glut
+// Yuchen: This macro (FREEGLUT_LIB_PRAGMAS) is defined here before #include "gl/glut.h"
+// becaues I want to add the *.lib file manually in project seetings. 
+// Please go to 'Project > Configuration Properties > C/C++ > Input > Addtional Dependencies'
+// to see the details. 
+// #define FREEGLUT_LIB_PRAGMAS 0 
+// Yuchen: The header for glut
 #include "gl/glut.h"
-
-// Yuchen: Adding engine for Matlab
-#ifdef _CHAR16T
-#define CHAR16_T
-#endif
-#include "engine.h"
+//// Yuchen: inlcluding the freeglut.lib
+////#pragma comment (lib, "freeglut.lib")
+////#pragma comment (lib, "freeglut-2.8.1-x86.lib")
+//
+//// Yuchen: Drag in other Windows libraries as required by FreeGLUT
+//#pragma comment (lib, "glu32.lib")    /* link OpenGL Utility lib     */
+//#pragma comment (lib, "opengl32.lib") /* link Microsoft OpenGL lib   */
+//#pragma comment (lib, "gdi32.lib")    /* link Windows GDI lib        */
+//#pragma comment (lib, "winmm.lib")    /* link Windows MultiMedia lib */
+//#pragma comment (lib, "user32.lib")   /* link Windows user lib       */
 
 namespace Viewer{ 
 	namespace OpenGL {
@@ -167,63 +177,6 @@ namespace Viewer{
 			threshold = thres;
 			smart_return( ptrVnSig->get_size_total(), "Data does not exist." );
 			init( renderDirFunc );
-		}
-	}
-
-	namespace Matlab {
-		void plot( Mat_<double> mx, Mat_<double> my )
-		{ 
-			vector< Mat_<double> > mys( &my, &my+1 );
-			plot( mx, mys);
-		}
-
-		void plot( Mat_<double> mx, vector< Mat_<double> > mys ){
-			for( unsigned int i=0; i<mys.size(); i++ )
-			{ 
-				if( mx.rows != mys[i].rows ) {
-					cout << "Error using ==> plot. " << endl;
-					cout << "Vectors must be the same lengths. " << endl;
-					return;
-				} 
-			}
-			const int N = mx.rows;
-
-			// open matlab engine
-			Engine *ep = engOpen(NULL);
-			if ( !ep )
-			{
-				cout << "Can't start Matlab engine!" <<endl;
-				exit(1);
-			}
-
-			// The fundamental type underlying MATLAB data
-			mxArray *xx = mxCreateDoubleMatrix(1, N, mxREAL); 
-			mxArray *yy = mxCreateDoubleMatrix(1, N, mxREAL); 
-
-			// copy data from c++ to matlab data
-			memcpy( mxGetPr(xx), mx.data, N * sizeof(double) ); 
-			memcpy( mxGetPr(yy), mys[0].data, N * sizeof(double) ); 
-
-			// draw the plot
-			engPutVariable( ep, "xx", xx ); 
-			engPutVariable( ep, "yy", yy ); 
-			
-			engEvalString(ep, "figure(1);");
-			engEvalString(ep, "hFig = figure(1);;");
-			engEvalString(ep, "set(gcf,'PaperPositionMode','auto');");
-			engEvalString(ep, "set(hFig, 'Position', [100 100 900 300]);");
-			engEvalString(ep, "hFig = plot(xx, yy);");
-			engEvalString(ep, "set(gca, 'XTickLabel', num2str(get(gca,'XTick')','%d'));");
-			engEvalString(ep, "set(gca, 'YTickLabel', num2str(get(gca,'YTick')','%d'));");
-
-			// release data
-			mxDestroyArray(xx); 
-			mxDestroyArray(yy); 
-
-			system("pause");
-
-			// close matlab window
-			engClose(ep);
 		}
 	}
 }

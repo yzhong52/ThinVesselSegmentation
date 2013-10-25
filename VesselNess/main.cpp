@@ -24,14 +24,11 @@ public:
 };
 
 
-// some sample functions
-void plot_histogram_in_matlab(void) ;
-
 int main(int argc, char* argv[])
 {
-	
-	plot_histogram_in_matlab(); return 0;
-	
+	Validation::Hessian_2D();
+	return 0;
+
 	bool flag = false;
 	Preset presets[30];
 	presets[0] = Preset("vessel3d", Vec3i(585, 525, 892));
@@ -46,7 +43,7 @@ int main(int argc, char* argv[])
 	presets[11] = Preset("roi11.data", Vec3i(116, 151, 166));
 	presets[12] = Preset("vessel3d.rd.k=19.data", Vec3i(585, 525, 892));
 	presets[13] = Preset("roi13.data", Vec3i(238, 223, 481) );
-	// presets[14] = Preset("roi14.data" );
+	presets[14] = Preset("roi14.data" );
 	presets[15] = Preset("roi15.data" );
 	presets[16] = Preset("roi16.data" );
 	presets[17] = Preset("roi17.data" );
@@ -54,9 +51,6 @@ int main(int argc, char* argv[])
 	const Preset& ps = presets[17];
 	string data_name = "roi17.partial";
 	// string data_name = "temp";
-
-
-	
 
 
 	if( bool isConstructTube = false ) {
@@ -155,17 +149,4 @@ int main(int argc, char* argv[])
 
 
 	return 0;
-}
-
-
-void plot_histogram_in_matlab(void) {
-	cout << "Plotting Histogram of data in Matlab. " << endl;
-	// loading data
-	Image3D<short> im_data;
-	bool flag = im_data.loadData( "data/vessel3d.data", Vec3i(585,525,200), true, true );
-	if( !flag ) return;
-	// calculating histogram
-	Mat_<double> hist, range;
-	IP::histogram( im_data, range, hist, 1024 );
-	VI::Matlab::plot( range, hist );
 }
