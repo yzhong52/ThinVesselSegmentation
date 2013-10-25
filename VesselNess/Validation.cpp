@@ -293,7 +293,7 @@ bool Validation::Harris_Hessian_OOP(void)
 bool Validation::Hessian_2D(void)
 {
 	// loading image
-	Mat src = imread( "images/tree smal bright.png");
+	Mat src = imread( "data/2d images/tree smal bright.png");
 	if( !src.data ){ 
 		cout << "Image not found..." << endl;
 		return false; 
