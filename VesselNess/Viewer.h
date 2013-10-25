@@ -23,15 +23,6 @@ namespace Viewer
 		void show_dir( const Data3D<Vesselness_Sig>& vnSig, const float& thres = 0.3f );
 	}
 
-	//namespace SliceShow {
-	//	template< typename T >
-	//	void Multi_Channels( const Data3D<T>& src, const int& i ) {
-	//		Data3D<float> im_float;
-	//		src.copyDimTo( im_float, i );
-	//		im_float.show();
-	//	}
-	//}
-	
 	namespace MIP{
 
 		template<typename T>
@@ -76,6 +67,11 @@ namespace Viewer
 			system( ss2.str().c_str() );
 		}
 
+	}
+
+	namespace Matlab {
+		void plot( Mat_<double> mx, vector< Mat_<double> > mys );
+		void plot( Mat_<double> mx, Mat_<double> my );
 	}
 };
 

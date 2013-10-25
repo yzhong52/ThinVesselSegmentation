@@ -13,7 +13,9 @@ namespace ImageProcessing
 {
 	///////////////////////////////////////////////////////////////////////////
 	// Image Histogram
-	void histogram( Image3D<short>& imageData, int number_of_bins = 512 );
+	void histogram( Data3D<short>& imageData, 
+		Mat_<double>& range, Mat_<double>& hist, int number_of_bins = 512 );
+	Mat histogram_with_opencv( Data3D<short>& imageData, int number_of_bins = 512 );
 	void histogram_for_slice( Image3D<short>& imageData );
 
 	///////////////////////////////////////////////////////////////////////////

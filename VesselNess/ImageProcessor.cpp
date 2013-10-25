@@ -2,19 +2,49 @@
 #include "Vesselness.h"
 #include <queue>
 
-void ImageProcessing::histogram( Image3D<short>& data, int number_of_bins ){
+void ImageProcessing::histogram( Data3D<short>& data, 
+	Mat_<double>& range, Mat_<double>& hist, int number_of_bins ){
 	cout << "Calculating Image Histogram" << endl;
+	
+	// get the minimum and maximum value in the data
+	Vec<short,2> min_max = data.get_min_max_value();
+	const double min = min_max[0];
+	const double max = min_max[1] + 1;
+	const double diff = max - min;
+
+	// set up the range vector
+	range = Mat_<double>( number_of_bins, 1, 0.0);
+	for( int i=0; i<number_of_bins; i++ ) {
+		range.at<double>(i) = 1.0 * i * diff / number_of_bins + min;
+	}
+	
+	// set the hist vector
+	hist = Mat_<double>( number_of_bins, 1, 0.0);
+	Mat_<short>::const_iterator it;
+	for( it=data.getMat().begin(); it<data.getMat().end(); it++ ) {
+		const short& value = (*it);
+		int pos = int( 1.0 * number_of_bins * (value-min) / diff );
+		hist.at<double>( pos )++;
+	}
+}
+
+Mat ImageProcessing::histogram_with_opencv( Data3D<short>& data, int number_of_bins ){
+	cout << "Calculating Image Histogram using build in OpenCV function" << endl;
+	cout << "This function may be fairly memory intensive. Be careful when using." << endl;
 	
 	Mat mat = data.getMat(); 
 
 	mat.convertTo( mat, CV_32F );
-	normalize( mat, mat, 0, number_of_bins, CV_MINMAX );
+	// normalize( mat, mat, 0, number_of_bins, CV_MINMAX );
 
 	// Establish the number of bins
 	int histSize = number_of_bins;
 
 	// Set the ranges
-	float range[] = { 0.0f, 1.0f*number_of_bins };//the upper boundary is exclusive
+	float range[] = {// 0.0f, number_of_bins
+		std::numeric_limits<short>::min(), 
+		std::numeric_limits<short>::max() 
+	};//the upper boundary is exclusive
 	const float* histRange = { range };
 
 	// Compute the histograms:
@@ -52,6 +82,9 @@ void ImageProcessing::histogram( Image3D<short>& data, int number_of_bins ){
 	imshow("Histogram", histImage );
 	imwrite("Histogram.png", histImage );
 	waitKey(0);
+	cout << "done. " << endl << endl;
+
+	return hist;
 }
 
 void ImageProcessing::histogram_for_slice( Image3D<short>& data ){
