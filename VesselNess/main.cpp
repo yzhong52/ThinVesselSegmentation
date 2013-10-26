@@ -26,10 +26,11 @@ public:
 
 // some sample functions
 void plot_histogram_in_matlab(void) ;
+void plot_2d_hessian(void);
 
 int main(int argc, char* argv[])
 {
-	
+	plot_2d_hessian(); return 0;
 	plot_histogram_in_matlab(); return 0;
 	
 	bool flag = false;
@@ -168,4 +169,120 @@ void plot_histogram_in_matlab(void) {
 	Mat_<double> hist, range;
 	IP::histogram( im_data, range, hist, 1024 );
 	VI::Matlab::plot( range, hist );
+}
+
+
+void plot_2d_hessian(void) {
+	// loading image
+	Mat src = imread( "data/2d images/vessels.bmp");
+	if( !src.data ){ cout << "Image not found..." << endl; return; }
+
+	// convert form CV_8UC3 to CV_8U
+	Mat src_gray;
+	cvtColor( src, src_gray, CV_RGB2GRAY ); 
+	
+	// Image gradient along x, y direction
+	Mat Ix, Iy;
+	Sobel( src_gray, Ix, CV_32F, 1, 0, 1 );
+	Sobel( src_gray, Iy, CV_32F, 0, 1, 1 );
+	// Second order derivative of the image
+	Mat Ixx, Ixy, Iyy;
+	Sobel( Ix, Ixx, CV_32F, 1, 0, 1 );
+	Sobel( Ix, Ixy, CV_32F, 0, 1, 1 );
+	Sobel( Iy, Iyy, CV_32F, 0, 1, 1 );
+
+	// derivative fileters
+	Mat filter_dx = ( Mat_<float>(1,3) << -0.5, 0, 0.5 );
+	Mat filter_dy = ( Mat_<float>(3,1) << -0.5, 0, 0.5 );
+
+	// Calculate the vesselness response
+	const int NUM = 1;
+
+	// Eigenvalues result will be stored in these matrix
+	Mat hessian_eigenvalue1( src.rows, src.cols, CV_32F );
+	Mat hessian_eigenvalue2( src.rows, src.cols, CV_32F );
+	Mat hessian_vesselness(  src.rows, src.cols, CV_32F );
+
+	// coresponding sigma
+	float sigma = 4.0f;
+	// Kernel Size of Gaussian Blur
+	int ks = int( ( sigma - 0.35f ) / 0.15f ); 
+	if( ks%2==0 ) ks++;
+	cv::Size ksize( ks, ks );
+	cout << "Kernel Size: " << ks << endl;
+	sigma = 0.15f*ks + 0.35f;
+	cout << "Sigma: " << sigma << endl;
+
+	static const float beta = 0.20f; 
+	static const float c = 70000.0f; 
+
+	///////////////////////////////////////////////////////////////////////
+	// Hessian Matrix
+	///////////////////////////////////////////////////////////////////////
+	Mat hessian_Ixx, hessian_Ixy, hessian_Iyy;
+	GaussianBlur( Ixx, hessian_Ixx, ksize, sigma, sigma );
+	GaussianBlur( Ixy, hessian_Ixy, ksize, sigma, sigma );
+	GaussianBlur( Iyy, hessian_Iyy, ksize, sigma, sigma );
+
+	// normalized them
+	hessian_Ixx *= sigma;
+	hessian_Ixy *= sigma;
+	hessian_Iyy *= sigma;
+
+	// compute the vessel ness
+	for( int y=0; y<src.rows; y++ ) {
+		for( int x=0; x<src.cols; x++ ){
+			// construct the harris matrix
+			Mat hessian( 2, 2, CV_32F );
+			hessian.at<float>(0, 0) = hessian_Ixx.at<float>(y, x);
+			hessian.at<float>(1, 0) = hessian_Ixy.at<float>(y, x);
+			hessian.at<float>(0, 1) = hessian_Ixy.at<float>(y, x);
+			hessian.at<float>(1, 1) = hessian_Iyy.at<float>(y, x);
+			// calculate the eigen values
+			Mat eigenvalues;
+			eigen( hessian, eigenvalues ); 
+			float eigenvalue1 = eigenvalues.at<float>(0);
+			float eigenvalue2 = eigenvalues.at<float>(1);
+			if( abs(eigenvalue1)>abs(eigenvalue2) ) std::swap( eigenvalue1, eigenvalue2 );
+			// Now we have |eigenvalue1| < |eigenvalue2| 
+			hessian_eigenvalue1.at<float>(y, x) = eigenvalue1;
+			hessian_eigenvalue2.at<float>(y, x) = eigenvalue2;
+			if( eigenvalue2 > 0 ) {
+				hessian_vesselness.at<float>(y, x) = 0;
+			} else {
+				float RB = eigenvalue1 / eigenvalue2;
+				float S = sqrt( eigenvalue1*eigenvalue1 + eigenvalue2*eigenvalue2 );
+				hessian_vesselness.at<float>(y, x) = exp( -RB*RB/beta ) * ( 1-exp(-S*S/c) );
+			}
+		}
+	}
+
+	// Vesselness 
+	stringstream ss;
+	ss << "Vesselness2 " << "ksize=" << ks << " sigma=" << sigma;
+	ss << " beta=" << beta << " c=" << c;
+	imshow( ss.str(), hessian_vesselness );
+	// imwrite( ss.str()+".bmp", hessian_vesselness * 255 );
+
+	
+	int row = src.rows / 2;
+	// draw a line on the oringinal image
+	line( src, Point(0, row), Point(src.cols-1, row), Scalar(255,0,0), 1, CV_AA, 0 );
+	imshow( "Image", src);
+
+	////////////////////////////////////////////////////////////////////////////////////////
+	// Visualization of Eigenvalues of Hessian Matrix
+	vector< Mat_<double> > eigenvalues;
+	eigenvalues.push_back( hessian_eigenvalue1.row( row ).reshape( 0, hessian_eigenvalue1.cols) );
+	eigenvalues.push_back( hessian_eigenvalue2.row( row ).reshape( 0, hessian_eigenvalue1.cols) );
+	
+	Mat_<unsigned char> background = src_gray.row( row );
+	for( int i=0; i<background.cols; i++ ) {
+		background.at<unsigned char>(0,i) = 255 - background.at<unsigned char>(0,i)/5;
+	}
+	
+	VI::OpenCV::plot( "Hessian Eigenvalue", eigenvalues, 200, 0, background );
+
+	waitKey(0);
+	return;
 }
