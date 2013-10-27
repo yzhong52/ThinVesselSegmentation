@@ -264,10 +264,11 @@ namespace Viewer{
 			Scalar colors[MAX_GROUP] = {
 				Scalar(0, 0, 255), 
 				Scalar(255, 0, 0), 
-				Scalar(0, 255, 0), 
-				Scalar(0, 255, 255), 
+				Scalar(0, 185, 0), // green
+				// Scalar(0, 255, 255), 
 				Scalar(255, 0, 255), 
 				Scalar(255, 255, 0), 
+				Scalar(0, 0, 0)
 			};
 
 			// find the maximum and minimum among all mat_y
@@ -285,36 +286,48 @@ namespace Viewer{
 			double max_min_gap = maxVal - minVal;
 
 			// draw the plot on a mat
-			Mat im_result( int( im_height*scale ), int( width*scale), CV_8UC3, Scalar(0, 0, 0) );
+			Mat im_bg( int( im_height*scale ), int( width*scale), CV_8UC3, 
+				/*Default Background Color*/ Scalar(255, 255, 255) );
 
 			// draw the background
 			for( int i=0; i<mat_bg.cols; i++ ){
 				unsigned char c = mat_bg.at<unsigned char>(i);
 				Scalar color( c, c, c );
-				line( im_result, 
+				line( im_bg, 
 					Point(i, 0)*scale, 
 					Point(i, im_height-1)*scale, 
 					color, 1, CV_AA, 0 );
 			}
 
-			for( unsigned int i = 0; i < mat_ys.size(); i++ )
+			Mat im_result = im_bg.clone();
+			for( unsigned int it = 0; it < mat_ys.size(); it++ )
 			{
-				for( int j=1; j < width; j++ ) {
-					double v1 = mat_ys[i].at<double>(j-1);
-					double v2 = mat_ys[i].at<double>(j);
-					Point p1, p2;
-					p1.x = int( (j-1) * scale );
-					p1.y = int( im_height * scale * ( margin + (1-2*margin)*(1.0 - (v1-minVal)/max_min_gap ) ) );
-					p2.x = int( j * scale );
-					p2.y = int( im_height * scale * ( margin + (1-2*margin)*(1.0 - (v2-minVal)/max_min_gap ) ) );
+				// Yuchen: draw the image N times for color blending
+				// If I draw it only once, the last y data, which is mat_ys[mat_ys.size()]
+				// will be drawn on top of all other function. I don't want this kind of bias. 
+				Mat temp = im_bg.clone();
+				for( unsigned int it2 = 0; it2 < mat_ys.size(); it2++ ) {
+					unsigned int i = (it+it2) % mat_ys.size();
+					for( int j=1; j < width; j++ ) {
+						double v1 = mat_ys[i].at<double>(j-1);
+						double v2 = mat_ys[i].at<double>(j);
+						Point p1, p2;
+						p1.x = int( (j-1) * scale );
+						p1.y = int( im_height * scale * ( margin + (1-2*margin)*(1.0 - (v1-minVal)/max_min_gap ) ) );
+						p2.x = int( j * scale );
+						p2.y = int( im_height * scale * ( margin + (1-2*margin)*(1.0 - (v2-minVal)/max_min_gap ) ) );
 
-					line( im_result, p1, p2, colors[i], 1, CV_AA );
+						cv::line( temp, p1, p2, colors[i], 1, CV_AA );
+					}
 				}
+				// color blending
+				double weight = 1.0 * it / mat_ys.size();
+				cv::addWeighted(im_result, weight, temp, 1 - weight, 0, im_result);
 			}
 
 			// show result in window and save to file
 			imshow( name.c_str(), im_result );
-			imwrite( "output/" + name + ".png", im_result );
+			imwrite( "output/" + name + ".jpg", im_result );
 		}
 	}
 }
