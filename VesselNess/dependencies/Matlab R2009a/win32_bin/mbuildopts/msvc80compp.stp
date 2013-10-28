@@ -1,0 +1,85 @@
+#  $Revision: 1.1.8.5 $
+
+sub msvc80compp 
+{
+    my $input = shift;
+    my $default_location = "C:\\Program Files\\Microsoft Visual Studio 8";
+
+    my @language_handled = ('C','CPP','COM');
+    my $locate_fcn = sub {
+        my @msvc8_roots = ();
+        my $msvc8_root;
+        my $oldPath;
+        my $registry_lookup_fcn = $input->{"registry_lookup"};
+
+        # Search the default environment variable location. 
+        # Since MSVC 2005 professional ed. and the express ed.
+        # use the same environment variable (VS80COMNTOOLS),
+        # use the directory structure to differentiate between the two.
+        if ($ENV{'VS80COMNTOOLS'} ne "" &&  
+            -e "$ENV{'VS80COMNTOOLS'}\\..\\..\\VC\\bin\\cl.exe" &&
+            !-e "$ENV{'VS80COMNTOOLS'}\\..\\IDE\\VCExpress.exe"){
+            $msvc8_root = $ENV{'VS80COMNTOOLS'};
+            $msvc8_root =~ s|\\+Common7\\+Tools\\*$||i; 
+            $oldPath = $ENV{'PATH'};
+            $ENV{'PATH'} = "$msvc8_root\\Common7\\IDE;$oldPath";
+            if (&correct_version("$msvc8_root\\VC\\bin\\cl.exe","14.0")){ 
+                push(@msvc8_roots, $msvc8_root); 
+            }
+            $ENV{'PATH'} = "$oldPath";
+        }
+
+        # Search the registry. 
+        $msvc8_root = &$registry_lookup_fcn("SOFTWARE\\Microsoft\\VisualStudio\\8.0\\" . 
+                                            "Setup\\VC", "ProductDir");
+        if (-e "$msvc8_root\\bin\\cl.exe"){ 
+            $msvc8_root =~ s|\\VC\\$||i; 
+            $oldPath = $ENV{'PATH'};
+            $ENV{'PATH'} = "$msvc8_root\\Common7\\IDE;$oldPath";
+            if (&correct_version("$msvc8_root\\VC\\bin\\cl.exe","14.0")){ 
+                push(@msvc8_roots, $msvc8_root); 
+            } 
+            $ENV{'PATH'} = "$oldPath";
+        }
+
+        # Search the default install location. 
+        if (-e "$default_location\\VC\\bin\\cl.exe"){ 
+            $oldPath = $ENV{'PATH'};
+            $ENV{'PATH'} = "$default_location\\Common7\\IDE;$oldPath";
+            if (&correct_version("$default_location\\VC\\bin\\cl.exe","14.0")){ 
+                push(@msvc8_roots, $default_location); 
+            } 
+            $ENV{'PATH'} = "$oldPath";
+        }
+
+        return @msvc8_roots;
+    };
+
+    my $root_val = sub {
+        my $base_directory = shift;
+
+        if (!-d "$base_directory\\Common7" || !-d "$base_directory\\VC"){        
+            print "\nWarning: MBUILD requires that the Microsoft Visual C++ 8.0 directories \n" .
+                  "\"VC\" and \"Common7\" be located within the same parent directory.\n" .
+                  "MBUILD setup expected to find directories named \"Common7\" and \"VC\" " .
+                  "in the directory: \n\"$base_directory\".\n"; 
+        }
+
+        return $base_directory;
+    };
+
+    return {
+        "vendor_name"      => "Microsoft Visual C++ 2005 SP1",
+        "version"          => "",                          #This version is left blank intentionally.
+        "group_id"         => "MSVC",
+        "serial"           => 8.0,
+        "root_var"         => "VSINSTALLDIR",
+        "optfile_name"     => "msvc80compp.bat",
+        "default_location" => $default_location,
+        "language_handled" => \@language_handled,
+        "root_val"         => $root_val,
+        "locate"           => $locate_fcn,
+        "post_setup_hook"  => $post_setup_hook,
+        };
+}
+1;

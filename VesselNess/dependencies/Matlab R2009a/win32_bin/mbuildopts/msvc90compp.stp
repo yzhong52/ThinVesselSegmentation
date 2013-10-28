@@ -1,0 +1,119 @@
+#  $Revision: 1.1.8.2 $
+#  Copyright 2007-2008 The MathWorks, Inc.
+
+sub msvc90compp 
+{
+    my $input = shift;
+    my $found_sdk = 0;
+    my $default_location = "C:\\Program Files\\Microsoft Visual Studio 9.0";
+    my $sdk_dir = "";
+    my $registry_lookup_fcn = $input->{"registry_lookup"};
+
+    # Attempt to find the SDK directory.
+
+    if ($ENV{'WINDOWSSDKDIR'} ne "")
+    {
+        $sdk_dir=$ENV{'WINDOWSSDKDIR'};
+        $found_sdk=1;
+    }
+    if ($found_sdk ne 1)
+    {
+        my $lookedupval =  &$registry_lookup_fcn("SOFTWARE\\Microsoft\\Microsoft SDKs\\Windows\\" , "CurrentInstallFolder");
+        if ($lookedupval ne "")
+        {
+             $sdk_dir = $lookedupval;
+             $found_sdk=1;   
+        }
+    }
+
+    my @language_handled = ('C','CPP','COM');
+    my $locate_fcn = sub {
+        my @msvc9_roots = ();
+        my $msvc9_root;
+        my $oldPath;
+
+        # If we didn't find the SDK directory before, don't bother looking
+        # for the compiler
+
+        if ($found_sdk ne 1)
+        {
+            return @msvc9_roots;
+        } 
+
+        # Search the default environment variable location. 
+        # Since MSVC 2005 professional ed. and the express ed.
+        # use the same environment variable (VS90COMNTOOLS),
+        # use the directory structure to differentiate between the two.
+        if ($ENV{'VS90COMNTOOLS'} ne "" &&  
+            -e "$ENV{'VS90COMNTOOLS'}\\..\\..\\VC\\bin\\cl.exe" &&
+            !-e "$ENV{'VS90COMNTOOLS'}\\..\\IDE\\VCExpress.exe"){
+            $msvc9_root = $ENV{'VS90COMNTOOLS'};
+            $msvc9_root =~ s|\\+Common7\\+Tools\\*$||i; 
+            $oldPath = $ENV{'PATH'};
+            $ENV{'PATH'} = "$msvc9_root\\Common7\\IDE;$oldPath";
+            if (&correct_version("$msvc9_root\\VC\\bin\\cl.exe","15.0")){ 
+                push(@msvc9_roots, $msvc9_root); 
+            }
+            $ENV{'PATH'} = "$oldPath";
+        }
+
+        # Search the registry. 
+        $msvc9_root = &$registry_lookup_fcn("SOFTWARE\\Microsoft\\VisualStudio\\9.0\\" . 
+                                            "Setup\\VC", "ProductDir");
+        if (-e "$msvc9_root\\bin\\cl.exe"){ 
+            $msvc9_root =~ s|\\VC\\$||i; 
+            $oldPath = $ENV{'PATH'};
+            $ENV{'PATH'} = "$msvc9_root\\Common7\\IDE;$oldPath";
+            if (&correct_version("$msvc9_root\\VC\\bin\\cl.exe","15.0")){ 
+                push(@msvc9_roots, $msvc9_root); 
+            } 
+            $ENV{'PATH'} = "$oldPath";
+        }
+
+        # Search the default install location. 
+        if (-e "$default_location\\VC\\bin\\cl.exe"){ 
+            $oldPath = $ENV{'PATH'};
+            $ENV{'PATH'} = "$default_location\\Common7\\IDE;$oldPath";
+            if (&correct_version("$default_location\\VC\\bin\\cl.exe","15.0")){ 
+                push(@msvc9_roots, $default_location); 
+            } 
+            $ENV{'PATH'} = "$oldPath";
+        }
+        
+        return @msvc9_roots;
+    };
+
+    my $root_val = sub {
+        my $base_directory = shift;
+
+        print "\n" .
+              "****************************************************************************\n" .
+              "  Warning: Applications/components generated using Microsoft Visual Studio  \n" .
+              "           2008 require that the Microsoft Visual Studio 2008 run-time      \n" .
+              "           libraries be available on the computer used for deployment.      \n" .
+              "           To redistribute your applications/components, be sure that the   \n" .
+              "           deployment machine has these run-time libraries.                 \n" .
+              "****************************************************************************\n";
+
+        return $base_directory;
+    };
+
+# In the case of the VS2008 compiler the linker directory is used to specify
+# the location of the SDK
+
+    return {
+        "vendor_name"      => "Microsoft Visual C++ 2008 SP1",
+        "version"          => "",                          #This version is left blank intentionally. 
+        "group_id"         => "MSVC",
+        "serial"           => 9.0,
+        "root_var"         => "VSINSTALLDIR",
+        "optfile_name"     => "msvc90compp.bat",
+        "default_location" => $default_location,
+        "language_handled" => \@language_handled,
+        "root_val"         => $root_val,
+        "link_val"         => $sdk_dir,
+        "locate"           => $locate_fcn,
+        "post_setup_hook"  => $post_setup_hook,
+        };
+}
+1;

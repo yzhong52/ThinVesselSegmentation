@@ -1,0 +1,77 @@
+# $Revision: 1.6.2.4 $
+
+use msvc_modules_installer;
+
+sub msvc60opts 
+{
+    my $input = shift;
+    my $default_location = "C:\\Program Files\\Microsoft Visual Studio";
+
+    my $specified_compiler_location = "";
+
+    my @language_handled = ('C');
+    my $locate_fcn = sub {
+        my @msvc6_roots = ();
+        my $msvc6_root;
+        my $registry_lookup_fcn = $input->{"registry_lookup"};
+
+        if ($ENV{'MSDevDir'} ne "" && 
+            -e "$ENV{'MSDevDir'}\\..\\..\\VC98\\bin\\cl.exe") {
+                $msvc6_root = $ENV{'MSDevDir'};
+                $msvc6_root =~ s|\\+Common\\+msdev98\\*$||i;
+                push(@msvc6_roots, $msvc6_root);
+        }
+
+        $msvc6_root = &$registry_lookup_fcn("SOFTWARE\\Microsoft\\DevStudio\\6.0\\" . 
+                                            "Products\\Microsoft Visual C++", 
+                                            "ProductDir");
+        if (-e "$msvc6_root\\bin\\cl.exe") {
+            $msvc6_root =~ s|\\VC98$||i;
+            push(@msvc6_roots, $msvc6_root);
+        }
+
+        if (-e "$default_location\\VC98\\bin\\cl.exe")
+        {
+            push(@msvc6_roots, $default_location);
+        }
+
+        return @msvc6_roots;
+    };
+
+    my $root_val = sub {
+        my $base_directory = shift;
+
+        $specified_compiler_location = $base_directory; # Remember this for post_setup_hook
+        if (!-d "$base_directory\\Common" || !-d "$base_directory\\VC98") {       
+            print "Warning: MEX requires that the Microsoft Visual C++ 6.0\n" .
+                  "directories \"VC98\" and \"Common\" be located within the same parent " .
+                  "directory.\n(Expected to find these directories in '$base_directory'.)";
+        }
+
+        return $base_directory;
+    };
+
+    my $post_setup_hook = sub {
+        my @filetable = (["MATLABWizard.awx",      "\\common\\msdev98\\template"],
+                         ["MATLABWizard.hlp",      "\\common\\msdev98\\template"],
+                         ["MATLABAddin.dll",       "\\common\\msdev98\\addins"],
+                         ["usertype.dat",          "\\common\\msdev98\\bin"]);
+
+#        &install_msvc_modules($specified_compiler_location, \@filetable, $input->{'matlab_bin'});
+    };
+
+    return {
+        "vendor_name"      => "Microsoft Visual C++",
+        "version"          => "6.0",
+        "group_id"         => "MSVC",
+        "serial"           => 3.0,
+        "root_var"         => "VSINSTALLDIR",
+        "optfile_name"     => "msvc60opts.bat",
+        "default_location" => $default_location,
+        "language_handled" => \@language_handled,
+        "root_val"         => $root_val,
+        "locate"           => $locate_fcn,
+        "post_setup_hook"  => $post_setup_hook
+        };
+}
+1;

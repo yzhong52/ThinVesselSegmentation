@@ -1,0 +1,38 @@
+# $Revision: 1.2.2.5 $
+sub lccopts 
+{
+    my $input = shift;
+    my $default_location = $input->{"matlab_bin"} . "\\..\\..\\sys\\lcc";
+    while ($default_location =~ s|\\+[^\\.]+[\\]+\.\.||) {}
+
+    my @language_handled = ('C');
+
+    my $locate_fcn = sub {
+        my @lcc_roots = ();
+
+        if (-e "$default_location")
+        {
+            push(@lcc_roots, $default_location);
+        }
+
+        return @lcc_roots;
+    };
+
+    my $root_val = sub {
+        return shift;
+    };
+
+    return {
+        "vendor_name"  => "Lcc-win32 C",
+        "version"      => "2.4.1",
+        "group_id"     => "LCC",
+        "serial"       => 1.0,
+        "root_var"     => "LCCINSTALLDIR",
+        "optfile_name" => "lccopts.bat",
+        "default_location" => $default_location,
+        "language_handled" => \@language_handled,
+        "root_val"     => $root_val,
+        "locate"       => $locate_fcn
+        };
+}
+1;

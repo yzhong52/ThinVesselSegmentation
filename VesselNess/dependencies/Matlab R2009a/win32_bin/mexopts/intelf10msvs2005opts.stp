@@ -1,0 +1,89 @@
+# $Revision: 1.1.6.2 $  $Date: 2008/11/04 19:40:28 $
+
+use mexutils;
+
+sub intelf10msvs2005opts 
+{
+    #===================================================================
+    # intelf10msvs2005opts: Define where the Intel Visual Fortran  
+    # compiler 10.1 is installed.  Also sets language, version, and 
+    # environment variables.
+    #===================================================================
+
+    my $input = shift;
+    # This is where the vendor installs the compiler by default
+    my $default_location = "C:\\Program Files\\Intel\\Compiler\\Fortran\\10.1.011";
+
+    # Return language/technology this compiler compiles.
+    my @language_handled = ('FORTRAN');    
+
+    # Find MSVC80
+    my $msvc80_record = callstpfile($input->{'matlab_bin'}."/mexopts/","msvc80opts.stp");
+    my $msvc80_location_fcn = $msvc80_record->{"locate"};
+    my @msvc80_locations = &$msvc80_location_fcn;
+    my $msvc80_dir = pop @msvc80_locations;
+
+    my $locate_fcn = sub {
+        #===================================================================
+        # locate_fcn: A local function to return potential location where this compiler
+        # is installed.  The return value is used to set the COMPILER_ROOT 
+        # directory. It makes three guesses: The system path, the registry, and
+        # the default location where the compiler tries to install itself.
+        #===================================================================
+
+        my @ifort_roots = ();
+
+        # Search the default environment variable location.
+        $ifort_root = $ENV{'IFORT_COMPILER10'};
+        if (-e "$ifort_root\\IA32\\Bin\\ifort.exe"){
+            if (&correct_version("$ifort_root\\IA32\\Bin\\ifort.exe","10.1")){
+                push(@ifort_roots, $ifort_root);
+            }
+        }
+
+        # Search the default install location.
+        # Verify it is the right version and strip part that is not the ROOT.
+        if (-e $default_location . "\\IA32\\Bin\\ifort.exe"){
+            if (&correct_version($default_location . "\\IA32\\Bin\\ifort.exe","10.1")){
+                push(@ifort_roots, $default_location);
+            }
+        }
+
+        return @ifort_roots;
+   };
+
+
+    my $root_val = sub {
+        my $base_directory = shift;
+        if (!$msvc80_dir){       
+            my $errMsg="\nError: Microsoft Visual Studio 2005 was not found by mex -setup.\n" .
+                         "       The Microsoft Visual Studio 2005 linker is required\n".
+                         "       to build Intel Fortran MEX-files.  Please make sure that\n".
+                         "       Microsoft Visual Studio 2005 is installed properly.\n\n";
+            die $errMsg;
+        }
+
+        # Warn about upcoming deprecation of this compiler
+        print(mexDeprecationWarning("Intel Visual Fortran 10.1"));
+
+        return $base_directory;
+    };
+
+
+    return {
+        "vendor_name"      => "Intel Visual Fortran",
+        "version"          => "10.1",
+        "group_id"         => "INTELF",
+        "serial"           => 10.0,
+        "root_var"         => "IFORT_COMPILER10",
+        "linker_var"       => "VS80COMNTOOLS",
+        "optfile_name"     => "intelf10msvs2005opts.bat",
+        "linker_optfile_name" => "msvc80opts",
+        "default_location" => $default_location,
+        "language_handled" => \@language_handled,
+        "root_val"         => $root_val,
+        "link_val"         => $msvc80_dir,
+        "locate"           => $locate_fcn,
+        };
+}
+1;

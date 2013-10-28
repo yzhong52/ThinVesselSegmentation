@@ -1,0 +1,100 @@
+# $Revision: 1.1.6.2 $  $Date: 2008/11/04 19:40:27 $
+
+use mexutils;
+
+sub intelc91msvs2005opts 
+{
+    #===================================================================
+    # intelc91msvs2005opts: Define where the Intel C++ compiler 9.1 is
+    # installed.  Also sets language, version, and environment variables.
+    #===================================================================
+
+    my $input = shift;
+    # This is where the vendor installs the compiler by default
+    my $default_location = "C:\\Program Files\\Intel\\Compiler\\C++\\9.1";
+
+    # Return language/technology this compiler compiles.
+    my @language_handled = ('C');    
+
+    # Find MSVC80
+    my $msvc80_record = callstpfile($input->{'matlab_bin'}."/mexopts/","msvc80opts.stp");
+    my $msvc80_location_fcn = $msvc80_record->{"locate"};
+    my @msvc80_locations = &$msvc80_location_fcn;
+    my $msvc80_dir = pop @msvc80_locations;
+
+    my $locate_fcn = sub {
+        #===================================================================
+        # locate_fcn: A local function to return potential location where this compiler
+        # is installed.  The return value is used to set the COMPILER_ROOT 
+        # directory. It makes three guesses: The system path, the registry, and
+        # the default location where the compiler tries to install itself.
+        #===================================================================
+
+        my @icl_roots = ();
+        my $registry_lookup_fcn = $input->{"registry_lookup"};
+
+        # Search the default environment variable location.
+        $icl_root = $ENV{'ICPP_COMPILER91'};
+        if (-e "$icl_root\\IA32\\Bin\\icl.exe"){
+            if (&correct_version("$icl_root\\IA32\\Bin\\icl.exe","9.1")){
+                push(@icl_roots, $icl_root);
+            }
+        }
+
+        # Search the registry.
+        $icl_root = &$registry_lookup_fcn("SOFTWARE\\Intel\\Compilers\\C++\\91\\IA32",
+                                            "ProductDir");
+        # Verify it is the right version and strip part that is not the ROOT.
+        if (-e "$icl_root\\Bin\\icl.exe"){
+            if (&correct_version("$icl_root\\Bin\\icl.exe","9.1")){
+                $icl_root =~ s/\\IA32$//i;
+                push(@icl_roots, $icl_root);
+            }
+        }
+
+        # Search the default install location.
+        # Verify it is the right version and strip part that is not the ROOT.
+        if (-e $default_location . "\\IA32\\Bin\\icl.exe"){
+            if (&correct_version($default_location . "\\IA32\\Bin\\icl.exe","9.1")){
+                push(@icl_roots, $default_location);
+            }
+        }
+
+        return @icl_roots;
+   };
+
+
+    my $root_val = sub {
+        my $base_directory = shift;
+        if (!$msvc80_dir){       
+            my $errMsg="\nError: Microsoft Visual Studio 2005 was not found by mex -setup.\n" .
+                         "       The Microsoft Visual Studio 2005 linker is required\n".
+                         "       to build Intel C++ MEX-files.  Please make sure that\n".
+                         "       Microsoft Visual Studio 2005 is installed properly.\n\n";
+            die $errMsg;
+        }
+
+        # Warn about upcoming deprecation of this compiler
+        print(mexDeprecationWarning("Intel C++ 9.1"));
+
+        return $base_directory;
+    };
+
+
+    return {
+        "vendor_name"      => "Intel C++",
+        "version"          => "9.1",
+        "group_id"         => "INTELC",
+        "serial"           => 2.0,
+        "root_var"         => "ICPP_COMPILER91",
+        "linker_var"       => "VS80COMNTOOLS",
+        "optfile_name"     => "intelc91msvs2005opts.bat",
+        "linker_optfile_name" => "msvc80opts",
+        "default_location" => $default_location,
+        "language_handled" => \@language_handled,
+        "root_val"         => $root_val,
+        "link_val"         => $msvc80_dir,
+        "locate"           => $locate_fcn,
+        };
+}
+1;
