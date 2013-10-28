@@ -225,6 +225,44 @@ namespace Viewer{
 			// close matlab window
 			engClose(ep);
 		}
+
+		void surf( Mat_<double> matz ){
+			matz = Mat_<double>( 50, 50, 0.0 );
+
+			// open matlab engine
+			Engine *ep = engOpen(NULL);
+			if ( !ep )
+			{
+				cout << "Can't start Matlab engine!" <<endl;
+				exit(1);
+			}
+
+			// The fundamental type underlying MATLAB data
+			mxArray *z = mxCreateDoubleMatrix(matz.rows, matz.cols, mxREAL); 
+			
+			// copy data from c++ to matlab data
+			memcpy( mxGetPr(z), matz.data, matz.rows * matz.cols * sizeof(double) ); 
+
+			// draw the plot
+			engPutVariable( ep, "z", z ); 
+			
+			engEvalString(ep, "surf(Z);");
+			//engEvalString(ep, "figure(1);");
+			//engEvalString(ep, "hFig = figure(1);;");
+			//engEvalString(ep, "set(gcf,'PaperPositionMode','auto');");
+			//engEvalString(ep, "set(hFig, 'Position', [100 100 900 300]);");
+			//engEvalString(ep, "hFig = plot(xx, yy);");
+			//engEvalString(ep, "set(gca, 'XTickLabel', num2str(get(gca,'XTick')','%d'));");
+			//engEvalString(ep, "set(gca, 'YTickLabel', num2str(get(gca,'YTick')','%d'));");
+
+			// release data
+			mxDestroyArray(z); 
+
+			system("pause");
+
+			// close matlab window
+			engClose(ep);
+		}
 	}
 
 	// void plot( Mat_<double> mx, Mat_<double> my );

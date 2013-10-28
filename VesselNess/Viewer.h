@@ -72,6 +72,7 @@ namespace Viewer
 	namespace Matlab {
 		void plot( Mat_<double> mx, vector< Mat_<double> > mys );
 		void plot( Mat_<double> mx, Mat_<double> my );
+		void surf( Mat_<double> matz );
 	}
 
 	namespace OpenCV {
