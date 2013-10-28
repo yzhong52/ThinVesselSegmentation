@@ -31,7 +31,7 @@ void plot_1d_hessian(void);
 
 int main(int argc, char* argv[])
 {
-	plot_1d_hessian(); return 0;
+	// plot_1d_hessian(); return 0;
 	plot_2d_hessian(); return 0;
 	plot_histogram_in_matlab(); return 0;
 	
@@ -174,6 +174,11 @@ void plot_histogram_in_matlab(void) {
 }
 
 
+void plot_3d_hessian(void) {
+	// first of all, construct 3D tubes
+
+}
+
 void plot_2d_hessian(void) {
 	// loading image
 	Mat src = imread( "data/images/vessels_2d.bmp");
@@ -205,12 +210,12 @@ void plot_2d_hessian(void) {
 	Mat hessian_eigenvalue2( src.rows, src.cols, CV_32F );
 	Mat hessian_vesselness(  src.rows, src.cols, CV_32F );
 
-	float sigmas[4] = {2.0f, 4.0f, 8.0f, 16.0f};
+	float sigmas[3] = { 4.0f, 6.0f, 8.0f};
 
 
 	vector< Mat_<double> > eigenvalues;
 
-	for( int i=0; i<4; i++ ) {
+	for( int i=0; i<3; i++ ) {
 		// coresponding sigma
 		float sigma = sigmas[i];
 		// Kernel Size of Gaussian Blur
@@ -230,9 +235,9 @@ void plot_2d_hessian(void) {
 		GaussianBlur( Iyy, hessian_Iyy, ksize, sigma, sigma );
 
 		// normalized them
-		hessian_Ixx *= sigma;
-		hessian_Ixy *= sigma;
-		hessian_Iyy *= sigma;
+		hessian_Ixx *= sigma * sigma;
+		hessian_Ixy *= sigma * sigma;
+		hessian_Iyy *= sigma * sigma;
 
 		// compute the vessel ness
 		for( int y=0; y<src.rows; y++ ) {
@@ -297,10 +302,10 @@ void plot_1d_hessian(void) {
 	im_vec.push_back( im );
 	VI::OpenCV::plot( "im_1d", im_vec, 100, 600 );
 
-	double sigmas[3] = { 5.5, 10.5, 8 };
+	double sigmas[3] = { 5.5, 10.5 };
 
 	vector< Mat_<double> > res_vec;
-	for( int i=0; i<3; i++ ) {
+	for( int i=0; i<2; i++ ) {
 		// generate the gaussian filter
 		double sigma = sigmas[i];
 		int kSize = int( sigma * 6 + 1 );
