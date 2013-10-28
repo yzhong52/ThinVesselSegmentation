@@ -26,13 +26,15 @@ public:
 
 // some sample functions
 void plot_histogram_in_matlab(void) ;
-void plot_2d_hessian(void);
 void plot_1d_hessian(void);
+void plot_2d_hessian(void);
+void plot_3d_hessian(void);
 
 int main(int argc, char* argv[])
 {
 	// plot_1d_hessian(); return 0;
-	plot_2d_hessian(); return 0;
+	// plot_2d_hessian(); return 0;
+	plot_3d_hessian(); return 0;
 	plot_histogram_in_matlab(); return 0;
 	
 	bool flag = false;
@@ -176,7 +178,35 @@ void plot_histogram_in_matlab(void) {
 
 void plot_3d_hessian(void) {
 	// first of all, construct 3D tubes
+	Data3D<short> image;
+	image.reset( Vec3i(500, 100, 100) );
 
+	// center of the vessel
+	const Vec3i center[5] = {
+		Vec3i(100, 0, 50),
+		Vec3i(250, 0, 50),
+		Vec3i(400, 0, 50)
+	};
+	// radius of vessels
+	const float radius[3] = { 4.0f, 6.0f, 8.0f };
+	int x, y, z;
+	for( int i=0; i<5; i++ ) {
+		for( y=0; y<image.get_size_y(); y++ ) {
+			for( z=-20; z<20; z++ ) {
+				for( x=-20; x<20; x++ ){
+					float dis_center = sqrt( 1.0f*x*x + z*z );
+					float ratio = radius[i] + 0.5f - dis_center;
+					if( ratio>1.0f ) {
+						image.at(x+center[i][0], y, z+center[i][2]) = MAX_SHORT;
+					} else if( ratio>0.0f ) {
+						image.at(x+center[i][0], y, z+center[i][2]) = short( MAX_SHORT * ratio ); 
+					}
+				}
+			}
+		}
+	}
+
+	image.show();
 }
 
 void plot_2d_hessian(void) {
