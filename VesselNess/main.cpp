@@ -177,7 +177,6 @@ void plot_histogram_in_matlab(void) {
 
 
 void plot_3d_hessian(void) {
-	VI::Matlab::surf( Mat_<double>() );
 	// first of all, construct 3D tubes
 	Data3D<short> src;
 	src.reset( Vec3i(500, 100, 100) );
@@ -191,7 +190,7 @@ void plot_3d_hessian(void) {
 	// radius of vessels
 	const float radius[3] = { 4.0f, 6.0f, 8.0f };
 	int x, y, z;
-	for( int i=0; i<3; i++ ) {
+	for( int i=0; i<3; i++ ) { 
 		for( y=0; y<src.get_size_y(); y++ ) {
 			for( z=-20; z<20; z++ ) for( x=-20; x<20; x++ ){
 				float dis_center = sqrt( 1.0f*x*x + z*z );
@@ -204,90 +203,76 @@ void plot_3d_hessian(void) {
 			}
 		}
 	}
-	src.show();
 
-	float sigma = 4;
-	int ksize = int( 6*sigma+1 );
+	vector< Mat_<double> > maty;
 
-	Image3D<float> im_blur;
-	bool flag = ImageProcessing::GaussianBlur3D( src, im_blur, ksize, sigma );
-	if( !flag ) {
-		cout << "Gaussian Blur Failed." << endl;
-		return;
-	}
-
-	//Normalizing for different scale
-	im_blur *= sigma;
-	
-	Kernel3D<float> dx = Kernel3D<float>::dx();
-	Kernel3D<float> dy = Kernel3D<float>::dy();
-	Kernel3D<float> dz = Kernel3D<float>::dz();
-
-	// First Order Derivative
-	Image3D<int> im_dx, im_dy, im_dz;
-	ImageProcessing::conv3( im_blur, im_dx, dx );
-	ImageProcessing::conv3( im_blur, im_dy, dy );
-	ImageProcessing::conv3( im_blur, im_dz, dz );
-
-	// Second Order Derivative
-	Image3D<float> im_dx2, im_dy2, im_dz2;
-	Image3D<float> im_dxdy, im_dxdz, im_dydz;
-	ImageProcessing::conv3( im_dx, im_dx2, dx );
-	ImageProcessing::conv3( im_dy, im_dy2, dy );
-	ImageProcessing::conv3( im_dz, im_dz2, dz );
-	ImageProcessing::conv3( im_dx, im_dxdy, dy );
-	ImageProcessing::conv3( im_dx, im_dxdz, dz );
-	ImageProcessing::conv3( im_dy, im_dydz, dz );
-
-	Data3D<Vesselness_Nor> dst( src.get_size() );
-
-	Vesselness_Nor vn_Nor;
-	for( z=0; z<src.get_size_z(); z++ ) {
-		for( y=0; y<src.get_size_y(); y++ ) {
-			for( x=0; x<src.get_size_x(); x++ ) {
-				// construct the harris matrix
-				Mat hessian( 3, 3, CV_32F );
-				hessian.at<float>(0, 0) = im_dx2.at(x,y,z);
-				hessian.at<float>(1, 1) = im_dy2.at(x,y,z);
-				hessian.at<float>(2, 2) = im_dz2.at(x,y,z);
-				hessian.at<float>(1, 0) = hessian.at<float>(0, 1) = im_dxdy.at(x,y,z);
-				hessian.at<float>(2, 0) = hessian.at<float>(0, 2) = im_dxdz.at(x,y,z);
-				hessian.at<float>(2, 1) = hessian.at<float>(1, 2) = im_dydz.at(x,y,z);
-				
-				// calculate the eigen values
-				Mat eigenvalues, eigenvectors;
-				eigen( hessian, eigenvalues, eigenvectors ); 
-				// order eigenvalues so that |lambda1| < |lambda2| < |lambda3| 
-				int i=0, j=1, k=2;
-				if( abs(eigenvalues.at<float>(i)) > abs(eigenvalues.at<float>(j)) ) std::swap( i, j );
-				if( abs(eigenvalues.at<float>(i)) > abs(eigenvalues.at<float>(k)) ) std::swap( i, k );
-				if( abs(eigenvalues.at<float>(j)) > abs(eigenvalues.at<float>(k)) ) std::swap( j, k );
-				
-				// vesselness value
-				if( eigenvalues.at<float>(j) > 0 || eigenvalues.at<float>(k) > 0 ) {
-					vn_Nor.rsp = 0.0f;
-				} else {
-					float lmd1 = abs( eigenvalues.at<float>(i) );
-					float lmd2 = abs( eigenvalues.at<float>(j) );
-					float lmd3 = abs( eigenvalues.at<float>(k) );
-					float A = lmd2 / lmd3;
-					float B = lmd1 / sqrt( lmd2*lmd3 );
-					float S = sqrt( lmd1*lmd1 + lmd2*lmd2 + lmd3*lmd3 );
-					vn_Nor.rsp = lmd1; 
-				}
-				
-				// orientation of vesselness
-				for( int d=0; d<3; d++ ) {
-					vn_Nor.dir[d] = eigenvectors.at<float>(i, d);
-					vn_Nor.normals[0][d] = eigenvectors.at<float>(j, d);
-					vn_Nor.normals[1][d] = eigenvectors.at<float>(k, d);
-				}
-				
-				// copy the value to our dst matrix
-				dst.at(x, y, z) = vn_Nor; 
-			}
+	float sigmas[3] = { 4.0f, 6.0f, 8.0f };
+	for( int i=0; i<3; i++ ) {
+		float sigma = sigmas[i];
+		int ksize = int( 6 * sigma + 1 );
+		
+		Image3D<float> im_blur;
+		bool flag = ImageProcessing::GaussianBlur3D( src, im_blur, ksize, sigma );
+		if( !flag ) {
+			cout << "Gaussian Blur Failed." << endl;
+			return;
 		}
+
+		//Normalizing for different scale
+		im_blur *= (sigma * sigma);
+
+		static Kernel3D<float> dx = Kernel3D<float>::dx();
+		static Kernel3D<float> dy = Kernel3D<float>::dy();
+		static Kernel3D<float> dz = Kernel3D<float>::dz();
+
+		// First Order Derivative
+		Image3D<int> im_dx, im_dy, im_dz;
+		ImageProcessing::conv3( im_blur, im_dx, dx );
+		ImageProcessing::conv3( im_blur, im_dy, dy );
+		ImageProcessing::conv3( im_blur, im_dz, dz );
+
+		// Second Order Derivative
+		Image3D<float> im_dx2, im_dy2, im_dz2;
+		Image3D<float> im_dxdy, im_dxdz, im_dydz;
+		ImageProcessing::conv3( im_dx, im_dx2, dx );
+		ImageProcessing::conv3( im_dy, im_dy2, dy );
+		ImageProcessing::conv3( im_dz, im_dz2, dz );
+		ImageProcessing::conv3( im_dx, im_dxdy, dy );
+		ImageProcessing::conv3( im_dx, im_dxdz, dz );
+		ImageProcessing::conv3( im_dy, im_dydz, dz );
+		
+		y = src.get_size_y()/2;
+		z = src.get_size_z()/2;
+
+		int resize = 2;
+		Mat_<double> eigenvalue( src.SX()/resize, 1 );
+
+		for( x=0; x<src.get_size_x(); x++ ) {
+			// construct the harris matrix
+			Mat hessian( 3, 3, CV_32F );
+			hessian.at<float>(0, 0) = im_dx2.at(x,y,z);
+			hessian.at<float>(1, 1) = im_dy2.at(x,y,z);
+			hessian.at<float>(2, 2) = im_dz2.at(x,y,z);
+			hessian.at<float>(1, 0) = hessian.at<float>(0, 1) = im_dxdy.at(x,y,z);
+			hessian.at<float>(2, 0) = hessian.at<float>(0, 2) = im_dxdz.at(x,y,z);
+			hessian.at<float>(2, 1) = hessian.at<float>(1, 2) = im_dydz.at(x,y,z);
+
+			// calculate the eigen values
+			Mat eigenvalues, eigenvectors;
+			eigen( hessian, eigenvalues, eigenvectors ); 
+			// order eigenvalues so that |lambda1| < |lambda2| < |lambda3| 
+			int i=0, j=1, k=2;
+			if( abs(eigenvalues.at<float>(i)) > abs(eigenvalues.at<float>(j)) ) std::swap( i, j );
+			if( abs(eigenvalues.at<float>(i)) > abs(eigenvalues.at<float>(k)) ) std::swap( i, k );
+			if( abs(eigenvalues.at<float>(j)) > abs(eigenvalues.at<float>(k)) ) std::swap( j, k );
+
+			eigenvalue.at<double>( x/resize ) = eigenvalues.at<float>(k);
+		}
+		maty.push_back( eigenvalue );
 	}
+	
+	VI::OpenCV::plot( "temp", maty, 200, 800 );
+	waitKey();
 }
 
 void plot_2d_hessian(void) {
@@ -446,3 +431,4 @@ void plot_1d_hessian(void) {
 
 	waitKey(0);
 }
+

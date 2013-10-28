@@ -227,7 +227,6 @@ namespace Viewer{
 		}
 
 		void surf( Mat_<double> matz ){
-			matz = Mat_<double>( 50, 50, 0.0 );
 
 			// open matlab engine
 			Engine *ep = engOpen(NULL);
@@ -238,7 +237,7 @@ namespace Viewer{
 			}
 
 			// The fundamental type underlying MATLAB data
-			mxArray *z = mxCreateDoubleMatrix(matz.rows, matz.cols, mxREAL); 
+			mxArray *z = mxCreateDoubleMatrix(matz.cols, matz.rows, mxREAL); 
 			
 			// copy data from c++ to matlab data
 			memcpy( mxGetPr(z), matz.data, matz.rows * matz.cols * sizeof(double) ); 
@@ -246,7 +245,10 @@ namespace Viewer{
 			// draw the plot
 			engPutVariable( ep, "z", z ); 
 			
-			engEvalString(ep, "surf(Z);");
+			engEvalString(ep, "axis('axis equal');" );
+			engEvalString(ep, "mesh(z);");
+			engEvalString(ep, "rotate3d;" );
+			engEvalString(ep, "axis('axis equal');" );
 			//engEvalString(ep, "figure(1);");
 			//engEvalString(ep, "hFig = figure(1);;");
 			//engEvalString(ep, "set(gcf,'PaperPositionMode','auto');");
@@ -300,8 +302,8 @@ namespace Viewer{
 			// Set the color the lines for each group
 			// Maximum number of groups is 6. 
 			Scalar colors[MAX_GROUP] = {
-				Scalar(0, 0, 255), 
-				Scalar(255, 0, 0), 
+				Scalar(0, 0, 255), // red
+				Scalar(255, 0, 0), // blue
 				Scalar(0, 185, 0), // green
 				// Scalar(0, 255, 255), 
 				Scalar(255, 0, 255), 
@@ -325,7 +327,7 @@ namespace Viewer{
 
 			// draw the plot on a mat
 			Mat im_bg( int( im_height*scale ), int( width*scale), CV_8UC3, 
-				/*Default Background Color*/ Scalar(255, 255, 255) );
+				/*Default Background Color*/ Scalar(235, 235, 235) );
 
 			// draw the background
 			for( int i=0; i<mat_bg.cols; i++ ){
