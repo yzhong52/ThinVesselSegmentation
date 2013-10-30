@@ -156,7 +156,7 @@ bool ImageProcessing::GaussianBlur3D( const Data3D<T1>& src, Data3D<T2>& dst, in
 	//   Calculate sigma from ksize: 
 	//         sigma = (size - 1)/6 = 0.17 * size - 0.17
 	
-	Mat gk = getGaussianKernel( ksize, sigma, CV_64F );
+	Mat gk = cv::getGaussianKernel( ksize, sigma, CV_64F );
 	
 	int hsize = ksize/2;
 	smart_assert( 2*hsize+1==ksize, "Alert: Bug!" );

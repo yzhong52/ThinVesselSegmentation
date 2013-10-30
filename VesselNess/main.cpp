@@ -33,8 +33,8 @@ void plot_3d_hessian(void);
 int main(int argc, char* argv[])
 {
 	// plot_1d_hessian(); return 0;
-	// plot_2d_hessian(); return 0;
-	plot_3d_hessian(); return 0;
+	plot_2d_hessian(); return 0;
+	//plot_3d_hessian(); return 0;
 	plot_histogram_in_matlab(); return 0;
 	
 	bool flag = false;
@@ -183,12 +183,12 @@ void plot_3d_hessian(void) {
 
 	// center of the vessel
 	const Vec3f center[3] = {
-		Vec3f(100.5, 0, 50),
-		Vec3f(250.5, 0, 50),
-		Vec3f(400.5, 0, 50)
+		Vec3f(100.5, 0, 50.5),
+		Vec3f(250.5, 0, 50.5),
+		Vec3f(400.5, 0, 50.5)
 	};
 	// radius of vessels
-	const float radius[3] = { 4.0f, 6.0f, 8.0f };
+	const float radius[3] = { 6.5f, 8.5f, 10.5f };
 	int x, y, z;
 	for( int i=0; i<3; i++ ) { 
 		for( y=0; y<src.get_size_y(); y++ ) {
@@ -206,10 +206,11 @@ void plot_3d_hessian(void) {
 
 	vector< Mat_<double> > maty;
 
-	float sigmas[3] = { 4.0f, 6.0f, 8.0f };
-	for( int i=0; i<3; i++ ) {
-		float sigma = sigmas[i];
+	// float sigmas[3] = { 4.5f, 8.5f, 12.5f };
+	for( int i=0; i<1; i++ ) {
+		float sigma = radius[i];
 		int ksize = int( 6 * sigma + 1 );
+		if( ksize%2==0 ) ksize++;
 		
 		Image3D<float> im_blur;
 		bool flag = ImageProcessing::GaussianBlur3D( src, im_blur, ksize, sigma );
@@ -219,7 +220,7 @@ void plot_3d_hessian(void) {
 		}
 
 		//Normalizing for different scale
-		im_blur *= (sigma * sigma);
+		im_blur *= (sigma*sigma);
 
 		static Kernel3D<float> dx = Kernel3D<float>::dx();
 		static Kernel3D<float> dy = Kernel3D<float>::dy();
@@ -276,18 +277,47 @@ void plot_3d_hessian(void) {
 }
 
 void plot_2d_hessian(void) {
-	// loading image
-	Mat src = imread( "data/images/vessels_2d.bmp");
-	if( !src.data ){ cout << "Image not found..." << endl; return; }
+	
+	Mat src;
 
+#if 0 /* loading image from */
+	
+	src= imread( "data/images/vessels_2d.bmp");
+	if( !src.data ){ cout << "Image not found..." << endl; return; }
 	// convert form CV_8UC3 to CV_8U
-	Mat src_gray;
-	cvtColor( src, src_gray, CV_RGB2GRAY ); 
+	cvtColor( src, src, CV_RGB2GRAY ); 
+
+#else /*constructing the image by code*/
+	
+	src = Mat(100, 500, CV_8U, cv::Scalar(0) );
+	// center of the vessel
+	const Vec2f center[3] = {
+		Vec2f(100.5, 50.5),
+		Vec2f(250.5, 50.5),
+		Vec2f(400.5, 50.5)
+	};
+	// radius of vessels
+	const float radius[3] = { 6.5f, 8.5f, 10.5f };
+	int x, y;
+	for( int i=0; i<3; i++ ) { 
+		for( y=0; y<src.rows; y++ ) for( x=0; x<src.cols; x++ ){
+			float dx = x - center[i][0];
+			float dy = y - center[i][1];
+			float dis_center = sqrt( dx*dx + dy*dy );
+			float ratio = radius[i] + 0.5f - dis_center;
+			if( ratio>1.0f ) {
+				src.at<unsigned char>( y,x ) = 255;
+			} else if( ratio>0.0f ) {
+				src.at<unsigned char>( y,x ) = unsigned char( 255 * ratio ); 
+			}
+		}
+	}
+#endif
 	
 	// Image gradient along x, y direction
 	Mat Ix, Iy;
-	Sobel( src_gray, Ix, CV_32F, 1, 0, 1 );
-	Sobel( src_gray, Iy, CV_32F, 0, 1, 1 );
+	Sobel( src, Ix, CV_32F, 1, 0, 1 );
+	Sobel( src, Iy, CV_32F, 0, 1, 1 );
 	// Second order derivative of the image
 	Mat Ixx, Ixy, Iyy;
 	Sobel( Ix, Ixx, CV_32F, 1, 0, 1 );
@@ -307,7 +337,6 @@ void plot_2d_hessian(void) {
 	Mat hessian_vesselness(  src.rows, src.cols, CV_32F );
 
 	float sigmas[3] = { 4.0f, 6.0f, 8.0f};
-
 
 	vector< Mat_<double> > eigenvalues;
 
@@ -366,21 +395,21 @@ void plot_2d_hessian(void) {
 		eigenvalues.push_back( hessian_eigenvalue2.row( src.rows/2 ).reshape( 0, hessian_eigenvalue1.cols) );
 	}
 	
-	
 	int row = src.rows / 2;
+
+	Mat_<unsigned char> background( src.cols, 1);
+	for( int i=0; i<background.rows; i++ ) {
+		background.at<unsigned char>(i) = 255 - src.at<unsigned char>(row,i)/5;
+	}
+	
 	// draw a line on the oringinal image
 	line( src, Point(0, row), Point(src.cols-1, row), Scalar(255,0,0), 1, CV_AA, 0 );
 	imshow( "Image", src);
 
-	Mat_<unsigned char> background = src_gray.row( row );
-	for( int i=0; i<background.cols; i++ ) {
-		background.at<unsigned char>(0,i) = 255 - background.at<unsigned char>(0,i)/5;
-	}
-	
 	// Visualization of Eigenvalues of Hessian Matrix
 	stringstream plot_name;
 	plot_name << "Hessian_Eigenvalue_2D_sigma_2_4_8_16";
-	VI::OpenCV::plot( plot_name.str(), eigenvalues, 800, 0, background );
+	VI::OpenCV::plot( plot_name.str(), eigenvalues, 200, 0, background );
 
 	waitKey(0);
 	return;

@@ -327,10 +327,10 @@ namespace Viewer{
 
 			// draw the plot on a mat
 			Mat im_bg( int( im_height*scale ), int( width*scale), CV_8UC3, 
-				/*Default Background Color*/ Scalar(235, 235, 235) );
+				/*Default Background Color*/ Scalar(255, 255, 255) );
 
 			// draw the background
-			for( int i=0; i<mat_bg.cols; i++ ){
+			for( int i=0; i<mat_bg.rows; i++ ){
 				unsigned char c = mat_bg.at<unsigned char>(i);
 				Scalar color( c, c, c );
 				line( im_bg, 
