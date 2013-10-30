@@ -168,7 +168,7 @@ bool ImageProcessing::GaussianBlur3D( const Data3D<T1>& src, Data3D<T2>& dst, in
 	int x, y, z;
 	Data3D<T2> tmp1( src.get_size() );
 	Data3D<T2> tmp2( src.get_size() );
-	dst.reset( src.get_size() );
+	
 
 	// gaussian on x-direction
 	for( z=spos[2]; z<epos[2]; z++ ) for( y=spos[1]; y<epos[1]; y++ ) for( x=spos[0]; x<epos[0]; x++ ){
@@ -187,6 +187,7 @@ bool ImageProcessing::GaussianBlur3D( const Data3D<T1>& src, Data3D<T2>& dst, in
 		}
 	}
 	// gaussian on z-direction
+	dst.reset( src.get_size() );
 	for( z=spos[2]; z<epos[2]; z++ ) for( y=spos[1]; y<epos[1]; y++ ) for( x=spos[0]; x<epos[0]; x++ ){
 		for( int i=0; i<ksize; i++) {
 			int z2 = z+i-hsize;
