@@ -7,10 +7,10 @@ We know that OpenCV does not support 3D that well. The projects contains a lot o
 Some functions of the project:
 
  - Template class Data3D<T> for 3D Data
+   - Reading/Writing Raw Data
  - Visualization
    - Slice by Slice
    - Maximum Intensity Projection
- - Reading/Writing Raw Data
  - Image Processing
    - GaussianBlur 3D
    - Convolution 3D
