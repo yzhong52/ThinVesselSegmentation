@@ -2,6 +2,7 @@ Thin_Vessel_Segmentation
 ========================
 This is my master project about segmentation on 3D thin vessels. The project was build with Visual Studio 2010 with 64-bit Windows 7. 
 
+We know that OpenCV does not support 3D that well. The projects contains a lot of data structures as well as image processing function for 3D datas. If you are working with 3D data and want something as a head start, this should be a very good choice. 
 
 Dependencies
 ========================
