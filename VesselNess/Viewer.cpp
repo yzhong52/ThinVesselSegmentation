@@ -303,9 +303,9 @@ namespace Viewer{
 			// Maximum number of groups is 6. 
 			Scalar colors[MAX_GROUP] = {
 				Scalar(0, 0, 255), // red
+				Scalar(0, 155, 0), // green
 				Scalar(255, 0, 0), // blue
-				Scalar(0, 185, 0), // green
-				// Scalar(0, 255, 255), 
+				// Scalar(0, 255, 255), // yellow
 				Scalar(255, 0, 255), 
 				Scalar(255, 255, 0), 
 				Scalar(0, 0, 0)

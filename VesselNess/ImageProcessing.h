@@ -21,12 +21,12 @@ namespace ImageProcessing
 	///////////////////////////////////////////////////////////////////////////
 	// convolution of 3d datas
 	template<typename T1, typename T2, typename T3> 
-	void conv3( const Data3D<T1>& src, Data3D<T2>& dst, Kernel3D<T3>& kernel );
+	void conv3( const Data3D<T1>& src, Data3D<T2>& dst, const Kernel3D<T3>& kernel );
 
 	///////////////////////////////////////////////////////////////////////////
 	// gaussian blur 3d
 	template<typename T1, typename T2> 
-	bool GaussianBlur3D( const Data3D<T1>& src, Data3D<T2>& dst, int ksize, float sigma );
+	bool GaussianBlur3D( const Data3D<T1>& src, Data3D<T2>& dst, int ksize, double sigma );
 
 	///////////////////////////////////////////////////////////////////////////
 	// median filter
@@ -107,7 +107,7 @@ namespace ImageProcessing
 namespace IP = ImageProcessing;
 
 template<typename T1, typename T2, typename T3> 
-void ImageProcessing::conv3( const Data3D<T1>& src, Data3D<T2>& dst, Kernel3D<T3>& kernel )
+void ImageProcessing::conv3( const Data3D<T1>& src, Data3D<T2>& dst, const Kernel3D<T3>& kernel )
 {
 	dst.reset( src.get_size() );
 	static int x, y, z;
@@ -137,7 +137,7 @@ void ImageProcessing::conv3( const Data3D<T1>& src, Data3D<T2>& dst, Kernel3D<T3
 
 
 template<typename T1, typename T2> 
-bool ImageProcessing::GaussianBlur3D( const Data3D<T1>& src, Data3D<T2>& dst, int ksize, float sigma ){
+bool ImageProcessing::GaussianBlur3D( const Data3D<T1>& src, Data3D<T2>& dst, int ksize, double sigma ){
 	smart_return_value( ksize%2!=0, "kernel size should be odd number", false );
 
 	//////////////////////////////////////////////////////////////////////////////////////

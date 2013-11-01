@@ -15,42 +15,517 @@
 Data3D<Vesselness_All> vn_all;
 Image3D<short> image_data;
 
-class Preset {
-public:
-	Preset(){};
-	Preset(const string& file, Vec3i& size = Vec3i(0,0,0) ) : file(file), size(size){ };
-	string file;
-	Vec3i size;
-};
 
 
-// some sample functions
-void plot_histogram_in_matlab(void) ;
-void plot_1d_hessian(void);
-void plot_2d_hessian(void);
-void plot_2d_hessian_ball(void);
-void plot_2d_hessian_ball_LOG(void);
-void plot_3d_hessian(void);
+void plot_histogram_in_matlab(void) {
+	cout << "Plotting Histogram of data in Matlab. " << endl;
+	// loading data
+	Image3D<short> im_data;
+	bool flag = im_data.loadData( "data/vessel3d.data", Vec3i(585,525,200), true, true );
+	if( !flag ) return;
+	// calculating histogram
+	Mat_<double> hist, range;
+	IP::histogram( im_data, range, hist, 1024 );
+	VI::Matlab::plot( range, hist );
+}
+
+// derivative fileters
+static const Mat dx = ( Mat_<float>(1,3) << -0.5, 0, 0.5 );
+static const Mat dy = ( Mat_<float>(3,1) << -0.5, 0, 0.5 );
+
+void get_3d_tubes( Data3D<short>& src, vector<float>& radius ) {
+	// first of all, construct 3D tubes
+	src.reset( Vec3i(500, 100, 100) );
+	
+	// radius of vessels
+	radius.push_back( 6.0f );
+	radius.push_back( 10.0f );
+	radius.push_back( 20.0f );
+	
+	// center of the vessel
+	const Vec3f center[3] = {
+		Vec3f(100, 0, 50),
+		Vec3f(250, 0, 50),
+		Vec3f(400, 0, 50)
+	};
+
+	for( int i=0; i<3; i++ ) { 
+		for( int y=0; y<src.SY(); y++ ) for( int z=-25; z<25; z++ ) for( int x=-25; x<25; x++ ){
+			float dis_center = sqrt( 1.0f*x*x + z*z );
+			float ratio = radius[i] + 0.5f - dis_center;
+			if( ratio>1.0f ) {
+				src.at( int(x+center[i][0]), y, int(z+center[i][2]) ) = MAX_SHORT;
+			} else if( ratio>0.0f ) {
+				src.at( int(x+center[i][0]), y, int(z+center[i][2]) ) = short( MAX_SHORT * ratio ); 
+			}
+		}
+	}
+}
+
+void get_2d_tubes( Mat& src, vector<float>& radius ) {
+	src = Mat(100, 500, CV_8U, Scalar(0) );
+
+	radius.push_back(6.0f);
+	radius.push_back(10.0f);
+	radius.push_back(20.0f);
+
+	double centers[3] = { 100.5, 250.0, 399.5 };
+	
+	// constructe the image
+	for( int i=0; i<3; i++ ) {
+		for( int y=0; y<src.rows; y++ ) for( int x=0; x<src.cols; x++ ) {
+			if( abs(x-centers[i]) <= radius[i] ) src.at<unsigned char>(y,x) = 255;
+		}
+	}
+}
+
+void get_2d_balls( Mat& src, vector<float>& radius ) {
+	// construct the image
+	src = Mat(100, 500, CV_8U, cv::Scalar(0) );
+
+	// radius of vessels
+	radius.push_back( 6.5f );
+	radius.push_back( 10.5f );
+	radius.push_back( 20.5f );
+	
+	// center of the vessel
+	const Vec2f center[3] = {
+		Vec2f(100.5, 50.5),
+		Vec2f(250.5, 50.5),
+		Vec2f(400.5, 50.5)
+	};
+
+	for( unsigned int i=0; i<radius.size(); i++ ) { 
+		for( int y=0; y<src.rows; y++ ) for( int x=0; x<src.cols; x++ ){
+			float dx = x - center[i][0];
+			float dy = y - center[i][1];
+			float dis_center = sqrt( dx*dx + dy*dy );
+			float ratio = radius[i] + 0.5f - dis_center;
+			if( ratio>1.0f ) {
+				src.at<unsigned char>( y,x ) = 255;
+			} else if( ratio>0.0f ) {
+				src.at<unsigned char>( y,x ) = unsigned char( 255 * ratio ); 
+			}
+		}
+	}
+}
+
+void get_1d_box( Mat_<double>& src, vector<float>& radius ){
+	// Generate a 1d image
+	src = Mat_<double>( 500, 1, 0.0 );
+	
+	// radius of vessels
+	radius.push_back( 6.5f );
+	radius.push_back( 10.5f );
+	radius.push_back( 20.5f );
+	
+	// center of the vessel
+	int center[3] = { 100, 250, 400 };
+
+	for( int i=0; i<3; i++ ){ 
+		for( int x=center[i]-(int)radius[i]; x<=center[i]+(int)radius[i]; x++ )
+			src.at<double>(x) = 255;
+	}
+}
+
+void plot_3d_tubes(void) {
+	// first of all, construct 3D tubes
+	Data3D<short> src( Vec3i(500, 100, 100) );
+	vector<float> radius;
+	get_3d_tubes( src, radius );
+	
+	// Eigenvalues result will be stored in these matrix
+	vector< Mat_<double> > plot_log;
+	vector< Mat_<double> > plot_multiply;
+	vector< Mat_<double> > plot_square_sum;
+	
+	int cy = src.SY()/2;
+	int cz = src.SZ()/2;
+
+	for( int i=0; i<3; i++ ) {
+		double sigma = radius[i] / sqrt(2.0);
+		int ksize = int( 6 * sigma + 1 );
+		if( ksize%2==0 ) ksize++;
+		
+		Data3D<float> im_blur = src;
+
+		// We could have blur the image here, but the result is just a lot more smoother
+		// if I blur the im_dx2, im_dy2
+		// bool flag = ImageProcessing::GaussianBlur3D( src, im_blur, ksize, sigma );
+
+		//Normalizing for different scale
+		im_blur *= (sigma*sigma);
+
+		static const Kernel3D<float> dx = Kernel3D<float>::dx();
+		static const Kernel3D<float> dy = Kernel3D<float>::dy();
+		static const Kernel3D<float> dz = Kernel3D<float>::dz();
+
+		// First Order Derivative
+		Image3D<int> im_dx, im_dy, im_dz;
+		ImageProcessing::conv3( im_blur, im_dx, dx );
+		ImageProcessing::conv3( im_blur, im_dy, dy );
+		ImageProcessing::conv3( im_blur, im_dz, dz );
+
+		// Second Order Derivative
+		Image3D<float> im_dx2, im_dy2, im_dz2;
+		Image3D<float> im_dxdy, im_dxdz, im_dydz;
+		ImageProcessing::conv3( im_dx, im_dx2, dx );
+		ImageProcessing::conv3( im_dy, im_dy2, dy );
+		ImageProcessing::conv3( im_dz, im_dz2, dz );
+		ImageProcessing::conv3( im_dx, im_dxdy, dy );
+		ImageProcessing::conv3( im_dx, im_dxdz, dz );
+		ImageProcessing::conv3( im_dy, im_dydz, dz );
+
+		ImageProcessing::GaussianBlur3D( im_dx2, im_dx2, ksize, sigma );
+		ImageProcessing::GaussianBlur3D( im_dy2, im_dy2, ksize, sigma );
+		ImageProcessing::GaussianBlur3D( im_dz2, im_dz2, ksize, sigma );
+		ImageProcessing::GaussianBlur3D( im_dxdy, im_dxdy, ksize, sigma );
+		ImageProcessing::GaussianBlur3D( im_dxdz, im_dxdz, ksize, sigma );
+		ImageProcessing::GaussianBlur3D( im_dydz, im_dydz, ksize, sigma );
+		
+		Mat_<double> hessian_square_sum( src.SX(), 1);
+		Mat_<double> hessian_multiply( src.SX(), 1);
+		for( int x=0; x<src.SX(); x++ ) {
+			// construct the harris matrix
+			Mat hessian( 3, 3, CV_32F );
+			hessian.at<float>(0, 0) = im_dx2.at(x, cy, cz);
+			hessian.at<float>(1, 1) = im_dy2.at(x, cy, cz);
+			hessian.at<float>(2, 2) = im_dz2.at(x, cy, cz);
+			hessian.at<float>(1, 0) = hessian.at<float>(0, 1) = im_dxdy.at(x, cy, cz);
+			hessian.at<float>(2, 0) = hessian.at<float>(0, 2) = im_dxdz.at(x, cy, cz);
+			hessian.at<float>(2, 1) = hessian.at<float>(1, 2) = im_dydz.at(x, cy, cz);
+
+			// calculate the eigen values
+			Mat eigenvalues;
+			eigen( hessian, eigenvalues ); 
+			// order eigenvalues so that |lambda1| < |lambda2| < |lambda3| 
+			int i=0, j=1, k=2;
+			if( abs(eigenvalues.at<float>(i)) > abs(eigenvalues.at<float>(j)) ) std::swap( i, j );
+			if( abs(eigenvalues.at<float>(i)) > abs(eigenvalues.at<float>(k)) ) std::swap( i, k );
+			if( abs(eigenvalues.at<float>(j)) > abs(eigenvalues.at<float>(k)) ) std::swap( j, k );
+			if( abs(eigenvalues.at<float>(i)) > abs(eigenvalues.at<float>(j)) ) std::swap( i, j );
+			
+			hessian_square_sum.at<double>( x ) = eigenvalues.at<float>(k) * eigenvalues.at<float>(k)
+				+ eigenvalues.at<float>(j) * eigenvalues.at<float>(j);
+			hessian_multiply.at<double>( x) = eigenvalues.at<float>(j) * eigenvalues.at<float>(k);
+		}
+		plot_square_sum.push_back( hessian_square_sum );
+		plot_multiply.push_back( hessian_multiply );
+	}
+	
+	Mat_<unsigned char> background( src.SX(), 1);
+	for( int x=0; x<src.SX(); x++ ) {
+		background = 255 - src.at(x, cy, cz) / 65536 * 55;
+	}
+	VI::OpenCV::plot( "3d_tubes_hessians_square_sum", plot_square_sum, 100, 0 );
+	VI::OpenCV::plot( "3d_tubes_hessians_multiply", plot_multiply, 100, 0 );
+}
+
+void plot_2d_tubes(void) {
+	Mat src;
+	vector<float> radius;
+	get_2d_tubes( src, radius );
+
+	// Image gradient along x, y direction
+	Mat Ix, Iy;
+	cv::filter2D( src, Ix, CV_32F, dx);
+	cv::filter2D( src, Iy, CV_32F, dy);
+	// Second order derivative of the image
+	Mat Ixx, Ixy, Iyy;
+	cv::filter2D( Ix, Ixx, CV_32F, dx);
+	cv::filter2D( Ix, Ixy, CV_32F, dy);
+	cv::filter2D( Iy, Iyy, CV_32F, dy);
+
+
+	// Eigenvalues result will be stored in these matrix
+	Mat big_eigen( src.rows, src.cols, CV_32F );
+	
+	vector< Mat_<double> > plot_big_eigen;
+
+	for( unsigned int i=0; i<radius.size(); i++ ) {
+		// coresponding sigma
+		float sigma = radius[i];
+		float sigma2 = sigma * sigma;
+
+		///////////////////////////////////////////////////////////////////////
+		// Hessian Matrix
+		///////////////////////////////////////////////////////////////////////
+		Mat hessian_Ixx, hessian_Ixy, hessian_Iyy;
+		cv::GaussianBlur( Ixx, hessian_Ixx, cv::Size(), sigma, sigma );
+		cv::GaussianBlur( Ixy, hessian_Ixy, cv::Size(), sigma, sigma );
+		cv::GaussianBlur( Iyy, hessian_Iyy, cv::Size(), sigma, sigma );
+		
+		// for comparison between scales
+		hessian_Ixx *= sigma2;
+		hessian_Ixy *= sigma2;
+		hessian_Iyy *= sigma2;
+
+		// compute the vessel ness
+		for( int y=0; y<src.rows; y++ ) {
+			for( int x=0; x<src.cols; x++ ){
+				// construct the harris matrix
+				Mat hessian( 2, 2, CV_32F );
+				hessian.at<float>(0, 0) = hessian_Ixx.at<float>(y, x);
+				hessian.at<float>(1, 0) = hessian_Ixy.at<float>(y, x);
+				hessian.at<float>(0, 1) = hessian_Ixy.at<float>(y, x);
+				hessian.at<float>(1, 1) = hessian_Iyy.at<float>(y, x);
+				// calculate the eigen values
+				Mat eigenvalues;
+				eigen( hessian, eigenvalues ); 
+				float eigenvalue1 = eigenvalues.at<float>(0);
+				float eigenvalue2 = eigenvalues.at<float>(1);
+				big_eigen.at<float>(y, x) = abs(eigenvalue1)>abs(eigenvalue2) ? eigenvalue1 : eigenvalue2;
+			}
+		}
+
+		plot_big_eigen.push_back( big_eigen.row( src.rows/2 ).reshape( 0, big_eigen.cols) );
+	}
+	
+	// get the center row
+	int rid = src.rows / 2;
+
+	// Visualization of Eigenvalues of Hessian Matrix
+	Mat_<unsigned char> background = src.row( rid ).clone().reshape(0, src.cols);
+	background = 255 - background / 5;
+	VI::OpenCV::plot( "2d_tubes_hessians", plot_big_eigen, 100, 0, background );
+
+	// visualzie and save original image
+	imshow("Original Image", src);
+	imwrite("output/original_image_2d_tubes.jpg", src);
+
+	return;
+}
+
+//void plot_2d_ball_hessian(void) {
+//	// center of the vessel
+//	const Vec2f center[3] = {
+//		Vec2f(100.5, 50.5),
+//		Vec2f(250.5, 50.5),
+//		Vec2f(400.5, 50.5)
+//	};
+//	// radius of vessels
+//	const float radius[3] = { 6.5f, 8.5f, 10.5f };
+//	
+//	// construct the image
+//	Mat src = Mat(100, 500, CV_8U, cv::Scalar(0) );
+//	for( int i=0; i<3; i++ ) { 
+//		for( int y=0; y<src.rows; y++ ) for( int x=0; x<src.cols; x++ ){
+//			float dx = x - center[i][0];
+//			float dy = y - center[i][1];
+//			float dis_center = sqrt( dx*dx + dy*dy );
+//			float ratio = radius[i] + 0.5f - dis_center;
+//			if( ratio>1.0f ) {
+//				src.at<unsigned char>( y,x ) = 255;
+//			} else if( ratio>0.0f ) {
+//				src.at<unsigned char>( y,x ) = unsigned char( 255 * ratio ); 
+//			}
+//		}
+//	}
+//
+//	// Image gradient along x, y direction
+//	Mat Ix, Iy;
+//	cv::filter2D( src, Ix, CV_32F, dx);
+//	cv::filter2D( src, Iy, CV_32F, dy);
+//	// Second order derivative of the image
+//	Mat Ixx, Ixy, Iyy;
+//	cv::filter2D( Ix, Ixx, CV_32F, dx);
+//	cv::filter2D( Ix, Ixy, CV_32F, dy);
+//	cv::filter2D( Iy, Iyy, CV_32F, dy);
+//
+//	// Eigenvalues result will be stored in these matrix
+//	Mat hessian_square_sum(  src.rows, src.cols, CV_32F );
+//	Mat hessian_multiply(    src.rows, src.cols, CV_32F );
+//	
+//	vector< Mat_<double> > plot_square_sum;
+//	vector< Mat_<double> > plot_multiply;
+//
+//	// get the center row
+//	int rid = src.rows / 2;
+//
+//	for( int i=0; i<3; i++ ) {
+//		// coresponding sigma
+//		double sigma = radius[i] / sqrt( 2.0 );
+//		double sigma2 = sigma * sigma;
+//		
+//		// For Hessian Matrix
+//		Mat hessian_Ixx, hessian_Ixy, hessian_Iyy;
+//		cv::GaussianBlur( Ixx, hessian_Ixx, cv::Size(), sigma, sigma );
+//		cv::GaussianBlur( Ixy, hessian_Ixy, cv::Size(), sigma, sigma );
+//		cv::GaussianBlur( Iyy, hessian_Iyy, cv::Size(), sigma, sigma );
+//		
+//		// normalized them
+//		hessian_Ixx *= sigma2;
+//		hessian_Ixy *= sigma2;
+//		hessian_Iyy *= sigma2;
+//
+//		// compute the vessel ness
+//		for( int y=0; y<src.rows; y++ ) {
+//			for( int x=0; x<src.cols; x++ ){
+//				// construct the harris matrix
+//				Mat hessian( 2, 2, CV_32F );
+//				hessian.at<float>(0, 0) = hessian_Ixx.at<float>(y, x);
+//				hessian.at<float>(1, 0) = hessian_Ixy.at<float>(y, x);
+//				hessian.at<float>(0, 1) = hessian_Ixy.at<float>(y, x);
+//				hessian.at<float>(1, 1) = hessian_Iyy.at<float>(y, x);
+//				// calculate the eigen values
+//				Mat eigenvalues;
+//				eigen( hessian, eigenvalues ); 
+//				float& eigenvalue1 = eigenvalues.at<float>(0);
+//				float& eigenvalue2 = eigenvalues.at<float>(1);
+//				if( abs(eigenvalue1)>abs(eigenvalue2) ) std::swap( eigenvalue1, eigenvalue2 );
+//				// Now we have |eigenvalue1| < |eigenvalue2| 
+//				hessian_square_sum.at<float>(y, x) = sqrt( eigenvalue1 * eigenvalue1 + eigenvalue2 * eigenvalue2 );
+//				hessian_multiply.at<float>(y, x) = eigenvalue1 * eigenvalue2;
+//			}
+//		}
+//
+//		plot_square_sum.push_back( hessian_square_sum.row( rid ).reshape( 0, hessian_square_sum.cols) );
+//		plot_multiply.push_back( hessian_multiply.row( rid ).reshape( 0, hessian_multiply.cols) );
+//	}
+//	
+//	Mat_<unsigned char> background = src.row( rid ).reshape(0, src.cols) ;
+//	background = 255 - background / 5;
+//	
+//	// Visualization of Eigenvalues of Hessian Matrix
+//	VI::OpenCV::plot( "2d_balls_hessians_multiply", plot_multiply, 200, 0, background );
+//	VI::OpenCV::plot( "2d_balls_hessians_square_sum", plot_square_sum, 200, 0, background );
+//	waitKey(0);
+//	return;
+//}
+
+void plot_2d_ball(void) {
+	Mat src;
+	vector<float> radius;
+	get_2d_balls( src, radius );
+	
+	// Eigenvalues result will be stored in these matrix
+	vector< Mat_<double> > plot_log;
+	vector< Mat_<double> > plot_multiply;
+	vector< Mat_<double> > plot_square_sum;
+	
+	// get the center row
+	int rid = src.rows / 2;
+
+	for( unsigned int i=0; i<radius.size(); i++ ) {
+		// coresponding sigma
+		double sigma = radius[i] / sqrt(2.0);
+		// Kernel Size of Gaussian Blur
+		int ks = int( 6*sigma+ 1 ); 
+		if( ks%2==0 ) ks++;
+		
+		Mat g = cv::getGaussianKernel( ks, sigma, CV_64F ) * sigma; 
+		Mat g2 = g * g.t();
+		
+		Mat gx, gy, gxy, gxx, gyy;
+		filter2D( g2, gx, CV_64F, dx );
+		filter2D( g2, gy, CV_64F, dy );
+		filter2D( gx, gxy, CV_64F, dy );
+		filter2D( gx, gxx, CV_64F, dx );
+		filter2D( gy, gyy, CV_64F, dy );
+
+		Mat log, im_log;
+		cv::add( gxx, gyy, log, noArray(), CV_64F );
+		filter2D( src, im_log, CV_64F, log );
+		plot_log.push_back( im_log.row( rid ).reshape( 0, im_log.cols) );
+
+		Mat fxx, fxy, fyy;
+		filter2D( src, fxy, CV_64F, gxy );
+		filter2D( src, fxx, CV_64F, gxx );
+		filter2D( src, fyy, CV_64F, gyy );
+		// compute the vessel ness
+		Mat_<double> hessian_square_sum( src.rows, src.cols, CV_32F );
+		Mat_<double> hessian_multiply(   src.rows, src.cols, CV_32F );
+		for( int y=0; y<src.rows; y++ ) for( int x=0; x<src.cols; x++ ){
+			// construct the harris matrix
+			Mat hessian = (Mat_<double>( 2, 2) << 
+				fxx.at<double>(y, x), fxy.at<double>(y, x), 
+				fxy.at<double>(y, x), fyy.at<double>(y, x));
+
+			// calculate the eigen values
+			Mat eigenvalues;
+			eigen( hessian, eigenvalues ); 
+			double eigenvalue1 = eigenvalues.at<double>(0);
+			double eigenvalue2 = eigenvalues.at<double>(1);
+			if( abs(eigenvalue1)>abs(eigenvalue2) ) std::swap( eigenvalue1, eigenvalue2 );
+			// Now we have |eigenvalue1| < |eigenvalue2| 
+			
+			hessian_square_sum.at<double>(y, x) = sqrt( eigenvalue1 * eigenvalue1 + eigenvalue2 * eigenvalue2 );
+			hessian_multiply.at<double>(y, x) = eigenvalue1 * eigenvalue2;
+		}
+		plot_square_sum.push_back( hessian_square_sum.row( rid ).reshape( 0, hessian_square_sum.cols) );
+		plot_multiply.push_back( hessian_multiply.row( rid ).reshape( 0, hessian_multiply.cols) );
+	}
+	
+	int row = src.rows / 2;
+
+	Mat_<unsigned char> background = src.row( rid ).clone().reshape(0, src.cols) ;
+	background = 255 - background / 5;
+	
+	// Visualization of Eigenvalues of Hessian Matrix
+	VI::OpenCV::plot( "2d_balls_log", plot_log, 100, 0, background );
+	VI::OpenCV::plot( "2d_balls_hessians_multiply", plot_multiply, 100, 0, background );
+	VI::OpenCV::plot( "2d_balls_hessians_square_sum", plot_square_sum, 100, 0, background );
+	
+	imshow("Original Image", src);
+	imwrite("output/original_image_2d_balls.jpg", src);
+
+	return;
+}
+
+void plot_1d_box(void) {
+	Mat_<double> im;
+	vector<float> radius;
+	get_1d_box( im, radius);
+	
+	// visualize the 1D image
+	vector< Mat_<double> > im_vec;
+	im_vec.push_back( im );
+	VI::OpenCV::plot( "riginal_image_1d_boxes", im_vec, 100 );
+	
+	// convolution
+	vector< Mat_<double> > plot_boxes_gxx;
+	for( int i=0; i<3; i++ ) {
+		// generate the gaussian filter
+		float sigma = radius[i];
+		int ks = int( sigma * 6 + 1 );
+		if( ks%2==0 ) ks++; // make sure kSize is odd
+		Mat g = cv::getGaussianKernel( ks, sigma, CV_64F );
+		
+		Mat gxx;
+		filter2D( g, gxx, CV_64F, dy );
+		filter2D( gxx, gxx, CV_64F, dy );
+		gxx *= sigma*sigma;
+
+		Mat_<double> boxes_gxx;
+		filter2D( im, boxes_gxx, CV_64F, gxx );
+		plot_boxes_gxx.push_back( boxes_gxx );
+	}
+
+	// visualize the 1D image
+	VI::OpenCV::plot( "1d_boxes_2nd_gaussian", plot_boxes_gxx, 100, 0 );
+}
+
 
 int main(int argc, char* argv[])
 {
-	plot_2d_hessian_ball_LOG(); return 0;
-	plot_2d_hessian_ball(); return 0;
-	// plot_1d_hessian(); return 0;
-	plot_2d_hessian(); return 0;
-	plot_3d_hessian(); return 0;
-	plot_histogram_in_matlab(); return 0;
+	plot_1d_box();
+	plot_2d_tubes();
+	plot_2d_ball();
+	plot_3d_tubes();
+	waitKey();
+	return 0;
+
+	struct Preset {
+		Preset(){}
+		Preset(const string& file, Vec3i& size = Vec3i(0,0,0) ) : file(file), size(size){ };
+		string file;
+		Vec3i size;
+	};
+
 	
 	bool flag = false;
 	Preset presets[30];
 	presets[0] = Preset("vessel3d", Vec3i(585, 525, 892));
-	presets[1] = Preset("roi1.data", Vec3i(45, 70, 15));
-	presets[2] = Preset("roi2.data", Vec3i(111, 124, 43));
-	presets[3] = Preset("roi3", Vec3i(70, 123, 35));
-	presets[4] = Preset("roi4", Vec3i(29, 30, 56));
-	presets[7] = Preset("roi7", Vec3i(65, 46, 55));
-	presets[8] = Preset("roi8.data", Vec3i(102, 96, 34));
-	presets[9] = Preset("roi9", Vec3i(129, 135, 97));
 	presets[10] = Preset("roi10", Vec3i(51, 39, 38));
 	presets[11] = Preset("roi11.data", Vec3i(116, 151, 166));
 	presets[12] = Preset("vessel3d.rd.k=19.data", Vec3i(585, 525, 892));
@@ -63,9 +538,6 @@ int main(int argc, char* argv[])
 	const Preset& ps = presets[17];
 	string data_name = "roi17.partial";
 	// string data_name = "temp";
-
-
-	
 
 
 	if( bool isConstructTube = false ) {
@@ -165,533 +637,3 @@ int main(int argc, char* argv[])
 
 	return 0;
 }
-
-
-void plot_histogram_in_matlab(void) {
-	cout << "Plotting Histogram of data in Matlab. " << endl;
-	// loading data
-	Image3D<short> im_data;
-	bool flag = im_data.loadData( "data/vessel3d.data", Vec3i(585,525,200), true, true );
-	if( !flag ) return;
-	// calculating histogram
-	Mat_<double> hist, range;
-	IP::histogram( im_data, range, hist, 1024 );
-	VI::Matlab::plot( range, hist );
-}
-
-
-void plot_3d_hessian(void) {
-	// first of all, construct 3D tubes
-	Data3D<short> src;
-	src.reset( Vec3i(1000, 100, 100) );
-
-	// center of the vessel
-	const Vec3f center[3] = {
-		Vec3f(200.5, 0, 50.5),
-		Vec3f(480.5, 0, 50.5),
-		Vec3f(750.5, 0, 50.5)
-	};
-	// radius of vessels
-	const float radius[3] = { 4.5f, 6.5f, 8.5f };
-	int x, y, z;
-	for( int i=0; i<3; i++ ) { 
-		for( y=0; y<src.get_size_y(); y++ ) {
-			for( z=-20; z<20; z++ ) for( x=-20; x<20; x++ ){
-				float dis_center = sqrt( 1.0f*x*x + z*z );
-				float ratio = radius[i] + 0.5f - dis_center;
-				if( ratio>1.0f ) {
-					src.at( int(x+center[i][0]), y, int(z+center[i][2]) ) = MAX_SHORT;
-				} else if( ratio>0.0f ) {
-					src.at( int(x+center[i][0]), y, int(z+center[i][2]) ) = short( MAX_SHORT * ratio ); 
-				}
-			}
-		}
-	}
-
-	vector< Mat_<double> > maty;
-
-	// float sigmas[3] = { 4.5f, 8.5f, 12.5f };
-	for( int i=0; i<1; i++ ) {
-		float sigma = radius[i];
-		int ksize = int( 6 * sigma + 1 );
-		if( ksize%2==0 ) ksize++;
-		
-		Data3D<float> im_blur = src;
-		bool flag = ImageProcessing::GaussianBlur3D( src, im_blur, ksize, sigma );
-		//if( !flag ) {
-		//	cout << "Gaussian Blur Failed." << endl;
-		//	return;
-		//}
-
-		//Normalizing for different scale
-		// im_blur *= (sigma*sigma);
-
-		static Kernel3D<float> dx = Kernel3D<float>::dx();
-		static Kernel3D<float> dy = Kernel3D<float>::dy();
-		static Kernel3D<float> dz = Kernel3D<float>::dz();
-
-		// First Order Derivative
-		Image3D<int> im_dx, im_dy, im_dz;
-		ImageProcessing::conv3( im_blur, im_dx, dx );
-		ImageProcessing::conv3( im_blur, im_dy, dy );
-		ImageProcessing::conv3( im_blur, im_dz, dz );
-
-		// Second Order Derivative
-		Image3D<float> im_dx2, im_dy2, im_dz2;
-		Image3D<float> im_dxdy, im_dxdz, im_dydz;
-		ImageProcessing::conv3( im_dx, im_dx2, dx );
-		ImageProcessing::conv3( im_dy, im_dy2, dy );
-		ImageProcessing::conv3( im_dz, im_dz2, dz );
-		ImageProcessing::conv3( im_dx, im_dxdy, dy );
-		ImageProcessing::conv3( im_dx, im_dxdz, dz );
-		ImageProcessing::conv3( im_dy, im_dydz, dz );
-		//ImageProcessing::GaussianBlur3D( im_dx2, im_dx2, ksize, sigma );
-		//ImageProcessing::GaussianBlur3D( im_dy2, im_dy2, ksize, sigma );
-		//ImageProcessing::GaussianBlur3D( im_dz2, im_dz2, ksize, sigma );
-		//ImageProcessing::GaussianBlur3D( im_dxdy, im_dxdy, ksize, sigma );
-		//ImageProcessing::GaussianBlur3D( im_dxdz, im_dxdz, ksize, sigma );
-		//ImageProcessing::GaussianBlur3D( im_dydz, im_dydz, ksize, sigma );
-		////im_dx2 *= ( sigma * sigma );
-		//im_dy2 *= ( sigma * sigma );
-		//im_dz2 *= ( sigma * sigma );
-		//im_dxdy *= ( sigma * sigma );
-		//im_dxdz *= ( sigma * sigma );
-		//im_dydz *= ( sigma * sigma );
-
-		y = src.get_size_y()/2;
-		z = src.get_size_z()/2;
-
-		int resize = 2;
-		Mat_<double> eigenvalue( src.SX()/resize, 1 );
-
-		for( x=0; x<src.get_size_x(); x++ ) {
-			// construct the harris matrix
-			Mat hessian( 3, 3, CV_32F );
-			hessian.at<float>(0, 0) = im_dx2.at(x,y,z);
-			hessian.at<float>(1, 1) = im_dy2.at(x,y,z);
-			hessian.at<float>(2, 2) = im_dz2.at(x,y,z);
-			hessian.at<float>(1, 0) = hessian.at<float>(0, 1) = im_dxdy.at(x,y,z);
-			hessian.at<float>(2, 0) = hessian.at<float>(0, 2) = im_dxdz.at(x,y,z);
-			hessian.at<float>(2, 1) = hessian.at<float>(1, 2) = im_dydz.at(x,y,z);
-
-			// calculate the eigen values
-			Mat eigenvalues, eigenvectors;
-			eigen( hessian, eigenvalues, eigenvectors ); 
-			// order eigenvalues so that |lambda1| < |lambda2| < |lambda3| 
-			int i=0, j=1, k=2;
-			if( abs(eigenvalues.at<float>(i)) > abs(eigenvalues.at<float>(j)) ) std::swap( i, j );
-			if( abs(eigenvalues.at<float>(i)) > abs(eigenvalues.at<float>(k)) ) std::swap( i, k );
-			if( abs(eigenvalues.at<float>(j)) > abs(eigenvalues.at<float>(k)) ) std::swap( j, k );
-
-			eigenvalue.at<double>( x/resize ) = eigenvalues.at<float>(k);
-		}
-		maty.push_back( eigenvalue );
-	}
-	
-	VI::OpenCV::plot( "temp", maty, 200, 800 );
-	waitKey();
-}
-
-void plot_2d_hessian(void) {
-	Mat src;
-
-//#define LOAD_IMAGE 
-#ifdef LOAD_IMAGE /* loading image from */
-	
-	src= imread( "data/images/vessels_2d.bmp");
-	if( !src.data ){ cout << "Image not found..." << endl; return; }
-	// convert form CV_8UC3 to CV_8U
-	cvtColor( src, src, CV_RGB2GRAY ); 
-
-	float sigmas[3] = { 4.0f, 6.0f, 8.0f};
-
-#else /*constructing the image by code*/
-	
-	src = Mat(100, 500, CV_8U, cv::Scalar(0) );
-	// center of the vessel
-	const Vec2f center[3] = {
-		Vec2f(100.5, 50.5),
-		Vec2f(250.5, 50.5),
-		Vec2f(400.5, 50.5)
-	};
-	// radius of vessels
-	const float radius[3] = { 6.5f, 8.5f, 10.5f };
-	// const float radius[3] = { 4.0f, 6.0f, 8.0f};
-	int x, y;
-	for( int i=0; i<3; i++ ) { 
-		for( y=0; y<src.rows; y++ ) for( x=0; x<src.cols; x++ ){
-			float dx = x - center[i][0];
-			float dy = y - center[i][1];
-			float dis_center = sqrt( dx*dx + dy*dy );
-			float ratio = radius[i] + 0.5f - dis_center;
-			if( ratio>1.0f ) {
-				src.at<unsigned char>( y,x ) = 255;
-			} else if( ratio>0.0f ) {
-				src.at<unsigned char>( y,x ) = unsigned char( 255 * ratio ); 
-			}
-		}
-	}
-	float sigmas[3] = { 6.5f, 8.5f, 10.5f };
-#endif
-	
-	// derivative fileters
-	Mat filter_dx = ( Mat_<float>(1,3) << -0.5, 0, 0.5 );
-	Mat filter_dy = ( Mat_<float>(3,1) << -0.5, 0, 0.5 );
-
-	// Image gradient along x, y direction
-	Mat Ix, Iy;
-	cv::filter2D( src, Ix, CV_32F, filter_dx);
-	cv::filter2D( src, Iy, CV_32F, filter_dy);
-	// Second order derivative of the image
-	Mat Ixx, Ixy, Iyy;
-	cv::filter2D( Ix, Ixx, CV_32F, filter_dx);
-	cv::filter2D( Ix, Ixy, CV_32F, filter_dy);
-	cv::filter2D( Iy, Iyy, CV_32F, filter_dy);
-
-	// Calculate the vesselness response
-	const int NUM = 1;
-
-	// Eigenvalues result will be stored in these matrix
-	Mat hessian_eigenvalue1( src.rows, src.cols, CV_32F );
-	Mat hessian_eigenvalue2( src.rows, src.cols, CV_32F );
-	Mat hessian_vesselness(  src.rows, src.cols, CV_32F );
-	
-	vector< Mat_<double> > eigenvalues;
-
-	for( int i=0; i<1; i++ ) {
-		// coresponding sigma
-		float sigma = sigmas[i];
-		// Kernel Size of Gaussian Blur
-		// int ks = int( ( sigma - 0.35f ) / 0.15f ); 
-		int ks = int( 6*sigma+ 1 ); 
-		if( ks%2==0 ) ks++;
-		cv::Size ksize( ks, ks );
-
-		static const float beta = 0.20f; 
-		static const float c = 70000.0f; 
-
-		///////////////////////////////////////////////////////////////////////
-		// Hessian Matrix
-		///////////////////////////////////////////////////////////////////////
-		Mat hessian_Ixx, hessian_Ixy, hessian_Iyy;
-		GaussianBlur( Ixx, hessian_Ixx, ksize, sigma, sigma );
-		GaussianBlur( Ixy, hessian_Ixy, ksize, sigma, sigma );
-		GaussianBlur( Iyy, hessian_Iyy, ksize, sigma, sigma );
-		
-#ifdef LOAD_IMAGE /* loading image from */
-		// normalized them
-		hessian_Ixx *= sigma * sigma;
-		hessian_Ixy *= sigma * sigma;
-		hessian_Iyy *= sigma * sigma;
-#else
-		// normalized them
-		hessian_Ixx *= sigma;
-		hessian_Ixy *= sigma;
-		hessian_Iyy *= sigma;
-#endif
-		// compute the vessel ness
-		for( int y=0; y<src.rows; y++ ) {
-			for( int x=0; x<src.cols; x++ ){
-				// construct the harris matrix
-				Mat hessian( 2, 2, CV_32F );
-				hessian.at<float>(0, 0) = hessian_Ixx.at<float>(y, x);
-				hessian.at<float>(1, 0) = hessian_Ixy.at<float>(y, x);
-				hessian.at<float>(0, 1) = hessian_Ixy.at<float>(y, x);
-				hessian.at<float>(1, 1) = hessian_Iyy.at<float>(y, x);
-				// calculate the eigen values
-				Mat eigenvalues;
-				eigen( hessian, eigenvalues ); 
-				float eigenvalue1 = eigenvalues.at<float>(0);
-				float eigenvalue2 = eigenvalues.at<float>(1);
-				if( abs(eigenvalue1)>abs(eigenvalue2) ) std::swap( eigenvalue1, eigenvalue2 );
-				// Now we have |eigenvalue1| < |eigenvalue2| 
-				hessian_eigenvalue1.at<float>(y, x) = eigenvalue1;
-				hessian_eigenvalue2.at<float>(y, x) = eigenvalue2;
-				if( eigenvalue2 > 0 ) {
-					hessian_vesselness.at<float>(y, x) = 0;
-				} else {
-					float RB = eigenvalue1 / eigenvalue2;
-					float S = sqrt( eigenvalue1*eigenvalue1 + eigenvalue2*eigenvalue2 );
-					hessian_vesselness.at<float>(y, x) = exp( -RB*RB/beta ) * ( 1-exp(-S*S/c) );
-				}
-			}
-		}
-
-		eigenvalues.push_back( hessian_eigenvalue2.row( src.rows/2 ).reshape( 0, hessian_eigenvalue1.cols) );
-	}
-	
-	int row = src.rows / 2;
-
-	Mat_<unsigned char> background( src.cols, 1);
-	for( int i=0; i<background.rows; i++ ) {
-		background.at<unsigned char>(i) = 255 - src.at<unsigned char>(row,i)/5;
-	}
-	
-	// draw a line on the oringinal image
-	line( src, Point(0, row), Point(src.cols-1, row), Scalar(255,0,0), 1, CV_AA, 0 );
-	imshow( "Image", src);
-
-	// Visualization of Eigenvalues of Hessian Matrix
-	stringstream plot_name;
-	plot_name << "Hessian_Eigenvalue_2D_sigma_2_4_8_16";
-	VI::OpenCV::plot( plot_name.str(), eigenvalues, 200, 0, background );
-
-	waitKey(0);
-	return;
-}
-
-
-
-void plot_2d_hessian_ball(void) {
-	Mat src;
-
-	src = Mat(100, 500, CV_8U, cv::Scalar(0) );
-	// center of the vessel
-	const Vec2f center[3] = {
-		Vec2f(100.5, 50.5),
-		Vec2f(250.5, 50.5),
-		Vec2f(400.5, 50.5)
-	};
-	// radius of vessels
-	const float radius[3] = { 6.5f, 8.5f, 10.5f };
-	// const float radius[3] = { 4.0f, 6.0f, 8.0f};
-	int x, y;
-	for( int i=0; i<3; i++ ) { 
-		for( y=0; y<src.rows; y++ ) for( x=0; x<src.cols; x++ ){
-			float dx = x - center[i][0];
-			float dy = y - center[i][1];
-			float dis_center = sqrt( dx*dx + dy*dy );
-			float ratio = radius[i] + 0.5f - dis_center;
-			if( ratio>1.0f ) {
-				src.at<unsigned char>( y,x ) = 255;
-			} else if( ratio>0.0f ) {
-				src.at<unsigned char>( y,x ) = unsigned char( 255 * ratio ); 
-			}
-		}
-	}
-	float sigmas[3] = { 6.5f, 8.5f, 10.5f };
-
-	// Eigenvalues result will be stored in these matrix
-	Mat hessian_eigenvalue1( src.rows, src.cols, CV_64F );
-	Mat hessian_eigenvalue2( src.rows, src.cols, CV_64F );
-	vector< Mat_<double> > eigenvalues;
-
-	for( int i=0; i<1; i++ ) {
-		
-		// coresponding sigma
-		float sigma = sigmas[i];
-		// Kernel Size of Gaussian Blur
-		// int ks = int( ( sigma - 0.35f ) / 0.15f ); 
-		int ks = int( 6*sigma+ 1 ); 
-		if( ks%2==0 ) ks++;
-		cv::Size ksize( ks, ks );
-
-		static const Mat dx = ( Mat_<double>(1,3) << -0.5, 0, 0.5 );
-		static const Mat dy = ( Mat_<double>(3,1) << -0.5, 0, 0.5 );
-
-		Mat g = cv::getGaussianKernel( ks, sigma, CV_64F); 
-		Mat g2 = g * g.t();
-		
-		Mat gx, gy, gxy, gxx, gyy;
-		filter2D( g2, gx, CV_64F, dx );
-		filter2D( g2, gy, CV_64F, dy );
-		filter2D( gx, gxy, CV_64F, dy );
-		filter2D( gx, gxx, CV_64F, dx );
-		filter2D( gy, gyy, CV_64F, dy );
-
-		Mat fxx, fxy, fyy;
-		filter2D( src, fxy, CV_64F, gxy );
-		filter2D( src, fxx, CV_64F, gxx );
-		filter2D( src, fyy, CV_64F, gyy );
-
-		///////////////////////////////////////////////////////////////////////
-		// Hessian Matrix
-		///////////////////////////////////////////////////////////////////////
-		// compute the vessel ness
-		for( int y=0; y<src.rows; y++ ) {
-			for( int x=0; x<src.cols; x++ ){
-				// construct the harris matrix
-				Mat hessian( 2, 2, CV_64F );
-				hessian.at<double>(0, 0) = fxx.at<double>(y, x);
-				hessian.at<double>(1, 0) = fxy.at<double>(y, x);
-				hessian.at<double>(0, 1) = fxy.at<double>(y, x);
-				hessian.at<double>(1, 1) = fyy.at<double>(y, x);
-				// calculate the eigen values
-				Mat eigenvalues;
-				eigen( hessian, eigenvalues ); 
-				double eigenvalue1 = eigenvalues.at<double>(0);
-				double eigenvalue2 = eigenvalues.at<double>(1);
-				if( abs(eigenvalue1)>abs(eigenvalue2) ) std::swap( eigenvalue1, eigenvalue2 );
-				// Now we have |eigenvalue1| < |eigenvalue2| 
-				hessian_eigenvalue1.at<double>(y, x) = eigenvalue1;
-				hessian_eigenvalue2.at<double>(y, x) = eigenvalue2;
-			}
-		}
-
-		eigenvalues.push_back( hessian_eigenvalue2.row( src.rows/2 ).reshape( 0, hessian_eigenvalue1.cols) );
-	}
-	
-	int row = src.rows / 2;
-
-	Mat_<unsigned char> background( src.cols, 1);
-	for( int i=0; i<background.rows; i++ ) {
-		background.at<unsigned char>(i) = 255 - src.at<unsigned char>(row,i)/5;
-	}
-	
-	// draw a line on the oringinal image
-	line( src, Point(0, row), Point(src.cols-1, row), Scalar(255,0,0), 1, CV_AA, 0 );
-	imshow( "Image", src);
-
-	// Visualization of Eigenvalues of Hessian Matrix
-	stringstream plot_name;
-	plot_name << "Hessian_Eigenvalue_2D_sigma_2_4_8_16";
-	VI::OpenCV::plot( plot_name.str(), eigenvalues, 200, 0, background );
-
-	waitKey(0);
-	return;
-}
-
-
-void plot_2d_hessian_ball_LOG(void) {
-	Mat src = Mat(100, 500, CV_8U, cv::Scalar(0) );
-
-	// center of the vessel
-	const Vec2f center[3] = {
-		Vec2f(100.5, 50.5),
-		Vec2f(250.5, 50.5),
-		Vec2f(400.5, 50.5)
-	};
-	// radius of vessels
-	const float radius[3] = { 6.5f, 8.5f, 10.5f };
-	// const float radius[3] = { 4.0f, 6.0f, 8.0f};
-	int x, y;
-	for( int i=0; i<3; i++ ) { 
-		for( y=0; y<src.rows; y++ ) for( x=0; x<src.cols; x++ ){
-			float dx = x - center[i][0];
-			float dy = y - center[i][1];
-			float dis_center = sqrt( dx*dx + dy*dy );
-			float ratio = radius[i] + 0.5f - dis_center;
-			if( ratio>1.0f ) {
-				src.at<unsigned char>( y,x ) = 255;
-			} else if( ratio>0.0f ) {
-				src.at<unsigned char>( y,x ) = unsigned char( 255 * ratio ); 
-			}
-		}
-	}
-	float sigmas[3];
-	for( int i=0; i<3; i++ ) {
-		sigmas[i] = radius[i] / sqrt(2.0);
-	}
-
-	// Eigenvalues result will be stored in these matrix
-	Mat hessian_eigenvalue1( src.rows, src.cols, CV_64F );
-	Mat hessian_eigenvalue2( src.rows, src.cols, CV_64F );
-	vector< Mat_<double> > eigenvalues;
-
-	for( int i=0; i<1; i++ ) {
-		
-		// coresponding sigma
-		float sigma = sigmas[i];
-		// Kernel Size of Gaussian Blur
-		// int ks = int( ( sigma - 0.35f ) / 0.15f ); 
-		int ks = int( 6*sigma+ 1 ); 
-		if( ks%2==0 ) ks++;
-		cv::Size ksize( ks, ks );
-
-		static const Mat dx = ( Mat_<double>(1,3) << -0.5, 0, 0.5 );
-		static const Mat dy = ( Mat_<double>(3,1) << -0.5, 0, 0.5 );
-
-		Mat g = cv::getGaussianKernel( ks, sigma, CV_64F ); 
-		Mat g2 = g * g.t();
-		
-		Mat gx, gy, gxy, gxx, gyy;
-		filter2D( g2, gx, CV_64F, dx );
-		filter2D( g2, gy, CV_64F, dy );
-		filter2D( gx, gxy, CV_64F, dy );
-		filter2D( gx, gxx, CV_64F, dx );
-		filter2D( gy, gyy, CV_64F, dy );
-
-		Mat fxx, fxy, fyy;
-		filter2D( src, fxy, CV_64F, gxy );
-		filter2D( src, fxx, CV_64F, gxx );
-		filter2D( src, fyy, CV_64F, gyy );
-
-		Mat log, im_log;
-		cv::add( gxx, gyy, log, noArray(), CV_64F );
-		filter2D( src, im_log, CV_64F, log );
-
-		// compute the vessel ness
-		for( int y=0; y<src.rows; y++ ) {
-			for( int x=0; x<src.cols; x++ ){
-				hessian_eigenvalue2.at<double>(y, x) = im_log.at<double>(y,x);
-			}
-		}
-
-		eigenvalues.push_back( hessian_eigenvalue2.row( src.rows/2 ).reshape( 0, hessian_eigenvalue1.cols) );
-	}
-	
-	int row = src.rows / 2;
-
-	Mat_<unsigned char> background( src.cols, 1);
-	for( int i=0; i<background.rows; i++ ) {
-		background.at<unsigned char>(i) = 255 - src.at<unsigned char>(row,i)/5;
-	}
-	
-	// draw a line on the oringinal image
-	line( src, Point(0, row), Point(src.cols-1, row), Scalar(255,0,0), 1, CV_AA, 0 );
-	imshow( "Image", src);
-
-	// Visualization of Eigenvalues of Hessian Matrix
-	stringstream plot_name;
-	plot_name << "Hessian_Eigenvalue_2D_sigma_2_4_8_16";
-	VI::OpenCV::plot( plot_name.str(), eigenvalues, 200, 0, background );
-
-	waitKey(0);
-	return;
-}
-
-void plot_1d_hessian(void) {
-	// Generate a 1d image
-	Mat_<double> im( 400, 1, 0.0 );
-	for( int i=90; i<101; i++ ) im.at<double>(i) = 10.0;
-	for( int i=260; i<281; i++ ) im.at<double>(i) = 10.0;
-	
-	// visualize the 1D image
-	vector< Mat_<double> > im_vec;
-	im_vec.push_back( im );
-	VI::OpenCV::plot( "im_1d", im_vec, 100, 600 );
-
-	double sigmas[3] = { 5.5, 10.5 };
-
-	vector< Mat_<double> > res_vec;
-	for( int i=0; i<2; i++ ) {
-		// generate the gaussian filter
-		double sigma = sigmas[i];
-		int kSize = int( sigma * 6 + 1 );
-		if( kSize%2==0 ) kSize++; // make sure kSize is odd
-		Mat gaussian = cv::getGaussianKernel( kSize, sigma, CV_64F );
-		Mat filter_dy = ( Mat_<float>(3,1) << -0.5, 0, 0.5 );
-		Mat gaussian_2nd;
-		filter2D( gaussian, gaussian_2nd, CV_64F, filter_dy );
-		filter2D( gaussian_2nd, gaussian_2nd, CV_64F, filter_dy );
-		gaussian_2nd *= sigma*sigma;
-
-		// convolution
-		Mat_<double> response( im.rows, 1, 0.0);
-		for( int i=0; i<im.rows; i++ ) {
-			for( int j=0; j<gaussian_2nd.rows; j++ ) {
-				int im_pos = i-gaussian_2nd.rows/2+j;
-				if( im_pos >= 0 && im_pos<im.rows ) {
-					response.at<double>(i) += gaussian_2nd.at<double>(j) * im.at<double>(im_pos);
-				}
-			}
-		}
-		res_vec.push_back( response );
-	}
-	// visualize the 1D image
-	
-	VI::OpenCV::plot( "hessian_1d_sigma2", res_vec, 100, 600 );
-
-	waitKey(0);
-}
-
