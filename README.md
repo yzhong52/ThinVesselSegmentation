@@ -19,6 +19,8 @@ Some functions of the project:
    - Normalization
  - Rings Deduction of 3D Data
 
+and a lot more ...
+
 Dependencies
 ========================
 In order to run the project, you will have the install the following softwares, 
