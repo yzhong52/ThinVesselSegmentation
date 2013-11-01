@@ -4,6 +4,21 @@ This is my master project about segmentation on 3D thin vessels. The project was
 
 We know that OpenCV does not support 3D that well. The projects contains a lot of data structures as well as image processing function for 3D datas. If you are working with 3D data and want something as a head start, this should be a very good choice. 
 
+Some functions of the project:
+
+ - Template class Data3D<T> for 3D Data
+ - Visualization
+   - Slice by Slice
+   - Maximum Intensity Projection
+ - Reading/Writing Raw Data
+ - Image Processing
+   - GaussianBlur 3D
+   - Convolution 3D
+   - Histogram
+   - Thresholding
+   - Normalization
+ - Rings Deduction of 3D Data
+
 Dependencies
 ========================
 In order to run the project, you will have the install the following softwares, 
