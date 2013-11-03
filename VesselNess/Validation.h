@@ -5,6 +5,21 @@ template<typename T> class Image3D;
 
 namespace Validation
 {
+	namespace Eigenvalues{
+		void plot_1d_box(void);
+		void plot_2d_tubes(void);
+		void plot_2d_ball(void);
+		void plot_3d_tubes(void);	
+	}
+
+	// What model should we use for ball fitting? 
+	namespace BallFittingModels{
+		void cylinder(void);
+		void circular_truncated_cone(void);
+		void gaussian(void);
+		void laplacian_of_gaussian(void);
+	}
+
 	// explore the difference between 
 	// 1) Harris Detector
 	// 2) Hessian Matrix
