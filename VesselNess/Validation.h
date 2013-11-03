@@ -19,6 +19,12 @@ namespace Validation
 		void gaussian(void);
 		void laplacian_of_gaussian(void);
 	}
+	
+	// plot 2n derivative of gaussian on 1d box function
+	namespace box_func_and_2nd_gaussian{
+		void plot_different_size(void);
+		void plot_different_pos(void);
+	}
 
 	// explore the difference between 
 	// 1) Harris Detector

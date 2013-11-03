@@ -34,8 +34,12 @@ int main(int argc, char* argv[])
 	// Validation::Eigenvalues::plot_2d_ball();
 	// Validation::Eigenvalues::plot_3d_tubes();
 	// Validation::BallFittingModels::cylinder();
-	Validation::BallFittingModels::gaussian();
-	Validation::BallFittingModels::laplacian_of_gaussian();
+
+	// Validation::BallFittingModels::gaussian();
+	// Validation::BallFittingModels::laplacian_of_gaussian();
+
+	Validation::box_func_and_2nd_gaussian::plot_different_size();
+	Validation::box_func_and_2nd_gaussian::plot_different_pos();
 
 	waitKey();
 	return 0;

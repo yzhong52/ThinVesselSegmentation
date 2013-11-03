@@ -394,28 +394,7 @@ namespace Validation{
 		static const int cy = 25; 
 		static const int r = 5;
 		static const int r2 = r*r;
-		void cylinder(void){
-			Mat_<double> im(im_width, im_height, 0.0);
-			Mat g = cv::getGaussianKernel( 31, 5, CV_64F);
-
-			for( int y=0; y<im_height; y++ ) {
-				for( int x=0; x<im_height; x++ ){
-					int ox = (x-cx);
-					int oy = (y-cy);
-					float rr = sqrt( 1.0f*ox*ox + oy*oy );
-
-					if( rr - r < 0 ) {
-						im.at<double>(y,x) = g.at<double>( 31/2 );
-					} 
-					else 
-					{
-						im.at<double>(y,x) = g.at<double>( rr-r+31/2 );
-					}
-				}
-			}
-			VI::Matlab::surf( im );
-		}
-		void circular_truncated_cone(void);
+		
 		void gaussian(void){
 			Mat g = cv::getGaussianKernel( 6*r+1, r, CV_64F);
 			Mat g2 = g * g.t();
@@ -431,6 +410,78 @@ namespace Validation{
 				0,  -1,  0 );
 			filter2D( g2, log, CV_64F, kernel );
 			VI::Matlab::surf( log );
+		}
+	}
+
+	namespace box_func_and_2nd_gaussian{
+		static const Mat dx = ( Mat_<float>(1,3) << -0.5, 0, 0.5 );
+		static const Mat dy = ( Mat_<float>(3,1) << -0.5, 0, 0.5 );
+
+		int im_width = 1001;
+		int box_center = 500;
+		int box_radius = 100;
+
+		void plot_different_size(void){
+			Mat_<double> im_1d( im_width, 1, 0.0);
+			for( int i = box_center-box_radius; i<box_center+box_radius; i++ ) {
+				im_1d.at<double>(i) = 1;
+			}
+
+			vector< Mat_<double> > plot;
+			
+			plot.push_back( im_1d );
+
+			double sigmas[3] = {
+				1.2*box_radius,
+				box_radius,
+				0.8*box_radius
+			}; 
+			for( int i=0; i<3; i++ ) {
+				double sigma = sigmas[i];
+				int ks = 1000;
+				if( ks%2 == 0 ) ks++;
+				Mat g = cv::getGaussianKernel( ks, sigma, CV_64F ); 
+				g = g * pow( box_radius ,3.0) * sqrt( 2*3.14 );
+				Mat gx, gxx;
+				filter2D( g,  gx,  CV_64F, dy );
+				filter2D( gx, gxx, CV_64F, dy );
+				plot.push_back( -gxx );
+			}
+
+			VI::OpenCV::plot( "box_2nd_gaussian_different_size", plot );
+		}
+
+		void plot_different_pos(void){
+			Mat_<double> im_1d( im_width, 1, 0.0);
+			for( int i = box_center-box_radius; i<box_center+box_radius; i++ ) {
+				im_1d.at<double>(i) = 1;
+			}
+
+			vector< Mat_<double> > plot;
+			
+			plot.push_back( im_1d );
+
+			int offset[3] = { 
+				80, 0, -40
+			}; 
+			for( int i=0; i<3; i++ ) {
+				double sigma = box_radius;
+				int ks = 1000;
+				if( ks%2 == 0 ) ks++;
+				Mat g = cv::getGaussianKernel( ks, sigma, CV_64F ); 
+				g = g * pow( box_radius ,3.0) * sqrt( 2*3.14 );
+				Mat gx, gxx;
+				filter2D( g,  gx,  CV_64F, dy );
+				filter2D( gx, gxx, CV_64F, dy );
+				Mat_<double> gxx_offset( gxx.rows, 1 );
+
+				for( int j=0; j< gxx.rows; j++ ){
+					gxx_offset.at<double>(j) = gxx.at<double>( ( j+offset[i]+gxx.rows ) % gxx.rows );
+				}
+				plot.push_back( -gxx_offset );
+			}
+
+			VI::OpenCV::plot( "box_2nd_gaussian_different_pos", plot );
 		}
 	}
 }
