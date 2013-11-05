@@ -35,11 +35,13 @@ int main(int argc, char* argv[])
 	// Validation::Eigenvalues::plot_3d_tubes();
 	// Validation::BallFittingModels::cylinder();
 
+	//// Visualize the Gassian Filter and the laplacian of guassian in 2D with Matlab
 	// Validation::BallFittingModels::gaussian();
 	// Validation::BallFittingModels::laplacian_of_gaussian();
 
-	Validation::box_func_and_2nd_gaussian::plot_different_size();
-	Validation::box_func_and_2nd_gaussian::plot_different_pos();
+	//// Draw Second Derivative of Gaussian on top of the Box function 
+	// Validation::box_func_and_2nd_gaussian::plot_different_size();
+	// Validation::box_func_and_2nd_gaussian::plot_different_pos();
 
 	waitKey();
 	return 0;
