@@ -18,6 +18,7 @@ Some functions of the project:
    - Thresholding
    - Normalization
  - Rings Deduction of 3D Data
+ - Compute Vesselness Based on Hessian Matrix
 
 and a lot more ...
 
