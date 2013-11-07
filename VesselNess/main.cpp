@@ -29,6 +29,7 @@ void plot_histogram_in_matlab(void) {
 
 int main(int argc, char* argv[])
 {
+	//// Visualization of the Eigenvalues
 	// Validation::Eigenvalues::plot_1d_box();
 	// Validation::Eigenvalues::plot_2d_tubes();
 	// Validation::Eigenvalues::plot_2d_ball();
