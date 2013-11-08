@@ -33,6 +33,8 @@ public:
 	bool saveROI( const string& roi_file_name, bool isBigEndian = false );
 	// set roi through mouse click
 	void setROI(void);
+	void setROI( const Vec3i& roi_corner_0, const Vec3i& roi_corner_1 );
+
 	// if roi
 	inline Data3D<T>& getROI(void) { return is_roi_set ? roi_data:*this; }
 	inline const Data3D<T>& getROI(void) const { return is_roi_set ? roi_data:(*this); }
@@ -61,7 +63,9 @@ public:
 		return getMat().row(z).reshape(0, get_height()).clone(); 
 	}
 
-	
+	inline const Vec3i& get_roi_corner_0() const { return roi_corner[0]; }
+	inline const Vec3i& get_roi_corner_1() const { return roi_corner[1]; }
+
 private:
 	// indicate whether roi is set or not
 	bool is_roi_set;
@@ -179,6 +183,15 @@ inline void setROI_mouseEvent(int evt, int x, int y, int flags, void* param){
 		cout << '\r' << "ROI is from " << roi_corner[0] << " to " << roi_corner[1] << ". ";
 		cout << "Size: " << roi_corner[1]-roi_corner[0] << "\t";
 	}
+}
+
+
+template<typename T>
+void Image3D<T>::setROI( const Vec3i& roi_corner_0, const Vec3i& roi_corner_1 ){
+	is_roi_set = true;
+	roi_corner[0] = roi_corner_0;
+	roi_corner[1] = roi_corner_1;
+	set_roi_from_image( roi_corner[0], roi_corner[1], is_roi_set );
 }
 
 template<typename T>

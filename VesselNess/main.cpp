@@ -27,6 +27,27 @@ void plot_histogram_in_matlab(void) {
 	VI::Matlab::plot( range, hist );
 }
 
+
+bool set_roi_for_vesselness( void ) {
+	bool flag; 
+	// load the image data
+	Image3D<short> image_data;
+	flag = image_data.load( "data/roi16.partial.data" ); 
+	if( !flag ) return 0;
+	// load roi the image data
+	image_data.loadROI( "data/roi16.partial.roi.data" );
+	VI::MIP::Single_Channel( image_data.getROI(), "data/roi16.partial.roi.data" );
+	// load vesselness
+	Image3D<Vesselness_Sig> vn_sig1;
+	bool flag3 = vn_sig1.load( "data/roi16.partial.float5.vesselness" );
+	if( flag3 == 0 ) return 0;
+	// set roi for vesselness
+	vn_sig1.setROI( image_data.get_roi_corner_0(), image_data.get_roi_corner_1() );
+	// save roi for vesselness
+	vn_sig1.saveROI( "data/roi16.partial.roi.float5.vesselness" );
+	VI::MIP::Multi_Channels( vn_sig1.getROI(), "data/roi16.partial.roi.float5.vesselness" );
+}
+
 int main(int argc, char* argv[])
 {
 	//// Visualization of the Eigenvalues
@@ -67,9 +88,10 @@ int main(int argc, char* argv[])
 	presets[16] = Preset("roi16.data" );
 	presets[17] = Preset("roi17.data" );
 	
-	const Preset& ps = presets[17];
-	string data_name = "roi17.partial";
+	const Preset& ps = presets[12];
+	string data_name = "temp";
 	// string data_name = "temp";
+
 
 
 	if( bool isConstructTube = false ) {
