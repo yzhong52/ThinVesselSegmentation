@@ -4,6 +4,7 @@
 
 data/
 output/
+temp*
 
 # User-specific files
 *.suo
@@ -12,7 +13,7 @@ output/
 # Build result
 [Dd]ebug/
 [Rr]elease/
-x64/
+/x64/
 
 # Visual C++ cache files
 ipch/
