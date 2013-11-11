@@ -36,6 +36,12 @@
     <ClInclude Include="DisjointSet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="AjList_Graph.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GLViewer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -50,13 +56,13 @@
     <ClCompile Include="Edge.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AjList_Graph.h">
-      <Filter>Header Files</Filter>
-    </ClCompile>
     <ClCompile Include="Graph.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DisjointSet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GLViewer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
