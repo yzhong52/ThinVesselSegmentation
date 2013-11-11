@@ -1,3 +1,0 @@
-61 66 45 - data size
-unsigned_char - data type
-0 - Big Endian (1 for yes, 0 for no)

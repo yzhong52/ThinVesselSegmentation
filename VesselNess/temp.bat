@@ -1,1 +1,0 @@
-osgviewerGlut temp.ive

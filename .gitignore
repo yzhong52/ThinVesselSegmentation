@@ -4,7 +4,7 @@
 
 data/
 output/
-temp*
+temp.*
 
 # User-specific files
 *.suo
