@@ -46,6 +46,7 @@ bool set_roi_for_vesselness( void ) {
 	// save roi for vesselness
 	vn_sig1.saveROI( "data/roi16.partial.roi.float5.vesselness" );
 	VI::MIP::Multi_Channels( vn_sig1.getROI(), "data/roi16.partial.roi.float5.vesselness" );
+	return true;
 }
 
 int main(int argc, char* argv[])
@@ -65,8 +66,8 @@ int main(int argc, char* argv[])
 	// Validation::box_func_and_2nd_gaussian::plot_different_size();
 	// Validation::box_func_and_2nd_gaussian::plot_different_pos();
 
-	waitKey();
-	return 0;
+	//waitKey();
+	//return 0;
 
 	struct Preset {
 		Preset(){}
@@ -78,7 +79,7 @@ int main(int argc, char* argv[])
 	
 	bool flag = false;
 	Preset presets[30];
-	presets[0] = Preset("vessel3d", Vec3i(585, 525, 892));
+	presets[0] = Preset("data/vessel3d.data", Vec3i(585, 525, 892));
 	presets[10] = Preset("roi10", Vec3i(51, 39, 38));
 	presets[11] = Preset("roi11.data", Vec3i(116, 151, 166));
 	presets[12] = Preset("vessel3d.rd.k=19.data", Vec3i(585, 525, 892));
@@ -93,12 +94,11 @@ int main(int argc, char* argv[])
 	// string data_name = "temp";
 
 
+	//flag = image_data.loadData( presets[0].file, presets[0].size );
+	//if( !flag ) return 0;
+	//image_data.show();
+	//return 0;
 
-	if( bool isConstructTube = false ) {
-		Validation::construct_tube2( image_data );
-		//image_data.show("", 50);
-		//return 0;
-	} 
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	//// For tuning parameters
@@ -123,18 +123,17 @@ int main(int argc, char* argv[])
 	//return 0;
 
 	if( bool compute = true ) {
-		int margin = VD::compute_vesselness( image_data.getROI(), vn_all, 
+		flag = image_data.loadROI("data/roi15.data");
+		if( !flag ) return 0;
+
+		VD::compute_vesselness( image_data.getROI(), vn_all, 
 			// /*sigma from*/ 0.3f, /*sigma to*/ 3.5f, /*sigma step*/ 0.1f );
-		    /*sigma from*/ 0.5f, /*sigma to*/ 3.5f, /*sigma step*/ 0.1f );
-		
-		flag = vn_all.remove_margin( margin ); if( !flag ) return 0;
+		    /*sigma from*/ 0.5f, /*sigma to*/ 3.5f, /*sigma step*/ 0.5f );
+	
 		vn_all.save( data_name+".vesselness" );
 		
-		flag = image_data.getROI().remove_margin( margin ); if( !flag ) return 0;
-		image_data.getROI().save( data_name + ".data" );
-
 		Viewer::MIP::Multi_Channels( vn_all, data_name + ".vesselness" );
-		Viewer::MIP::Single_Channel( image_data.getROI(), data_name + ".data" );
+		// Viewer::MIP::Single_Channel( image_data.getROI(), data_name + ".data" );
 		return 0;
 
 	} else {

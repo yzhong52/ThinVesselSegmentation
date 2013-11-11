@@ -119,13 +119,11 @@ int VesselDetector::compute_vesselness(
 	cout << "Vesselness will be computed from sigma = " << sigma_from << " to sigma = " << sigma_to << endl;
 	
 	Data3D<Vesselness_Nor> vn;
-	dst.reset( src.get_size() );
+	dst.reset( src.get_size() ); // data will be clear to zero
 
-	int margin = int( ceil(6 * sigma_to + 2) );
-	if( margin % 2 == 0 )  margin++;
 
-	smart_return_value( sigma_from < sigma_to, "sigma_from should be smaller than sigma_to ", margin );
-	smart_return_value( sigma_step > 0, "sigma_step should be greater than 0 ", margin );
+	smart_return_value( sigma_from < sigma_to, "sigma_from should be smaller than sigma_to ", 0 );
+	smart_return_value( sigma_step > 0, "sigma_step should be greater than 0 ", 0 );
 
 	
 	// The BIGGER the Value the less sensitive the term is
@@ -143,6 +141,8 @@ int VesselDetector::compute_vesselness(
 		cout << '\r' << "Vesselness for sigma = " << sigma;
 		VesselDetector::hessien( src, vn, 0, sigma, alpha, beta, gamma );
 		// compare the response, if it is greater, copy it to our dst
+		int margin = int( ceil(6 * sigma_to + 2) );
+		if( margin % 2 == 0 )  margin++;
 		for( z=margin; z<src.get_size_z()-margin; z++ ) {
 			for( y=margin; y<src.get_size_y()-margin; y++ ) {
 				for( x=margin; x<src.get_size_x()-margin; x++ ) {
@@ -157,9 +157,8 @@ int VesselDetector::compute_vesselness(
 	}
 
 	cout << endl << "The minimum and maximum sigmas used for vesselness: " << min_sigma << ", " << max_sigma << endl;
-	cout << "Invalid margin is : " << margin << endl;
 	cout << "done. " << endl << endl;
 
-	return margin;
+	return 0;
 }
 
