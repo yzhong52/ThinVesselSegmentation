@@ -7,9 +7,7 @@
 #include "VesselDetector.h"
 #include "ImageProcessing.h"
 
-
-
-
+#include "MLViwer.h"
 
 template<typename T> class Data3D;
 class Vesselness;
@@ -67,12 +65,6 @@ namespace Viewer
 			system( ss2.str().c_str() );
 		}
 
-	}
-
-	namespace Matlab {
-		void plot( Mat_<double> mx, vector< Mat_<double> > mys );
-		void plot( Mat_<double> mx, Mat_<double> my );
-		void surf( Mat_<double> matz );
 	}
 
 	namespace OpenCV {

@@ -66,6 +66,9 @@
     <ClInclude Include="Neigbour3D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MLViwer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ImageProcessor.cpp">
@@ -102,6 +105,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Neigbour3D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MLViwer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

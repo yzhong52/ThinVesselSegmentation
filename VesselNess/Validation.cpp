@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Validation.h"
 #include "Viewer.h"
+#include "MLViwer.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -398,7 +399,7 @@ namespace Validation{
 		void gaussian(void){
 			Mat g = cv::getGaussianKernel( 6*r+1, r, CV_64F);
 			Mat g2 = g * g.t();
-			VI::Matlab::surf( g2 );
+			MLVier::surf( g2 );
 		}
 		void laplacian_of_gaussian(void){
 			Mat g = cv::getGaussianKernel( 7*r+1, r, CV_64F);
@@ -409,7 +410,7 @@ namespace Validation{
 				-1,  4, -1,
 				0,  -1,  0 );
 			filter2D( g2, log, CV_64F, kernel );
-			VI::Matlab::surf( log );
+			MLVier::surf( log );
 		}
 	}
 

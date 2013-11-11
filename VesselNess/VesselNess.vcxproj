@@ -333,6 +333,7 @@
     <ClInclude Include="Image3D.h" />
     <ClInclude Include="ImageProcessing.h" />
     <ClInclude Include="Kernel3D.h" />
+    <ClInclude Include="MLViwer.h" />
     <ClInclude Include="Neigbour3D.h" />
     <ClInclude Include="RingsDeduction.h" />
     <ClInclude Include="smart_assert.h" />
@@ -346,6 +347,7 @@
   <ItemGroup>
     <ClCompile Include="ImageProcessor.cpp" />
     <ClCompile Include="Kernel3D.cpp" />
+    <ClCompile Include="MLViwer.cpp" />
     <ClCompile Include="Neigbour3D.cpp" />
     <ClCompile Include="RingsDeduction.cpp" />
     <ClCompile Include="stdafx.cpp" />

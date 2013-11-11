@@ -24,7 +24,7 @@ void plot_histogram_in_matlab(void) {
 	// calculating histogram
 	Mat_<double> hist, range;
 	IP::histogram( im_data, range, hist, 1024 );
-	VI::Matlab::plot( range, hist );
+	MLVier::plot( range, hist );
 }
 
 
@@ -94,10 +94,10 @@ int main(int argc, char* argv[])
 	// string data_name = "temp";
 
 
-	//flag = image_data.loadData( presets[0].file, presets[0].size );
-	//if( !flag ) return 0;
-	//image_data.show();
-	//return 0;
+	flag = image_data.loadData( presets[0].file, presets[0].size );
+	if( !flag ) return 0;
+	image_data.show();
+	return 0;
 
 
 	/////////////////////////////////////////////////////////////////////////////////////
