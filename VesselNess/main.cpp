@@ -49,6 +49,27 @@ bool set_roi_for_vesselness( void ) {
 	return true;
 }
 
+void compute_vesselness(void){
+	string data_name = "roi15";
+
+	bool flag = image_data.loadROI( "data/"+data_name+".data" );
+	if( !flag ) return;
+	
+	Data3D<Vesselness> vn;
+	VD::compute_vesselness( image_data.getROI(), vn, 
+		/*sigma from*/ 0.5f,
+		/*sigma to*/ 3.5f,
+		/*sigma step*/ 1.5f );
+
+
+	string vn_name = "output/" + data_name + ".float4.vesselness";
+	vn.save( vn_name );
+	Viewer::MIP::Multi_Channels( vn, vn_name );
+
+} 
+
+
+
 int main(int argc, char* argv[])
 {
 	//// Visualization of the Eigenvalues
@@ -85,18 +106,15 @@ int main(int argc, char* argv[])
 	presets[12] = Preset("vessel3d.rd.k=19.data", Vec3i(585, 525, 892));
 	presets[13] = Preset("roi13.data", Vec3i(238, 223, 481) );
 	// presets[14] = Preset("roi14.data" );
-	presets[15] = Preset("roi15.data" );
+	presets[15] = Preset("data/roi15.data" );
 	presets[16] = Preset("roi16.data" );
 	presets[17] = Preset("roi17.data" );
 	
 	const Preset& ps = presets[12];
 	string data_name = "temp";
-	// string data_name = "temp";
 
-
-	flag = image_data.loadData( presets[0].file, presets[0].size );
-	if( !flag ) return 0;
-	image_data.show();
+	compute_vesselness();
+	
 	return 0;
 
 

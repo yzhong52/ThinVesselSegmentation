@@ -55,12 +55,32 @@ public:
 	// This virtual function here will take 2*4 = 8 bytes of data
 	static const int _size = sizeof(Vesselness_Data)/sizeof(float);
 	const int size(void) const { return _size; }
+
+	const float& operator[]( const int& i ) const {
+		smart_return_value( i>=0&&i<_size, "index invalid", *(float*)(this) );
+		return *((float*)(this)+i);
+	}
+
+	float& operator[]( const int& i ) {
+		smart_return_value( i>=0&&i<_size, "index invalid", *(float*)(this) );
+		return *((float*)(this)+i);
+	}
 };
 
 
 class Vesselness_Nor : public Vesselness_Nor_Data {
 public:
 	static const int _size = sizeof(Vesselness_Nor_Data)/sizeof(float);
+
+	const float& operator[]( const int& i ) const {
+		smart_return_value( i>=0&&i<_size, "index invalid", *(float*)(this) );
+		return *((float*)(this)+i);
+	}
+
+	float& operator[]( const int& i ) {
+		smart_return_value( i>=0&&i<_size, "index invalid", *(float*)(this) );
+		return *((float*)(this)+i);
+	}
 };
 
 class Vesselness_All : public Vesselness_All_Data {
