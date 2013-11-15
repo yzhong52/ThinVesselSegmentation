@@ -77,22 +77,22 @@
     <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DataTypes.h" />
     <ClInclude Include="DisjointSet.h" />
     <ClInclude Include="Edge.h" />
-    <ClInclude Include="Edge_Graph.h" />
+    <ClInclude Include="Graph.h" />
     <ClInclude Include="AjList_Graph.h" />
     <ClInclude Include="GLViewer.h" />
-    <ClInclude Include="Graph.h" />
+    <ClInclude Include="MinSpanTree.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DisjointSet.cpp" />
     <ClCompile Include="Edge.cpp" />
-    <ClCompile Include="Edge_Graph.cpp" />
     <ClCompile Include="GLViewer.cpp" />
-    <ClCompile Include="Graph.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MinSpanTree.cpp" />
     <ClCompile Include="stdafx.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

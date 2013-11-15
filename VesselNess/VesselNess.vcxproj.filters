@@ -22,6 +22,9 @@
     <Filter Include="Validation">
       <UniqueIdentifier>{7d3d3e7c-4617-4175-9925-e4b46ed68694}</UniqueIdentifier>
     </Filter>
+    <Filter Include="MinSpanTree">
+      <UniqueIdentifier>{d1375b18-f7e8-4bb0-9160-e1579fef86ca}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />

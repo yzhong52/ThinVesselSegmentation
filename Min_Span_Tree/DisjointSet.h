@@ -1,13 +1,17 @@
 #pragma once
 #include <iostream>
 
-using namespace std;
+// Yuchen: Critical Component of Minimum Spanning Tree
+// A disjoint-set data structure is a data structure that keeps track of a set of elements 
+// partitioned into a number of disjoint (nonoverlapping) subsets. A union-find algorithm is
+// an algorithm that performs two useful operations on such a data structure. 
 
 class DisjointSet {
 private:
 	int size;
 	int *data;
 public:
+	// Constuctors & Desctructors
 	DisjointSet( int n_size ) : size( n_size ) {
 		data = new int[size];
 		memset( data, -1, size*sizeof(int) );
@@ -15,6 +19,9 @@ public:
 	~DisjointSet(){
 		delete[] data;
 	}
+
+	// Find: Determine which subset a particular element is in. This can be used for determining 
+	// if two elements are in the same subset.
 	inline int find(int id){
 		if( data[id] == -1 ) {
 			return id;
@@ -23,15 +30,17 @@ public:
 			return data[id];
 		}
 	}
+	
+	// Union: Join two subsets into a single subset
 	inline void merge( int id1, int id2 ) { 
 		if( data[id1]!=-1 || data[id2]!=-1 ) {
-			std::cerr << "Merge Failed: id1 or id2 is not a root node. " << endl;
+			std::cerr << "Merge Failed: id1 or id2 is not a root node. " << std::endl;
 			return;
 		}
 		data[id1] = id2;
 	}
 
-	friend ostream& operator<<( ostream& out, const DisjointSet& djs );
+	friend std::ostream& operator<<( std::ostream& out, const DisjointSet& djs );
 }; 
 
 

@@ -54,8 +54,7 @@ namespace GLViewer
 	int width = 512;
 	int height = 512;
 
-	Edge_Graph<Edge_Ext>* ptrTree = NULL;
-	vector<Line>* ptrLines  = NULL; 
+	Graph<Edge_Ext, LineSegment>* ptrTree = NULL;
 
 	void render(void)									// Here's Where We Do All The Drawing
 	{
@@ -69,7 +68,7 @@ namespace GLViewer
 
 		// glutSolidTeapot( 20 );
 
-		glColor3f( 0.2f, 0.5f, 0.5f );
+		glColor3f( 1.0f, 1.0f, 1.0f );
 		glBindTexture(GL_TEXTURE_3D, texture);
 		glBegin(GL_QUADS);
 		for( int i=0; i<sz+1; i++ ) {
@@ -93,21 +92,21 @@ namespace GLViewer
 		glEnd();
 
 		glBindTexture( GL_TEXTURE_3D, NULL );
-		glColor3f( 1.0f, 0.0f, 0.0f );
+		
 		glBegin( GL_LINES );
-		for( unsigned int i=0; i<ptrLines->size(); i++ ){
-			const Line& line = (*ptrLines)[i];
-			glVertex3f( line.p1.x, line.p1.y, line.p1.z );
-			glVertex3f( line.p2.x, line.p2.y, line.p2.z );
-		}
-
-		glColor3f( 0.0f, 1.0f, 1.0f );
 		priority_queue<Edge_Ext>& edges = ptrTree->get_edges();
 		Edge_Ext* e = &edges.top();
+		glColor3f( 1.0f, 1.0f, 1.0f );
 		for( int unsigned i=0; i<edges.size(); i++ ) {
-			glVertex3f( e->p1.x, e->p1.y, e->p1.z );
-			glVertex3f( e->p2.x, e->p2.y, e->p2.z );
+			glVertex3f( e->line.p1.x, e->line.p1.y, e->line.p1.z );
+			glVertex3f( e->line.p2.x, e->line.p2.y, e->line.p2.z );
 			e++;
+		}
+		glColor3f( 0.0f, 0.3f, 1.0f );
+		for( unsigned int i=0; i<ptrTree->num_nodes(); i++ ) {
+			LineSegment& line = ptrTree->get_node( i );
+			glVertex3f( line.p1.x, line.p1.y, line.p1.z );
+			glVertex3f( line.p2.x, line.p2.y, line.p2.z );
 		}
 		glEnd();
 
@@ -198,7 +197,7 @@ namespace GLViewer
 		}
 	}
 
-	void MIP( unsigned char* im_data, int im_x, int im_y, int im_z, Edge_Graph<Edge_Ext>& tree, vector<Line>& lines ){
+	void MIP( unsigned char* im_data, int im_x, int im_y, int im_z, Graph<Edge_Ext, LineSegment>& tree ){
 		
 		sx = (im_x%2==0) ? im_x : im_x+1;
 		sy = (im_y%2==0) ? im_y : im_y+1;
@@ -213,7 +212,6 @@ namespace GLViewer
 		}
 
 		ptrTree = &tree;
-		ptrLines = &lines;
 
 		int argc = 1;
 		char* argv[1] = { NULL };
