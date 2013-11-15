@@ -69,6 +69,9 @@
     <ClInclude Include="MLViwer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="GLViewer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ImageProcessor.cpp">
@@ -108,6 +111,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MLViwer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GLViewer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

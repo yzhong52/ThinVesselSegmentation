@@ -25,6 +25,7 @@ public:
 
 	//gettters
 	const std::priority_queue<Edge_Type>& get_edges( void ) const { return edges; }
+	std::priority_queue<Edge_Type>& get_edges( void ) { return edges; }
 	const unsigned int get_num_edges(void) const { return edges.size(); }
 	
 	void get_min_span_tree( Edge_Graph<Edge_Type>& dst ) const ;

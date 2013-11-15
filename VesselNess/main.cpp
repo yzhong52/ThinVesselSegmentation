@@ -11,6 +11,7 @@
 #include "Image3D.h"
 #include "ImageProcessing.h"
 #include "Vesselness.h"
+#include "GLViewer.h"
 
 Data3D<Vesselness_All> vn_all;
 Image3D<short> image_data;
@@ -112,6 +113,19 @@ int main(int argc, char* argv[])
 	
 	const Preset& ps = presets[12];
 	string data_name = "temp";
+
+
+	// image_data.loadData( presets[0].file, presets[0].size );
+	//image_data.setROI();
+	image_data.loadData( "data/roi16.partial.partial.data", Vec3i(111,44,111), false );
+	
+	Image3D<unsigned char> image_data_uchar;
+	IP::normalize( image_data, short(255) );
+	image_data.convertTo( image_data_uchar );
+	image_data_uchar.show();
+	image_data_uchar.save( "output/roi16.partial.partial.uchar.data" );
+	VI::MIP::Single_Channel( image_data_uchar, "output/temp" );
+
 
 	compute_vesselness();
 	

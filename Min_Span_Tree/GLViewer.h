@@ -1,12 +1,12 @@
 #pragma once
 
 #include "Edge_Graph.h"
+#include "Edge.h"
 #include <vector>
-
-class Edge_Ext;
+using namespace std;
 
 namespace GLViewer
 {
-	void show_dir( const Edge_Graph<Edge_Ext>& tree, const std::vector<Line>& lines );
-};
+	void MIP( unsigned char* data, int x, int y, int z, Edge_Graph<Edge_Ext>& tree, vector<Line>& lines );
+}
 

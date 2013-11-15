@@ -54,22 +54,17 @@ namespace GLViewer
 	int width = 512;
 	int height = 512;
 
-	Edge_Graph<Edge_Ext>* ptrTree = NULL;
-	vector<Line>* ptrLines  = NULL; 
-
 	void render(void)									// Here's Where We Do All The Drawing
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	// Clear The Screen And The Depth Buffer
 
 		glTranslatef( 0.5f*sx, 0.5f*sy, 0.5f*sz );
-		/*glRotatef( -xrot*0.5f, 0.0f, 1.0f, 0.0f );*/
-		/*glRotatef( yrot*0.5f, 1.0f, 0.0f, 0.0f );*/
-		glRotatef( 0.15f, 0.0f, 0.0f, 1.0f );
+		glRotatef( -xrot*0.5f, 0.0f, 1.0f, 0.0f );
+		glRotatef( -yrot*0.5f, 1.0f, 0.0f, 0.0f );
 		glTranslatef( -0.5f*sx, -0.5f*sy, -0.5f*sz );
 
 		// glutSolidTeapot( 20 );
 
-		glColor3f( 0.2f, 0.5f, 0.5f );
 		glBindTexture(GL_TEXTURE_3D, texture);
 		glBegin(GL_QUADS);
 		for( int i=0; i<sz+1; i++ ) {
@@ -91,26 +86,6 @@ namespace GLViewer
 			glTexCoord3f( 1.0f*i/sx, 0, 1 ); glVertex3i( i,  0, sz );
 		}
 		glEnd();
-
-		glBindTexture( GL_TEXTURE_3D, NULL );
-		glColor3f( 1.0f, 0.0f, 0.0f );
-		glBegin( GL_LINES );
-		for( unsigned int i=0; i<ptrLines->size(); i++ ){
-			const Line& line = (*ptrLines)[i];
-			glVertex3f( line.p1.x, line.p1.y, line.p1.z );
-			glVertex3f( line.p2.x, line.p2.y, line.p2.z );
-		}
-
-		glColor3f( 0.0f, 1.0f, 1.0f );
-		priority_queue<Edge_Ext>& edges = ptrTree->get_edges();
-		Edge_Ext* e = &edges.top();
-		for( int unsigned i=0; i<edges.size(); i++ ) {
-			glVertex3f( e->p1.x, e->p1.y, e->p1.z );
-			glVertex3f( e->p2.x, e->p2.y, e->p2.z );
-			e++;
-		}
-		glEnd();
-
 		glutSwapBuffers();
 	}
 
@@ -157,11 +132,6 @@ namespace GLViewer
 			       0, 0, 0, 
 				   0, 1, 0 );
 		glTranslatef(-0.5f*sx, -0.5f*sy, -0.5f*sz); // move to the center of the data
-		
-		glTranslatef( 0.5f*sx, 0.5f*sy, 0.5f*sz );
-		glRotatef( -90, 1.0f, 0.0f, 0.0f );
-		glTranslatef( -0.5f*sx, -0.5f*sy, -0.5f*sz );
-
 		glutPostRedisplay();
 	}
 
@@ -198,8 +168,7 @@ namespace GLViewer
 		}
 	}
 
-	void MIP( unsigned char* im_data, int im_x, int im_y, int im_z, Edge_Graph<Edge_Ext>& tree, vector<Line>& lines ){
-		
+	void MIP( unsigned char* im_data, int im_x, int im_y, int im_z ){
 		sx = (im_x%2==0) ? im_x : im_x+1;
 		sy = (im_y%2==0) ? im_y : im_y+1;
 		sz = (im_z%2==0) ? im_z : im_z+1;
@@ -211,9 +180,6 @@ namespace GLViewer
 				data[ z*sy*sx + y*sx + x] = im_data[ z*im_y*im_x + y*im_x + x];
 			}
 		}
-
-		ptrTree = &tree;
-		ptrLines = &lines;
 
 		int argc = 1;
 		char* argv[1] = { NULL };

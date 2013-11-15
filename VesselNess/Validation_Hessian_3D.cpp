@@ -9,7 +9,7 @@
 
 
 void Validation::construct_tube( Data3D<short>& image ) {
-	image.reset( Vec3i(500, 100, 100) );
+	image.reset( Vec3i(150, 200, 150), 500*25  );
 
 	// center of the vessel
 	const Vec3i center[5] = {
@@ -21,7 +21,7 @@ void Validation::construct_tube( Data3D<short>& image ) {
 	};
 	// radius of vessels
 	// const float radius[5] = { 0.5f, 1.5f, 2.5f, 3.5f, 4.5f };
-	const float radius[5] = { 1.0f, 2.0f, 3.0f, 4.0f, 5.0f };
+	const float radius[5] = { 3.0f, 7.0f, 3.0f, 4.0f, 5.0f };
 
 	int x, y, z;
 
@@ -62,12 +62,18 @@ void Validation::construct_tube( Data3D<short>& image ) {
 		for( y=0; y<image.get_size_y(); y++ ) {
 			for( z=-20; z<20; z++ ) {
 				for( x=-20; x<20; x++ ){
+					if( x+center[i][0] <= 0 ) continue;
+					if( x+center[i][0] >=image.SX() ) continue;
+
+					if( z+center[i][0] <= 0 ) continue;
+					if( z+center[i][0] >=image.SZ() ) continue;
+
 					float dis_center = sqrt( 1.0f*x*x + z*z );
 					float ratio = radius[i] + 0.5f - dis_center;
 					if( ratio>1.0f ) {
 						image.at(x+center[i][0], y, z+center[i][2]) = MAX_SHORT;
 					} else if( ratio>0.0f ) {
-						image.at(x+center[i][0], y, z+center[i][2]) = short( MAX_SHORT * ratio ); 
+						image.at(x+center[i][0], y, z+center[i][2]) = short( MAX_SHORT * ratio ) + 500; 
 					}
 				}
 			}

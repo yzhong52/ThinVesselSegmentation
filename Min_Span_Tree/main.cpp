@@ -13,9 +13,6 @@
 using namespace std;
 
 
-
-
-
 int _tmain(int argc, _TCHAR* argv[])
 {
 	//// Test Case
@@ -146,15 +143,38 @@ int _tmain(int argc, _TCHAR* argv[])
 				e.p1 = p11;
 				e.p2 = p22;
 			}
+			// if( temp > 190 ) continue;
+
 			g.add_edge( e );
 		}
 	}
 
 	Edge_Graph<Edge_Ext> tree;
 	g.get_min_span_tree( tree );
-	cout << tree << endl;
+	// cout << tree << endl;
 
-	GLViewer::show_dir( tree, lines );
+
+	// Visualization of MIP
+	int sx = 111;
+	int sy = 44;
+	int sz = 111;
+	int size = sx * sy * sz;
+
+	unsigned char* data = new unsigned char[ size ];
+
+	// loading data from file
+	FILE* pFile=fopen( "data/roi16.partial.partial.uchar.data", "rb" );
+	if( pFile==0 ) {
+		cout << "File not found" << endl;
+		return false;
+	}
+
+	int size_read = (int) fread( data, sizeof(unsigned char), size, pFile);
+	
+	GLViewer::MIP( data, sx, sy, sz, tree, lines );
+
+	delete[] data;
+
 
 	return 0;
 }

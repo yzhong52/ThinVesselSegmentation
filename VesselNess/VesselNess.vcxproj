@@ -330,6 +330,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Data3D.h" />
+    <ClInclude Include="GLViewer.h" />
     <ClInclude Include="Image3D.h" />
     <ClInclude Include="ImageProcessing.h" />
     <ClInclude Include="Kernel3D.h" />
@@ -345,6 +346,7 @@
     <ClInclude Include="Viewer.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="GLViewer.cpp" />
     <ClCompile Include="ImageProcessor.cpp" />
     <ClCompile Include="Kernel3D.cpp" />
     <ClCompile Include="MLViwer.cpp" />
