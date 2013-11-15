@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "Validation.h"
 #include "Viewer.h"
-#include "MLViwer.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -388,31 +387,6 @@ namespace Validation{
 		}
 	}
 
-	namespace BallFittingModels{
-		static const int im_width = 50; 
-		static const int im_height = 50; 
-		static const int cx = 25; 
-		static const int cy = 25; 
-		static const int r = 5;
-		static const int r2 = r*r;
-		
-		void gaussian(void){
-			Mat g = cv::getGaussianKernel( 6*r+1, r, CV_64F);
-			Mat g2 = g * g.t();
-			MLVier::surf( g2 );
-		}
-		void laplacian_of_gaussian(void){
-			Mat g = cv::getGaussianKernel( 7*r+1, r, CV_64F);
-			Mat g2 = g * g.t();
-			Mat log;
-			Mat_<double> kernel = (Mat_<double>(3,3) << 
-				0,  -1,  0,
-				-1,  4, -1,
-				0,  -1,  0 );
-			filter2D( g2, log, CV_64F, kernel );
-			MLVier::surf( log );
-		}
-	}
 
 	namespace box_func_and_2nd_gaussian{
 		static const Mat dx = ( Mat_<float>(1,3) << -0.5, 0, 0.5 );

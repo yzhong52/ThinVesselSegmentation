@@ -7,8 +7,6 @@
 #include "VesselDetector.h"
 #include "ImageProcessing.h"
 
-#include "MLViwer.h"
-
 template<typename T> class Data3D;
 class Vesselness;
 class Vesselness_All;

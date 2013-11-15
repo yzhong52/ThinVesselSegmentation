@@ -25,6 +25,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
+    <None Include="ClassDiagram1.cd" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Viewer.h">
@@ -66,9 +67,6 @@
     <ClInclude Include="Neigbour3D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MLViwer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="GLViewer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -108,9 +106,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Neigbour3D.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MLViwer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GLViewer.cpp">

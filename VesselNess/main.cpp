@@ -17,15 +17,16 @@ Data3D<Vesselness_All> vn_all;
 Image3D<short> image_data;
 
 void plot_histogram_in_matlab(void) {
-	cout << "Plotting Histogram of data in Matlab. " << endl;
-	// loading data
-	Image3D<short> im_data;
-	bool flag = im_data.loadData( "data/vessel3d.data", Vec3i(585,525,200), true, true );
-	if( !flag ) return;
-	// calculating histogram
-	Mat_<double> hist, range;
-	IP::histogram( im_data, range, hist, 1024 );
-	MLVier::plot( range, hist );
+	smart_assert( 0, "Deprecated!" );
+	//cout << "Plotting Histogram of data in Matlab. " << endl;
+	//// loading data
+	//Image3D<short> im_data;
+	//bool flag = im_data.loadData( "data/vessel3d.data", Vec3i(585,525,200), true, true );
+	//if( !flag ) return;
+	//// calculating histogram
+	//Mat_<double> hist, range;
+	//IP::histogram( im_data, range, hist, 1024 );
+	//MLVier::plot( range, hist );
 }
 
 
@@ -73,6 +74,8 @@ void compute_vesselness(void){
 
 int main(int argc, char* argv[])
 {
+	
+
 	//// Visualization of the Eigenvalues
 	// Validation::Eigenvalues::plot_1d_box();
 	// Validation::Eigenvalues::plot_2d_tubes();
@@ -114,6 +117,13 @@ int main(int argc, char* argv[])
 	const Preset& ps = presets[12];
 	string data_name = "temp";
 
+
+	bool falg = image_data.loadROI( "data/roi15.data" );
+	if( !falg ) return 0;
+
+	VI::MIP::Single_Channel( image_data.getROI(), "output/roi15.data" );
+
+	return 0;
 
 	// image_data.loadData( presets[0].file, presets[0].size );
 	//image_data.setROI();

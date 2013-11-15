@@ -47,7 +47,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	//cout << original << endl;
 	//cout << result << endl;
 
-	std::ifstream fin("data/linedata.txt");
+	std::ifstream fin("data/linedata_2013_11_14.txt");
 	if( !fin.is_open() ){
 		std::cerr << "File cannot be open" << endl;
 	}
@@ -155,15 +155,15 @@ int _tmain(int argc, _TCHAR* argv[])
 
 
 	// Visualization of MIP
-	int sx = 111;
-	int sy = 44;
-	int sz = 111;
+	int sx = 134;
+	int sy = 113;
+	int sz = 116;
 	int size = sx * sy * sz;
 
 	unsigned char* data = new unsigned char[ size ];
 
 	// loading data from file
-	FILE* pFile=fopen( "data/roi16.partial.partial.uchar.data", "rb" );
+	FILE* pFile=fopen( "data/roi15.uchar.data", "rb" );
 	if( pFile==0 ) {
 		cout << "File not found" << endl;
 		return false;
