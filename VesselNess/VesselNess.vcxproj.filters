@@ -25,6 +25,9 @@
     <Filter Include="MinSpanTree">
       <UniqueIdentifier>{d1375b18-f7e8-4bb0-9160-e1579fef86ca}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Visualization">
+      <UniqueIdentifier>{d5047bf8-d347-411e-9d25-35b9348629e4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -70,8 +73,17 @@
     <ClInclude Include="Neigbour3D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DisjointSet.h">
+      <Filter>MinSpanTree</Filter>
+    </ClInclude>
+    <ClInclude Include="Edge.h">
+      <Filter>MinSpanTree</Filter>
+    </ClInclude>
+    <ClInclude Include="MinSpanTree.h">
+      <Filter>MinSpanTree</Filter>
+    </ClInclude>
     <ClInclude Include="GLViewer.h">
-      <Filter>Header Files</Filter>
+      <Filter>Visualization</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -111,8 +123,17 @@
     <ClCompile Include="Neigbour3D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DisjointSet.cpp">
+      <Filter>MinSpanTree</Filter>
+    </ClCompile>
+    <ClCompile Include="Edge.cpp">
+      <Filter>MinSpanTree</Filter>
+    </ClCompile>
+    <ClCompile Include="MinSpanTree.cpp">
+      <Filter>MinSpanTree</Filter>
+    </ClCompile>
     <ClCompile Include="GLViewer.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Visualization</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

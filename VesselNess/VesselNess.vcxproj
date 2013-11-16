@@ -331,10 +331,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Data3D.h" />
+    <ClInclude Include="DisjointSet.h" />
+    <ClInclude Include="Edge.h" />
     <ClInclude Include="GLViewer.h" />
     <ClInclude Include="Image3D.h" />
     <ClInclude Include="ImageProcessing.h" />
     <ClInclude Include="Kernel3D.h" />
+    <ClInclude Include="MinSpanTree.h" />
     <ClInclude Include="Neigbour3D.h" />
     <ClInclude Include="RingsDeduction.h" />
     <ClInclude Include="smart_assert.h" />
@@ -346,9 +349,12 @@
     <ClInclude Include="Viewer.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DisjointSet.cpp" />
+    <ClCompile Include="Edge.cpp" />
     <ClCompile Include="GLViewer.cpp" />
     <ClCompile Include="ImageProcessor.cpp" />
     <ClCompile Include="Kernel3D.cpp" />
+    <ClCompile Include="MinSpanTree.cpp" />
     <ClCompile Include="Neigbour3D.cpp" />
     <ClCompile Include="RingsDeduction.cpp" />
     <ClCompile Include="stdafx.cpp" />

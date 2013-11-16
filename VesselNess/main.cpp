@@ -12,6 +12,8 @@
 #include "ImageProcessing.h"
 #include "Vesselness.h"
 #include "GLViewer.h"
+#include "MinSpanTree.h"
+
 
 Data3D<Vesselness_All> vn_all;
 Image3D<short> image_data;
@@ -62,35 +64,41 @@ void compute_vesselness(void){
 		/*sigma from*/ 0.5f,
 		/*sigma to*/ 3.5f,
 		/*sigma step*/ 1.5f );
-
-
+	
 	string vn_name = "output/" + data_name + ".float4.vesselness";
 	vn.save( vn_name );
 	Viewer::MIP::Multi_Channels( vn, vn_name );
 
 } 
 
+#include <windows.h>		// Header File For Windows
+#include <gl\gl.h>			// Header File For The OpenGL32 Library
+#include <gl\glu.h>			// Header File For The GLu32 Library
 
+Graph< MST::Edge_Ext, MST::LineSegment > tree;
+
+void draw_min_span_tree(void) {
+	glBegin( GL_LINES );
+	priority_queue<MST::Edge_Ext>& edges = tree.get_edges();
+	MST::Edge_Ext* e = &edges.top();
+	glColor3f( 1.0f, 1.0f, 1.0f );
+	for( int unsigned i=0; i<edges.size(); i++ ) {
+		glVertex3f( e->line.p1.x, e->line.p1.y, e->line.p1.z );
+		glVertex3f( e->line.p2.x, e->line.p2.y, e->line.p2.z );
+		e++;
+	}
+	glColor3f( 0.3f, 0.7f, 1.0f );
+	for( unsigned int i=0; i< tree.num_nodes(); i++ ) {
+		MST::LineSegment& line = tree.get_node( i );
+		glVertex3f( line.p1.x, line.p1.y, line.p1.z );
+		glVertex3f( line.p2.x, line.p2.y, line.p2.z );
+	}
+	glEnd();
+	glColor3f( 0.4f, 0.2f, 0.2f );
+}
 
 int main(int argc, char* argv[])
 {
-	
-
-	//// Visualization of the Eigenvalues
-	// Validation::Eigenvalues::plot_1d_box();
-	// Validation::Eigenvalues::plot_2d_tubes();
-	// Validation::Eigenvalues::plot_2d_ball();
-	// Validation::Eigenvalues::plot_3d_tubes();
-	// Validation::BallFittingModels::cylinder();
-
-	//// Visualize the Gassian Filter and the laplacian of guassian in 2D with Matlab
-	// Validation::BallFittingModels::gaussian();
-	// Validation::BallFittingModels::laplacian_of_gaussian();
-
-	//// Draw Second Derivative of Gaussian on top of the Box function 
-	// Validation::box_func_and_2nd_gaussian::plot_different_size();
-	// Validation::box_func_and_2nd_gaussian::plot_different_pos();
-
 	//waitKey();
 	//return 0;
 
@@ -118,16 +126,26 @@ int main(int argc, char* argv[])
 	string data_name = "temp";
 
 
-	bool falg = image_data.loadROI( "data/roi15.data" );
+	bool falg = image_data.load( "data/roi16.partial.data" );
 	if( !falg ) return 0;
 
-	VI::MIP::Single_Channel( image_data.getROI(), "output/roi15.data" );
+	Image3D<unsigned char> image_data_uchar;
+	IP::normalize( image_data.getROI(), short(255) );
+	image_data.getROI().convertTo( image_data_uchar );
+	image_data_uchar.show();
+
+	MinSpanTree::build_tree_xuefeng( "data/roi16.partial.linedata.txt", tree );
+
+	GLViewer::MIP( image_data_uchar.getROI().getMat().data, 
+		image_data_uchar.SX(),
+		image_data_uchar.SY(),
+		image_data_uchar.SZ(), draw_min_span_tree );
 
 	return 0;
 
 	// image_data.loadData( presets[0].file, presets[0].size );
 	//image_data.setROI();
-	image_data.loadData( "data/roi16.partial.partial.data", Vec3i(111,44,111), false );
+	/*image_data.loadData( "data/roi16.partial.partial.data", Vec3i(111,44,111), false );
 	
 	Image3D<unsigned char> image_data_uchar;
 	IP::normalize( image_data, short(255) );
@@ -135,7 +153,7 @@ int main(int argc, char* argv[])
 	image_data_uchar.show();
 	image_data_uchar.save( "output/roi16.partial.partial.uchar.data" );
 	VI::MIP::Single_Channel( image_data_uchar, "output/temp" );
-
+*/
 
 	compute_vesselness();
 	
@@ -229,6 +247,19 @@ int main(int argc, char* argv[])
 	//	im_slice = im_no_ring;
 	//}
 
+	////////////////////////////////////////////////////////////////
+	// Plotting About Eigenvalues
+	////////////////////////////////////////////////////////////////
+	//// Visualization of the Eigenvalues
+	// Validation::Eigenvalues::plot_1d_box();
+	// Validation::Eigenvalues::plot_2d_tubes();
+	// Validation::Eigenvalues::plot_2d_ball();
+	// Validation::Eigenvalues::plot_3d_tubes();
+	// Validation::BallFittingModels::cylinder();
+	
+	//// Draw Second Derivative of Gaussian on top of the Box function 
+	// Validation::box_func_and_2nd_gaussian::plot_different_size();
+	// Validation::box_func_and_2nd_gaussian::plot_different_pos();
 
 	return 0;
 }
