@@ -47,15 +47,15 @@ public:
 
 	// get a slice of data (with normalization)
 	inline Mat getByZ( const int& z, const T& min, const T& max ) const {
-	//	Mat mat_temp = _mat.row(z).reshape( 0, get_height() ).clone(); 
-	//	// change the data type from whatever dataype it is to float for computation
-	//	mat_temp.convertTo(mat_temp, CV_32F);
-	//	// normalize the data range from whatever it is to [0, 255];
-	//	mat_temp = 255.0f * ( mat_temp - min ) / (max - min);
-	//	// convert back to CV_8U
-	//	mat_temp.convertTo(mat_temp, CV_8U);
-	//	return mat_temp;
-		smart_assert( 0, "deprecated" );
+		Mat mat_temp = _mat.row(z).reshape( 0, get_height() ).clone(); 
+		// change the data type from whatever dataype it is to float for computation
+		mat_temp.convertTo(mat_temp, CV_32F);
+		// normalize the data range from whatever it is to [0, 255];
+		mat_temp = 255.0f * ( mat_temp - min ) / (max - min);
+		// convert back to CV_8U
+		mat_temp.convertTo(mat_temp, CV_8U);
+		return mat_temp;
+		// smart_assert( 0, "deprecated" );
 	}
 
 	// get one slice of data

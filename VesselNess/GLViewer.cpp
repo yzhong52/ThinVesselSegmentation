@@ -50,6 +50,7 @@ namespace GLViewer
 	int height = 512;
 
 	void (*extra_render)() = NULL;
+	void (*after_render)(int,int) = NULL;
 
 	void render(void)									// Here's Where We Do All The Drawing
 	{
@@ -88,24 +89,8 @@ namespace GLViewer
 
 		glBindTexture( GL_TEXTURE_3D, NULL );
 		
-		/*
-		glBegin( GL_LINES );
-		priority_queue<Edge_Ext>& edges = ptrTree->get_edges();
-		Edge_Ext* e = &edges.top();
-		glColor3f( 1.0f, 1.0f, 1.0f );
-		for( int unsigned i=0; i<edges.size(); i++ ) {
-			glVertex3f( e->line.p1.x, e->line.p1.y, e->line.p1.z );
-			glVertex3f( e->line.p2.x, e->line.p2.y, e->line.p2.z );
-			e++;
-		}
-		glColor3f( 0.0f, 0.3f, 1.0f );
-		for( unsigned int i=0; i<ptrTree->num_nodes(); i++ ) {
-			LineSegment& line = ptrTree->get_node( i );
-			glVertex3f( line.p1.x, line.p1.y, line.p1.z );
-			glVertex3f( line.p2.x, line.p2.y, line.p2.z );
-		}
-		glEnd();
-*/
+		if( after_render ) after_render( width, height );
+		
 		glutSwapBuffers();
 	}
 
@@ -193,7 +178,10 @@ namespace GLViewer
 		}
 	}
 
-	void MIP( unsigned char* im_data, int im_x, int im_y, int im_z, void (*draw_func)() ){
+	void MIP( unsigned char* im_data, int im_x, int im_y, int im_z, 
+		void (*pre_draw_func)(void),
+		void (*post_draw_func)(int,int) )
+	{
 		sx = (im_x%2==0) ? im_x : im_x+1;
 		sy = (im_y%2==0) ? im_y : im_y+1;
 		sz = (im_z%2==0) ? im_z : im_z+1;
@@ -206,7 +194,8 @@ namespace GLViewer
 			}
 		}
 
-		extra_render = draw_func;
+		extra_render = pre_draw_func;
+		after_render = post_draw_func;
 
 		int argc = 1;
 		char* argv[1] = { NULL };

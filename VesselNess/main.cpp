@@ -12,6 +12,7 @@
 #include "ImageProcessing.h"
 #include "Vesselness.h"
 #include "GLViewer.h"
+#include "GLViewerExt.h"
 #include "MinSpanTree.h"
 
 
@@ -71,31 +72,10 @@ void compute_vesselness(void){
 
 } 
 
-#include <windows.h>		// Header File For Windows
-#include <gl\gl.h>			// Header File For The OpenGL32 Library
-#include <gl\glu.h>			// Header File For The GLu32 Library
 
-Graph< MST::Edge_Ext, MST::LineSegment > tree;
 
-void draw_min_span_tree(void) {
-	glBegin( GL_LINES );
-	priority_queue<MST::Edge_Ext>& edges = tree.get_edges();
-	MST::Edge_Ext* e = &edges.top();
-	glColor3f( 1.0f, 1.0f, 1.0f );
-	for( int unsigned i=0; i<edges.size(); i++ ) {
-		glVertex3f( e->line.p1.x, e->line.p1.y, e->line.p1.z );
-		glVertex3f( e->line.p2.x, e->line.p2.y, e->line.p2.z );
-		e++;
-	}
-	glColor3f( 0.3f, 0.7f, 1.0f );
-	for( unsigned int i=0; i< tree.num_nodes(); i++ ) {
-		MST::LineSegment& line = tree.get_node( i );
-		glVertex3f( line.p1.x, line.p1.y, line.p1.z );
-		glVertex3f( line.p2.x, line.p2.y, line.p2.z );
-	}
-	glEnd();
-	glColor3f( 0.4f, 0.2f, 0.2f );
-}
+
+
 
 int main(int argc, char* argv[])
 {
@@ -133,13 +113,21 @@ int main(int argc, char* argv[])
 	IP::normalize( image_data.getROI(), short(255) );
 	image_data.getROI().convertTo( image_data_uchar );
 	image_data_uchar.show();
+	image_data_uchar.saveVideo("video.avi");
+	return 0;
 
+
+	Graph< MST::Edge_Ext, MST::LineSegment > tree;
 	MinSpanTree::build_tree_xuefeng( "data/roi16.partial.linedata.txt", tree );
 
+	GLViewerExt::draw_min_span_tree_init( tree );
+	GLViewerExt::save_video_int( "output/video.avi", 24, 5 );
 	GLViewer::MIP( image_data_uchar.getROI().getMat().data, 
 		image_data_uchar.SX(),
 		image_data_uchar.SY(),
-		image_data_uchar.SZ(), draw_min_span_tree );
+		image_data_uchar.SZ(), 
+		GLViewerExt::draw_min_span_tree, // drawing min span tree
+		GLViewerExt::save_video );       // saving video
 
 	return 0;
 
