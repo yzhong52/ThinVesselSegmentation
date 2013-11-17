@@ -112,16 +112,30 @@ int main(int argc, char* argv[])
 	Image3D<unsigned char> image_data_uchar;
 	IP::normalize( image_data.getROI(), short(255) );
 	image_data.getROI().convertTo( image_data_uchar );
-	image_data_uchar.show();
-	image_data_uchar.saveVideo("video.avi");
-	return 0;
+	//image_data_uchar.show();
+	//image_data_uchar.saveVideo("video.avi");
+	//return 0;
+
+
+	//cv::VideoWriter outputVideo;
+	//outputVideo.open( "output/video2.avi", -1, 20, cv::Size( 500, 500 ), true);
+	//if (!outputVideo.isOpened())
+	//{
+	//	cout  << "Could not open the output video for write: " << endl;
+	//	
+	//}
+	//Mat pixels( 500, 500, CV_8UC3 );
+	//for (int i=0; i<100; i++ )
+	//	outputVideo << pixels;
+	//cout << "Success: Save Video Done" << endl;
+	
 
 
 	Graph< MST::Edge_Ext, MST::LineSegment > tree;
 	MinSpanTree::build_tree_xuefeng( "data/roi16.partial.linedata.txt", tree );
 
 	GLViewerExt::draw_min_span_tree_init( tree );
-	GLViewerExt::save_video_int( "output/video.avi", 24, 5 );
+	GLViewerExt::save_video_int( "output/video.avi", 20, 5 );
 	GLViewer::MIP( image_data_uchar.getROI().getMat().data, 
 		image_data_uchar.SX(),
 		image_data_uchar.SY(),

@@ -50,7 +50,6 @@ namespace GLViewerExt
 		int frames_count = int( fps * duration );
 		int current_frame = 0;
 		bool isInit = false;
-		cv::VideoWriter outputVideo;
 	}
 	void save_video_int( string video_name, double frame_rate, double duration ) {
 		sv::video_name = video_name;
@@ -70,26 +69,46 @@ namespace GLViewerExt
 
 		if( !isInit ) return;
 
+		static cv::VideoWriter* outputVideo = NULL;
 		if( current_frame==0 ) {
-			sv::outputVideo.open( sv::video_name, -1, sv::fps, cv::Size( width, height ), true);
-			if (!sv::outputVideo.isOpened())
+			cout << "Saving Video Begin: Please Stand Still and Don't Touch me!!!" << endl;
+			cout << " - File Name: " << sv::video_name << endl;
+			cout << " - Frame Rate: " << sv::fps << endl;
+			cout << " - Total Frames: " << sv::frames_count << endl;
+			cout << " - Frame Size: " << width << " by " << height << endl;
+
+			outputVideo = new cv::VideoWriter( sv::video_name, 
+				-1/*CV_FOURCC('M','S','V','C')*/, /*Yuchen: I don't understand this. */
+				sv::fps,                    /*Yuchen: Frame Rate */
+				cv::Size( width, height ),  /*Yuchen: Frame Size of the Video  */
+				true);                      /*Yuchen: Is Color                 */
+			if (!outputVideo->isOpened())
 			{
-				cout  << "Could not open the output video for write: " << video_name << endl;
+				cout  << "Could not open the output video for write: " << endl;
 				isInit = false;
 				return;
 			}
 		} else if ( current_frame < frames_count ) {
-			// Read Buffer from OpenGL
 			Mat pixels( width, height, CV_8UC3 );
 			glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, pixels.data );
-			outputVideo << pixels;
+			Mat cv_pixels( width, height, CV_8UC3 );
+			for( int y=0; y<height; y++ ) for( int x=0; x<width; x++ ) 
+			{
+				cv_pixels.at<Vec3b>(y,x)[2] = pixels.at<Vec3b>(height-y-1,x)[0];
+				cv_pixels.at<Vec3b>(y,x)[1] = pixels.at<Vec3b>(height-y-1,x)[1];
+				cv_pixels.at<Vec3b>(y,x)[0] = pixels.at<Vec3b>(height-y-1,x)[2];
+			}
+			(*outputVideo) << cv_pixels; 
 		} else if ( current_frame == frames_count ) {
-			outputVideo.release();
+			delete outputVideo;
+			outputVideo = NULL;
 			isInit = false;
-			cout << "Success: Save Video Done" << endl;
+			cout << '\r' << "All Done. Thank you for waiting.    " << current_frame;
+			return;
 		} 
 
 		sv::current_frame++;
+		cout << '\r' << " - Current Frame: " << current_frame;
 	}
 };
 
