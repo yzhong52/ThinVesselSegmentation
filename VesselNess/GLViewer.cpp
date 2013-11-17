@@ -61,50 +61,55 @@ namespace GLViewer
 {
 	/////////////////////////////////////////
 	// Camera Controls by Mouse
+	///////////////////////
+	// clicking position of the user
+	int drag_x = 0;
+	int drag_y = 0;
 	// Rotation
 	GLfloat	xrot = 0;              
 	GLfloat	yrot = 0;
-	int drag_x = 0;   // clicking position of the user
-	int drag_y = 0;   // clicking position of the user
-	GLboolean isRotating = false;  // is dragging by user
+	GLboolean isRotating = false;
+	GLfloat rotate_speed = 0.05f;
+	// Rotation Axis
+	GLfloat vec_y[3] = {0, 1, 0};
+	GLfloat vec_x[3] = {1, 0, 0};
 	// Translation
-	GLfloat tx = 0;
-	GLfloat ty = 0;
-	// Zooming 
-	GLfloat zoom = 1;
-	
-	GLuint texture;     // Texture
-
+	GLfloat t[3] = { 0, 0, 0 };
+	GLboolean isTranslating = false;
+	GLfloat translate_speed = 0.2f;
 	/////////////////////////////////////////
 	// Data
+	///////////////////////
+	// 3D Volumn Texture
+	GLuint texture;
+	// Original Data
 	int sx = 0;
 	int sy = 0;
 	int sz = 0;
 	unsigned char* data = NULL;
-
-	// size of the window
+	/////////////////////////////////////////
+	// Initial Window Size
+	///////////////////////
 	int width = 800;
 	int height = 800;
-
+	/////////////////////////////////////////
+	// Additional Rendering Functions
+	///////////////////////
 	void (*extra_render)() = NULL;
 	void (*after_render)(int,int) = NULL;
 
-	GLfloat vec_y[3] = {0, 1, 0};
-	GLfloat vec_x[3] = {1, 0, 0};
-
-	float rotate_speed = 0.05f;
-
+	
 	void render(void)									// Here's Where We Do All The Drawing
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	// Clear The Screen And The Depth Buffer
 
-		glTranslatef( 0.5f*sx, 0.5f*sy, 0.5f*sz );
-		
-		// Not allow the user to retate the scene if we 
-		// have after_render func, which is for saving videos
+		glTranslatef( t[0], t[1], t[2] );
 		if( after_render) { 
+			// Not allow the user to retate the scene if we 
+			// have after_render func, which is for saving videos
 			glRotatef( 1.0f, 0.0f, 0.0f, 1.0f );
 		} else {
+			// Update Rotation Centre
 			glRotatef( xrot, vec_y[0], vec_y[1], vec_y[2] );
 			rotate_axis( vec_y[0], vec_y[1], vec_y[2], 
 					 	 vec_x[0], vec_x[1], vec_x[2],
@@ -113,15 +118,13 @@ namespace GLViewer
 			rotate_axis( vec_x[0], vec_x[1], vec_x[2], 
 					 	 vec_y[0], vec_y[1], vec_y[2],
 						 vec_y[0], vec_y[1], vec_y[2], -yrot );
-
+			// Draw Rotation Center
 			glBegin(GL_LINES);
-			glColor3f( 1.0, 0.0, 0.0 );
-			glVertex3i(  0,  0,  0 ); glVertex3f( vec_y[0]*20, vec_y[1]*20, vec_y[2]*20 );
-			glColor3f( 0.0, 1.0, 0.0 );
-			glVertex3i(  0,  0,  0 ); glVertex3f( vec_x[0]*20, vec_x[1]*20, vec_x[2]*20 );
+			glColor3f( 1.0, 0.0, 0.0 ); glVertex3i(  0,  0,  0 ); glVertex3f( vec_y[0]*20, vec_y[1]*20, vec_y[2]*20 );
+			glColor3f( 0.0, 1.0, 0.0 ); glVertex3i(  0,  0,  0 ); glVertex3f( vec_x[0]*20, vec_x[1]*20, vec_x[2]*20 );
 			glEnd();
 		}
-		glTranslatef( -0.5f*sx, -0.5f*sy, -0.5f*sz );
+		glTranslatef( -t[0], -t[1], -t[2] );
 		
 		// Allow User to draw additional objects on the scene
 		if( extra_render != NULL ) extra_render();
@@ -156,39 +159,93 @@ namespace GLViewer
 	}
 
 	void mouse_click(int button, int state, int x, int y) {
-		if(button == GLUT_LEFT_BUTTON) {
+		if(button == GLUT_LEFT_BUTTON) { // mouse left button
+			static int mouse_down_x;
+			static int mouse_down_y;
 			if(state == GLUT_DOWN) {
 				isRotating = true;
 				drag_x = x;
 				drag_y = y;
-			} else {
+				mouse_down_x = x;
+				mouse_down_y = y;
+			} else if( state == GLUT_UP ){
+				// stop tracking mouse move for rotating
 				isRotating = false;
+				// Stop the rotation immediately no matter what
+				// if the user click and release the mouse at the
+				// same point
+				if( mouse_down_x==x && mouse_down_y==y ) {
+					xrot = 0;
+					yrot = 0;
+				}
 			}
-		} else if ( button==3 ) {
-			// mouse wheel scrolling up
-			zoom *= 1.05f;
-		} else if ( button==4 ) {
-			// mouse wheel scrooling down 
-			zoom *= 0.95f;
+		} else if(button == GLUT_RIGHT_BUTTON) { // mouse right button
+			if( state == GLUT_DOWN ) {
+				isTranslating = true;
+				drag_x = x;
+				drag_y = y;
+			} else {
+				isTranslating = false;
+			}
+		} else if ( button==3 ) { // mouse wheel scrolling up
+			// Zoom in
+			glTranslatef( t[0], t[1], t[2] );
+			glScalef( 1.01f, 1.01f, 1.01f );
+			glTranslatef( -t[0], -t[1], -t[2] );
+		} else if ( button==4 ) { // mouse wheel scrooling down 
+			// Zoom out
+			glTranslatef( t[0], t[1], t[2] );
+			glScalef( 0.99f, 0.99f, 0.99f );
+			glTranslatef( -t[0], -t[1], -t[2] );
 		}
 	}
 
 	void mouse_move(int x, int y) {
-		if(isRotating) {
-			xrot = 1.0f*(x - drag_x);
-			yrot = 1.0f*(y - drag_y);
-			if( abs(xrot) <= 1 ) xrot = 0;
-			if( abs(yrot) <= 1 ) yrot = 0;
-			xrot *= rotate_speed;
-			yrot *= rotate_speed;
-
-			drag_x = x;
-			drag_y = y;
+		if( isRotating ) {
+			xrot = 1.0f*(x - drag_x) * rotate_speed;
+			yrot = 1.0f*(y - drag_y) * rotate_speed;
 			glutPostRedisplay();
 		}
+		if( isTranslating ) {
+			GLfloat tx = -(x - drag_x) * translate_speed;
+			GLfloat ty =  (y - drag_y) * translate_speed;
+			glTranslatef( -tx*vec_x[0], -tx*vec_x[1], -tx*vec_x[2] );
+			glTranslatef( -ty*vec_y[0], -ty*vec_y[1], -ty*vec_y[2] );
+			t[0] += tx * vec_x[0];
+			t[1] += tx * vec_x[1];
+			t[2] += tx * vec_x[2];
+			t[0] += ty * vec_y[0];
+			t[1] += ty * vec_y[1];
+			t[2] += ty * vec_y[2];
+		}
+		// update mouse location
+		drag_x = x;
+		drag_y = y;
 	}
 	
+
+	void reset_projection(void) {
+		glMatrixMode(GL_PROJECTION);						// Select The Projection Matrix
+		glLoadIdentity();									// Reset The Projection Matrix
+		float maxVal = max( sx, max(sy, sz) ) * 0.7f;
+		GLfloat ratio = (GLfloat)width / (GLfloat)height;
+		glOrtho( -1, 1, -1, 1, -1, 1);
+		glScalef( 1.0f/(maxVal*ratio), 1.0f/maxVal, 1.0f/maxVal );
+	}
+
 	void reset_modelview(void) {
+		t[0] = 0.5f*sx;
+		t[1] = 0.5f*sy;
+		t[2] = 0.5f*sz;
+		vec_y[0] = 0;
+		vec_y[1] = 1;
+		vec_y[2] = 0;
+		vec_x[0] = 1;
+		vec_x[1] = 0;
+		vec_x[2] = 0;
+		xrot = 0;
+		yrot = 0;
+
 		glMatrixMode(GL_PROJECTION);						// Select The Projection Matrix
 		glLoadIdentity();									// Reset The Projection Matrix
 
@@ -202,31 +259,21 @@ namespace GLViewer
 		gluLookAt( 0, 0, 1,
 			       0, 0, 0, 
 				   0, 1, 0 );
-		glTranslatef(-0.5f*sx, -0.5f*sy, -0.5f*sz); // move to the center of the data
+		glTranslatef(-t[0], -t[1], -t[2]); // move to the center of the data
 		
-		//glTranslatef( 0.5f*sx, 0.5f*sy, 0.5f*sz );
-		//glRotatef( -90, 1.0f, 0.0f, 0.0f );
-		//glTranslatef( -0.5f*sx, -0.5f*sy, -0.5f*sz );
-
 		glutPostRedisplay();
 	}
 
 	void reshape(int w, int h)
 	{
-		// Yuchen: Code Modified From Nehe
-		// Calculate The Aspect Ratio Of The Window
 		width = w; 
 		height = (h==0) ? 1 : h;
 
-		glViewport(0,0,w,h);						// Reset The Current Viewport
-		
-		glMatrixMode(GL_PROJECTION);						// Select The Projection Matrix
-		glLoadIdentity();									// Reset The Projection Matrix
-		float maxVal = max( sx, max(sy, sz) ) * 0.7f;
-		GLfloat ratio = (GLfloat)w/(GLfloat)h;
-		glOrtho( -1, 1, -1, 1, -1, 1);
-		glScalef( 1.0f/(maxVal*ratio), 1.0f/maxVal, 1.0f/maxVal );
-		
+		// Reset The Current Viewport
+		glViewport( 0, 0, width, height );
+		// Reset Projection
+		reset_projection();
+		// Reset Model View
 		glMatrixMode(GL_MODELVIEW);
 		glutPostRedisplay();
 	}
@@ -237,6 +284,7 @@ namespace GLViewer
 		switch (key) 
 		{
 		case ' ': 
+			reset_projection();
 			reset_modelview();
 			break;
 		case 27:
@@ -254,7 +302,11 @@ namespace GLViewer
 		if( sx==im_x && sy==im_y && sz==im_z ) {
 			data = im_data;
 		} else {
-			data = new unsigned char[ sx*sy*sz ];
+			data = new (nothrow) unsigned char  [ sx*sy*sz ];
+			if( data==NULL ) {
+				cout << "Unable to allocate memory for OpenGL rendering" << endl;
+				return;
+			}
 			for( int z=0;z<im_z;z++ ) for( int y=0;y<im_y;y++ ) for( int x=0;x<im_x;x++ ) {
 				data[ z*sy*sx + y*sx + x] = im_data[ z*im_y*im_x + y*im_x + x];
 			}
@@ -298,8 +350,9 @@ namespace GLViewer
 		glHint (GL_POLYGON_SMOOTH_HINT, GL_NICEST);
 		glHint (GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 		
-
+		///////////////////////////////////////////////
 		// Register Recall Funtions
+		///////////////
 		if( !post_draw_func ) glutReshapeFunc( reshape ); // Not allow the user to reshape the window if we 
 		                                                  // have post_draw_func, which is for saving videos
 		glutKeyboardFunc( keyboard );
