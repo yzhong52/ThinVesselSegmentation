@@ -72,6 +72,12 @@ void compute_vesselness(void){
 	Viewer::MIP::Multi_Channels( vn, vn_name );
 } 
 
+void compute_vesselness_whole_data(void){
+	Data3D<float> res(  Vec3i(585, 525, 892) );/*
+	Data3D<float> dir1( Vec3i(585, 525, 892) );
+	Data3D<float> dir2( Vec3i(585, 525, 892) );
+	Data3D<float> dir3( Vec3i(585, 525, 892) );*/
+}
 
 
 void compute_min_span_tree(void) {
@@ -94,8 +100,8 @@ void compute_min_span_tree(void) {
 		image_data_uchar.SY(),
 		image_data_uchar.SZ(), 
 		GLViewerExt::draw_min_span_tree, // drawing min span tree
-		// NULL );                             // NOT saving video
-		GLViewerExt::save_video );       // saving video
+		NULL );                             // NOT saving video
+		// GLViewerExt::save_video );       // saving video
 
 }
 
@@ -129,10 +135,10 @@ int main(int argc, char* argv[])
 	string data_name = "temp";
 
 
-	Data3D< Vec<float, 4> > vn( Vec3i(585, 525, 892) );
-	flag = vn.load( "data/vessel.float4.vesselness", Vec3i(585, 525, 892), false, true );
 
+	
 
+	compute_min_span_tree();
 	
 	return 0;
 

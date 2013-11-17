@@ -6,7 +6,7 @@ using namespace std;
 /////////////////////////////////////
 // Glew Library 
 // For Texture 3D and Blending_Ext
-#include "glew.h" 
+#include "gl\glew.h" 
 #pragma comment(lib, "glew32.lib")
 
 /////////////////////////////////////
@@ -17,7 +17,7 @@ using namespace std;
 
 /////////////////////////////////////
 // Glut Library
-#include "GLUT\glut.h"
+#include "GL\freeglut.h"
 #pragma comment(lib, "freeglut.lib")
 
 void rotate_axis( 
@@ -261,10 +261,12 @@ namespace GLViewer
 				   0, 1, 0 );
 		glTranslatef(-t[0], -t[1], -t[2]); // move to the center of the data
 		
-		// Initial Rotation (Do as you want );
-		glTranslatef( t[0], t[1], t[2] );
-		glRotatef( -90, vec_x[0], vec_x[1], vec_x[2] );
-		glTranslatef( -t[0], -t[1], -t[2] );
+		if( after_render ) {
+			// Initial Rotation (Do as you want );
+			glTranslatef( t[0], t[1], t[2] );
+			glRotatef( -90, vec_x[0], vec_x[1], vec_x[2] );
+			glTranslatef( -t[0], -t[1], -t[2] );
+		}
 
 		glutPostRedisplay();
 	}
