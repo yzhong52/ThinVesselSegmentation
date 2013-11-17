@@ -16,8 +16,7 @@
 #include "MinSpanTree.h"
 
 
-Data3D<Vesselness_All> vn_all;
-Image3D<short> image_data;
+
 
 void plot_histogram_in_matlab(void) {
 	smart_assert( 0, "Deprecated!" );
@@ -55,6 +54,8 @@ bool set_roi_for_vesselness( void ) {
 }
 
 void compute_vesselness(void){
+	Image3D<short> image_data;
+
 	string data_name = "roi15";
 
 	bool flag = image_data.loadROI( "data/"+data_name+".data" );
@@ -63,24 +64,46 @@ void compute_vesselness(void){
 	Data3D<Vesselness> vn;
 	VD::compute_vesselness( image_data.getROI(), vn, 
 		/*sigma from*/ 0.5f,
-		/*sigma to*/ 3.5f,
+		/*sigma to*/   3.5f,
 		/*sigma step*/ 1.5f );
 	
 	string vn_name = "output/" + data_name + ".float4.vesselness";
 	vn.save( vn_name );
 	Viewer::MIP::Multi_Channels( vn, vn_name );
-
 } 
 
 
 
+void compute_min_span_tree(void) {
+	Image3D<short> image_data;
+	bool falg = image_data.load( "data/roi16.partial.data" );
+	if( !falg ) return;
 
+	Image3D<unsigned char> image_data_uchar;
+	IP::normalize( image_data.getROI(), short(255) );
+	image_data.getROI().convertTo( image_data_uchar );
+	
+	// Computer Min Span Tree
+	Graph< MST::Edge_Ext, MST::LineSegment > tree;
+	MinSpanTree::build_tree_xuefeng( "data/roi16.partial.linedata.txt", tree, 15000 );
+	// Visualize Min Span Tree on Max Intensity Projection
+	GLViewerExt::draw_min_span_tree_init( tree );
+	GLViewerExt::save_video_int( "output/video.avi", 20, 18 );
+	GLViewer::MIP( image_data_uchar.getROI().getMat().data, 
+		image_data_uchar.SX(),
+		image_data_uchar.SY(),
+		image_data_uchar.SZ(), 
+		GLViewerExt::draw_min_span_tree, // drawing min span tree
+		// NULL );                             // NOT saving video
+		GLViewerExt::save_video );       // saving video
+
+}
 
 
 int main(int argc, char* argv[])
 {
-	//waitKey();
-	//return 0;
+	Data3D<Vesselness_All> vn_all;
+	Image3D<short> image_data;
 
 	struct Preset {
 		Preset(){}
@@ -106,42 +129,10 @@ int main(int argc, char* argv[])
 	string data_name = "temp";
 
 
-	bool falg = image_data.load( "data/roi16.partial.data" );
-	if( !falg ) return 0;
+	Data3D< Vec<float, 4> > vn( Vec3i(585, 525, 892) );
+	flag = vn.load( "data/vessel.float4.vesselness", Vec3i(585, 525, 892), false, true );
 
-	Image3D<unsigned char> image_data_uchar;
-	IP::normalize( image_data.getROI(), short(255) );
-	image_data.getROI().convertTo( image_data_uchar );
-	
-	// Computer Min Span Tree
-	Graph< MST::Edge_Ext, MST::LineSegment > tree;
-	MinSpanTree::build_tree_xuefeng( "data/roi16.partial.linedata.txt", tree, 15000 );
-	// Visualize Min Span Tree on Max Intensity Projection
-	GLViewerExt::draw_min_span_tree_init( tree );
-	GLViewerExt::save_video_int( "output/video.avi", 20, 18 );
-	GLViewer::MIP( image_data_uchar.getROI().getMat().data, 
-		image_data_uchar.SX(),
-		image_data_uchar.SY(),
-		image_data_uchar.SZ(), 
-		GLViewerExt::draw_min_span_tree, // drawing min span tree
-		// NULL );                             // NOT saving video
-		GLViewerExt::save_video );       // saving video
 
-	return 0;
-
-	// image_data.loadData( presets[0].file, presets[0].size );
-	//image_data.setROI();
-	/*image_data.loadData( "data/roi16.partial.partial.data", Vec3i(111,44,111), false );
-	
-	Image3D<unsigned char> image_data_uchar;
-	IP::normalize( image_data, short(255) );
-	image_data.convertTo( image_data_uchar );
-	image_data_uchar.show();
-	image_data_uchar.save( "output/roi16.partial.partial.uchar.data" );
-	VI::MIP::Single_Channel( image_data_uchar, "output/temp" );
-*/
-
-	compute_vesselness();
 	
 	return 0;
 
