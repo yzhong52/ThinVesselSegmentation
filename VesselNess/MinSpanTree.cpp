@@ -61,7 +61,9 @@ namespace MinSpanTree
 		cout << tree << endl;
 	}
 
-	bool build_tree_xuefeng( const std::string& file_name, /*Output*/ Graph<Edge_Ext, LineSegment>& tree) {
+	bool build_tree_xuefeng( const std::string& file_name, 
+		/*Output*/ Graph<Edge_Ext, LineSegment>& tree,
+		float thres ) {
 		Graph<Edge_Ext, LineSegment> graph;
 
 		/////////////////////////////////////////////////////////////
@@ -140,7 +142,8 @@ namespace MinSpanTree
 					e.line.p2 = to; 
 				}
 
-				graph.add_edge( e );
+				if( e.weight < thres ) 
+					graph.add_edge( e );
 			}
 		}
 

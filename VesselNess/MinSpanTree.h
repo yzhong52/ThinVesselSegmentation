@@ -13,7 +13,8 @@ namespace MinSpanTree
 
 	// build_minimum_spanning_tree 
 	bool build_tree_xuefeng( const std::string& file_name,
-		/*Output*/ Graph<Edge_Ext, LineSegment>& tree );
+		/*Output*/ Graph<Edge_Ext, LineSegment>& tree,
+		/*Input*/ float thres = 0.0f  );
 }
 
 namespace MST = MinSpanTree;

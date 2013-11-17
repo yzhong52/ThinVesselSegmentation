@@ -46,8 +46,8 @@ namespace GLViewer
 	unsigned char* data = NULL;
 
 	// size of the window
-	int width = 512;
-	int height = 512;
+	int width = 800;
+	int height = 800;
 
 	void (*extra_render)() = NULL;
 	void (*after_render)(int,int) = NULL;
@@ -59,7 +59,7 @@ namespace GLViewer
 		glTranslatef( 0.5f*sx, 0.5f*sy, 0.5f*sz );
 		/*glRotatef( -xrot*0.5f, 0.0f, 1.0f, 0.0f );*/
 		/*glRotatef( yrot*0.5f, 1.0f, 0.0f, 0.0f );*/
-		glRotatef( 0.15f, 0.0f, 0.0f, 1.0f );
+		glRotatef( 1.0f, 0.0f, 0.0f, 1.0f );
 		glTranslatef( -0.5f*sx, -0.5f*sy, -0.5f*sz );
 		
 		// Allow User to draw additional objects on the scene
@@ -156,7 +156,7 @@ namespace GLViewer
 		
 		glMatrixMode(GL_PROJECTION);						// Select The Projection Matrix
 		glLoadIdentity();									// Reset The Projection Matrix
-		int maxVal = max( sx, max(sy, sz) );
+		float maxVal = max( sx, max(sy, sz) ) * 0.7f;
 		GLfloat ratio = (GLfloat)w/(GLfloat)h;
 		glOrtho( -1, 1, -1, 1, -1, 1);
 		glScalef( 1.0f/(maxVal*ratio), 1.0f/maxVal, 1.0f/maxVal );

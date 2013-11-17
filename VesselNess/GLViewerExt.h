@@ -27,20 +27,20 @@ namespace GLViewerExt
 		} 
 		glBegin( GL_LINES );
 		MST::Edge_Ext* e = &ptrTree->get_edges().top();
-		glColor3f( 1.0f, 1.0f, 1.0f );
+		glColor3f( 1.0f, 0.4f, 0.4f );
 		for( int unsigned i=0; i<ptrTree->num_edges(); i++ ) {
 			glVertex3f( e->line.p1.x, e->line.p1.y, e->line.p1.z );
 			glVertex3f( e->line.p2.x, e->line.p2.y, e->line.p2.z );
 			e++;
 		}
-		glColor3f( 0.3f, 0.7f, 1.0f );
+		glColor3f( 0.4f, 0.4f, 1.0f );
 		for( unsigned int i=0; i< ptrTree->num_nodes(); i++ ) {
 			MST::LineSegment& line = ptrTree->get_node( i );
 			glVertex3f( line.p1.x, line.p1.y, line.p1.z );
 			glVertex3f( line.p2.x, line.p2.y, line.p2.z );
 		}
 		glEnd();
-		glColor3f( 0.4f, 0.2f, 0.2f );
+		glColor3f( 0.3f, 0.3f, 0.3f );
 	}
 
 	namespace sv{
@@ -103,7 +103,7 @@ namespace GLViewerExt
 			delete outputVideo;
 			outputVideo = NULL;
 			isInit = false;
-			cout << '\r' << "All Done. Thank you for waiting.    " << current_frame;
+			cout << '\r' << "All Done. Thank you for waiting. " << endl;
 			return;
 		} 
 
