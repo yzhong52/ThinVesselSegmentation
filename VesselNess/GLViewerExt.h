@@ -40,7 +40,7 @@ namespace GLViewerExt
 			glVertex3f( line.p2.x, line.p2.y, line.p2.z );
 		}
 		glEnd();
-		glColor3f( 0.3f, 0.3f, 0.3f );
+		glColor3f( 0.5f, 0.5f, 0.5f );
 	}
 
 	///////////////////////////////////////////////////

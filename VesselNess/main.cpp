@@ -124,8 +124,8 @@ int main(int argc, char* argv[])
 		image_data_uchar.SY(),
 		image_data_uchar.SZ(), 
 		GLViewerExt::draw_min_span_tree, // drawing min span tree
-		NULL );                             // NOT saving video
-		// GLViewerExt::save_video );       // saving video
+		// NULL );                             // NOT saving video
+		GLViewerExt::save_video );       // saving video
 
 	return 0;
 

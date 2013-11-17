@@ -249,7 +249,7 @@ namespace GLViewer
 		glMatrixMode(GL_PROJECTION);						// Select The Projection Matrix
 		glLoadIdentity();									// Reset The Projection Matrix
 
-		int maxVal = max( sx, max(sy, sz) );
+		GLfloat maxVal = max( sx, max(sy, sz) ) * 0.55f;
 		GLfloat ratio = (GLfloat)width/(GLfloat)height;
 		glOrtho( -1, 1, -1, 1, -1, 1);
 		glScalef( 1.0f/(maxVal*ratio), 1.0f/maxVal, 1.0f/maxVal );
@@ -261,6 +261,11 @@ namespace GLViewer
 				   0, 1, 0 );
 		glTranslatef(-t[0], -t[1], -t[2]); // move to the center of the data
 		
+		// Initial Rotation (Do as you want );
+		glTranslatef( t[0], t[1], t[2] );
+		glRotatef( -90, vec_x[0], vec_x[1], vec_x[2] );
+		glTranslatef( -t[0], -t[1], -t[2] );
+
 		glutPostRedisplay();
 	}
 

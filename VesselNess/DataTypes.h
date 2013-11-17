@@ -31,7 +31,7 @@ namespace MinSpanTree {
 			float numerator = temp2.dot( temp1 );
 			float denominator = temp1.dot( temp1 );
 			float t = -numerator / denominator;
-			t = std::min( std::max(1.0f, t), 0.0f);
+			t = std::max( std::min(1.0f, t), 0.0f);
 			to = p2 * t + p1 * (1-t);
 			Vec3f dir = from - to;
 			distance = dir.dot( dir );
