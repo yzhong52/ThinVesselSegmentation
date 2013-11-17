@@ -43,6 +43,9 @@ namespace GLViewerExt
 		glColor3f( 0.3f, 0.3f, 0.3f );
 	}
 
+	///////////////////////////////////////////////////
+	// Saving OpenGL Frame Buffer to Video 
+	///////////////////////////////////////////////////
 	namespace sv{
 		string video_name = "temp";
 		double fps = 20;
@@ -59,12 +62,6 @@ namespace GLViewerExt
 		sv::isInit = true;
 	}
 	static void save_video( int width, int height ) {
-		//Mat pixels( width, height, CV_8UC3 );
-		//cv::imshow( "filename", pixels.clone() );
-		//glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, pixels.clone().data );
-		//sv::outputVideo << pixels;
-		//return ;
-
 		using namespace sv;
 
 		if( !isInit ) return;

@@ -115,7 +115,7 @@ int main(int argc, char* argv[])
 	
 	// Computer Min Span Tree
 	Graph< MST::Edge_Ext, MST::LineSegment > tree;
-	MinSpanTree::build_tree_xuefeng( "data/roi16.partial.linedata.txt", tree, 150 );
+	MinSpanTree::build_tree_xuefeng( "data/roi16.partial.linedata.txt", tree, 15000 );
 	// Visualize Min Span Tree on Max Intensity Projection
 	GLViewerExt::draw_min_span_tree_init( tree );
 	GLViewerExt::save_video_int( "output/video.avi", 20, 18 );
@@ -124,7 +124,8 @@ int main(int argc, char* argv[])
 		image_data_uchar.SY(),
 		image_data_uchar.SZ(), 
 		GLViewerExt::draw_min_span_tree, // drawing min span tree
-		GLViewerExt::save_video );       // saving video
+		NULL );                             // NOT saving video
+		// GLViewerExt::save_video );       // saving video
 
 	return 0;
 

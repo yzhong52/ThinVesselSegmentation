@@ -20,6 +20,43 @@ using namespace std;
 #include "GLUT\glut.h"
 #pragma comment(lib, "freeglut.lib")
 
+void rotate_axis( 
+	float u, float v, float w,        /*Axis*/
+	float x, float y, float z,        /*The Point That We Want to Roate */
+	float& nx, float& ny, float& nz,  /*Result*/
+	float degree ) 
+{
+	float A = degree * 3.14159265f / 180.0f;
+	float c = cos(A);
+	float s = sin(A);
+	float C = 1.0f - c;
+	
+	if( abs(c) > 0.999 ) {
+		nx = x;
+		ny = y;
+		nz = z;
+	}
+
+	// Reference: http://en.wikipedia.org/wiki/Rotation_matrix#Rotation_matrix_from_axis_and_angle
+	float Q[3][3];
+	Q[0][0] = u * u * C + c;
+	Q[0][1] = v * u * C + w * s;
+	Q[0][2] = w * u * C - v * s;
+
+	Q[1][0] = v * u * C - w * s;
+	Q[1][1] = v * v * C + c;
+	Q[1][2] = w * v * C + u * s;
+
+	Q[2][0] = u * w * C + v * s;
+	Q[2][1] = w * v * C - u * s;
+	Q[2][2] = w * w * C + c;
+
+	nx = x * Q[0][0] + y * Q[1][0] + z * Q[2][0];
+	ny = x * Q[0][1] + y * Q[1][1] + z * Q[2][1];
+	nz = x * Q[0][2] + y * Q[1][2] + z * Q[2][2];
+}
+
+
 namespace GLViewer
 {
 	/////////////////////////////////////////
@@ -52,14 +89,38 @@ namespace GLViewer
 	void (*extra_render)() = NULL;
 	void (*after_render)(int,int) = NULL;
 
+	GLfloat vec_y[3] = {0, 1, 0};
+	GLfloat vec_x[3] = {1, 0, 0};
+
+	float rotate_speed = 0.05f;
+
 	void render(void)									// Here's Where We Do All The Drawing
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	// Clear The Screen And The Depth Buffer
 
 		glTranslatef( 0.5f*sx, 0.5f*sy, 0.5f*sz );
-		/*glRotatef( -xrot*0.5f, 0.0f, 1.0f, 0.0f );*/
-		/*glRotatef( yrot*0.5f, 1.0f, 0.0f, 0.0f );*/
-		glRotatef( 1.0f, 0.0f, 0.0f, 1.0f );
+		
+		// Not allow the user to retate the scene if we 
+		// have after_render func, which is for saving videos
+		if( after_render) { 
+			glRotatef( 1.0f, 0.0f, 0.0f, 1.0f );
+		} else {
+			glRotatef( xrot, vec_y[0], vec_y[1], vec_y[2] );
+			rotate_axis( vec_y[0], vec_y[1], vec_y[2], 
+					 	 vec_x[0], vec_x[1], vec_x[2],
+						 vec_x[0], vec_x[1], vec_x[2], -xrot );
+			glRotatef( yrot, vec_x[0], vec_x[1], vec_x[2] );
+			rotate_axis( vec_x[0], vec_x[1], vec_x[2], 
+					 	 vec_y[0], vec_y[1], vec_y[2],
+						 vec_y[0], vec_y[1], vec_y[2], -yrot );
+
+			glBegin(GL_LINES);
+			glColor3f( 1.0, 0.0, 0.0 );
+			glVertex3i(  0,  0,  0 ); glVertex3f( vec_y[0]*20, vec_y[1]*20, vec_y[2]*20 );
+			glColor3f( 0.0, 1.0, 0.0 );
+			glVertex3i(  0,  0,  0 ); glVertex3f( vec_x[0]*20, vec_x[1]*20, vec_x[2]*20 );
+			glEnd();
+		}
 		glTranslatef( -0.5f*sx, -0.5f*sy, -0.5f*sz );
 		
 		// Allow User to draw additional objects on the scene
@@ -114,8 +175,13 @@ namespace GLViewer
 
 	void mouse_move(int x, int y) {
 		if(isRotating) {
-			xrot = (x - drag_x) * 0.3f;
-			yrot = (y - drag_y) * 0.3f;
+			xrot = 1.0f*(x - drag_x);
+			yrot = 1.0f*(y - drag_y);
+			if( abs(xrot) <= 1 ) xrot = 0;
+			if( abs(yrot) <= 1 ) yrot = 0;
+			xrot *= rotate_speed;
+			yrot *= rotate_speed;
+
 			drag_x = x;
 			drag_y = y;
 			glutPostRedisplay();
@@ -138,9 +204,9 @@ namespace GLViewer
 				   0, 1, 0 );
 		glTranslatef(-0.5f*sx, -0.5f*sy, -0.5f*sz); // move to the center of the data
 		
-		glTranslatef( 0.5f*sx, 0.5f*sy, 0.5f*sz );
-		glRotatef( -90, 1.0f, 0.0f, 0.0f );
-		glTranslatef( -0.5f*sx, -0.5f*sy, -0.5f*sz );
+		//glTranslatef( 0.5f*sx, 0.5f*sy, 0.5f*sz );
+		//glRotatef( -90, 1.0f, 0.0f, 0.0f );
+		//glTranslatef( -0.5f*sx, -0.5f*sy, -0.5f*sz );
 
 		glutPostRedisplay();
 	}
@@ -149,9 +215,9 @@ namespace GLViewer
 	{
 		// Yuchen: Code Modified From Nehe
 		// Calculate The Aspect Ratio Of The Window
-		if (h==0){ h = 1; }
 		width = w; 
-		height = h;
+		height = (h==0) ? 1 : h;
+
 		glViewport(0,0,w,h);						// Reset The Current Viewport
 		
 		glMatrixMode(GL_PROJECTION);						// Select The Projection Matrix
@@ -234,7 +300,8 @@ namespace GLViewer
 		
 
 		// Register Recall Funtions
-		glutReshapeFunc( reshape );
+		if( !post_draw_func ) glutReshapeFunc( reshape ); // Not allow the user to reshape the window if we 
+		                                                  // have post_draw_func, which is for saving videos
 		glutKeyboardFunc( keyboard );
 		// register mouse fucntions
 		glutMouseFunc( mouse_click );
