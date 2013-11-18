@@ -11,9 +11,12 @@ temp.*
 *.user
 
 # Build result
-[Dd]ebug/
-[Rr]elease/
+/[Dd]ebug/
+/[Rr]elease/
 /x64/
+/Vesselness/[Dd]ebug/
+/Vesselness/[Rr]elease/
+/Vesselness/x64/
 
 # Visual C++ cache files
 ipch/
