@@ -327,7 +327,7 @@ int VesselDetector::compute_vesselness(
 		cout << '\r' << "Vesselness for sigma = " << sigma;
 		VesselDetector::hessien( src, vn, 0, sigma, alpha, beta, gamma );
 		// compare the response, if it is greater, copy it to our dst
-		int margin = int( ceil(6 * sigma_to + 2) );
+		int margin = int( ceil(6 * sigma + 2) );
 		if( margin % 2 == 0 )  margin++;
 		for( z=margin; z<src.get_size_z()-margin; z++ ) {
 			for( y=margin; y<src.get_size_y()-margin; y++ ) {
@@ -381,7 +381,7 @@ int VesselDetector::compute_vesselness(
 		cout << '\r' << "Vesselness for sigma = " << sigma;
 		VesselDetector::hessien( src, vn, 0, sigma, alpha, beta, gamma );
 		// compare the response, if it is greater, copy it to our dst
-		int margin = int( ceil(6 * sigma_to + 2) );
+		int margin = int( ceil(6 * sigma + 2) );
 		if( margin % 2 == 0 )  margin++;
 		for( z=margin; z<src.get_size_z()-margin; z++ ) {
 			for( y=margin; y<src.get_size_y()-margin; y++ ) {
@@ -435,7 +435,7 @@ int VesselDetector::compute_vesselness(
 		cout << '\r' << "Vesselness for sigma = " << sigma;
 		VesselDetector::hessien( src, temp_rep, 0, sigma, alpha, beta, gamma );
 		// compare the response, if it is greater, copy it to our dst
-		int margin = int( ceil(6 * sigma_to + 2) );
+		int margin = int( ceil(6 * sigma + 2) );
 		if( margin % 2 == 0 )  margin++;
 		for( z=margin; z<src.get_size_z()-margin; z++ ) {
 			for( y=margin; y<src.get_size_y()-margin; y++ ) {
