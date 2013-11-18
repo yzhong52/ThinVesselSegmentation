@@ -391,7 +391,10 @@ bool Data3D<T>::load_info( const string& file_name, Vec3i& size, bool& isBigEndi
 	string info_file = file_name + ".readme.txt";
 	ifstream fin( info_file.c_str() );
 	// size
-	if( !fin.is_open() ) return false;
+	if( !fin.is_open() ){
+		cout << "The readme file is not found." << endl;
+		return false;
+	}
 	fin >> size[0];
 	fin >> size[1]; 
 	fin >> size[2]; 

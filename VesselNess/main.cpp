@@ -56,9 +56,9 @@ bool set_roi_for_vesselness( void ) {
 void compute_vesselness(void){
 	Image3D<short> image_data;
 
-	string data_name = "roi15";
+	string data_name = "data15";
 
-	bool flag = image_data.loadROI( "data/"+data_name+".data" );
+	bool flag = image_data.load( "data/"+data_name+".data" );
 	if( !flag ) return;
 	
 	Data3D<Vesselness> vn;
@@ -68,15 +68,26 @@ void compute_vesselness(void){
 		/*sigma step*/ 1.5f );
 	
 	string vn_name = "output/" + data_name + ".float4.vesselness";
-	vn.save( vn_name );
+	vn.save( "output/" + data_name + ".res.vesselness" );
 	Viewer::MIP::Multi_Channels( vn, vn_name );
 } 
 
 void compute_vesselness_whole_data(void){
-	Data3D<float> res(  Vec3i(585, 525, 892) );/*
-	Data3D<float> dir1( Vec3i(585, 525, 892) );
-	Data3D<float> dir2( Vec3i(585, 525, 892) );
-	Data3D<float> dir3( Vec3i(585, 525, 892) );*/
+	Image3D<short> image_data;
+	bool falg = image_data.load( "data/data15.data" );
+	if( !falg ) return;
+
+	// TODO: 
+	image_data.remove_margin( Vec3i( 134-116, 0,0), Vec3i(0,0,0) );
+
+	Image3D<unsigned char> image_data_uchar;
+	IP::normalize( image_data.getROI(), short(255) );
+	image_data.getROI().convertTo( image_data_uchar );
+
+	GLViewer::MIP( image_data_uchar.getROI().getMat().data, 
+		image_data_uchar.SX(),
+		image_data_uchar.SY(),
+		image_data_uchar.SZ() );
 }
 
 
@@ -135,10 +146,7 @@ int main(int argc, char* argv[])
 	string data_name = "temp";
 
 
-
-	
-
-	compute_min_span_tree();
+	compute_vesselness_whole_data();
 	
 	return 0;
 

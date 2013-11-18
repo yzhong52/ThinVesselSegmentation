@@ -123,6 +123,7 @@ namespace GLViewer
 			glColor3f( 1.0, 0.0, 0.0 ); glVertex3i(  0,  0,  0 ); glVertex3f( vec_y[0]*20, vec_y[1]*20, vec_y[2]*20 );
 			glColor3f( 0.0, 1.0, 0.0 ); glVertex3i(  0,  0,  0 ); glVertex3f( vec_x[0]*20, vec_x[1]*20, vec_x[2]*20 );
 			glEnd();
+			glColor3f( 1.0, 1.0, 1.0 );
 		}
 		glTranslatef( -t[0], -t[1], -t[2] );
 		
@@ -310,6 +311,7 @@ namespace GLViewer
 			data = im_data;
 		} else {
 			data = new (nothrow) unsigned char  [ sx*sy*sz ];
+			memset( data, 0, sizeof(unsigned char)*sx*sy*sz );
 			if( data==NULL ) {
 				cout << "Unable to allocate memory for OpenGL rendering" << endl;
 				return;
