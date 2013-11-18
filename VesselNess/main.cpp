@@ -74,11 +74,13 @@ void compute_vesselness(void){
 
 void compute_vesselness_whole_data(void){
 	Image3D<short> image_data;
-	bool falg = image_data.load( "data/data15.data" );
-	
+	bool falg = image_data.load( "data/vessel3d.half.half.128.128.256.data" );
+	if(!falg) return;
+
 	Image3D<unsigned char> image_data_uchar;
 	IP::normalize( image_data.getROI(), short(255) );
 	image_data.getROI().convertTo( image_data_uchar );
+	image_data_uchar.show();
 
 	GLViewer::MIP( image_data_uchar.getROI().getMat().data, 
 		image_data_uchar.SX(),
@@ -116,8 +118,7 @@ void compute_min_span_tree(void) {
 int main(int argc, char* argv[])
 {
 	Data3D<Vesselness_All> vn_all;
-	Image3D<short> image_data;
-
+	
 	struct Preset {
 		Preset(){}
 		Preset(const string& file, Vec3i& size = Vec3i(0,0,0) ) : file(file), size(size){ };
@@ -128,11 +129,11 @@ int main(int argc, char* argv[])
 	
 	bool flag = false;
 	Preset presets[30];
-	presets[0] = Preset("data/vessel3d.data", Vec3i(585, 525, 892));
-	presets[10] = Preset("roi10", Vec3i(51, 39, 38));
-	presets[11] = Preset("roi11.data", Vec3i(116, 151, 166));
-	presets[12] = Preset("vessel3d.rd.k=19.data", Vec3i(585, 525, 892));
-	presets[13] = Preset("roi13.data", Vec3i(238, 223, 481) );
+	presets[0] = Preset("data/vessel3d.data" );
+	presets[10] = Preset("roi10" );
+	presets[11] = Preset("roi11.data" );
+	presets[12] = Preset("vessel3d.rd.k=19.data" );
+	presets[13] = Preset("roi13.data" );
 	// presets[14] = Preset("roi14.data" );
 	presets[15] = Preset("data/roi15.data" );
 	presets[16] = Preset("roi16.data" );
@@ -144,6 +145,13 @@ int main(int argc, char* argv[])
 
 	compute_vesselness_whole_data();
 	
+
+	Image3D<short> image_data2;
+	bool falg = image_data2.load( "data/vessel3d.data" );
+	image_data2.shrink_by_half();
+	image_data2.shrink_by_half();
+	image_data2.remove_margin_to( Vec3i(128, 128, 256) );
+	image_data2.save( "data/vessel3d.half.half.128.128.256.data" );
 	return 0;
 
 
@@ -169,6 +177,7 @@ int main(int argc, char* argv[])
 	//Viewer::MIP::Multi_Channels( vn_temp, data_name+".vesselness" );
 	//return 0;
 
+	Image3D<short> image_data;
 	if( bool compute = true ) {
 		flag = image_data.loadROI("data/roi15.data");
 		if( !flag ) return 0;

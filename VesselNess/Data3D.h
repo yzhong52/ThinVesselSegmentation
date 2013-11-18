@@ -139,36 +139,17 @@ public:
 			dst.at(x,y,z) = this->at(x,y,z)[dim];
 		}
 	}
+
+	// remove some margin of the data
 	inline bool remove_margin( const int& margin ) {
 		return remove_margin( Vec3i( margin, margin, margin) );
 	}
-	bool remove_margin( const Vec3i& margin ) {
-		Vec3i n_size;
-		for( int i=0; i<3; i++ ){
-			n_size[i] = _size[i] - 2 * margin[i];
-			if( n_size[i] <= 0 ) {
-				cout << "Margin is too big. Remove margin failed. " << endl;
-				return false;
-			}
-		}
-		int n_size_slice = n_size[0] * n_size[1];
-		int n_size_total = n_size[2] * n_size_slice;
-		Mat_<T> n_mat = Mat_<T>( n_size[2], n_size_slice );
-
-		for( int z=margin[2]; z<_size[2]-margin[2]; z++ ){
-			for( int y=margin[1]; y<_size[1]-margin[1]; y++ ){
-				for( int x=margin[0]; x<_size[0]-margin[0]; x++ ){
-					n_mat.at<T>( z-margin[2], (y-margin[1])*n_size[0] + (x-margin[0]) ) = _mat.at<T>( z, y*_size[0] + x );
-				}
-			}
-		}
-		_mat = n_mat.clone();
-		_size = n_size;
-		_size_slice = n_size_slice;
-		_size_total = n_size_total;
-		return true;
+	// remove some margin of the data
+	// such that left_margin and right_margin are the same
+	inline bool remove_margin( const Vec3i& margin ) {
+		remove_margin( margin, margin );
 	}
-
+	// remove some margin of the data
 	void remove_margin( const Vec3i& margin1, const Vec3i& margin2 ) {
 		Vec3i n_size;
 		for( int i=0; i<3; i++ ){
@@ -182,17 +163,48 @@ public:
 		int n_size_total = n_size[2] * n_size_slice;
 		Mat_<T> n_mat = Mat_<T>( n_size[2], n_size_slice );
 
-		for( int z=margin1[2]; z<_size[2]-margin2[2]; z++ ){
-			for( int y=margin1[1]; y<_size[1]-margin2[1]; y++ ){
-				for( int x=margin1[0]; x<_size[0]-margin2[0]; x++ ){
+		// Remove a negetive margin is equivalent to padding zeros around 
+		// the data
+		Vec3i spos = Vec3i(
+			max( margin1[0], 0), 
+			max( margin1[0], 0), 
+			max( margin1[2], 0)
+		); 
+		Vec3i epos = Vec3i(
+			min( _size[0]-margin1[0], _size[0] ), 
+			min( _size[1]-margin1[0], _size[1] ), 
+			min( _size[2]-margin1[2], _size[2] )
+		); 
+		for( int z=spos[2]; z<epos[2]; z++ ){
+			for( int y=spos[1]; y<epos[1]; y++ ){
+				for( int x=spos[0]; x<epos[0]; x++ ){
 					n_mat.at<T>( z-margin1[2], (y-margin1[1])*n_size[0] + (x-margin1[0]) ) = _mat.at<T>( z, y*_size[0] + x );
 				}
 			}
 		}
+		// update the data
 		_mat = n_mat.clone();
+		// data the size
 		_size = n_size;
 		_size_slice = n_size_slice;
 		_size_total = n_size_total;
+	}
+
+	// Resize the data by cropping or padding
+	// This is done through remove margin func
+	void remove_margin_to( const Vec3i& size ) {
+		remove_margin( 
+			Vec3i( 
+				(int) floor(1.0f*(SX()-size[0])/2), 
+				(int) floor(1.0f*(SY()-size[1])/2), 
+				(int) floor(1.0f*(SZ()-size[2])/2)
+				), 
+			Vec3i( 
+				(int) floor(1.0f*(SX()-size[0])/2), 
+				(int) floor(1.0f*(SY()-size[1])/2), 
+				(int) floor(1.0f*(SZ()-size[2])/2)
+				)
+		);
 	}
 
 	// return true if a index is valide for the data

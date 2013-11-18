@@ -383,28 +383,28 @@ void Image3D<T>::showSlice(int i, const string& name = "Image Data" ){
 
 template<typename T>
 void Image3D<T>::shrink_by_half(void){	
-	smart_return( this->size_total, "Image data is not set. ");
+	smart_return( this->_size_total, "Image data is not set. ");
 
-	Vec3i n_size = size / 2;
+	Vec3i n_size = _size / 2;
 	int n_size_slice = n_size[0] * n_size[1];
 	int n_size_total = n_size_slice * n_size[2];
 
 	// We need to add two short number, which may result in overflow. 
 	// Therefore, we use CV_64S for safety
-	Mat n_mat = Mat( n_size[2], n_size_slice, mat.type(), Scalar(0) );
+	Mat n_mat = Mat( n_size[2], n_size_slice, _mat.type(), Scalar(0) );
 	int i, j, k;
 	for( i=0; i<n_size[0]; i++ ) for( j=0; j<n_size[1]; j++ ) for( k=0; k<n_size[2]; k++ )
 	{
-		n_mat.at<T>(k, j*n_size[0]+i)  = 0.25 * mat.at<T>(2*k,     2*j*size[0] + 2*i);
-		n_mat.at<T>(k, j*n_size[0]+i) += 0.25 * mat.at<T>(2*k,     2*j*size[0] + 2*i + 1);
-		n_mat.at<T>(k, j*n_size[0]+i) += 0.25 * mat.at<T>(2*k + 1, 2*j*size[0] + 2*i);
-		n_mat.at<T>(k, j*n_size[0]+i) += 0.25 * mat.at<T>(2*k + 1, 2*j*size[0] + 2*i + 1);
+		n_mat.at<T>(k, j*n_size[0]+i)  = T( 0.25 * _mat.at<T>(2*k,     2*j*_size[0] + 2*i) );
+		n_mat.at<T>(k, j*n_size[0]+i) += T( 0.25 * _mat.at<T>(2*k,     2*j*_size[0] + 2*i + 1) );
+		n_mat.at<T>(k, j*n_size[0]+i) += T( 0.25 * _mat.at<T>(2*k + 1, 2*j*_size[0] + 2*i) );
+		n_mat.at<T>(k, j*n_size[0]+i) += T( 0.25 * _mat.at<T>(2*k + 1, 2*j*_size[0] + 2*i + 1) );
 	}
-	mat = n_mat;
+	_mat = n_mat;
 
-	size = n_size;
-	size_slice = n_size_slice;
-	size_total = n_size_total;
+	_size = n_size;
+	_size_slice = n_size_slice;
+	_size_total = n_size_total;
 }
 
 template<typename T>
@@ -426,21 +426,5 @@ bool Image3D<T>::set_roi_from_image(const Vec3i& corner1, const Vec3i& corner2, 
 		is_roi_set = true;
 	}
 	return is_roi_set;
-}
-
-///////////////////////////////////////////////////////////////////////////
-// Global Functions
-
-template<typename T>
-void remove_margin(const Data3D<T>& src, Data3D<T>& dst, Vec3i margin = Vec3i(10,10,10) ){
-	dst.reset( src.get_size()-2*margin );
-	int x, y, z;
-	for( z=0; z<dst.get_size_z(); z++ ){
-		for( y=0; y<dst.get_size_y(); y++ ){
-			for( x=0; x<dst.get_size_x(); x++ ){
-				dst.at(x,y,z) = src.at(x+margin[0], y+margin[1], z+margin[2]);
-			}
-		}
-	}
 }
 
