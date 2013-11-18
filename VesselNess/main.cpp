@@ -77,9 +77,17 @@ void compute_vesselness_whole_data(void){
 	bool falg = image_data.load( "data/vessel3d.half.half.128.128.256.data" );
 	if(!falg) return;
 
+	Data3D<float> vn;
+	VD::compute_vesselness( image_data.getROI(), vn, 
+		/*sigma from*/ 0.5f,
+		/*sigma to*/   7.5f,
+		/*sigma step*/ 0.5f );
+
+	vn.save( "data/vessel3d.half.half.128.128.256.vesselness" );
+
 	Image3D<unsigned char> image_data_uchar;
-	IP::normalize( image_data.getROI(), short(255) );
-	image_data.getROI().convertTo( image_data_uchar );
+	IP::normalize( vn, 255.0f );
+	vn.convertTo( image_data_uchar );
 	image_data_uchar.show();
 
 	GLViewer::MIP( image_data_uchar.getROI().getMat().data, 
