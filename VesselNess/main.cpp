@@ -75,11 +75,7 @@ void compute_vesselness(void){
 void compute_vesselness_whole_data(void){
 	Image3D<short> image_data;
 	bool falg = image_data.load( "data/data15.data" );
-	if( !falg ) return;
-
-	// TODO: 
-	image_data.remove_margin( Vec3i( 134-116, 0,0), Vec3i(0,0,0) );
-
+	
 	Image3D<unsigned char> image_data_uchar;
 	IP::normalize( image_data.getROI(), short(255) );
 	image_data.getROI().convertTo( image_data_uchar );

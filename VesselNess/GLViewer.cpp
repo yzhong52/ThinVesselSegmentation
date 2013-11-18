@@ -82,6 +82,10 @@ namespace GLViewer
 	///////////////////////
 	// 3D Volumn Texture
 	GLuint texture;
+	// size of texture
+	int texture_sx = 0;
+	int texture_sy = 0;
+	int texture_sz = 0;
 	// Original Data
 	int sx = 0;
 	int sy = 0;
@@ -132,23 +136,23 @@ namespace GLViewer
 
 		glBindTexture(GL_TEXTURE_3D, texture);
 		glBegin(GL_QUADS);
-		for( int i=0; i<sz+1; i++ ) {
-			glTexCoord3f( 0, 0, 1.0f*i/sz ); glVertex3i(  0,  0, i );
-			glTexCoord3f( 1, 0, 1.0f*i/sz ); glVertex3i( sx,  0, i );
-			glTexCoord3f( 1, 1, 1.0f*i/sz ); glVertex3i( sx, sy, i );
-			glTexCoord3f( 0, 1, 1.0f*i/sz ); glVertex3i(  0, sy, i );
+		for( int i=0; i<=sz; i++ ) {
+			glTexCoord3f( 0,                  0,                  1.0f*i/texture_sz ); glVertex3i( 0,  0,  i );
+			glTexCoord3f( 1.0f*sx/texture_sx, 0,                  1.0f*i/texture_sz ); glVertex3i( sx, 0,  i );
+			glTexCoord3f( 1.0f*sx/texture_sx, 1.0f*sy/texture_sy, 1.0f*i/texture_sz ); glVertex3i( sx, sy, i );
+			glTexCoord3f( 0,                  1.0f*sy/texture_sy, 1.0f*i/texture_sz ); glVertex3i( 0,  sy, i );
 		}
-		for( int i=0; i<sy+1; i++ ) {
-			glTexCoord3f( 0, 1.0f*i/sy, 0 ); glVertex3i(  0, i,  0 );
-			glTexCoord3f( 1, 1.0f*i/sy, 0 ); glVertex3i( sx, i,  0 );
-			glTexCoord3f( 1, 1.0f*i/sy, 1 ); glVertex3i( sx, i, sz );
-			glTexCoord3f( 0, 1.0f*i/sy, 1 ); glVertex3i(  0, i, sz );
+		for( int i=0; i<=sy; i++ ) {
+			glTexCoord3f( 0,                  1.0f*i/texture_sy, 0 );                  glVertex3i(  0, i,  0 );
+			glTexCoord3f( 1.0f*sx/texture_sx, 1.0f*i/texture_sy, 0 );                  glVertex3i( sx, i,  0 );
+			glTexCoord3f( 1.0f*sx/texture_sx, 1.0f*i/texture_sy, 1.0f*sz/texture_sz ); glVertex3i( sx, i, sz );
+			glTexCoord3f( 0,                  1.0f*i/texture_sy, 1.0f*sz/texture_sz ); glVertex3i(  0, i, sz );
 		}
-		for( int i=0; i<sx+1; i++ ) {
-			glTexCoord3f( 1.0f*i/sx, 0, 0 ); glVertex3i( i,  0, 0 );
-			glTexCoord3f( 1.0f*i/sx, 1, 0 ); glVertex3i( i, sy, 0 );
-			glTexCoord3f( 1.0f*i/sx, 1, 1 ); glVertex3i( i, sy, sz );
-			glTexCoord3f( 1.0f*i/sx, 0, 1 ); glVertex3i( i,  0, sz );
+		for( int i=0; i<=sx; i++ ) {
+			glTexCoord3f( 1.0f*i/texture_sx, 0,                  0 );                  glVertex3i( i,  0, 0 );
+			glTexCoord3f( 1.0f*i/texture_sx, 1.0f*sy/texture_sy, 0 );                  glVertex3i( i, sy, 0 );
+			glTexCoord3f( 1.0f*i/texture_sx, 1.0f*sy/texture_sy, 1.0f*sz/texture_sz ); glVertex3i( i, sy, sz );
+			glTexCoord3f( 1.0f*i/texture_sx, 0,                  1.0f*sz/texture_sz ); glVertex3i( i,  0, sz );
 		}
 		glEnd();
 
@@ -304,20 +308,32 @@ namespace GLViewer
 		void (*pre_draw_func)(void),
 		void (*post_draw_func)(int,int) )
 	{
-		sx = (im_x%2==0) ? im_x : im_x+1;
-		sy = (im_y%2==0) ? im_y : im_y+1;
-		sz = (im_z%2==0) ? im_z : im_z+1;
-		if( sx==im_x && sy==im_y && sz==im_z ) {
+		// From wikipedia: Do not forget that all 3 dimensions must be a power of 2! so your 2D textures must have 
+		// the same size and this size be a power of 2 AND the number of layers (=2D textures) you use to create 
+		// your 3D texture must be a power of 2 too.
+		sx = im_x;
+		sy = im_y;
+		sz = im_z;
+		
+		static const double log2 = log(2.0);
+		texture_sx = (int) pow(2, ceil( log( 1.0*sx )/log2 ));
+		texture_sy = (int) pow(2, ceil( log( 1.0*sy )/log2 ));
+		texture_sz = (int) pow(2, ceil( log( 1.0*sz )/log2 ));
+		// texture_sx = texture_sy = texture_sz = max( texture_sz, max( texture_sy, texture_sx) );
+		cout << "Creating Texture: " << texture_sx << " by " << texture_sy << " by " << texture_sz << endl;
+
+		if( sx==texture_sx && sy==texture_sy && sz==texture_sy ) {
 			data = im_data;
 		} else {
-			data = new (nothrow) unsigned char  [ sx*sy*sz ];
-			memset( data, 0, sizeof(unsigned char)*sx*sy*sz );
+			int texture_size = texture_sx * texture_sy * texture_sz;
+			data = new (nothrow) unsigned char [ texture_size ];
+			memset( data, 0, sizeof(unsigned char) * texture_size );
 			if( data==NULL ) {
 				cout << "Unable to allocate memory for OpenGL rendering" << endl;
 				return;
 			}
-			for( int z=0;z<im_z;z++ ) for( int y=0;y<im_y;y++ ) for( int x=0;x<im_x;x++ ) {
-				data[ z*sy*sx + y*sx + x] = im_data[ z*im_y*im_x + y*im_x + x];
+			for( int z=0;z<sz;z++ ) for( int y=0;y<sy;y++ ) for( int x=0; x<sx; x++ ) {
+				data[ z*texture_sy*texture_sx + y*texture_sx + x] = im_data[ z*sy*sx + y*sx + x];
 			}
 		}
 
@@ -344,7 +360,7 @@ namespace GLViewer
 		glGenTextures(1, &texture); // Create The Texture
 		glBindTexture(GL_TEXTURE_3D, texture);
 		glTexImage3D(GL_TEXTURE_3D, 0, GL_RGB, 
-			sx, sy, sz, 0,
+			texture_sx, texture_sy, texture_sz, 0,
 			GL_LUMINANCE, GL_UNSIGNED_BYTE, data );
 
 		// Use GL_NEAREST to see the voxels
