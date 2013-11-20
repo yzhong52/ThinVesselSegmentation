@@ -32,26 +32,6 @@ void plot_histogram_in_matlab(void) {
 }
 
 
-bool set_roi_for_vesselness( void ) {
-	bool flag; 
-	// load the image data
-	Image3D<short> image_data;
-	flag = image_data.load( "data/roi16.partial.data" ); 
-	if( !flag ) return 0;
-	// load roi the image data
-	image_data.loadROI( "data/roi16.partial.roi.data" );
-	VI::MIP::Single_Channel( image_data.getROI(), "data/roi16.partial.roi.data" );
-	// load vesselness
-	Image3D<Vesselness_Sig> vn_sig1;
-	bool flag3 = vn_sig1.load( "data/roi16.partial.float5.vesselness" );
-	if( flag3 == 0 ) return 0;
-	// set roi for vesselness
-	vn_sig1.setROI( image_data.get_roi_corner_0(), image_data.get_roi_corner_1() );
-	// save roi for vesselness
-	vn_sig1.saveROI( "data/roi16.partial.roi.float5.vesselness" );
-	VI::MIP::Multi_Channels( vn_sig1.getROI(), "data/roi16.partial.roi.float5.vesselness" );
-	return true;
-}
 
 void compute_vesselness(void){
 	Image3D<short> image_data;
@@ -76,20 +56,22 @@ void compute_vesselness_whole_data(void){
 	Image3D<short> image_data;
 	bool falg = image_data.load( "data/vessel3d.half.half.128.128.256.data" );
 	if(!falg) return;
+	
+	Data3D<Vesselness_All> vn_all;
+	VD::compute_vesselness( image_data.getROI(), vn_all, 
+		/*sigma from*/ 0.5f,
+		/*sigma to*/   50.0f,
+		/*sigma step*/ 0.3f );
+
+	Data3D<Vesselness_Sig> vn_sig( vn_all );
+	vn_sig.save( "data/vessel3d.half.half.128.128.256.float5.vesselness" );
 
 	Data3D<float> vn;
-	VD::compute_vesselness( image_data.getROI(), vn, 
-		/*sigma from*/ 0.5f,
-		/*sigma to*/   7.5f,
-		/*sigma step*/ 0.5f );
-
-	vn.save( "data/vessel3d.half.half.128.128.256.vesselness" );
-
+	vn_sig.copyDimTo( vn, 0 );
 	Image3D<unsigned char> image_data_uchar;
-	IP::normalize( vn, 255.0f );
+	IP::normalize( vn, float(255) );
 	vn.convertTo( image_data_uchar );
-	image_data_uchar.show();
-
+	
 	GLViewer::MIP( image_data_uchar.getROI().getMat().data, 
 		image_data_uchar.SX(),
 		image_data_uchar.SY(),
@@ -122,6 +104,35 @@ void compute_min_span_tree(void) {
 
 }
 
+void compute_min_span_tree_vesselness(void) {
+	Image3D<float> vn;
+	Image3D<Vesselness_Sig> vn_sig;
+
+	vn_sig.load( "data/roi16.partial.float5.vesselness" );
+	vn_sig.copyDimTo( vn, 0 );
+
+	Image3D<unsigned char> image_data_uchar;
+	IP::normalize( vn, float(255) );
+	vn.getROI().convertTo( image_data_uchar );
+	
+	// Computer Min Span Tree
+	Graph< MST::Edge_Ext, MST::LineSegment > tree;
+	MinSpanTree::build_tree_xuefeng( "data/roi16.partial.linedata.txt", tree, 150 );
+	// Visualize Min Span Tree on Max Intensity Projection
+	GLViewerExt::draw_min_span_tree_init( tree );
+	GLViewerExt::save_video_int( "output/video.avi", 20, 18 );
+	GLViewer::MIP( image_data_uchar.getROI().getMat().data, 
+		image_data_uchar.SX(),
+		image_data_uchar.SY(),
+		image_data_uchar.SZ(), 
+		GLViewerExt::draw_min_span_tree, // drawing min span tree
+		NULL );                             // NOT saving video
+		// GLViewerExt::save_video );       // saving video
+
+}
+
+
+
 
 int main(int argc, char* argv[])
 {
@@ -151,15 +162,9 @@ int main(int argc, char* argv[])
 	string data_name = "temp";
 
 
+	// compute_vesselness_whole_data();
 	compute_vesselness_whole_data();
-	
 
-	Image3D<short> image_data2;
-	bool falg = image_data2.load( "data/vessel3d.data" );
-	image_data2.shrink_by_half();
-	image_data2.shrink_by_half();
-	image_data2.remove_margin_to( Vec3i(128, 128, 256) );
-	image_data2.save( "data/vessel3d.half.half.128.128.256.data" );
 	return 0;
 
 
