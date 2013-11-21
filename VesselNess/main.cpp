@@ -60,7 +60,7 @@ void compute_vesselness_whole_data(void){
 	Data3D<Vesselness_All> vn_all;
 	VD::compute_vesselness( image_data.getROI(), vn_all, 
 		/*sigma from*/ 0.5f,
-		/*sigma to*/   50.0f,
+		/*sigma to*/   50.0,
 		/*sigma step*/ 0.3f );
 
 	Data3D<Vesselness_Sig> vn_sig( vn_all );
