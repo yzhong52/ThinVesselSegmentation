@@ -321,6 +321,7 @@ namespace GLViewer
 		texture_sz = (int) pow(2, ceil( log( 1.0*sz )/log2 ));
 		// texture_sx = texture_sy = texture_sz = max( texture_sz, max( texture_sy, texture_sx) );
 		cout << "Creating Texture: " << texture_sx << " by " << texture_sy << " by " << texture_sz << endl;
+		cout << "This may takes a while. Please wait..." << endl;
 
 		if( sx==texture_sx && sy==texture_sy && sz==texture_sy ) {
 			data = im_data;
@@ -336,6 +337,8 @@ namespace GLViewer
 				data[ z*texture_sy*texture_sx + y*texture_sx + x] = im_data[ z*sy*sx + y*sx + x];
 			}
 		}
+
+		
 
 		extra_render = pre_draw_func;
 		after_render = post_draw_func;
@@ -359,10 +362,17 @@ namespace GLViewer
 		// Creating Textures
 		glGenTextures(1, &texture); // Create The Texture
 		glBindTexture(GL_TEXTURE_3D, texture);
-		glTexImage3D(GL_TEXTURE_3D, 0, GL_RGB, 
+		// Yuchen [Important]: For the following line of code
+		// If the graphic hard do not have enough memory for the 3D texture,
+		// OpenGL will fail to render the textures. However, since it is hardware
+		// related, the porgramme won't show any assertions here. I may need to fix 
+		// this issue later. But now, it has no problem rendering 3D texture with a 
+		// size of 1024 * 1024 * 1024. 
+		glTexImage3D(GL_TEXTURE_3D, 0, GL_LUMINANCE, 
 			texture_sx, texture_sy, texture_sz, 0,
 			GL_LUMINANCE, GL_UNSIGNED_BYTE, data );
-
+		if( data != im_data ) delete[] data;
+		
 		// Use GL_NEAREST to see the voxels
 		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR ); 
 		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -389,9 +399,11 @@ namespace GLViewer
 		glutDisplayFunc( render );
 
 		// Release Texture Data
-		if( data != im_data ) delete[] data;
+		
 
 		reset_modelview();
+
+		cout << "Redenring Begin." << endl;
 		glutMainLoop(); // No Code Will Be Executed After This Line
 	}
 }

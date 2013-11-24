@@ -334,6 +334,7 @@
     <ClInclude Include="Edge.h" />
     <ClInclude Include="GLViewer.h" />
     <ClInclude Include="GLViewerExt.h" />
+    <ClInclude Include="GLViwerWrapper.h" />
     <ClInclude Include="Image3D.h" />
     <ClInclude Include="ImageProcessing.h" />
     <ClInclude Include="Kernel3D.h" />

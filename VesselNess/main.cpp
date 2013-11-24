@@ -11,10 +11,12 @@
 #include "Image3D.h"
 #include "ImageProcessing.h"
 #include "Vesselness.h"
-#include "GLViewer.h"
-#include "GLViewerExt.h"
+
 #include "MinSpanTree.h"
 
+#include "GLViewer.h"
+#include "GLViewerExt.h"
+#include "GLViwerWrapper.h"
 
 
 
@@ -54,22 +56,33 @@ void compute_vesselness(void){
 
 void compute_vesselness_whole_data(void){
 	Image3D<short> image_data;
-	bool falg = image_data.load( "data/vessel3d.half.half.128.128.256.data" );
+	bool falg = image_data.load( "data/vessel3d.data" );
 	if(!falg) return;
+
+	// image_data.shrink_by_half();
+	// image_data.shrink_by_half();
 	
 	Data3D<Vesselness_All> vn_all;
-	VD::compute_vesselness( image_data.getROI(), vn_all, 
-		/*sigma from*/ 0.5f,
-		/*sigma to*/   50.0,
-		/*sigma step*/ 0.3f );
+	vn_all.resize( image_data.get_size() );
+	vn_all.at(0,0,0).rsp = 1.0f;
+	//VD::compute_vesselness( image_data.getROI(), vn_all, 
+	//	/*sigma from*/ 0.5f,
+	//	/*sigma to*/   0.6f,
+	//	/*sigma step*/ 0.3f );
 
 	Data3D<Vesselness_Sig> vn_sig( vn_all );
-	vn_sig.save( "data/vessel3d.half.half.128.128.256.float5.vesselness" );
+	// vn_sig.save( "data/temp.vn_sig" );
 
 	Data3D<float> vn;
 	vn_sig.copyDimTo( vn, 0 );
+	cout << "saving data" <<endl; 
+	vn.save( "data/temp.vn" );
+	cout << "file saved" <<endl; 
+
+	cout << "Normalizing Data" << endl;
 	Image3D<unsigned char> image_data_uchar;
 	IP::normalize( vn, float(255) );
+	cout << "Converting to unsigned char" << endl;
 	vn.convertTo( image_data_uchar );
 	
 	GLViewer::MIP( image_data_uchar.getROI().getMat().data, 
@@ -136,35 +149,44 @@ void compute_min_span_tree_vesselness(void) {
 
 int main(int argc, char* argv[])
 {
-	Data3D<Vesselness_All> vn_all;
-	
-	struct Preset {
-		Preset(){}
-		Preset(const string& file, Vec3i& size = Vec3i(0,0,0) ) : file(file), size(size){ };
-		string file;
-		Vec3i size;
-	};
+	Image3D<short> im_short;
+	bool falg = im_short.load( "data/vessel3d.data" );
+	if(!falg) return 0;
+	// im_short.shrink_by_half();
+	// im_short.shrink_by_half();
 
+	cout << "Normalizing Data" << endl;
 	
-	bool flag = false;
-	Preset presets[30];
-	presets[0] = Preset("data/vessel3d.data" );
-	presets[10] = Preset("roi10" );
-	presets[11] = Preset("roi11.data" );
-	presets[12] = Preset("vessel3d.rd.k=19.data" );
-	presets[13] = Preset("roi13.data" );
-	// presets[14] = Preset("roi14.data" );
-	presets[15] = Preset("data/roi15.data" );
-	presets[16] = Preset("roi16.data" );
-	presets[17] = Preset("roi17.data" );
-	
-	const Preset& ps = presets[12];
-	string data_name = "temp";
+	short max, min;
+	max = min = im_short.at(0,0,0);
+	for( int z=0;z<im_short.SZ(); z++ ){
+		for( int y=0;y<im_short.SY(); y++ ){
+			for( int x=0;x<im_short.SX(); x++ ){
+				if( min > im_short.at(x,y,z) ) min = im_short.at(x,y,z); 
+				if( max < im_short.at(x,y,z) ) max = im_short.at(x,y,z); 
+			}
+		}
+	}
 
+	Data3D<unsigned char> im_uchar;
+	im_uchar.resize( im_short.get_size() );
+	for( int z=0;z<im_uchar.SZ(); z++ ) {
+		for( int y=0;y<im_uchar.SY(); y++ ) {
+			for( int x=0;x<im_uchar.SX(); x++ ) {
+				im_uchar.at(x,y,z) = (unsigned char) ( 255*int(im_short.at(x,y,z)-min)/(max-min) ); 
+			}
+		}
+	}
+	im_uchar.show();
+
+	// im_uchar.remove_margin_to( Vec3i(512, 512, 1024) );
+	// image_data.convertTo( image_data_uchar );
+	GLViewer::MIP( im_uchar );
 
 	// compute_vesselness_whole_data();
 	compute_vesselness_whole_data();
 
+	
 	return 0;
 
 
@@ -190,60 +212,29 @@ int main(int argc, char* argv[])
 	//Viewer::MIP::Multi_Channels( vn_temp, data_name+".vesselness" );
 	//return 0;
 
-	Image3D<short> image_data;
-	if( bool compute = true ) {
-		flag = image_data.loadROI("data/roi15.data");
-		if( !flag ) return 0;
+	//
+	//if( bool minimum_spinning_tree = false ) { 	
+	//	Data3D<Vesselness_Sig> res_mst;
+	//	IP::edge_tracing_mst( vn_all, res_mst, 0.55f, 0.065f  );
+	//	// res_dt.save( data_name + ".dir_tracing.vesselness" );
+	//	Viewer::MIP::Multi_Channels( res_mst, data_name + ".mst" );
+	//	return 0;
+	//} else {
+	//	Data3D<Vesselness_Sig> res_nms; // result of non-maximum suppression
+	//	IP::non_max_suppress( vn_all, res_nms );
+	//	res_nms.save( data_name + ".non_max_suppress.vesselness" );
+	//	// Viewer::MIP::Multi_Channels( res_nms, data_name + ".non_max_suppress" ); // Visualization using MIP
+	//	//return 0;
 
-		VD::compute_vesselness( image_data.getROI(), vn_all, 
-			// /*sigma from*/ 0.3f, /*sigma to*/ 3.5f, /*sigma step*/ 0.1f );
-		    /*sigma from*/ 0.5f, /*sigma to*/ 3.5f, /*sigma step*/ 0.5f );
-	
-		vn_all.save( data_name+".vesselness" );
-		
-		Viewer::MIP::Multi_Channels( vn_all, data_name + ".vesselness" );
-		// Viewer::MIP::Single_Channel( image_data.getROI(), data_name + ".data" );
-		return 0;
-
-	} else {
-
-		flag = vn_all.load( data_name+".vesselness" );
-		if( !flag ) return 0;
-
-		flag = image_data.load( data_name+".data" );
-		if( !flag ) return 0;
-	}
-	
-
-	Data3D<Vesselness_Sig> vn_sig( vn_all );
-	//vn_sig.save( data_name+".float5.vesselness" );
-	//Viewer::MIP::Multi_Channels( vn_sig, data_name+".float5.vesselness" );
-	//Viewer::OpenGL::show_dir( vn_sig );
+	//	Data3D<Vesselness_Sig> res_rns_et;
+	//	IP::edge_tracing( res_nms, res_rns_et, 0.55f, 0.055f );
+	//	res_rns_et.save( data_name + ".edge_tracing.vesselness" );
+	//	Viewer::MIP::Multi_Channels( res_rns_et, data_name + ".edge_tracing"); // Visualization using MIP
+	//}
+	//
+	//
+	//
 	//return 0;
-
-	if( bool minimum_spinning_tree = false ) { 
-		
-		Data3D<Vesselness_Sig> res_mst;
-		IP::edge_tracing_mst( vn_all, res_mst, 0.55f, 0.065f  );
-		// res_dt.save( data_name + ".dir_tracing.vesselness" );
-		Viewer::MIP::Multi_Channels( res_mst, data_name + ".mst" );
-		return 0;
-	} else {
-		Data3D<Vesselness_Sig> res_nms; // result of non-maximum suppression
-		IP::non_max_suppress( vn_all, res_nms );
-		res_nms.save( data_name + ".non_max_suppress.vesselness" );
-		// Viewer::MIP::Multi_Channels( res_nms, data_name + ".non_max_suppress" ); // Visualization using MIP
-		//return 0;
-
-		Data3D<Vesselness_Sig> res_rns_et;
-		IP::edge_tracing( res_nms, res_rns_et, 0.55f, 0.055f );
-		res_rns_et.save( data_name + ".edge_tracing.vesselness" );
-		Viewer::MIP::Multi_Channels( res_rns_et, data_name + ".edge_tracing"); // Visualization using MIP
-	}
-
-	
-
-	return 0;
 
 	///////////////////////////////////////////////////////////////
 	// Ring Recuction by slice

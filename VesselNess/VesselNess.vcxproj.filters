@@ -87,6 +87,9 @@
     <ClInclude Include="GLViewerExt.h">
       <Filter>Visualization</Filter>
     </ClInclude>
+    <ClInclude Include="GLViwerWrapper.h">
+      <Filter>Visualization</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ImageProcessor.cpp">

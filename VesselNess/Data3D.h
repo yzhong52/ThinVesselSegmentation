@@ -200,9 +200,9 @@ public:
 				(int) floor(1.0f*(SZ()-size[2])/2)
 				), 
 			Vec3i( 
-				(int) floor(1.0f*(SX()-size[0])/2), 
-				(int) floor(1.0f*(SY()-size[1])/2), 
-				(int) floor(1.0f*(SZ()-size[2])/2)
+				(int) ceil(1.0f*(SX()-size[0])/2), 
+				(int) ceil(1.0f*(SY()-size[1])/2), 
+				(int) ceil(1.0f*(SZ()-size[2])/2)
 				)
 		);
 	}
