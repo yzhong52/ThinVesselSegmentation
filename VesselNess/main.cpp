@@ -4,8 +4,6 @@
 
 #include "stdafx.h"
 #include "VesselDetector.h"
-#include "Validation.h"
-#include "Kernel3D.h"
 #include "Viewer.h"
 #include "RingsDeduction.h"
 #include "Image3D.h"
@@ -21,25 +19,6 @@
 
 
 void compute_vesselness(void){
-	Image3D<short> image_data;
-
-	string data_name = "data15";
-
-	bool flag = image_data.load( "data/"+data_name+".data" );
-	if( !flag ) return;
-	
-	Data3D<Vesselness> vn;
-	VD::compute_vesselness( image_data.getROI(), vn, 
-		/*sigma from*/ 0.5f,
-		/*sigma to*/   3.5f,
-		/*sigma step*/ 1.5f );
-	
-	string vn_name = "output/" + data_name + ".float4.vesselness";
-	vn.save( "output/" + data_name + ".res.vesselness" );
-	Viewer::MIP::Multi_Channels( vn, vn_name );
-} 
-
-void compute_vesselness_whole_data(void){
 	// laoding data
 	Data3D<short> im_short;
 	bool falg = im_short.load( "data/vessel3d.data" );
@@ -114,12 +93,24 @@ void compute_min_span_tree_vesselness(void) {
 		GLViewerExt::draw_min_span_tree, // drawing min span tree
 		NULL );                             // NOT saving video
 		// GLViewerExt::save_video );       // saving video
+}
 
+void compute_rings_redection(void){
+	Image3D<short> im_short;
+	bool falg = im_short.load( "data/vessel3d.data" );
+	if(!falg) return;
+	
+	RD::mm_filter( im_short, 19 );
+	im_short.save( "data/vessel3d.rd.19.data" );
+
+	im_short.show();
 }
 
 int main(int argc, char* argv[])
 {
-	compute_vesselness_whole_data();
+	computer_rings_redection();
+
+	// compute_vesselness();
 
 	return 0;
 

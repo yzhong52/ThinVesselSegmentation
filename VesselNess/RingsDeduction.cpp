@@ -11,8 +11,6 @@ typedef struct{
 	int var;
 } Diff_Var;
 
-
-
 short get_reduction( Diff_Var* diff_var, int count ){
 	////////////////////////////
 	//// Uncomment the following code if you want to use variance
@@ -36,35 +34,37 @@ short get_reduction( Diff_Var* diff_var, int count ){
 	return diff_var[count/2].diff;
 }
 
-void RingsDeduction::mm_filter( Image3D<short>& im, const int& wsize ){
+void RingsDeduction::mm_filter( Data3D<short>& im_src, const int& wsize ){
 	// center of the rings
-	static const int center_y = 270;
-	static const int center_x = 234;
+	static const int center_y = 270/2;
+	static const int center_x = 234/2;
 
-	Image3D<short> mean( im.get_size() );
-	IP::meanBlur3D( im, mean, wsize );
-	// IP::GaussianBlur3D( src, mean, 15); // TODO: I amy try Gaussian later
-	//mean.showData("Blured Image", 25);
+	Data3D<short> mean( im_src.get_size() );
+	IP::meanBlur3D( im_src, mean, wsize );
 
-	Image3D<int> diff( im.get_size() );
-	subtract3D(im, mean, diff);
-	//diff.showData("SRC-Mean Diff", 25);
-	mean.reset(Vec3i(0,0,0));
-
+	// TODO: I amy try Gaussian later
+	//Data3D<float> mean( im_src.get_size() );
+	//float sigma = 1.0f * wsize;
+	//int ksize = int( 6*sigma+1 );
+	//// make sure ksize is an odd number
+	//if ( ksize%2==0 ) ksize++;
+	//IP::GaussianBlur3D( im_src, mean, ksize, sigma); 
+	
+	Data3D<int> diff( im_src.get_size() );
+	subtract3D(im_src, mean, diff);
+	
 	//Image3D<int> variance_sum( im.get_size() );
 	//multiply3D(diff, diff, variance_sum);
-	////variance_sum.showData("Variance", 25);
 
 	//Image3D<int> variance( im.get_size() );
 	//IP::meanBlur3D( variance_sum, variance, wsize );
-	////variance.showData("Variance", 25);
-
+	
 	// maximum possible radius of the data
 	int max_radius =  center_x*center_x+center_y*center_y;
 	Vec2i offsets[3] = {
-		Vec2i(im.get_size(0)-center_x, im.get_size(1)-center_y),
-		Vec2i(center_x,                im.get_size(1)-center_y),
-		Vec2i(im.get_size(0)-center_x, center_y)
+		Vec2i(im_src.get_size(0)-center_x, im_src.get_size(1)-center_y),
+		Vec2i(center_x,                    im_src.get_size(1)-center_y),
+		Vec2i(im_src.get_size(0)-center_x, center_y)
 	};
 	for( int i=0; i<3; i++ ){
 		max_radius = max( max_radius, 
@@ -74,13 +74,14 @@ void RingsDeduction::mm_filter( Image3D<short>& im, const int& wsize ){
 
 	Diff_Var* diff_var = new Diff_Var[ int(4*M_PI*max_radius) ];
 
-	// the ring reduction map. all so important
-	short* rdmap = new short[max_radius];
+	// the ring reduction map: indicate whether a ring is stronger or weaker
+	short* rdmap = new short[ max_radius ]; 
 	memset( rdmap, 0, sizeof(short)*max_radius );
 
-	const Vec3i& src_size = im.get_size();
+	const Vec3i& src_size = im_src.get_size();
 	int x, y, z, r;
 	for( z=0; z<src_size[2]; z++ ) {
+		// rings reduction is done slice by slice
 		cout << '\r' << "Rings Reduction: " << 100 * z / src_size[2] << "%";
 		rdmap[0] = diff.at(center_x, center_y, z);
 		for( r=1; r<max_radius; r++ ){
@@ -174,14 +175,20 @@ void RingsDeduction::mm_filter( Image3D<short>& im, const int& wsize ){
 				// relative possition to the center of the ring
 				int relative_x = x - center_x;
 				int relative_y = y - center_y;
+				if( relative_x==0 && relative_y==0 ) {
+					// center of the ring
+					im_src.at(x,y,z) = mean.at(x,y,z);
+					continue;
+				}
+				// radius of the ring
 				float r = sqrt( float(relative_x*relative_x+relative_y*relative_y) );
-				float floor_r = floor(r);
-				float ceil_r = ceil(r);
-				if( int(floor_r)==int(ceil_r) ) {
-					im.at(x,y,z) -= rdmap[int(ceil_r)];
+				int floor_r = (int) floor(r);
+				int ceil_r = (int) ceil(r);
+				if( floor_r==ceil_r ) {
+					im_src.at(x,y,z) -= rdmap[ceil_r];
 				} else {
-					im.at(x,y,z) -= short( rdmap[int(ceil_r)] * (r-floor_r) );
-					im.at(x,y,z) -= short( rdmap[int(floor_r)] * (ceil_r-r) );
+					im_src.at(x,y,z) -= short( rdmap[ceil_r] * (r-floor_r) );
+					im_src.at(x,y,z) -= short( rdmap[floor_r] * (ceil_r-r) );
 				}
 			}
 		}

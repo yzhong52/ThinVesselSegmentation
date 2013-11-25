@@ -28,6 +28,9 @@
     <Filter Include="Visualization">
       <UniqueIdentifier>{d5047bf8-d347-411e-9d25-35b9348629e4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Rings Reduction">
+      <UniqueIdentifier>{15a09061-ecbb-42fd-8352-41d0b6922874}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -63,9 +66,6 @@
     <ClInclude Include="Validation.h">
       <Filter>Validation</Filter>
     </ClInclude>
-    <ClInclude Include="RingsDeduction.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Vesselness.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -89,6 +89,9 @@
     </ClInclude>
     <ClInclude Include="GLViwerWrapper.h">
       <Filter>Visualization</Filter>
+    </ClInclude>
+    <ClInclude Include="RingsDeduction.h">
+      <Filter>Rings Reduction</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -119,9 +122,6 @@
     <ClCompile Include="Validation.cpp">
       <Filter>Validation</Filter>
     </ClCompile>
-    <ClCompile Include="RingsDeduction.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Vesselness.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -139,6 +139,9 @@
     </ClCompile>
     <ClCompile Include="GLViewer.cpp">
       <Filter>Visualization</Filter>
+    </ClCompile>
+    <ClCompile Include="RingsDeduction.cpp">
+      <Filter>Rings Reduction</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
