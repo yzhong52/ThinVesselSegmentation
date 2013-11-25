@@ -2,6 +2,8 @@
 
 #include "stdafx.h"
 
+
+
 template<typename T>
 class Data3D {
 public:
@@ -71,8 +73,8 @@ public:
 	inline const int& get_size_y(void) const { return _size[1]; }
 	inline const int& get_size_z(void) const { return _size[2]; }
 	inline const int& get_size(int i) const { return _size[i]; }
-	inline const int& get_size_slice(void) const { return _size_slice; }
-	inline const int& get_size_total(void) const { return _size_total; }
+	inline const long& get_size_slice(void) const { return _size_slice; }
+	inline const long& get_size_total(void) const { return _size_total; }
 	inline const Vec3i& get_size(void) const { return _size; }
 	
 	// getters about values of the data
@@ -222,9 +224,9 @@ protected:
 	Vec3i _size;
 	// int size_x, size_y, size_z;
 	// size_x * size_y * size_z
-	int _size_total;   
+	long _size_total;   
 	// size_x * size_y
-	int _size_slice; 
+	long _size_slice; 
 	// data <T>
 	Mat_<T> _mat;
 
@@ -239,7 +241,10 @@ bool Data3D<T>::save( const string& file_name, bool isBigEndian, bool saveInfo )
 {
 	smart_return_value( _size_total, "Data is empty", false );
 
-	FILE* pFile=fopen( file_name.c_str(), "wb" );
+	cout << "Saving file to " << file_name << endl;
+	cout << "Data Size: " << (long) _size_total * sizeof(T) << endl;
+
+	FILE* pFile = fopen( file_name.c_str(), "wb" );
 	if( isBigEndian ) {
 		smart_return_value( sizeof(T)==2, "Datatype is not supported.", false );
 		Mat temp_mat = _mat.clone();
@@ -249,13 +254,15 @@ bool Data3D<T>::save( const string& file_name, bool isBigEndian, bool saveInfo )
 			std::swap( *temp, *(temp+1) );
 			temp+=2;
 		}
-		fwrite( temp_mat.data, sizeof(T), _size_total, pFile );
+		fwrite_big( temp_mat.data, sizeof(T), _size_total, pFile );
 	} else {
-		fwrite( _mat.data, sizeof(T), _size_total, pFile );
+		fwrite_big( _mat.data, sizeof(T), _size_total, pFile );
 	}
 	fclose(pFile);
 
 	if( saveInfo ) save_info( file_name, isBigEndian );
+
+	cout << "done." << endl;
 	return true;
 }
 
@@ -281,7 +288,7 @@ bool Data3D<T>::load( const string& file_name, const Vec3i& size, bool isBigEndi
 	FILE* pFile=fopen( file_name.c_str(), "rb" );
 	smart_return_value( pFile!=0, "File not found", false );
 
-	int size_read = (int) fread( _mat.data, sizeof(T), _size_total, pFile);
+	long long size_read = fread_big( _mat.data, sizeof(T), _size_total, pFile);
 	
 	fgetc( pFile );
 	// if we haven't read the end of the file
@@ -294,10 +301,11 @@ bool Data3D<T>::load( const string& file_name, const Vec3i& size, bool isBigEndi
 	fclose(pFile);
 	
 	// if the size we read is not as big as the size we expected, fail
-	smart_return_value( size_read==_size_total, "Data size is incorrect (too big)", false );
+	smart_return_value( size_read==_size_total*sizeof(T), 
+		"Data size is incorrect (too big)", false );
 	
 	if( isBigEndian ) {
-		smart_return_value( sizeof(T)==2, "Datatype is not supported.", false );
+		smart_return_value( sizeof(T)==2, "Datatype does not support big endian.", false );
 		// swap the data
 		unsigned char* temp = _mat.data;
 		for(int i=0; i<_size_total; i++) {

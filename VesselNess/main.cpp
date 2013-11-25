@@ -55,40 +55,28 @@ void compute_vesselness(void){
 } 
 
 void compute_vesselness_whole_data(void){
-	Image3D<short> image_data;
-	bool falg = image_data.load( "data/vessel3d.data" );
+	// laoding data
+	Data3D<short> im_short;
+	bool falg = im_short.load( "data/vessel3d.data" );
 	if(!falg) return;
-
-	// image_data.shrink_by_half();
-	// image_data.shrink_by_half();
 	
+	// compute vesselness
 	Data3D<Vesselness_All> vn_all;
-	vn_all.resize( image_data.get_size() );
-	vn_all.at(0,0,0).rsp = 1.0f;
-	//VD::compute_vesselness( image_data.getROI(), vn_all, 
-	//	/*sigma from*/ 0.5f,
-	//	/*sigma to*/   0.6f,
-	//	/*sigma step*/ 0.3f );
+	vn_all.resize( im_short.get_size() );
+	VD::compute_vesselness( im_short, vn_all, 
+		/*sigma from*/ 0.5f,
+		/*sigma to*/   5.5f,
+		/*sigma step*/ 1.0f );
+	vn_all.save( "data/vessel3d.5.vn_all" );
 
 	Data3D<Vesselness_Sig> vn_sig( vn_all );
-	// vn_sig.save( "data/temp.vn_sig" );
+	vn_sig.save( "data/vessel3d.5.vn_sig" );
 
-	Data3D<float> vn;
-	vn_sig.copyDimTo( vn, 0 );
-	cout << "saving data" <<endl; 
-	vn.save( "data/temp.vn" );
-	cout << "file saved" <<endl; 
-
-	cout << "Normalizing Data" << endl;
-	Image3D<unsigned char> image_data_uchar;
-	IP::normalize( vn, float(255) );
-	cout << "Converting to unsigned char" << endl;
-	vn.convertTo( image_data_uchar );
+	Data3D<float> vn_float; 
+	vn_sig.copyDimTo( vn_float, 0 );
+	vn_float.save( "data/vessel3d.5.vn_float" );
 	
-	GLViewer::MIP( image_data_uchar.getROI().getMat().data, 
-		image_data_uchar.SX(),
-		image_data_uchar.SY(),
-		image_data_uchar.SZ() );
+	GLViewer::MIP( vn_float );
 }
 
 
@@ -145,48 +133,14 @@ void compute_min_span_tree_vesselness(void) {
 }
 
 
-
+//#define _FILE_OFFSET_BITS  64
+#include <stdio.h>
+#include <Windows.h>
 
 int main(int argc, char* argv[])
 {
-	Image3D<short> im_short;
-	bool falg = im_short.load( "data/vessel3d.data" );
-	if(!falg) return 0;
-	// im_short.shrink_by_half();
-	// im_short.shrink_by_half();
-
-	cout << "Normalizing Data" << endl;
-	
-	short max, min;
-	max = min = im_short.at(0,0,0);
-	for( int z=0;z<im_short.SZ(); z++ ){
-		for( int y=0;y<im_short.SY(); y++ ){
-			for( int x=0;x<im_short.SX(); x++ ){
-				if( min > im_short.at(x,y,z) ) min = im_short.at(x,y,z); 
-				if( max < im_short.at(x,y,z) ) max = im_short.at(x,y,z); 
-			}
-		}
-	}
-
-	Data3D<unsigned char> im_uchar;
-	im_uchar.resize( im_short.get_size() );
-	for( int z=0;z<im_uchar.SZ(); z++ ) {
-		for( int y=0;y<im_uchar.SY(); y++ ) {
-			for( int x=0;x<im_uchar.SX(); x++ ) {
-				im_uchar.at(x,y,z) = (unsigned char) ( 255*int(im_short.at(x,y,z)-min)/(max-min) ); 
-			}
-		}
-	}
-	im_uchar.show();
-
-	// im_uchar.remove_margin_to( Vec3i(512, 512, 1024) );
-	// image_data.convertTo( image_data_uchar );
-	GLViewer::MIP( im_uchar );
-
-	// compute_vesselness_whole_data();
 	compute_vesselness_whole_data();
 
-	
 	return 0;
 
 
