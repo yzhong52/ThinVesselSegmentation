@@ -14,25 +14,10 @@
 
 #include "MinSpanTree.h"
 
+// OpenGL Viewer With Maximum Intensity Projection
 #include "GLViewer.h"
 #include "GLViewerExt.h"
 #include "GLViwerWrapper.h"
-
-
-
-void plot_histogram_in_matlab(void) {
-	smart_assert( 0, "Deprecated!" );
-	//cout << "Plotting Histogram of data in Matlab. " << endl;
-	//// loading data
-	//Image3D<short> im_data;
-	//bool flag = im_data.loadData( "data/vessel3d.data", Vec3i(585,525,200), true, true );
-	//if( !flag ) return;
-	//// calculating histogram
-	//Mat_<double> hist, range;
-	//IP::histogram( im_data, range, hist, 1024 );
-	//MLVier::plot( range, hist );
-}
-
 
 
 void compute_vesselness(void){
@@ -131,11 +116,6 @@ void compute_min_span_tree_vesselness(void) {
 		// GLViewerExt::save_video );       // saving video
 
 }
-
-
-//#define _FILE_OFFSET_BITS  64
-#include <stdio.h>
-#include <Windows.h>
 
 int main(int argc, char* argv[])
 {

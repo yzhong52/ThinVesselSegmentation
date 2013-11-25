@@ -262,7 +262,7 @@ bool Data3D<T>::save( const string& file_name, bool isBigEndian, bool saveInfo )
 
 	if( saveInfo ) save_info( file_name, isBigEndian );
 
-	cout << "done." << endl;
+	cout << "done." << endl << endl;
 	return true;
 }
 
