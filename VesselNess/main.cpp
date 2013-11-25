@@ -21,7 +21,7 @@
 void compute_vesselness(void){
 	// laoding data
 	Data3D<short> im_short;
-	bool falg = im_short.load( "data/vessel3d.data" );
+	bool falg = im_short.load( "data/vessel3d.rd.19.data" );
 	if(!falg) return;
 	
 	// compute vesselness
@@ -29,16 +29,16 @@ void compute_vesselness(void){
 	vn_all.resize( im_short.get_size() );
 	VD::compute_vesselness( im_short, vn_all, 
 		/*sigma from*/ 0.5f,
-		/*sigma to*/   5.5f,
+		/*sigma to*/   25.5,
 		/*sigma step*/ 1.0f );
-	vn_all.save( "data/vessel3d.5.vn_all" );
+	vn_all.save( "data/vessel3d.rd.19.sigma25.vn_all" );
 
 	Data3D<Vesselness_Sig> vn_sig( vn_all );
-	vn_sig.save( "data/vessel3d.5.vn_sig" );
+	vn_sig.save( "data/vessel3d.rd.19.sigma25.vn_sig" );
 
 	Data3D<float> vn_float; 
 	vn_sig.copyDimTo( vn_float, 0 );
-	vn_float.save( "data/vessel3d.5.vn_float" );
+	vn_float.save( "data/vessel3d.rd.19.sigma25.vn_float" );
 	
 	GLViewer::MIP( vn_float );
 }
@@ -59,10 +59,7 @@ void compute_min_span_tree(void) {
 	// Visualize Min Span Tree on Max Intensity Projection
 	GLViewerExt::draw_min_span_tree_init( tree );
 	GLViewerExt::save_video_int( "output/video.avi", 20, 18 );
-	GLViewer::MIP( image_data_uchar.getROI().getMat().data, 
-		image_data_uchar.SX(),
-		image_data_uchar.SY(),
-		image_data_uchar.SZ(), 
+	GLViewer::MIP( image_data_uchar, 
 		GLViewerExt::draw_min_span_tree, // drawing min span tree
 		NULL );                             // NOT saving video
 		// GLViewerExt::save_video );       // saving video
@@ -86,10 +83,7 @@ void compute_min_span_tree_vesselness(void) {
 	// Visualize Min Span Tree on Max Intensity Projection
 	GLViewerExt::draw_min_span_tree_init( tree );
 	GLViewerExt::save_video_int( "output/video.avi", 20, 18 );
-	GLViewer::MIP( image_data_uchar.getROI().getMat().data, 
-		image_data_uchar.SX(),
-		image_data_uchar.SY(),
-		image_data_uchar.SZ(), 
+	GLViewer::MIP( image_data_uchar, 
 		GLViewerExt::draw_min_span_tree, // drawing min span tree
 		NULL );                             // NOT saving video
 		// GLViewerExt::save_video );       // saving video
@@ -100,17 +94,14 @@ void compute_rings_redection(void){
 	bool falg = im_short.load( "data/vessel3d.data" );
 	if(!falg) return;
 	
-	RD::mm_filter( im_short, 19 );
+	RD::mm_filter( im_short, 19, 234, 270 );
 	im_short.save( "data/vessel3d.rd.19.data" );
-
-	im_short.show();
 }
 
 int main(int argc, char* argv[])
 {
-	computer_rings_redection();
-
-	// compute_vesselness();
+	compute_rings_redection();
+	compute_vesselness(); 
 
 	return 0;
 

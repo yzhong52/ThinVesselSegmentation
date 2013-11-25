@@ -34,10 +34,9 @@ short get_reduction( Diff_Var* diff_var, int count ){
 	return diff_var[count/2].diff;
 }
 
-void RingsDeduction::mm_filter( Data3D<short>& im_src, const int& wsize ){
-	// center of the rings
-	static const int center_y = 270/2;
-	static const int center_x = 234/2;
+void RingsDeduction::mm_filter( Data3D<short>& im_src, const int& wsize, 
+	const int& center_x , const int& center_y )
+{
 
 	Data3D<short> mean( im_src.get_size() );
 	IP::meanBlur3D( im_src, mean, wsize );
@@ -53,9 +52,9 @@ void RingsDeduction::mm_filter( Data3D<short>& im_src, const int& wsize ){
 	Data3D<int> diff( im_src.get_size() );
 	subtract3D(im_src, mean, diff);
 	
+	//// Uncomment the following code if you want to use variance
 	//Image3D<int> variance_sum( im.get_size() );
 	//multiply3D(diff, diff, variance_sum);
-
 	//Image3D<int> variance( im.get_size() );
 	//IP::meanBlur3D( variance_sum, variance, wsize );
 	
@@ -101,6 +100,7 @@ void RingsDeduction::mm_filter( Data3D<short>& im_src, const int& wsize ){
 					offset_y = center_y+y;
 					if( offset_x>=0 && offset_x<src_size[0] && offset_y>=0 && offset_y<src_size[1] ){
 						diff_var[count].diff = diff.at(offset_x, offset_y, z);
+						//// Uncomment the following code if you want to use variance
 						//diff_var[count].var = variance.at(offset_x, offset_y, z);
 						count++;
 					}
@@ -109,6 +109,7 @@ void RingsDeduction::mm_filter( Data3D<short>& im_src, const int& wsize ){
 					offset_y = center_y+y;
 					if( offset_x>=0 && offset_x<src_size[0] && offset_y>=0 && offset_y<src_size[1] ){
 						diff_var[count].diff = diff.at(offset_x, offset_y, z);
+						//// Uncomment the following code if you want to use variance
 						//diff_var[count].var = variance.at(offset_x, offset_y, z);
 						count++;
 					}
@@ -117,6 +118,7 @@ void RingsDeduction::mm_filter( Data3D<short>& im_src, const int& wsize ){
 					offset_y = center_y-y;
 					if( offset_x>=0 && offset_x<src_size[0] && offset_y>=0 && offset_y<src_size[1] ){
 						diff_var[count].diff = diff.at(offset_x, offset_y, z);
+						//// Uncomment the following code if you want to use variance
 						//diff_var[count].var = variance.at(offset_x, offset_y, z);
 						count++;
 					}
@@ -125,6 +127,7 @@ void RingsDeduction::mm_filter( Data3D<short>& im_src, const int& wsize ){
 					offset_y = center_y-y;
 					if( offset_x>=0 && offset_x<src_size[0] && offset_y>=0 && offset_y<src_size[1] ){
 						diff_var[count].diff = diff.at(offset_x, offset_y, z);
+						//// Uncomment the following code if you want to use variance
 						//diff_var[count].var = variance.at(offset_x, offset_y, z);
 						count++;
 					}
@@ -137,6 +140,7 @@ void RingsDeduction::mm_filter( Data3D<short>& im_src, const int& wsize ){
 				offset_y = center_y+i;
 				if( offset_y>=0 && offset_y<src_size[1] ){
 					diff_var[count].diff = diff.at(offset_x, offset_y, z);
+					//// Uncomment the following code if you want to use variance
 					//diff_var[count].var = variance.at(offset_x, offset_y, z);
 					count++;
 				}
@@ -145,6 +149,7 @@ void RingsDeduction::mm_filter( Data3D<short>& im_src, const int& wsize ){
 				offset_y = center_y;
 				if( offset_x>=0 && offset_x<src_size[0] ){
 					diff_var[count].diff = diff.at(offset_x, offset_y, z);
+					//// Uncomment the following code if you want to use variance
 					//diff_var[count].var = variance.at(offset_x, offset_y, z);
 					count++;
 				}
@@ -153,6 +158,7 @@ void RingsDeduction::mm_filter( Data3D<short>& im_src, const int& wsize ){
 				offset_y = center_y-i;
 				if( offset_y>=0 && offset_y<src_size[1] ){
 					diff_var[count].diff = diff.at(offset_x, offset_y, z);
+					//// Uncomment the following code if you want to use variance
 					//diff_var[count].var = variance.at(offset_x, offset_y, z);
 					count++;
 				}
@@ -161,6 +167,7 @@ void RingsDeduction::mm_filter( Data3D<short>& im_src, const int& wsize ){
 				offset_y = center_y;
 				if( offset_x>=0 && offset_x<src_size[0] ){
 					diff_var[count].diff = diff.at(offset_x, offset_y, z);
+					//// Uncomment the following code if you want to use variance
 					//diff_var[count].var = variance.at(offset_x, offset_y, z);
 					count++;
 				}
