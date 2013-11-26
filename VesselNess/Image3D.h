@@ -30,7 +30,7 @@ public:
 	/////////////////////Region of Interest////////////////////////
 	// read/write roi from file
 	bool loadROI( const string& roi_file_name );
-	bool saveROI( const string& roi_file_name, bool isBigEndian = false );
+	bool saveROI( const string& roi_file_name, const string& log="", bool isBigEndian = false );
 	// set roi through mouse click
 	void setROI(void);
 	void setROI( const Vec3i& roi_corner_0, const Vec3i& roi_corner_1 );
@@ -296,29 +296,33 @@ void Image3D<T>::setROI(void){
 
 
 template<typename T>
-bool Image3D<T>::saveROI( const string& roi_file_name, bool isBigEndian ){
+bool Image3D<T>::saveROI( const string& roi_file_name, const string& log, bool isBigEndian ){
 	cout << "Saving ROI..." << endl;
 	if( !is_roi_set ){
 		cout << "Saving ROI failed. ROI is not set." << endl;
 		return false;
 	}
-	bool flag = roi_data.save( roi_file_name, isBigEndian );
+	bool flag = roi_data.save( roi_file_name, log, /*save info*/false, isBigEndian );
 	if( !flag ) return false;
 	
 	string roi_info_file = roi_file_name + ".readme.txt";
 	ofstream fout( roi_info_file.c_str() );
-	// dimension of data
+
+	// size of data
 	for(int i=0; i<3; i++ ) fout << roi_data.get_size(i) << " ";
 	fout << " - size of data" << endl;
+	
+	// data type
+	fout << STR_TYPE(typeid(T)) << " - data type" << endl;
+
+	// is the data bigendian: 1 for yes, 0 for no
+	fout << isBigEndian << " - Big Endian (1 for yes, 0 for no)" << endl;
+	
 	// relative position of the roi with repect to the original data
 	for(int i=0; i<3; i++ ) fout << roi_corner[0][i] << " ";
 	for(int i=0; i<3; i++ ) fout << roi_corner[1][i] << " ";
-	fout << "- position of roi with the respect to the original data" << endl;
-	// is the data bigendian: 1 for yes, 0 for no
-	fout << isBigEndian << " - Big Endian (1 for yes, 0 for no)" << endl;
-	// data type
-	if( typeid(short)==typeid(T) ) fout << "short";
-	fout << " - data type" << endl;
+	fout << " - position of roi with the respect to the original data" << endl;
+
 	fout.close();
 
 	cout << "done. " << endl << endl;

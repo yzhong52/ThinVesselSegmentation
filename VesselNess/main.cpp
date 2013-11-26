@@ -30,16 +30,16 @@ void compute_vesselness(void){
 	vn_all.resize( im_short.get_size() );
 	VD::compute_vesselness( im_short, vn_all, 
 		/*sigma from*/ 0.5f,
-		/*sigma to*/   25.5,
+		/*sigma to*/   45.5,
 		/*sigma step*/ 1.0f );
-	vn_all.save( "data/vessel3d.rd.19.sigma25.vn_all" );
+	vn_all.save( "data/vessel3d.rd.19.sigma45.vn_all" );
 
 	Data3D<Vesselness_Sig> vn_sig( vn_all );
-	vn_sig.save( "data/vessel3d.rd.19.sigma25.vn_sig" );
+	vn_sig.save( "data/vessel3d.rd.19.sigma45.vn_sig" );
 
 	Data3D<float> vn_float; 
 	vn_sig.copyDimTo( vn_float, 0 );
-	vn_float.save( "data/vessel3d.rd.19.sigma25.vn_float" );
+	vn_float.save( "data/vessel3d.rd.19.sigma45.vn_float" );
 	
 	GLViewer::MIP( vn_float );
 }
@@ -152,11 +152,32 @@ void compute_center_line(void){
 	return;
 }
 
+void xuefeng_cut(void){	
+	Image3D<short> im_short;
+	im_short.load( "data/vessel3d.rd.19.data" );
+	
+	Vec3i piece_size(585,525,100);
+	Vec3i pos(0,0,0);
+	for( pos[2]=0; pos[2]+piece_size[2] <= im_short.SZ(); pos[2]+=piece_size[2]*3/4 ) {
+		for( pos[1]=0; pos[1]+piece_size[1] <= im_short.SY(); pos[1]+=piece_size[1]*3/4 ) {
+			for( pos[0]=0; pos[0]+piece_size[0] <= im_short.SX(); pos[0]+=piece_size[0]*3/4 )
+			{
+				cout << "Saveing ROI from " << pos << " to " << pos+piece_size-Vec3i(1,1,1) << endl;
+				static int i = 0;
+				stringstream ss;
+				ss << "data/parts/vessel3d.rd.19.part" << i++ << ".data";
+				im_short.setROI( pos, pos+piece_size-Vec3i(1,1,1) );
+				im_short.saveROI( ss.str() );
+			}
+		}
+	}
+}
+
 int main(int argc, char* argv[])
 {
-	compute_center_line();
+	compute_vesselness();
 	return 0;
-
+	
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	//// For tuning parameters

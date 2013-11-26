@@ -6,8 +6,7 @@ template<typename T>
 class Data3D {
 public:
 	// Constructors & Destructors
-	Data3D(){ }
-	Data3D( const Vec3i& n_size ){ 
+	Data3D( const Vec3i& n_size = 0){ 
 		reset(n_size); 
 	}	
 	Data3D( const Vec3i& n_size, const T& value ){ 
@@ -97,7 +96,8 @@ public:
 	// loading/saving data from/to file
 	bool load( const string& file_name );
 	bool load( const string& file_name, const Vec3i& size, bool isBigEndian=true, bool isLoadPartial=false );
-	bool save( const string& file_name, const string& log = "", bool isBigEndian = false ) const;
+	bool save( const string& file_name, const string& log = "", 
+		bool saveInfo = true, bool isBigEndian = false ) const;
 	void show( const string& window_name = "Show 3D Data by Slice", int current_slice = 0 ) const;
 
 	// overwrite operators
@@ -235,9 +235,9 @@ private:
 };
 
 template <typename T>
-bool Data3D<T>::save( const string& file_name, const string& log, bool isBigEndian ) const
+bool Data3D<T>::save( const string& file_name, const string& log, bool saveInfo, bool isBigEndian ) const
 {
-	smart_return_value( _size_total, "Data is empty", false );
+	smart_return_value( _size_total, "Save File Failed: Data is empty", false );
 
 	cout << "Saving file to " << file_name << endl;
 	cout << "Data Size: " << (long) _size_total * sizeof(T) << endl;
@@ -263,7 +263,7 @@ bool Data3D<T>::save( const string& file_name, const string& log, bool isBigEndi
 	fclose(pFile);
 
 	// saving the data information to a txt file
-	save_info( file_name, isBigEndian, log );
+	if(saveInfo) save_info( file_name, isBigEndian, log );
 
 	cout << "done." << endl << endl;
 	return true;
