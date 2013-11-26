@@ -45,13 +45,14 @@ namespace GLViewer{
 		MIP( im_uchar, pre_draw_func, post_draw_func );
 	}
 
-	void MIP( Data3D<Vesselness_Sig>& vn_sig, 
+	template<class T>
+	void MIP( Data3D<T>& vesselness, 
 		void (*pre_draw_func)(void) = NULL, 
 		void (*post_draw_func)(int, int) = NULL)
 	{
 		// copy the first dimension to vn
 		Data3D<float> vn;
-		vn_sig.copyDimTo( vn, 0 );
+		vesselness.copyDimTo( vn, 0 );
 
 		MIP( vn, pre_draw_func, post_draw_func );
 	}

@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="3d data structure">
-      <UniqueIdentifier>{0895db59-0037-4e11-bcf1-62876fd6b5b5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="others">
       <UniqueIdentifier>{5bf8842c-8925-4cf9-9ddd-5f4545cbc0a6}</UniqueIdentifier>
     </Filter>
@@ -31,6 +28,12 @@
     <Filter Include="Rings Reduction">
       <UniqueIdentifier>{15a09061-ecbb-42fd-8352-41d0b6922874}</UniqueIdentifier>
     </Filter>
+    <Filter Include="3D Data Structures">
+      <UniqueIdentifier>{0895db59-0037-4e11-bcf1-62876fd6b5b5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Vesselness">
+      <UniqueIdentifier>{fc480087-af4c-41ca-8fb3-29c455d01c5f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -40,13 +43,13 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Data3D.h">
-      <Filter>3d data structure</Filter>
+      <Filter>3D Data Structures</Filter>
     </ClInclude>
     <ClInclude Include="Image3D.h">
-      <Filter>3d data structure</Filter>
+      <Filter>3D Data Structures</Filter>
     </ClInclude>
     <ClInclude Include="Kernel3D.h">
-      <Filter>3d data structure</Filter>
+      <Filter>3D Data Structures</Filter>
     </ClInclude>
     <ClInclude Include="smart_assert.h">
       <Filter>others</Filter>
@@ -60,14 +63,8 @@
     <ClInclude Include="ImageProcessing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="VesselDetector.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Validation.h">
       <Filter>Validation</Filter>
-    </ClInclude>
-    <ClInclude Include="Vesselness.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Neigbour3D.h">
       <Filter>Header Files</Filter>
@@ -93,12 +90,21 @@
     <ClInclude Include="RingsDeduction.h">
       <Filter>Rings Reduction</Filter>
     </ClInclude>
+    <ClInclude Include="Graph.h">
+      <Filter>MinSpanTree</Filter>
+    </ClInclude>
+    <ClInclude Include="Vesselness.h">
+      <Filter>Vesselness</Filter>
+    </ClInclude>
+    <ClInclude Include="VesselDetector.h">
+      <Filter>Vesselness</Filter>
+    </ClInclude>
+    <ClInclude Include="MinSpanTreeWrapper.h">
+      <Filter>MinSpanTree</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ImageProcessor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="VesselDetector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
@@ -108,7 +114,7 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Kernel3D.cpp">
-      <Filter>3d data structure</Filter>
+      <Filter>3D Data Structures</Filter>
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>others</Filter>
@@ -121,9 +127,6 @@
     </ClCompile>
     <ClCompile Include="Validation.cpp">
       <Filter>Validation</Filter>
-    </ClCompile>
-    <ClCompile Include="Vesselness.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Neigbour3D.cpp">
       <Filter>Source Files</Filter>
@@ -142,6 +145,12 @@
     </ClCompile>
     <ClCompile Include="RingsDeduction.cpp">
       <Filter>Rings Reduction</Filter>
+    </ClCompile>
+    <ClCompile Include="VesselDetector.cpp">
+      <Filter>Vesselness</Filter>
+    </ClCompile>
+    <ClCompile Include="Vesselness.cpp">
+      <Filter>Vesselness</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -20,6 +20,8 @@ public:
 		delete[] data;
 	}
 
+	const int operator[]( const int& i ) const { return data[i]; }
+
 	// Find: Determine which subset a particular element is in. This can be used for determining 
 	// if two elements are in the same subset.
 	inline int find(int id){
@@ -30,13 +32,11 @@ public:
 			return data[id];
 		}
 	}
-	
 	// Union: Join two subsets into a single subset
 	inline void merge( int id1, int id2 ) { 
-		if( data[id1]!=-1 || data[id2]!=-1 ) {
-			std::cerr << "Merge Failed: id1 or id2 is not a root node. " << std::endl;
-			return;
-		}
+		if( data[id1]!=-1 ) id1 = find(id1);
+		if( data[id2]!=-1 ) id2 = find(id2);
+		if( id1==id2 ) return;
 		data[id1] = id2;
 	}
 

@@ -11,6 +11,7 @@
 #include "Vesselness.h"
 
 #include "MinSpanTree.h"
+#include "MinSpanTreeWrapper.h"
 
 // OpenGL Viewer With Maximum Intensity Projection
 #include "GLViewer.h"
@@ -42,7 +43,6 @@ void compute_vesselness(void){
 	
 	GLViewer::MIP( vn_float );
 }
-
 
 void compute_min_span_tree(void) {
 	Image3D<short> image_data;
@@ -98,11 +98,63 @@ void compute_rings_redection(void){
 	im_short.save( "data/vessel3d.rd.19.data" );
 }
 
+
+// Trying to computer bifurcation measure
+// NOT successful
+void compute_bifurcation_measure(){	
+	//Data3D<short> im_short;
+	//bool falg = im_short.load( "data/roi15.data" );
+	//if(!falg) return;
+
+	////Data3D<float> im_float;
+	////VD::compute_bifurcationess( im_short, im_float, 1.5f, 1.6f, 0.5f );
+
+	//Data3D<uchar> im_uchar;
+	//im_short.convertTo( im_uchar );
+	//Data3D<Vec3b> im_vec3b( im_uchar );
+	//
+	//return;
+
+	//GLViewer::MIP_color( im_uchar.getMat().data,
+	//	im_uchar.SX(),
+	//	im_uchar.SY(),
+	//	im_uchar.SZ() );
+}
+
+void compute_center_line(void){
+	Data3D<short> im_short;
+	bool falg = im_short.load( "data/roi15.data" );
+	if(!falg) return;
+
+	// vesselness
+	Data3D<Vesselness_All> vn_all;
+	//VD::compute_vesselness( im_short, vn_all, 
+	//	/*sigma from*/ 0.5f,
+	//	/*sigma to*/   5.6f,
+	//	/*sigma step*/ 1.0f );
+	//vn_all.save( "data/roi15.vn_all", "sigma from 0.5 to 5.5 with step 1.0" );
+	vn_all.load( "data/roi15.vn_all" );
+
+	//// non-maximum suppression
+	//Data3D<Vesselness_Sig> vn_sig_nms; 
+	//IP::non_max_suppress( vn_all, vn_sig_nms );
+	//
+	//// edge tracing
+	//Data3D<Vesselness_Sig> vn_sig_et; 
+	//IP::edge_tracing( vn_sig_nms, vn_sig_et, 0.55f, 0.055f );
+
+	MST::Graph3D<Edge> tree; 
+	MST::edge_tracing( vn_all, tree, 0.55f, 0.055f );
+
+	GLViewerExt::draw_min_span_tree_init2( tree );
+	GLViewer::MIP( vn_all, GLViewerExt::draw_min_span_tree2 ); // Visualization using MIP
+
+	return;
+}
+
 int main(int argc, char* argv[])
 {
-	compute_rings_redection();
-	compute_vesselness(); 
-
+	compute_center_line();
 	return 0;
 
 
@@ -152,27 +204,15 @@ int main(int argc, char* argv[])
 	//
 	//return 0;
 
-	///////////////////////////////////////////////////////////////
-	// Ring Recuction by slice
-	////////////////////////////////////////////////////////////////
-	////Get a clice of data
-	//Mat im_slice = image_data.getByZ( 55 );
-	//Mat im_no_ring;
-	//for( int i=0; i<5; i++ ) {
-	//	Validation::Rings_Reduction_Polar_Coordinates( im_slice, im_no_ring, 9 );
-	//	im_slice = im_no_ring;
-	//}
 
 	////////////////////////////////////////////////////////////////
-	// Plotting About Eigenvalues
+	// Plotting About Eigenvalues (Plots being used in my thesis)
 	////////////////////////////////////////////////////////////////
 	//// Visualization of the Eigenvalues
 	// Validation::Eigenvalues::plot_1d_box();
 	// Validation::Eigenvalues::plot_2d_tubes();
 	// Validation::Eigenvalues::plot_2d_ball();
 	// Validation::Eigenvalues::plot_3d_tubes();
-	// Validation::BallFittingModels::cylinder();
-	
 	//// Draw Second Derivative of Gaussian on top of the Box function 
 	// Validation::box_func_and_2nd_gaussian::plot_different_size();
 	// Validation::box_func_and_2nd_gaussian::plot_different_pos();

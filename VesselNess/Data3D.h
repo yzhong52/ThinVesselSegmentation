@@ -2,8 +2,6 @@
 
 #include "stdafx.h"
 
-
-
 template<typename T>
 class Data3D {
 public:
@@ -29,6 +27,7 @@ public:
 			*(this_it) = *(src_it);
 		}
 	}
+
 	virtual ~Data3D(void){ }
 
 
@@ -92,13 +91,13 @@ public:
 	}
 
 	// getter of the data
-	inline const Mat_<T>& getMat() const { return _mat; }
 	inline Mat_<T>& getMat() { return _mat; }
+	inline const Mat_<T>& getMat() const { return _mat; }
 	
 	// loading/saving data from/to file
 	bool load( const string& file_name );
 	bool load( const string& file_name, const Vec3i& size, bool isBigEndian=true, bool isLoadPartial=false );
-	bool save( const string& file_name, bool isBigEndian = false, bool saveInfo = true ) const;
+	bool save( const string& file_name, const string& log = "", bool isBigEndian = false ) const;
 	void show( const string& window_name = "Show 3D Data by Slice", int current_slice = 0 ) const;
 
 	// overwrite operators
@@ -108,7 +107,6 @@ public:
 	friend bool subtract3D( const Data3D<T1>& src1, const Data3D<T2>& src2, Data3D<T3>& dst );
 	template<typename T1, typename T2, typename T3>
 	friend bool multiply3D( const Data3D<T1>& src1, const Data3D<T2>& src2, Data3D<T3>& dst );
-	
 	
 	// change the type of the data
 	template< typename DT >
@@ -121,7 +119,7 @@ public:
 	Vec<T, 2> get_min_max_value() const {
 		Vec<T, 2> min_max;
 		Point minLoc, maxLoc;
-		minMaxLoc( _mat, NULL, NULL, &minLoc, &maxLoc);
+		cv::minMaxLoc( _mat, NULL, NULL, &minLoc, &maxLoc);
 		min_max[0] = _mat.at<T>( minLoc );
 		min_max[1] = _mat.at<T>( maxLoc );
 		return min_max;
@@ -232,12 +230,12 @@ protected:
 
 private:
 	// TODO: I will try yxml later
-	void save_info( const string& file_name, bool isBigEndian ) const;
+	void save_info( const string& file_name, bool isBigEndian, const string& log )  const;
 	bool load_info( const string& file_name, Vec3i& size, bool& isBigEndian );
 };
 
 template <typename T>
-bool Data3D<T>::save( const string& file_name, bool isBigEndian, bool saveInfo ) const
+bool Data3D<T>::save( const string& file_name, const string& log, bool isBigEndian ) const
 {
 	smart_return_value( _size_total, "Data is empty", false );
 
@@ -246,7 +244,11 @@ bool Data3D<T>::save( const string& file_name, bool isBigEndian, bool saveInfo )
 
 	FILE* pFile = fopen( file_name.c_str(), "wb" );
 	if( isBigEndian ) {
-		smart_return_value( sizeof(T)==2, "Datatype is not supported.", false );
+		if( sizeof(T)!=2 ) {
+			cout << "Save File Failed: Datatype does not supported Big Endian. ";
+			cout << "Please contact Yuchen for more detail. " << endl;
+			return false;
+		}
 		Mat temp_mat = _mat.clone();
 		// swap the data
 		unsigned char* temp = temp_mat.data;
@@ -260,7 +262,8 @@ bool Data3D<T>::save( const string& file_name, bool isBigEndian, bool saveInfo )
 	}
 	fclose(pFile);
 
-	if( saveInfo ) save_info( file_name, isBigEndian );
+	// saving the data information to a txt file
+	save_info( file_name, isBigEndian, log );
 
 	cout << "done." << endl << endl;
 	return true;
@@ -269,7 +272,7 @@ bool Data3D<T>::save( const string& file_name, bool isBigEndian, bool saveInfo )
 
 template <typename T>
 bool Data3D<T>::load( const string& file_name ){
-	// load info
+	// load data information
 	bool isBigEndian;
 	Vec3i size;
 	bool flag = load_info( file_name, size, isBigEndian );
@@ -394,7 +397,7 @@ void Data3D<T>::show(const string& window_name, int current_slice ) const
 
 
 template<typename T>
-void Data3D<T>::save_info( const string& file_name, bool isBigEndian ) const {
+void Data3D<T>::save_info( const string& file_name, bool isBigEndian, const string& log  ) const {
 	string info_file = file_name + ".readme.txt";
 	ofstream fout( info_file.c_str() );
 	fout << _size[0] << " ";
@@ -402,32 +405,36 @@ void Data3D<T>::save_info( const string& file_name, bool isBigEndian ) const {
 	fout << _size[2] << " - data size" << endl;
 	fout << STR_TYPE( typeid(T) ) << " - data type" << endl;
 	fout << isBigEndian << " - Big Endian (1 for yes, 0 for no)" << endl;
+	fout << "Log: " <<  log << endl;
 	fout.close();
 }
 
 
 template<typename T>
 bool Data3D<T>::load_info( const string& file_name, Vec3i& size, bool& isBigEndian ) {
+	// data info name
 	string info_file = file_name + ".readme.txt";
+	// open file
 	ifstream fin( info_file.c_str() );
-	// size
 	if( !fin.is_open() ){
-		cout << "The readme file is not found." << endl;
+		cout << "The readme file: '" << info_file << "' is not found." << endl;
 		return false;
 	}
+	// size of the data
 	fin >> size[0];
 	fin >> size[1]; 
 	fin >> size[2]; 
 	fin.ignore(255, '\n');
-	// type 
+	// data type 
 	string str_type;
 	fin >> str_type;
 	fin.ignore(255, '\n');
 	if( STR_TYPE(typeid(T)).compare( str_type ) != 0 ){
-		cout << "Loading information error: Data types unmatch. File: " << info_file << endl;
+		cout << "Loading information error: "; 
+		cout << "Data3D<" << STR_TYPE(typeid(T)) << "> cannot load Data3D<" << str_type << ">. "<< endl;
 		return false;
 	}
-	// endian
+	// endian of the data
 	fin >> isBigEndian;
 	fin.ignore(255, '\n');
 	// close the file

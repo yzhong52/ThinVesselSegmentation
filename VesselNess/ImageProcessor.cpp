@@ -142,14 +142,17 @@ void ImageProcessing::imNormShow( const string& window_name, const Mat& im ){
 void ImageProcessing::non_max_suppress( const Data3D<Vesselness_All>& src, Data3D<Vesselness_Sig>& dst ){
 	dst.reset( src.get_size() );
 
+	// sqrt(2) and sqrt(3)
 	static const float s2 = sqrt(1/2.0f);
 	static const float s3 = sqrt(1/3.0f);
-	static const int NUM_DIR = 13;
-	static const Vec3f dirs[NUM_DIR] = {
+
+	// 13 major orientations in 3d
+	static const int MAJOR_DIR_NUM = 13;
+	static const Vec3f major_dirs[MAJOR_DIR_NUM] = {
 		// directions along the axis, there are 3 of them
-		Vec3f(1,0,0), Vec3f(0,1,0), Vec3f(0,0,1), 
+		Vec3f(1, 0, 0), Vec3f(0, 1, 0), Vec3f(0, 0, 1), 
 		// directions that lie within the 3D plane of two axis, there are 6 of them
-		Vec3f(s2,s2,0), Vec3f(0,s2,s2), Vec3f(s2,0,s2), 
+		Vec3f(s2, s2,0), Vec3f(0,s2, s2), Vec3f(s2,0, s2), 
 		Vec3f(s2,-s2,0), Vec3f(0,s2,-s2), Vec3f(s2,0,-s2), 
 		// directions that are equally in between three axis, there are 4 of them
 		Vec3f(s3,s3,s3), Vec3f(s3,s3,-s3), Vec3f(s3,-s3,s3), Vec3f(s3,-s3,-s3)
@@ -157,39 +160,30 @@ void ImageProcessing::non_max_suppress( const Data3D<Vesselness_All>& src, Data3
 
 	// there are 26 directions in 3D
 	static const int NUM_DIR_3D = 26;
-	Vec3i all_offsets[NUM_DIR_3D] = {
+	Vec3i neighbor3d[NUM_DIR_3D] = {
 		// directions along the axis, there are 6 of them
-		Vec3i(0,0,1), Vec3i(0,0,-1), Vec3i(0,1,0), 
-		Vec3i(0,-1,0), Vec3i(1,0,0), Vec3i(-1,0,0), 
+		Vec3i(0,0, 1), Vec3i(0, 1,0),  Vec3i( 1,0,0),
+		Vec3i(0,0,-1), Vec3i(0,-1,0),  Vec3i(-1,0,0), 
 		// directions that lie within the 3D plane of two axis, there are 12 of them
-		Vec3i(0,1,1), Vec3i(0,1,-1), Vec3i(0,-1,1), Vec3i(0,-1,-1), 
-		Vec3i(1,0,1), Vec3i(1,0,-1), Vec3i(-1,0,1), Vec3i(-1,0,-1), 
-		Vec3i(1,1,0), Vec3i(1,-1,0), Vec3i(-1,1,0), Vec3i(-1,-1,0), 
+		Vec3i(0,1,1), Vec3i(0, 1,-1), Vec3i( 0,-1,1), Vec3i( 0,-1,-1), 
+		Vec3i(1,0,1), Vec3i(1, 0,-1), Vec3i(-1, 0,1), Vec3i(-1, 0,-1), 
+		Vec3i(1,1,0), Vec3i(1,-1, 0), Vec3i(-1, 1,0), Vec3i(-1,-1, 0), 
 		// directions that are equally in between three axis, there are 8 of them
-		Vec3i(1,1,1), Vec3i(1,1,-1), Vec3i(1,-1,1), Vec3i(1,-1,-1), 
+		Vec3i( 1,1,1), Vec3i( 1,1,-1), Vec3i( 1,-1,1), Vec3i( 1,-1,-1), 
 		Vec3i(-1,1,1), Vec3i(-1,1,-1), Vec3i(-1,-1,1), Vec3i(-1,-1,-1), 
 	};
 
-	// Initalize all the offsets to Vec3i(0,0,0)
-	// Notice that in 3D, there are at most 8 valid directions which are perpendicular to 
-	// a direction in 3D. We will use the 9th one (which is be always Vec3i(0,0,0) as a 
-	// sentinel
-	Vec3i offsets[NUM_DIR][9];
-	memset( offsets, 0, sizeof(int)*NUM_DIR*9 );
+	// cross section for the major orientation
+	vector<Vec3i> cross_section[MAJOR_DIR_NUM];
+	
 	// Setting offsets that are perpendicular to dirs
-	for( int i=0; i<NUM_DIR; i++ ) {
-		// there are at most 8 such offsets for each direciton
-		for( int j=0, aoi = 0; j<8, aoi<NUM_DIR_3D; j++, aoi++ ){
-			for( ; aoi < NUM_DIR_3D; aoi++ ) {
-				// multiply the two directions
-				float temp = all_offsets[aoi][0] * dirs[i][0] +
-					all_offsets[aoi][1] * dirs[i][1] +
-					all_offsets[aoi][2] * dirs[i][2];
-				// the temp is 0, store this direciton
-				if( abs(temp)<10e-10 ) {
-					offsets[i][j] = all_offsets[aoi];
-					break;
-				}
+	for( int i=0; i<MAJOR_DIR_NUM; i++ ) {
+		for( int j=0; j<NUM_DIR_3D; j++ ){
+			// multiply the two directions
+			float temp = major_dirs[i].dot( neighbor3d[j] );
+			// the temp is 0, store this direciton
+			if( abs(temp)<10e-10 ) {
+				cross_section[i].push_back( neighbor3d[j] );
 			}
 		}
 	}
@@ -205,46 +199,36 @@ void ImageProcessing::non_max_suppress( const Data3D<Vesselness_All>& src, Data3
 				// find the major orientation
 				// assigning the orientation to one of the 13 categories
 				const Vec3f& cur_dir = src.at(x,y,z).dir;
-				int mdi = 0; 
-				float max = 0;
-				for( int di=0; di<NUM_DIR; di++ ){
-					float current = abs( cur_dir[0]*dirs[di][0] + cur_dir[1]*dirs[di][1] + cur_dir[2]*dirs[di][2]);
-					// update the maximum direction
-					if( max < current ) { 
-						max = current;
-						mdi = di;
+				int mdi = 0; // major direction id
+				float max_dot_product = 0;
+				for( int di=0; di<MAJOR_DIR_NUM; di++ ){
+					float current_dot_product = abs( cur_dir.dot(major_dirs[di]) );
+					if( max_dot_product < current_dot_product ) { 
+						max_dot_product = current_dot_product;
+						mdi = di;// update the major direction id
 					}
 				}
-				for( int i=0; i<9; i++ ){
-					int ox = x + offsets[mdi][i][0];
-					int oy = y + offsets[mdi][i][1];
-					int oz = z + offsets[mdi][i][2];
-					if( ox<0 || ox >= src.get_size_x() ) { continue; }
-					if( oy<0 || oy >= src.get_size_y() ) { continue; }
-					if( oz<0 || oz >= src.get_size_z() ) { continue; }
-					if( src.at(x,y,z).rsp < src.at(ox,oy,oz).rsp ) {
+				for( int i=0; i<cross_section[mdi].size(); i++ ){
+					int ox = x + cross_section[mdi][i][0];
+					int oy = y + cross_section[mdi][i][1];
+					int oz = z + cross_section[mdi][i][2];
+					if( src.isValid(ox,oy,oz) && src.at(x,y,z).rsp < src.at(ox,oy,oz).rsp ) {
 						isMaximum = false; break;
 					} 
 				}
 
 				// Method II: Based on Sigma
-				//int sigma = (int) ceil( src.at(x,y,z).sigma );
-				//for( int i = -sigma; i <= sigma; i++ ) {
-				//	for( int j = -sigma; j <= sigma; j++ ) {
-				//		Vec3i offset = src.at(x,y,z).normals[0] * i + src.at(x,y,z).normals[1] * j;
-				//		int ox = x + offset[0];
-				//		int oy = y + offset[1];
-				//		int oz = z + offset[2];
+				int sigma = (int) ceil( src.at(x,y,z).sigma );
+				for( int i = -sigma; i <= sigma; i++ ) for( int j = -sigma; j <= sigma; j++ ) {
+					Vec3i offset = src.at(x,y,z).normals[0] * i + src.at(x,y,z).normals[1] * j;
+					int ox = x + offset[0];
+					int oy = y + offset[1];
+					int oz = z + offset[2];
 
-				//		if( ox<0 || ox >= src.get_size_x() ) { continue; }
-				//		if( oy<0 || oy >= src.get_size_y() ) { continue; }
-				//		if( oz<0 || oz >= src.get_size_z() ) { continue; }
-				//			
-				//		if( src.at(x,y,z).rsp < src.at(ox,oy,oz).rsp ) {
-				//			isMaximum = false; break;
-				//		} 
-				//	}
-				//}
+					if( src.isValid(ox,oy,oz) && src.at(x,y,z).rsp < src.at(ox,oy,oz).rsp ) {
+						isMaximum = false; break;
+					} 
+				}
 
 				if( isMaximum ) {
 					dst.at(x,y,z) = src.at(x,y,z);

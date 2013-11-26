@@ -14,5 +14,9 @@ namespace GLViewer
 	void MIP( unsigned char* data, int x, int y, int z,
 		void (*pre_draw_func)(void) = NULL, 
 		void (*post_draw_func)(int, int) = NULL);
+
+	void MIP_color( unsigned char* data, int x, int y, int z,
+		void (*pre_draw_func)(void) = NULL, 
+		void (*post_draw_func)(int, int) = NULL);
 }
 

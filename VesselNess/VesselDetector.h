@@ -16,32 +16,26 @@ namespace VesselDetector
 	bool hessien( 
 		const Data3D<short>& src, Data3D<Vesselness_Nor>& dst, 
 		int ksize, float sigma, 
-		float alpha, float beta, float gamma );
+		float alpha, float beta, float gamma ); 
 
-	bool hessien( 
-		const Data3D<short>& src, Data3D<Vesselness>& dst, 
+	// Get the eigen values and eigen vector for Hessian
+	// dst[0-2]: eigenvalues - sorted as |dst[0]| < |dst[1]| < |dst[2]|
+	// dst[3-5]: eigenvector 1
+	// dst[6-8]: eigenvector 2
+	// dst[9-11]: eigenvector 3
+	bool hessien( const Data3D<short>& src, Data3D<Vec<float, 12>>& dst, 
 		int ksize, float sigma, 
-		float alpha, float beta, float gamma );
-
-	bool hessien( 
-		const Data3D<short>& src, Data3D<float>& dst, 
-		int ksize, float sigma, 
-		float alpha, float beta, float gamma );
+		float alpha, float beta, float gamma ); 
 
 	int compute_vesselness( 
 		const Data3D<short>& src, // INPUT
 		Data3D<Vesselness_All>& dst,  // OUTPUT
-		float sigma_from, float sigma_to, float sigma_step ); // INPUT
+		float sigma_from, float sigma_to, float sigma_step ); // INPUT 
 
-	int compute_vesselness( 
-		const Data3D<short>& src, // INPUT
-		Data3D<Vesselness>& dst,  // OUTPUT
-		float sigma_from, float sigma_to, float sigma_step ); // INPUT
-
-	int compute_vesselness( 
+	int compute_bifurcationess( 
 		const Data3D<short>& src, // INPUT
 		Data3D<float>& dst,  // OUTPUT
-		float sigma_from, float sigma_to, float sigma_step ); // INPUT
+		float sigma_from, float sigma_to, float sigma_step ); // INPUT 
 };
 
 namespace VD = VesselDetector;

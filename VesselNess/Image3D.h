@@ -332,30 +332,37 @@ bool Image3D<T>::loadROI( const string& roi_file_name )
 	string roi_info_file = roi_file_name + ".readme.txt";
 	ifstream fin( roi_info_file.c_str() );
 
-	cout << "Loading ROI info from '"<< roi_info_file << "'..." << endl;
-
 	if( !fin.is_open() ) {
 		cout << "The ROI Info file not found. " << endl;
 		return false;
 	}
 
-	// load roi info
 	// size of data
 	Vec3i roi_size;
 	for(int i=0; i<3; i++ ) fin >> roi_size[i];
 	fin.ignore(256,'\n');   // ignore the rest of the line
-	// relative position of the roi with repect to the original data
-	for(int i=0; i<3; i++ ) fin >> roi_corner[0][i];
-	for(int i=0; i<3; i++ ) fin >> roi_corner[1][i];
-	fin.ignore(256,'\n');   // ignore the rest of the line
+	
+	// data type
+	string datatype;
+	fin >> datatype;
+	fin.ignore(255, '\n');
+	if( STR_TYPE(typeid(T)).compare( datatype ) != 0 ){
+		cout << "Loading information error: "; 
+		cout << "Data3D<" << STR_TYPE(typeid(T)) << "> cannot load Data3D<" << datatype << ">. "<< endl;
+		return false;
+	}
+	
 	// is the data bigendian: 1 for yes, 0 for no
 	bool isBigEndian;
 	fin >> isBigEndian;
 	fin.ignore(256,'\n');   // ignore the rest of the line
-	// data type
-	string datatype;
-	fin >> datatype;
-	smart_return_value( !datatype.compare( STR_TYPE(typeid(T)) ), "datatype not matched.", false );
+
+	// relative position of the roi with repect to the original data
+	for(int i=0; i<3; i++ ) fin >> roi_corner[0][i];
+	for(int i=0; i<3; i++ ) fin >> roi_corner[1][i];
+	fin.ignore(256,'\n');   // ignore the rest of the line
+
+	// close file
 	fin.close();
 
 	// set roi_data

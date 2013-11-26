@@ -335,10 +335,12 @@
     <ClInclude Include="GLViewer.h" />
     <ClInclude Include="GLViewerExt.h" />
     <ClInclude Include="GLViwerWrapper.h" />
+    <ClInclude Include="Graph.h" />
     <ClInclude Include="Image3D.h" />
     <ClInclude Include="ImageProcessing.h" />
     <ClInclude Include="Kernel3D.h" />
     <ClInclude Include="MinSpanTree.h" />
+    <ClInclude Include="MinSpanTreeWrapper.h" />
     <ClInclude Include="Neigbour3D.h" />
     <ClInclude Include="RingsDeduction.h" />
     <ClInclude Include="smart_assert.h" />

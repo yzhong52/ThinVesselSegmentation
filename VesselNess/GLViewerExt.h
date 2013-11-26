@@ -2,6 +2,7 @@
 
 #include "Graph.h"
 #include "MinSpanTree.h"
+#include "MinSpanTreeWrapper.h"
 #include "DataTypes.h"
 
 #include <windows.h>		// Header File For Windows
@@ -42,6 +43,31 @@ namespace GLViewerExt
 		glEnd();
 		// glColor3f( 0.5f, 0.5f, 0.5f );
 		glColor3f( 0.0f, 1.0f, 0.0f );
+	}
+
+
+	static MST::Graph3D<Edge>* ptrTree2 = NULL;
+	static void draw_min_span_tree_init2( MST::Graph3D<Edge>& tree ) {
+		ptrTree2 = &tree;
+	}
+	static void draw_min_span_tree2(void) {
+		if( ptrTree2==NULL ){
+			std::cout << "Failed: Draw Min Span Tree: The Graph is not initialized. " << std::endl; 
+			return;
+		} 
+		if( !ptrTree2->num_edges() ) return;
+		glBegin( GL_LINES );
+		Edge* e = &ptrTree2->get_edges().top();
+		glColor3f( 1.0f, 1.0f, 1.0f );
+		for( int unsigned i=0; i<ptrTree2->num_edges(); i++ ) {
+			Vec3i p1 = ptrTree2->get_pos( e->node1 );
+			Vec3i p2 = ptrTree2->get_pos( e->node2 );
+			glVertex3i( p1[0], p1[1], p1[2] );
+			glVertex3i( p2[0], p2[1], p2[2] );
+			e++;
+		}
+		glEnd();
+		glColor3f( 0.0f, 0.0f, 0.0f );
 	}
 
 	///////////////////////////////////////////////////
