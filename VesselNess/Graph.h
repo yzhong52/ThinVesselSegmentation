@@ -19,6 +19,7 @@ private:
 public:
 	// Constructor & Destructor
 	Graph( unsigned int num_node ){  nodes.resize( num_node ); }
+	Graph( Graph& g ) : nodes( g.nodes), edges( g.edges ) { }
 	Graph( void ){ };
 	~Graph( void ){ }
 

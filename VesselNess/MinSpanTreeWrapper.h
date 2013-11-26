@@ -18,6 +18,8 @@ namespace MinSpanTree {
 		Graph3D() : Graph( 0 ), sx( 0 ) , sy( 0 ) , sz( 0 ) {  }
 		Graph3D( unsigned int x, unsigned int y, unsigned int z ) 
 			: Graph( x*y*z ), sx( x ) , sy( y ) , sz( z ) {  }
+		Graph3D( Graph3D& g ) 
+			: Graph( g ), sx( g.sx ) , sy( g.sx ) , sz( g.sx ) {  }
 
 		// get node id from position
 		inline int nodeid(const Vec3i& pos ) {
@@ -36,17 +38,16 @@ namespace MinSpanTree {
 		Graph3D<Edge> graph( src_vn.SX(), src_vn.SY(), src_vn.SZ() );
 
 		// non-maximum suppression
-		Data3D<Vesselness_Sig> res_nms; 
+		Data3D<Vesselness_Sig> res_nms( src_vn.get_size() ); 
 		IP::non_max_suppress( src_vn, res_nms );
-		
 
 		// 26 neighbourhood system
-		Vec3i offset[26];
+		Vec3i neighbour26[26];
 		for( int i=0; i<26; i++ ){
 			int index = (i + 14) % 27;
-			offset[i][0] = index/9%3 - 1;
-			offset[i][1] = index/3%3 - 1;
-			offset[i][2] = index/1%3 - 1;
+			neighbour26[i][0] = index/9%3 - 1;
+			neighbour26[i][1] = index/3%3 - 1;
+			neighbour26[i][2] = index/1%3 - 1;
 		}
 
 		// normailize the data based on vesselness response
@@ -70,7 +71,7 @@ namespace MinSpanTree {
 			Vec3i pos = myQueue1.front(); myQueue1.pop();
 			Vec3i off_pos;
 			for( int i=0; i<26; i++ ) {
-				off_pos = pos + offset[i];
+				off_pos = pos + neighbour26[i];
 				if( res_nms.isValid(off_pos) && !mask.at( off_pos ) && src1d.at(off_pos) > thres2 ){
 					mask.at( off_pos ) = 255;
 					myQueue1.push( off_pos );
@@ -92,7 +93,7 @@ namespace MinSpanTree {
 				while( !q.empty() ){
 					Vec3i pos = q.front(); q.pop();
 					for( int i=0; i<26; i++ ) { // 26 neighbourhood
-						Vec3i off_pos = pos + offset[i];
+						Vec3i off_pos = pos + neighbour26[i];
 						if( mask.isValid(off_pos) && mask.at( off_pos )==255 && !isVisited.at(off_pos) )
 						{
 							isVisited.at(off_pos) = 1;
@@ -104,7 +105,7 @@ namespace MinSpanTree {
 							e.node1 = graph.nodeid(pos);
 							e.node2 = graph.nodeid(off_pos);
 							if( e.node1 > e.node2 ) continue;
-							e.weight = (float) Vec3i(x,y,z).dot(off_pos);
+							e.weight = sqrt( 1.0f * neighbour26[i].dot(neighbour26[i])  );
 							graph.add_edge( e );
 						}
 					}
@@ -112,11 +113,10 @@ namespace MinSpanTree {
 			}
 		}
 		
-		graph.get_min_span_tree( tree );
-		tree.sx = graph.sx;
-		tree.sy = graph.sy;
-		tree.sz = graph.sz;
-		return;
+		
+
+
+
 
 
 
@@ -138,7 +138,7 @@ namespace MinSpanTree {
 				endpoints_mask1.at( pos ) = ENDPOINT_YES;
 				// transverse the neighbour hood system
 				for( int i=0; i<26; i++ ) { 
-					Vec3i off_pos = pos + offset[i];
+					Vec3i off_pos = pos + neighbour26[i];
 					if( !mask.isValid( off_pos ) ) continue;
 					if( mask.at(off_pos)==0 ) continue;
 					if( endpoints_mask1.at(off_pos)==UN_DEFINED ) {
@@ -164,7 +164,7 @@ namespace MinSpanTree {
 				endpoints_mask2.at( pos ) = ENDPOINT_YES;
 				// transverse the neighbour hood system
 				for( int i=0; i<26; i++ ) { 
-					Vec3i off_pos = pos + offset[i];
+					Vec3i off_pos = pos + neighbour26[i];
 					if( !mask.isValid( off_pos ) ) continue;
 					if( mask.at(off_pos)==0 ) continue;
 					if( endpoints_mask2.at(off_pos)==UN_DEFINED ) {
@@ -230,7 +230,7 @@ namespace MinSpanTree {
 				Dis_Pos dis_pos = myQueue.top(); myQueue.pop(); 
 				for( int i=0; i<26; i++ ) { 
 					// get the propogate position
-					Vec3i to_pos = offset[i] + dis_pos.getToPos();
+					Vec3i to_pos = neighbour26[i] + dis_pos.getToPos();
 					if( !isVisited.isValid(to_pos) ) continue;
 					if(  isVisited.at(to_pos)==VISITED_YES ) continue;
 
@@ -270,10 +270,17 @@ namespace MinSpanTree {
 			Edge e;
 			e.node1 = graph.nodeid(to_pos);
 			e.node2 = graph.nodeid(from_pos);
-			e.weight = 1.0;//  I will take care of this later
+			Vec3i diff_pos = from_pos - to_pos;
+			e.weight = sqrt( 1.0f * diff_pos.dot(diff_pos) );//  I will take care of this later
 			graph.add_edge( e );
 		}
 
-		tree = graph;
+		graph.get_min_span_tree( tree );
+		tree.sx = graph.sx;
+		tree.sy = graph.sy;
+		tree.sz = graph.sz;
+		
+		return;
+
 	}
 }

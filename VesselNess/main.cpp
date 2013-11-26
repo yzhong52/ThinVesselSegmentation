@@ -135,14 +135,6 @@ void compute_center_line(void){
 	//vn_all.save( "data/roi15.vn_all", "sigma from 0.5 to 5.5 with step 1.0" );
 	vn_all.load( "data/roi15.vn_all" );
 
-	//// non-maximum suppression
-	//Data3D<Vesselness_Sig> vn_sig_nms; 
-	//IP::non_max_suppress( vn_all, vn_sig_nms );
-	//
-	//// edge tracing
-	//Data3D<Vesselness_Sig> vn_sig_et; 
-	//IP::edge_tracing( vn_sig_nms, vn_sig_et, 0.55f, 0.055f );
-
 	MST::Graph3D<Edge> tree; 
 	MST::edge_tracing( vn_all, tree, 0.55f, 0.055f );
 
@@ -150,7 +142,7 @@ void compute_center_line(void){
 	GLViewer::MIP( vn_all, GLViewerExt::draw_min_span_tree2 ); // Visualization using MIP
 
 	return;
-}
+}	
 
 void xuefeng_cut(void){	
 	Image3D<short> im_short;
@@ -175,7 +167,7 @@ void xuefeng_cut(void){
 
 int main(int argc, char* argv[])
 {
-	compute_vesselness();
+	compute_center_line();
 	return 0;
 	
 

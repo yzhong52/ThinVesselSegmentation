@@ -124,8 +124,8 @@ namespace GLViewer
 				vec_y[0], vec_y[1], vec_y[2], -yrot );
 			// Draw Rotation Center
 			glBegin(GL_LINES);
-			glColor3f( 1.0, 0.0, 0.0 ); glVertex3i(  0,  0,  0 ); glVertex3f( vec_y[0]*20, vec_y[1]*20, vec_y[2]*20 );
-			glColor3f( 0.0, 1.0, 0.0 ); glVertex3i(  0,  0,  0 ); glVertex3f( vec_x[0]*20, vec_x[1]*20, vec_x[2]*20 );
+			glColor3f( 1.0, 0.0, 0.0 ); glVertex3i(  0,  0,  0 ); glVertex3f( vec_y[0]*10, vec_y[1]*10, vec_y[2]*10 );
+			glColor3f( 0.0, 1.0, 0.0 ); glVertex3i(  0,  0,  0 ); glVertex3f( vec_x[0]*10, vec_x[1]*10, vec_x[2]*10 );
 			glEnd();
 			glColor3f( 1.0, 1.0, 1.0 );
 		}

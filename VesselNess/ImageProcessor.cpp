@@ -182,7 +182,7 @@ void ImageProcessing::non_max_suppress( const Data3D<Vesselness_All>& src, Data3
 			// multiply the two directions
 			float temp = major_dirs[i].dot( neighbor3d[j] );
 			// the temp is 0, store this direciton
-			if( abs(temp)<10e-10 ) {
+			if( abs(temp)<1.0e-5 ) {
 				cross_section[i].push_back( neighbor3d[j] );
 			}
 		}
@@ -224,7 +224,6 @@ void ImageProcessing::non_max_suppress( const Data3D<Vesselness_All>& src, Data3
 					int ox = x + offset[0];
 					int oy = y + offset[1];
 					int oz = z + offset[2];
-
 					if( src.isValid(ox,oy,oz) && src.at(x,y,z).rsp < src.at(ox,oy,oz).rsp ) {
 						isMaximum = false; break;
 					} 
