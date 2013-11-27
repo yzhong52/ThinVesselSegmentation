@@ -121,6 +121,8 @@ void compute_bifurcation_measure(){
 	//	im_uchar.SZ() );
 }
 
+
+
 void compute_center_line(void){
 	Data3D<short> im_short;
 	bool falg = im_short.load( "data/roi15.data" );
@@ -138,8 +140,19 @@ void compute_center_line(void){
 	MST::Graph3D<Edge> tree; 
 	MST::edge_tracing( vn_all, tree, 0.55f, 0.055f );
 
-	GLViewerExt::draw_min_span_tree_init2( tree );
-	GLViewer::MIP( vn_all, GLViewerExt::draw_min_span_tree2 ); // Visualization using MIP
+	Data3D<unsigned char> im_unchar;
+	IP::normalize( im_short, short(255) );
+	im_short.convertTo( im_unchar );
+	GLViewerExt::Volumn vObj( 
+		im_unchar.getMat().data, 
+		im_unchar.SX(), im_unchar.SY(), im_unchar.SZ() );
+
+	GLViewerExt::CenterLine<Edge> cObj( tree );
+
+	vector<GLViewer::Object*> objs;
+	objs.push_back( &vObj );
+	objs.push_back( &cObj ); 
+	GLViewer::MIP2( objs );
 
 	return;
 }	
@@ -165,9 +178,21 @@ void xuefeng_cut(void){
 	}
 }
 
+
 int main(int argc, char* argv[])
 {
 	compute_center_line();
+	/*Data3D<short> im_short;
+	im_short.load( "data/roi15.data" );
+	Data3D<unsigned char> im_unchar;
+	IP::normalize( im_short, short(255) );
+	im_short.convertTo( im_unchar );
+	
+	GLViewerExt::Volumn vObj( 
+		im_unchar.getMat().data, 
+		im_unchar.SX(), im_unchar.SY(), im_unchar.SZ() );
+	GLViewer::Object* objs[] = {&vObj}; 
+	GLViewer::MIP2( objs, 1, im_unchar.SX(), im_unchar.SY(), im_unchar.SZ() ); */
 	return 0;
 	
 

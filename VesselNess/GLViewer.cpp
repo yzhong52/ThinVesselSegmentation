@@ -59,6 +59,13 @@ void rotate_axis(
 
 namespace GLViewer
 {
+	// objects that need to be render
+	vector<Object*> obj;
+	// Size of the data
+	unsigned int sx = 0;
+	unsigned int sy = 0;
+	unsigned int sz = 0;
+
 	/////////////////////////////////////////
 	// Camera Controls by Mouse
 	///////////////////////
@@ -77,31 +84,19 @@ namespace GLViewer
 	GLfloat t[3] = { 0, 0, 0 };
 	GLboolean isTranslating = false;
 	GLfloat translate_speed = 0.2f;
-	/////////////////////////////////////////
-	// Data
-	///////////////////////
-	// 3D Volumn Texture
-	GLuint texture;
-	// size of texture
-	int texture_sx = 0;
-	int texture_sy = 0;
-	int texture_sz = 0;
-	// Original Data
-	int sx = 0;
-	int sy = 0;
-	int sz = 0;
-	unsigned char* data = NULL;
+	
+	
+	
 	/////////////////////////////////////////
 	// Initial Window Size
 	///////////////////////
 	int width = 800;
 	int height = 800;
+	
 	/////////////////////////////////////////
 	// Additional Rendering Functions
 	///////////////////////
-	void (*extra_render)() = NULL;
-	void (*after_render)(int,int) = NULL;
-
+	void (*after_render)(int,int) = NULL; // TODO: Remove this
 
 	void render(void)									// Here's Where We Do All The Drawing
 	{
@@ -131,32 +126,10 @@ namespace GLViewer
 		}
 		glTranslatef( -t[0], -t[1], -t[2] );
 
-		// Allow User to draw additional objects on the scene
-		if( extra_render != NULL ) extra_render();
 
-		glBindTexture(GL_TEXTURE_3D, texture);
-		glBegin(GL_QUADS);
-		for( int i=0; i<=sz; i++ ) {
-			glTexCoord3f( 0,                  0,                  1.0f*i/texture_sz ); glVertex3i( 0,  0,  i );
-			glTexCoord3f( 1.0f*sx/texture_sx, 0,                  1.0f*i/texture_sz ); glVertex3i( sx, 0,  i );
-			glTexCoord3f( 1.0f*sx/texture_sx, 1.0f*sy/texture_sy, 1.0f*i/texture_sz ); glVertex3i( sx, sy, i );
-			glTexCoord3f( 0,                  1.0f*sy/texture_sy, 1.0f*i/texture_sz ); glVertex3i( 0,  sy, i );
+		for( unsigned int i=0; i<obj.size(); i++ ) { 
+			if( obj[i]!=NULL ) obj[i]->render();
 		}
-		for( int i=0; i<=sy; i++ ) {
-			glTexCoord3f( 0,                  1.0f*i/texture_sy, 0 );                  glVertex3i(  0, i,  0 );
-			glTexCoord3f( 1.0f*sx/texture_sx, 1.0f*i/texture_sy, 0 );                  glVertex3i( sx, i,  0 );
-			glTexCoord3f( 1.0f*sx/texture_sx, 1.0f*i/texture_sy, 1.0f*sz/texture_sz ); glVertex3i( sx, i, sz );
-			glTexCoord3f( 0,                  1.0f*i/texture_sy, 1.0f*sz/texture_sz ); glVertex3i(  0, i, sz );
-		}
-		for( int i=0; i<=sx; i++ ) {
-			glTexCoord3f( 1.0f*i/texture_sx, 0,                  0 );                  glVertex3i( i,  0, 0 );
-			glTexCoord3f( 1.0f*i/texture_sx, 1.0f*sy/texture_sy, 0 );                  glVertex3i( i, sy, 0 );
-			glTexCoord3f( 1.0f*i/texture_sx, 1.0f*sy/texture_sy, 1.0f*sz/texture_sz ); glVertex3i( i, sy, sz );
-			glTexCoord3f( 1.0f*i/texture_sx, 0,                  1.0f*sz/texture_sz ); glVertex3i( i,  0, sz );
-		}
-		glEnd();
-
-		glBindTexture( GL_TEXTURE_3D, NULL );
 
 		if( after_render ) after_render( width, height );
 
@@ -242,12 +215,8 @@ namespace GLViewer
 		t[0] = 0.5f*sx;
 		t[1] = 0.5f*sy;
 		t[2] = 0.5f*sz;
-		vec_y[0] = 0;
-		vec_y[1] = 1;
-		vec_y[2] = 0;
-		vec_x[0] = 1;
-		vec_x[1] = 0;
-		vec_x[2] = 0;
+		vec_y[0] = 0; vec_y[1] = 1; vec_y[2] = 0;
+		vec_x[0] = 1; vec_x[1] = 0; vec_x[2] = 0;
 		xrot = 0;
 		yrot = 0;
 
@@ -309,142 +278,110 @@ namespace GLViewer
 		void (*pre_draw_func)(void),
 		void (*post_draw_func)(int,int) )
 	{
-		// From wikipedia: Do not forget that all 3 dimensions must be a power of 2! so your 2D textures must have 
-		// the same size and this size be a power of 2 AND the number of layers (=2D textures) you use to create 
-		// your 3D texture must be a power of 2 too.
-		sx = im_x;
-		sy = im_y;
-		sz = im_z;
+	//	// From wikipedia: Do not forget that all 3 dimensions must be a power of 2! so your 2D textures must have 
+	//	// the same size and this size be a power of 2 AND the number of layers (=2D textures) you use to create 
+	//	// your 3D texture must be a power of 2 too.
+	//	sx = im_x;
+	//	sy = im_y;
+	//	sz = im_z;
 
-		static const double log2 = log(2.0);
-		texture_sx = (int) pow(2, ceil( log( 1.0*sx )/log2 ));
-		texture_sy = (int) pow(2, ceil( log( 1.0*sy )/log2 ));
-		texture_sz = (int) pow(2, ceil( log( 1.0*sz )/log2 ));
-		// texture_sx = texture_sy = texture_sz = max( texture_sz, max( texture_sy, texture_sx) );
-		cout << "Creating Texture: " << texture_sx << " by " << texture_sy << " by " << texture_sz << endl;
-		cout << "This may takes a while. Please wait..." << endl;
+	//	static const double log2 = log(2.0);
+	//	texture_sx = (int) pow(2, ceil( log( 1.0*sx )/log2 ));
+	//	texture_sy = (int) pow(2, ceil( log( 1.0*sy )/log2 ));
+	//	texture_sz = (int) pow(2, ceil( log( 1.0*sz )/log2 ));
+	//	// texture_sx = texture_sy = texture_sz = max( texture_sz, max( texture_sy, texture_sx) );
+	//	cout << "Creating Texture: " << texture_sx << " by " << texture_sy << " by " << texture_sz << endl;
+	//	cout << "This may takes a while. Please wait..." << endl;
 
-		if( sx==texture_sx && sy==texture_sy && sz==texture_sy ) {
-			data = im_data;
-		} else {
-			int texture_size = texture_sx * texture_sy * texture_sz;
-			data = new (nothrow) unsigned char [ texture_size ];
-			memset( data, 0, sizeof(unsigned char) * texture_size );
-			if( data==NULL ) {
-				cout << "Unable to allocate memory for OpenGL rendering" << endl;
-				return;
-			}
-			for( int z=0;z<sz;z++ ) for( int y=0;y<sy;y++ ) for( int x=0; x<sx; x++ ) {
-				data[ z*texture_sy*texture_sx + y*texture_sx + x] = im_data[ z*sy*sx + y*sx + x];
-			}
-		}
+	//	if( sx==texture_sx && sy==texture_sy && sz==texture_sy ) {
+	//		data = im_data;
+	//	} else {
+	//		int texture_size = texture_sx * texture_sy * texture_sz;
+	//		data = new (nothrow) unsigned char [ texture_size ];
+	//		memset( data, 0, sizeof(unsigned char) * texture_size );
+	//		if( data==NULL ) {
+	//			cout << "Unable to allocate memory for OpenGL rendering" << endl;
+	//			return;
+	//		}
+	//		for( int z=0;z<sz;z++ ) for( int y=0;y<sy;y++ ) for( int x=0; x<sx; x++ ) {
+	//			data[ z*texture_sy*texture_sx + y*texture_sx + x] = im_data[ z*sy*sx + y*sx + x];
+	//		}
+	//	}
 
+	//	extra_render = pre_draw_func;
+	//	after_render = post_draw_func;
 
+	//	int argc = 1;
+	//	char* argv[1] = { NULL };
+	//	glutInit( &argc, argv );
+	//	glutInitDisplayMode( GLUT_DOUBLE | GLUT_RGB );
+	//	glutInitWindowSize( width, height );
+	//	glutInitWindowPosition( 100, 100 );
+	//	glutCreateWindow( argv[0] );
+	//	glewInit();
 
-		extra_render = pre_draw_func;
-		after_render = post_draw_func;
-
-		int argc = 1;
-		char* argv[1] = { NULL };
-		glutInit( &argc, argv );
-		glutInitDisplayMode( GLUT_DOUBLE | GLUT_RGB );
-		glutInitWindowSize( width, height );
-		glutInitWindowPosition( 100, 100 );
-		glutCreateWindow( argv[0] );
-		glewInit();
-
-		//////////////////////////////////////
-		// Set up OpenGL
-		glEnable( GL_TEXTURE_3D ); // Enable Texture Mapping
-		glBlendFunc(GL_ONE, GL_ONE);
-		glEnable(GL_BLEND);
-		glBlendEquationEXT( GL_MAX_EXT ); // Enable Blending For Maximum Intensity Projection
-
-		// Creating Textures
-		glGenTextures(1, &texture); // Create The Texture
-		glBindTexture(GL_TEXTURE_3D, texture);
-		// Yuchen [Important]: For the following line of code
-		// If the graphic hard do not have enough memory for the 3D texture,
-		// OpenGL will fail to render the textures. However, since it is hardware
-		// related, the porgramme won't show any assertions here. I may need to fix 
-		// this issue later. But now, it has no problem rendering 3D texture with a 
-		// size of 1024 * 1024 * 1024. 
-		glTexImage3D(GL_TEXTURE_3D, 0, GL_LUMINANCE, 
-			texture_sx, texture_sy, texture_sz, 0,
-			GL_LUMINANCE, GL_UNSIGNED_BYTE, data );
-		if( data != im_data ) delete[] data;
-
-		// Use GL_NEAREST to see the voxels
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR ); 
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		// Sets the wrap parameter for texture coordinate
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE  ); 
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE  );
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE  );
-
-		glEnable( GL_POLYGON_SMOOTH_HINT );
-		glHint (GL_POLYGON_SMOOTH_HINT, GL_NICEST);
-		glHint (GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-
-		///////////////////////////////////////////////
-		// Register Recall Funtions
-		///////////////
-		if( !post_draw_func ) glutReshapeFunc( reshape ); // Not allow the user to reshape the window if we 
-		// have post_draw_func, which is for saving videos
-		glutKeyboardFunc( keyboard );
-		// register mouse fucntions
-		glutMouseFunc( mouse_click );
-		glutMotionFunc( mouse_move );
-		// render func
-		glutIdleFunc( render );
-		glutDisplayFunc( render );
-
-		// Release Texture Data
+	//	// Creating Textures
+	//	glGenTextures(1, &texture); // Create The Texture
+	//	glBindTexture(GL_TEXTURE_3D, texture);
+	//	// Yuchen [Important]: For the following line of code
+	//	// If the graphic hard do not have enough memory for the 3D texture,
+	//	// OpenGL will fail to render the textures. However, since it is hardware
+	//	// related, the porgramme won't show any assertions here. I may need to fix 
+	//	// this issue later. But now, it has no problem rendering 3D texture with a 
+	//	// size of 1024 * 1024 * 1024. 
+	//	glTexImage3D(GL_TEXTURE_3D, 0, GL_LUMINANCE, 
+	//		texture_sx, texture_sy, texture_sz, 0,
+	//		GL_LUMINANCE, GL_UNSIGNED_BYTE, data );
+	//	if( data != im_data ) delete[] data;
 
 
-		reset_modelview();
 
-		cout << "Redenring Begin." << endl;
-		glutMainLoop(); // No Code Will Be Executed After This Line
+	//	//////////////////////////////////////
+	//	// Set up OpenGL
+	//	glEnable( GL_TEXTURE_3D ); // Enable Texture Mapping
+	//	glBlendFunc(GL_ONE, GL_ONE);
+	//	glEnable(GL_BLEND);
+	//	glBlendEquationEXT( GL_MAX_EXT ); // Enable Blending For Maximum Intensity Projection
+
+	//	
+
+	//	// Use GL_NEAREST to see the voxels
+	//	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR ); 
+	//	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	//	// Sets the wrap parameter for texture coordinate
+	//	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE  ); 
+	//	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE  );
+	//	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE  );
+
+	//	glEnable( GL_POLYGON_SMOOTH_HINT );
+	//	glHint (GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+	//	glHint (GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+
+	//	///////////////////////////////////////////////
+	//	// Register Recall Funtions
+	//	///////////////
+	//	if( !post_draw_func ) glutReshapeFunc( reshape ); // Not allow the user to reshape the window if we 
+	//	// have post_draw_func, which is for saving videos
+	//	glutKeyboardFunc( keyboard );
+	//	// register mouse fucntions
+	//	glutMouseFunc( mouse_click );
+	//	glutMotionFunc( mouse_move );
+	//	// render func
+	//	glutIdleFunc( render );
+	//	glutDisplayFunc( render );
+
+	//	// Release Texture Data
+
+
+	//	reset_modelview();
+
+	//	cout << "Redenring Begin." << endl;
+	//	glutMainLoop(); // No Code Will Be Executed After This Line
 	}
 
-	void MIP_color( unsigned char* im_data, int im_x, int im_y, int im_z, 
-		void (*pre_draw_func)(void),
-		void (*post_draw_func)(int,int) )
+
+	void MIP2( vector<Object*> objects )
 	{
-		// From wikipedia: Do not forget that all 3 dimensions must be a power of 2! so your 2D textures must have 
-		// the same size and this size be a power of 2 AND the number of layers (=2D textures) you use to create 
-		// your 3D texture must be a power of 2 too.
-		sx = im_x;
-		sy = im_y;
-		sz = im_z;
-
-		static const double log2 = log(2.0);
-		texture_sx = (int) pow(2, ceil( log( 1.0*sx )/log2 ));
-		texture_sy = (int) pow(2, ceil( log( 1.0*sy )/log2 ));
-		texture_sz = (int) pow(2, ceil( log( 1.0*sz )/log2 ));
-		// texture_sx = texture_sy = texture_sz = max( texture_sz, max( texture_sy, texture_sx) );
-		cout << "Creating Texture: " << texture_sx << " by " << texture_sy << " by " << texture_sz << endl;
-		cout << "This may takes a while. Please wait..." << endl;
-
-		if( sx==texture_sx && sy==texture_sy && sz==texture_sy ) {
-			data = im_data;
-		} else {
-			int texture_size = texture_sx * texture_sy * texture_sz;
-			data = new (nothrow) unsigned char [ texture_size ];
-			memset( data, 0, sizeof(unsigned char) * texture_size );
-			if( data==NULL ) {
-				cout << "Unable to allocate memory for OpenGL rendering" << endl;
-				return;
-			}
-			for( int z=0;z<sz;z++ ) for( int y=0;y<sy;y++ ) for( int x=0; x<sx; x++ ) {
-				data[ z*texture_sy*texture_sx + y*texture_sx + x] = im_data[ z*sy*sx + y*sx + x];
-			}
-		}
-
-		extra_render = pre_draw_func;
-		after_render = post_draw_func;
-
 		int argc = 1;
 		char* argv[1] = { NULL };
 		glutInit( &argc, argv );
@@ -454,43 +391,18 @@ namespace GLViewer
 		glutCreateWindow( argv[0] );
 		glewInit();
 
-		//////////////////////////////////////
-		// Set up OpenGL
-		glEnable( GL_TEXTURE_3D ); // Enable Texture Mapping
-		glBlendFunc(GL_ONE, GL_ONE);
-		glEnable(GL_BLEND);
-		glBlendEquationEXT( GL_MAX_EXT ); // Enable Blending For Maximum Intensity Projection
-
-		// Creating Textures
-		glGenTextures(1, &texture); // Create The Texture
-		glBindTexture(GL_TEXTURE_3D, texture);
-		// Yuchen [Important]: For the following line of code
-		// If the graphic hard do not have enough memory for the 3D texture,
-		// OpenGL will fail to render the textures. However, since it is hardware
-		// related, the porgramme won't show any assertions here. I may need to fix 
-		// this issue later. But now, it has no problem rendering 3D texture with a 
-		// size of 1024 * 1024 * 1024. 
-		glTexImage3D(GL_TEXTURE_3D, 0, GL_RGB8, 
-			texture_sx, texture_sy, texture_sz, 0,
-			GL_RGB8, GL_UNSIGNED_BYTE, data );
-		if( data != im_data ) delete[] data;
-
-		// Use GL_NEAREST to see the voxels
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR ); 
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		// Sets the wrap parameter for texture coordinate
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE  ); 
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE  );
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE  );
-
-		glEnable( GL_POLYGON_SMOOTH_HINT );
-		glHint (GL_POLYGON_SMOOTH_HINT, GL_NICEST);
-		glHint (GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-
+		obj = objects; 
+		for( unsigned int i=0; i<obj.size(); i++ ) {
+			obj[i]->init();
+			sx = max( sx, obj[i]->size_x() );
+			sy = max( sy, obj[i]->size_y() );
+			sz = max( sz, obj[i]->size_z() );
+		}
+		
 		///////////////////////////////////////////////
 		// Register Recall Funtions
 		///////////////
-		if( !post_draw_func ) glutReshapeFunc( reshape ); // Not allow the user to reshape the window if we 
+		glutReshapeFunc( reshape ); // Not allow the user to reshape the window if we 
 		// have post_draw_func, which is for saving videos
 		glutKeyboardFunc( keyboard );
 		// register mouse fucntions
@@ -500,11 +412,9 @@ namespace GLViewer
 		glutIdleFunc( render );
 		glutDisplayFunc( render );
 
-		// Release Texture Data
-
 		reset_modelview();
 
-		cout << "Redenring Begin." << endl;
+		cout << "Redenring Begin!" << endl;
 		glutMainLoop(); // No Code Will Be Executed After This Line
 	}
 
