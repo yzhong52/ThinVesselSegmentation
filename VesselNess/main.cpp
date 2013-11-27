@@ -18,6 +18,9 @@
 #include "GLViewerExt.h"
 #include "GLViwerWrapper.h"
 
+#include "CenterLine.h"
+#include "Volumn.h"
+
 
 void compute_vesselness(void){
 	// laoding data
@@ -44,49 +47,29 @@ void compute_vesselness(void){
 	GLViewer::MIP( vn_float );
 }
 
-void compute_min_span_tree(void) {
-	Image3D<short> image_data;
-	bool falg = image_data.load( "data/roi16.partial.data" );
-	if( !falg ) return;
-
-	Image3D<unsigned char> image_data_uchar;
-	IP::normalize( image_data.getROI(), short(255) );
-	image_data.getROI().convertTo( image_data_uchar );
-	
-	// Computer Min Span Tree
-	Graph< MST::Edge_Ext, MST::LineSegment > tree;
-	MinSpanTree::build_tree_xuefeng( "data/roi16.partial.linedata.txt", tree, 15000 );
-	// Visualize Min Span Tree on Max Intensity Projection
-	GLViewerExt::draw_min_span_tree_init( tree );
-	GLViewerExt::save_video_int( "output/video.avi", 20, 18 );
-	GLViewer::MIP( image_data_uchar, 
-		GLViewerExt::draw_min_span_tree, // drawing min span tree
-		NULL );                             // NOT saving video
-		// GLViewerExt::save_video );       // saving video
-
-}
-
 void compute_min_span_tree_vesselness(void) {
-	Image3D<float> vn;
-	Image3D<Vesselness_Sig> vn_sig;
+	Data3D<short> im_short;
 
-	vn_sig.load( "data/roi16.partial.float5.vesselness" );
-	vn_sig.copyDimTo( vn, 0 );
-
-	Image3D<unsigned char> image_data_uchar;
-	IP::normalize( vn, float(255) );
-	vn.getROI().convertTo( image_data_uchar );
+	im_short.load( "data/roi16.partial.data" );
 	
+	Image3D<unsigned char> im_uchar;
+	IP::normalize( im_short, short(255) );
+	im_short.convertTo( im_uchar );
+	
+	vector<GLViewer::Object*> objs;
+	GLViewerExt::Volumn vObj( im_uchar.getMat().data, 
+		im_uchar.SX(), im_uchar.SY(), im_uchar.SZ() );
+	objs.push_back( &vObj );
+
+
 	// Computer Min Span Tree
 	Graph< MST::Edge_Ext, MST::LineSegment > tree;
 	MinSpanTree::build_tree_xuefeng( "data/roi16.partial.linedata.txt", tree, 150 );
-	// Visualize Min Span Tree on Max Intensity Projection
-	GLViewerExt::draw_min_span_tree_init( tree );
-	GLViewerExt::save_video_int( "output/video.avi", 20, 18 );
-	GLViewer::MIP( image_data_uchar, 
-		GLViewerExt::draw_min_span_tree, // drawing min span tree
-		NULL );                             // NOT saving video
-		// GLViewerExt::save_video );       // saving video
+
+	GLViewer::CenterLine<MST::Edge_Ext, MST::LineSegment> cObj( tree );
+	objs.push_back( &cObj );
+
+	GLViewer::go( objs );
 }
 
 void compute_rings_redection(void){
@@ -147,12 +130,12 @@ void compute_center_line(void){
 		im_unchar.getMat().data, 
 		im_unchar.SX(), im_unchar.SY(), im_unchar.SZ() );
 
-	GLViewerExt::CenterLine<Edge> cObj( tree );
+	GLViewer::CenterLine<Edge> cObj( tree );
 
 	vector<GLViewer::Object*> objs;
 	objs.push_back( &vObj );
 	objs.push_back( &cObj ); 
-	GLViewer::MIP2( objs );
+	GLViewer::go( objs );
 
 	return;
 }	
@@ -181,18 +164,9 @@ void xuefeng_cut(void){
 
 int main(int argc, char* argv[])
 {
+	compute_min_span_tree_vesselness();
 	compute_center_line();
-	/*Data3D<short> im_short;
-	im_short.load( "data/roi15.data" );
-	Data3D<unsigned char> im_unchar;
-	IP::normalize( im_short, short(255) );
-	im_short.convertTo( im_unchar );
-	
-	GLViewerExt::Volumn vObj( 
-		im_unchar.getMat().data, 
-		im_unchar.SX(), im_unchar.SY(), im_unchar.SZ() );
-	GLViewer::Object* objs[] = {&vObj}; 
-	GLViewer::MIP2( objs, 1, im_unchar.SX(), im_unchar.SY(), im_unchar.SZ() ); */
+
 	return 0;
 	
 

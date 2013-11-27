@@ -33,7 +33,7 @@ namespace MinSpanTree {
 		}
 	}; 
 
-	void edge_tracing( Data3D<Vesselness_All>& src_vn, Graph3D<Edge>& tree, const float& thres1, const float& thres2  ){
+	static void edge_tracing( Data3D<Vesselness_All>& src_vn, Graph3D<Edge>& tree, const float& thres1, const float& thres2  ){
 		// construct the graph
 		Graph3D<Edge> graph( src_vn.SX(), src_vn.SY(), src_vn.SZ() );
 

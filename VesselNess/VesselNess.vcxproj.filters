@@ -102,6 +102,12 @@
     <ClInclude Include="MinSpanTreeWrapper.h">
       <Filter>MinSpanTree</Filter>
     </ClInclude>
+    <ClInclude Include="CenterLine.h">
+      <Filter>Visualization</Filter>
+    </ClInclude>
+    <ClInclude Include="Volumn.h">
+      <Filter>Visualization</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ImageProcessor.cpp">
@@ -151,6 +157,12 @@
     </ClCompile>
     <ClCompile Include="Vesselness.cpp">
       <Filter>Vesselness</Filter>
+    </ClCompile>
+    <ClCompile Include="CenterLine.cpp">
+      <Filter>Visualization</Filter>
+    </ClCompile>
+    <ClCompile Include="Volumn.cpp">
+      <Filter>Visualization</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

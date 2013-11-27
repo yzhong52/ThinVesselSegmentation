@@ -276,7 +276,7 @@ bool Data3D<T>::load( const string& file_name ){
 	bool isBigEndian;
 	Vec3i size;
 	bool flag = load_info( file_name, size, isBigEndian );
-	if( !flag ) return false;
+	if( !flag ) exit(0);
 	// load data
 	return load( file_name, size, isBigEndian );
 }

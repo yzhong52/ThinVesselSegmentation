@@ -329,6 +329,7 @@
     <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CenterLine.h" />
     <ClInclude Include="Data3D.h" />
     <ClInclude Include="DisjointSet.h" />
     <ClInclude Include="Edge.h" />
@@ -350,8 +351,10 @@
     <ClInclude Include="VesselDetector.h" />
     <ClInclude Include="Vesselness.h" />
     <ClInclude Include="Viewer.h" />
+    <ClInclude Include="Volumn.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CenterLine.cpp" />
     <ClCompile Include="DisjointSet.cpp" />
     <ClCompile Include="Edge.cpp" />
     <ClCompile Include="GLViewer.cpp" />
@@ -368,6 +371,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Vesselness.cpp" />
     <ClCompile Include="Viewer.cpp" />
+    <ClCompile Include="Volumn.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
