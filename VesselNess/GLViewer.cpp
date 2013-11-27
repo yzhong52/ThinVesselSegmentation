@@ -63,6 +63,8 @@ namespace GLViewer
 {
 	// objects that need to be render
 	vector<Object*> obj;
+	vector<bool> isDisplayObject;
+
 	// Size of the data
 	unsigned int sx = 0;
 	unsigned int sy = 0;
@@ -109,7 +111,7 @@ namespace GLViewer
 		oldtick = tick; 
 
 		for( unsigned int i=0; i<obj.size(); i++ ) { 
-			if( obj[i]!=NULL ) obj[i]->render();
+			if( isDisplayObject[i] ) obj[i]->render();
 		}
 
 		glTranslatef( t[0], t[1], t[2] );
@@ -245,6 +247,12 @@ namespace GLViewer
 
 	void keyboard(unsigned char key, int x, int y)
 	{
+		if( key >= '0' && key <= '9' ){
+			int index = key - '0';
+			if( index < isDisplayObject.size() ) {
+				isDisplayObject[index] = !isDisplayObject[index];
+			}
+		} 
 		switch (key) 
 		{
 		case ' ': 
@@ -261,6 +269,8 @@ namespace GLViewer
 	{
 		obj = objects; 
 		videoSaver = video;
+
+		isDisplayObject.resize( objects.size(), true );
 
 		///////////////////////////////////////////////
 		// glut Initializaitons
