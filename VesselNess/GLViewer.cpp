@@ -85,53 +85,43 @@ namespace GLViewer
 	GLboolean isTranslating = false;
 	GLfloat translate_speed = 0.2f;
 	
-	
-	
 	/////////////////////////////////////////
 	// Initial Window Size
 	///////////////////////
 	int width = 800;
 	int height = 800;
 	
-	/////////////////////////////////////////
-	// Additional Rendering Functions
-	///////////////////////
-	void (*after_render)(int,int) = NULL; // TODO: Remove this
+	VideoSaver* videoSaver = NULL;
 
 	void render(void)									// Here's Where We Do All The Drawing
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	// Clear The Screen And The Depth Buffer
 
-		glTranslatef( t[0], t[1], t[2] );
-		if( after_render) { 
-			// Not allow the user to retate the scene if we 
-			// have after_render func, which is for saving videos
-			glRotatef( 1.0f, 0.0f, 0.0f, 1.0f );
-		} else {
-			// Update Rotation Centre
-			glRotatef( xrot, vec_y[0], vec_y[1], vec_y[2] );
-			rotate_axis( vec_y[0], vec_y[1], vec_y[2], 
-				vec_x[0], vec_x[1], vec_x[2],
-				vec_x[0], vec_x[1], vec_x[2], -xrot );
-			glRotatef( yrot, vec_x[0], vec_x[1], vec_x[2] );
-			rotate_axis( vec_x[0], vec_x[1], vec_x[2], 
-				vec_y[0], vec_y[1], vec_y[2],
-				vec_y[0], vec_y[1], vec_y[2], -yrot );
-			// Draw Rotation Center
-			glBegin(GL_LINES);
-			glColor3f( 1.0, 0.0, 0.0 ); glVertex3i(  0,  0,  0 ); glVertex3f( vec_y[0]*10, vec_y[1]*10, vec_y[2]*10 );
-			glColor3f( 0.0, 1.0, 0.0 ); glVertex3i(  0,  0,  0 ); glVertex3f( vec_x[0]*10, vec_x[1]*10, vec_x[2]*10 );
-			glEnd();
-			glColor3f( 1.0, 1.0, 1.0 );
-		}
-		glTranslatef( -t[0], -t[1], -t[2] );
+		
 
 
 		for( unsigned int i=0; i<obj.size(); i++ ) { 
 			if( obj[i]!=NULL ) obj[i]->render();
 		}
 
-		if( after_render ) after_render( width, height );
+		glTranslatef( t[0], t[1], t[2] );
+		if( videoSaver ) videoSaver->saveBuffer();
+		// Update Rotation Centre
+		glRotatef( xrot, vec_y[0], vec_y[1], vec_y[2] );
+		rotate_axis( vec_y[0], vec_y[1], vec_y[2], 
+			vec_x[0], vec_x[1], vec_x[2],
+			vec_x[0], vec_x[1], vec_x[2], -xrot );
+		glRotatef( yrot, vec_x[0], vec_x[1], vec_x[2] );
+		rotate_axis( vec_x[0], vec_x[1], vec_x[2], 
+			vec_y[0], vec_y[1], vec_y[2],
+			vec_y[0], vec_y[1], vec_y[2], -yrot );
+		// Draw Rotation Center with two axis
+		glBegin(GL_LINES);
+		glColor3f( 1.0, 0.0, 0.0 ); glVertex3i(  0,  0,  0 ); glVertex3f( vec_y[0]*10, vec_y[1]*10, vec_y[2]*10 );
+		glColor3f( 0.0, 1.0, 0.0 ); glVertex3i(  0,  0,  0 ); glVertex3f( vec_x[0]*10, vec_x[1]*10, vec_x[2]*10 );
+		glEnd();
+		glColor3f( 1.0, 1.0, 1.0 );
+		glTranslatef( -t[0], -t[1], -t[2] );
 
 		glutSwapBuffers();
 	}
@@ -205,8 +195,8 @@ namespace GLViewer
 	void reset_projection(void) {
 		glMatrixMode(GL_PROJECTION);						// Select The Projection Matrix
 		glLoadIdentity();									// Reset The Projection Matrix
-		float maxVal = max( sx, max(sy, sz) ) * 0.7f;
-		GLfloat ratio = (GLfloat)width / (GLfloat)height;
+		GLfloat maxVal = max( sx, max(sy, sz) ) * 0.7f;
+		GLfloat ratio = (GLfloat)width/(GLfloat)height;
 		glOrtho( -1, 1, -1, 1, -1, 1);
 		glScalef( 1.0f/(maxVal*ratio), 1.0f/maxVal, 1.0f/maxVal );
 	}
@@ -220,27 +210,12 @@ namespace GLViewer
 		xrot = 0;
 		yrot = 0;
 
-		glMatrixMode(GL_PROJECTION);						// Select The Projection Matrix
-		glLoadIdentity();									// Reset The Projection Matrix
-
-		GLfloat maxVal = max( sx, max(sy, sz) ) * 0.55f;
-		GLfloat ratio = (GLfloat)width/(GLfloat)height;
-		glOrtho( -1, 1, -1, 1, -1, 1);
-		glScalef( 1.0f/(maxVal*ratio), 1.0f/maxVal, 1.0f/maxVal );
-
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity(); // clear the identity matrix.
-		gluLookAt( 0, 0, 1,
-			0, 0, 0, 
-			0, 1, 0 );
-		glTranslatef(-t[0], -t[1], -t[2]); // move to the center of the data
+		gluLookAt( 0, 0, 1, 0, 0, 0, 0, 1, 0 );
 
-		if( after_render ) {
-			// Initial Rotation (Do as you want );
-			glTranslatef( t[0], t[1], t[2] );
-			glRotatef( -90, vec_x[0], vec_x[1], vec_x[2] );
-			glTranslatef( -t[0], -t[1], -t[2] );
-		}
+		// move to the center of the data
+		glTranslatef(-t[0], -t[1], -t[2]); 
 
 		glutPostRedisplay();
 	}
@@ -273,8 +248,14 @@ namespace GLViewer
 		}
 	}
 
-	void go( vector<Object*> objects )
+	void go( vector<Object*> objects, VideoSaver* video )
 	{
+		obj = objects; 
+		videoSaver = video;
+
+		///////////////////////////////////////////////
+		// glut Initializaitons
+		///////////////
 		int argc = 1;
 		char* argv[1] = { NULL };
 		glutInit( &argc, argv );
@@ -283,19 +264,8 @@ namespace GLViewer
 		glutInitWindowPosition( 100, 100 );
 		glutCreateWindow( argv[0] );
 		glewInit();
-
-		obj = objects; 
-		for( unsigned int i=0; i<obj.size(); i++ ) {
-			obj[i]->init();
-			sx = max( sx, obj[i]->size_x() );
-			sy = max( sy, obj[i]->size_y() );
-			sz = max( sz, obj[i]->size_z() );
-		}
-		
-		///////////////////////////////////////////////
 		// Register Recall Funtions
-		///////////////
-		glutReshapeFunc( reshape ); // Not allow the user to reshape the window if we 
+		glutReshapeFunc( reshape );
 		// have post_draw_func, which is for saving videos
 		glutKeyboardFunc( keyboard );
 		// register mouse fucntions
@@ -305,7 +275,25 @@ namespace GLViewer
 		glutIdleFunc( render );
 		glutDisplayFunc( render );
 
+		// The order of the following settings do matters
+		// Setting up the size of the scence
+		for( unsigned int i=0; i<obj.size(); i++ ) {
+			obj[i]->init(); // additionol init settings by objects
+			sx = max( sx, obj[i]->size_x() );
+			sy = max( sy, obj[i]->size_y() );
+			sz = max( sz, obj[i]->size_z() );
+		}
+		// reset the modelview and projection
+		reset_projection();
 		reset_modelview();
+		// setting up for video captures if there is any
+		if( videoSaver ) {
+			// Initial Rotation (Do as you want ); Now it is faciton the x-y plane
+			glTranslatef( 0.5f*sx, 0.5f*sy, 0.5f*sx );
+			glRotatef( -90, 1, 0, 0 );
+			glTranslatef( -0.5f*sx, -0.5f*sy, -0.5f*sx );
+			videoSaver->init(width,height);
+		}
 
 		cout << "Redenring Begin!" << endl;
 		glutMainLoop(); // No Code Will Be Executed After This Line

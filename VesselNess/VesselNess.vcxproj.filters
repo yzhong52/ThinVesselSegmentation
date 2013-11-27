@@ -158,10 +158,7 @@
     <ClCompile Include="Vesselness.cpp">
       <Filter>Vesselness</Filter>
     </ClCompile>
-    <ClCompile Include="CenterLine.cpp">
-      <Filter>Visualization</Filter>
-    </ClCompile>
-    <ClCompile Include="Volumn.cpp">
+    <ClCompile Include="VideoSaver.cpp">
       <Filter>Visualization</Filter>
     </ClCompile>
   </ItemGroup>

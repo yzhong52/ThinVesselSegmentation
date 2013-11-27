@@ -3,6 +3,8 @@
 #include <vector>
 using namespace std;
 
+#include "VideoSaver.h"
+
 namespace GLViewer
 {
 	class Object{
@@ -17,9 +19,7 @@ namespace GLViewer
 		virtual unsigned int size_z(void) const = 0;
 	}; 
 
-	// pre_draw_func: can be used to add additional object to render
-	// post_draw_func: can be used to save the framebuffer
-	void go( vector<Object*> objects ); 
+	void go( vector<Object*> objects, VideoSaver* videoSaver = NULL ); 
 
 	// TODO: to visualized color texture
 }

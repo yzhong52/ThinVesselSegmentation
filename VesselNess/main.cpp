@@ -174,14 +174,11 @@ int main(int argc, char* argv[])
 	GLViewerExt::Volumn vObj( 
 		im_unchar.getMat().data, 
 		im_unchar.SX(), im_unchar.SY(), im_unchar.SZ() );
-
-	GLViewer::VideoSaver aviObj( "output/temp.avi", 10 );
-
 	vector<GLViewer::Object*> objs;
 	objs.push_back( &vObj );
-	objs.push_back( &aviObj );
-
-	GLViewer::go( objs );
+	
+	GLViewer::VideoSaver videoSaver( "output/temp.avi" );
+	GLViewer::go( objs, &videoSaver );
 
 	// compute_min_span_tree_vesselness();
 	// compute_center_line();
@@ -210,31 +207,6 @@ int main(int argc, char* argv[])
 	//}
 	//Viewer::MIP::Multi_Channels( vn_temp, data_name+".vesselness" );
 	//return 0;
-
-	//
-	//if( bool minimum_spinning_tree = false ) { 	
-	//	Data3D<Vesselness_Sig> res_mst;
-	//	IP::edge_tracing_mst( vn_all, res_mst, 0.55f, 0.065f  );
-	//	// res_dt.save( data_name + ".dir_tracing.vesselness" );
-	//	Viewer::MIP::Multi_Channels( res_mst, data_name + ".mst" );
-	//	return 0;
-	//} else {
-	//	Data3D<Vesselness_Sig> res_nms; // result of non-maximum suppression
-	//	IP::non_max_suppress( vn_all, res_nms );
-	//	res_nms.save( data_name + ".non_max_suppress.vesselness" );
-	//	// Viewer::MIP::Multi_Channels( res_nms, data_name + ".non_max_suppress" ); // Visualization using MIP
-	//	//return 0;
-
-	//	Data3D<Vesselness_Sig> res_rns_et;
-	//	IP::edge_tracing( res_nms, res_rns_et, 0.55f, 0.055f );
-	//	res_rns_et.save( data_name + ".edge_tracing.vesselness" );
-	//	Viewer::MIP::Multi_Channels( res_rns_et, data_name + ".edge_tracing"); // Visualization using MIP
-	//}
-	//
-	//
-	//
-	//return 0;
-
 
 	////////////////////////////////////////////////////////////////
 	// Plotting About Eigenvalues (Plots being used in my thesis)

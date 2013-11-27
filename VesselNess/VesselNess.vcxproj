@@ -354,7 +354,6 @@
     <ClInclude Include="Volumn.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CenterLine.cpp" />
     <ClCompile Include="DisjointSet.cpp" />
     <ClCompile Include="Edge.cpp" />
     <ClCompile Include="GLViewer.cpp" />
@@ -370,8 +369,8 @@
     <ClCompile Include="VesselDetector.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Vesselness.cpp" />
+    <ClCompile Include="VideoSaver.cpp" />
     <ClCompile Include="Viewer.cpp" />
-    <ClCompile Include="Volumn.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
