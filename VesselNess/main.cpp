@@ -22,35 +22,44 @@
 #include "Volumn.h"
 
 
-void compute_vesselness(void){
+void compute_vesselness( string dataname = "vessel3d.rd.19",
+	float sigma_from = 0.5, float sigma_to = 45.0f, float sigma_step = 1.0 )
+{
 	// laoding data
 	Data3D<short> im_short;
-	bool falg = im_short.load( "data/vessel3d.rd.19.data" );
+	bool falg = im_short.load( "data/"+dataname+".data" );
 	if(!falg) return;
 	
+	stringstream vesselness_name;
+	vesselness_name << "output/";
+	vesselness_name << dataname;
+	vesselness_name << ".sigma_to" << sigma_to;
+
+	stringstream vesselness_log;
+	vesselness_log << " sigma from " << sigma_from;
+	vesselness_log << " to "   << sigma_to;
+	vesselness_log << " with setp " << sigma_step;
+
 	// compute vesselness
 	Data3D<Vesselness_All> vn_all;
 	vn_all.resize( im_short.get_size() );
-	VD::compute_vesselness( im_short, vn_all, 
-		/*sigma from*/ 0.5f,
-		/*sigma to*/   45.5,
-		/*sigma step*/ 1.0f );
-	vn_all.save( "data/vessel3d.rd.19.sigma45.vn_all" );
+	VD::compute_vesselness( im_short, vn_all, sigma_from, sigma_to, sigma_step);
+	vn_all.save( vesselness_name.str()+".vn_all", vesselness_log.str() );
 
 	Data3D<Vesselness_Sig> vn_sig( vn_all );
-	vn_sig.save( "data/vessel3d.rd.19.sigma45.vn_sig" );
+	vn_sig.save( vesselness_name.str()+".vn_sig", vesselness_log.str() );
 
 	Data3D<float> vn_float; 
 	vn_sig.copyDimTo( vn_float, 0 );
-	vn_float.save( "data/vessel3d.rd.19.sigma45.vn_float" );
+	vn_float.save( vesselness_name.str()+".vn_float", vesselness_log.str() );
 	
 	GLViewer::MIP( vn_float );
 }
 
-void compute_min_span_tree_vesselness(void) {
+void compute_min_span_tree( string data_name = "roi16.partial" ) {
 	Data3D<short> im_short;
 
-	im_short.load( "data/roi16.partial.data" );
+	im_short.load( "data/" +data_name+ ".data" );
 	
 	Image3D<unsigned char> im_uchar;
 	IP::normalize( im_short, short(255) );
@@ -64,7 +73,7 @@ void compute_min_span_tree_vesselness(void) {
 
 	// Computer Min Span Tree
 	Graph< MST::Edge_Ext, MST::LineSegment > tree;
-	MinSpanTree::build_tree_xuefeng( "data/roi16.partial.linedata.txt", tree, 150 );
+	MinSpanTree::build_tree_xuefeng( "data/" +data_name+ ".linedata.txt", tree, 150 );
 
 	GLViewer::CenterLine<MST::Edge_Ext, MST::LineSegment> cObj( tree );
 	objs.push_back( &cObj );
@@ -77,48 +86,18 @@ void compute_rings_redection(void){
 	bool falg = im_short.load( "data/vessel3d.data" );
 	if(!falg) return;
 	
-	RD::mm_filter( im_short, 19, 234, 270 );
+	RD::mm_filter( im_short, 19 );
 	im_short.save( "data/vessel3d.rd.19.data" );
 }
 
-
-// Trying to computer bifurcation measure
-// NOT successful
-void compute_bifurcation_measure(){	
-	//Data3D<short> im_short;
-	//bool falg = im_short.load( "data/roi15.data" );
-	//if(!falg) return;
-
-	////Data3D<float> im_float;
-	////VD::compute_bifurcationess( im_short, im_float, 1.5f, 1.6f, 0.5f );
-
-	//Data3D<uchar> im_uchar;
-	//im_short.convertTo( im_uchar );
-	//Data3D<Vec3b> im_vec3b( im_uchar );
-	//
-	//return;
-
-	//GLViewer::MIP_color( im_uchar.getMat().data,
-	//	im_uchar.SX(),
-	//	im_uchar.SY(),
-	//	im_uchar.SZ() );
-}
-
-
-
-void compute_center_line(void){
+void compute_center_line( string dataname = "roi15" ){
 	Data3D<short> im_short;
-	bool falg = im_short.load( "data/roi15.data" );
+	bool falg = im_short.load( "data/"+dataname+".data" );
 	if(!falg) return;
 
 	// vesselness
-	Data3D<Vesselness_All> vn_all;
-	//VD::compute_vesselness( im_short, vn_all, 
-	//	/*sigma from*/ 0.5f,
-	//	/*sigma to*/   5.6f,
-	//	/*sigma step*/ 1.0f );
-	//vn_all.save( "data/roi15.vn_all", "sigma from 0.5 to 5.5 with step 1.0" );
-	vn_all.load( "data/roi15.vn_all" );
+	Data3D<Vesselness_All> vn_all; 
+	vn_all.load( "data/"+dataname+".vn_all" );
 
 	MST::Graph3D<Edge> tree; 
 	MST::edge_tracing( vn_all, tree, 0.55f, 0.055f );
@@ -164,19 +143,24 @@ void xuefeng_cut(void){
 
 int main(int argc, char* argv[])
 {
-	Data3D<short> im_short;
-	bool falg = im_short.load( "data/roi15.data" );
-	if(!falg) return 0;
+	// compute_vesselness( "roi16.partial", 0.5f, 7.5f, 0.3f );
 
-	Data3D<unsigned char> im_unchar;
-	IP::normalize( im_short, short(255) );
-	im_short.convertTo( im_unchar );
-	GLViewerExt::Volumn vObj( 
-		im_unchar.getMat().data, 
-		im_unchar.SX(), im_unchar.SY(), im_unchar.SZ() );
-	vector<GLViewer::Object*> objs;
-	objs.push_back( &vObj );
+	// Compute Center Line
+	Data3D<Vesselness_All> vn_all; 
+	vn_all.load( "output/roi16.partial.sigma_to7.5.vn_all" );
+	MST::Graph3D<Edge> tree1; 
+	MST::edge_tracing( vn_all, tree1, 0.55f, 0.055f );
+	GLViewer::CenterLine<Edge> cObj1( tree1 );
+
+	// Compute Center Line2
+	Graph< MST::Edge_Ext, MST::LineSegment > tree2;
+	MinSpanTree::build_tree_xuefeng( "data/roi16.partial.linedata.txt", tree2, 150 );
+	GLViewer::CenterLine<MST::Edge_Ext, MST::LineSegment> cObj2( tree2 );
 	
+	vector<GLViewer::Object*> objs;
+	objs.push_back( &cObj1 );
+	objs.push_back( &cObj2 );
+
 	GLViewer::VideoSaver videoSaver( "output/temp.avi" );
 	GLViewer::go( objs, &videoSaver );
 

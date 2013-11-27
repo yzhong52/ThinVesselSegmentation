@@ -244,6 +244,7 @@ namespace GLViewer
 			reset_modelview();
 			break;
 		case 27:
+			cout << "Rednering done. Thanks you for using GLViewer. " << endl;
 			exit(0);
 		}
 	}
