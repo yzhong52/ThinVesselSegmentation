@@ -78,7 +78,8 @@ void compute_min_span_tree( string data_name = "roi16.partial" ) {
 	GLViewer::CenterLine<MST::Edge_Ext, MST::LineSegment> cObj( tree );
 	objs.push_back( &cObj );
 
-	GLViewer::go( objs );
+	GLViewer::VideoSaver videoSaver( "output/line fitting.avi" );
+	GLViewer::go( objs/*, &videoSaver*/ );
 }
 
 void compute_rings_redection(void){
@@ -143,6 +144,7 @@ void xuefeng_cut(void){
 
 int main(int argc, char* argv[])
 {
+	compute_min_span_tree();
 	// compute_vesselness( "roi16.partial", 0.5f, 7.5f, 0.3f );
 
 	// Compute Center Line

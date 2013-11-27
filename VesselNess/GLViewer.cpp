@@ -78,7 +78,7 @@ namespace GLViewer
 	GLfloat	xrot = 0;              
 	GLfloat	yrot = 0;
 	GLboolean isRotating = false;
-	GLfloat rotate_speed = 0.005f;
+	GLfloat rotate_speed = 0.001f;
 	// Rotation Axis
 	GLfloat vec_y[3] = {0, 1, 0};
 	GLfloat vec_x[3] = {1, 0, 0};
