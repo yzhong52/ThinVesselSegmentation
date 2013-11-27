@@ -162,7 +162,7 @@ int main(int argc, char* argv[])
 	objs.push_back( &cObj2 );
 
 	GLViewer::VideoSaver videoSaver( "output/temp.avi" );
-	GLViewer::go( objs, &videoSaver );
+	GLViewer::go( objs/*, &videoSaver*/ );
 
 	// compute_min_span_tree_vesselness();
 	// compute_center_line();

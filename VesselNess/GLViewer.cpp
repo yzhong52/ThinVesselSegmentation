@@ -20,6 +20,8 @@ using namespace std;
 #include "GL\freeglut.h"
 #pragma comment(lib, "freeglut.lib")
 
+#include <time.h>
+
 void rotate_axis( 
 	float u, float v, float w,        /*Axis*/
 	float x, float y, float z,        /*The Point That We Want to Roate */
@@ -76,7 +78,7 @@ namespace GLViewer
 	GLfloat	xrot = 0;              
 	GLfloat	yrot = 0;
 	GLboolean isRotating = false;
-	GLfloat rotate_speed = 0.05f;
+	GLfloat rotate_speed = 0.005f;
 	// Rotation Axis
 	GLfloat vec_y[3] = {0, 1, 0};
 	GLfloat vec_x[3] = {1, 0, 0};
@@ -85,6 +87,8 @@ namespace GLViewer
 	GLboolean isTranslating = false;
 	GLfloat translate_speed = 0.2f;
 	
+	int elapsedTick = 0;
+
 	/////////////////////////////////////////
 	// Initial Window Size
 	///////////////////////
@@ -97,8 +101,12 @@ namespace GLViewer
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	// Clear The Screen And The Depth Buffer
 
-		
+		static int tick = GetTickCount();
+		static int oldtick = GetTickCount(); 
 
+		tick = GetTickCount(); 
+		elapsedTick = tick - oldtick;
+		oldtick = tick; 
 
 		for( unsigned int i=0; i<obj.size(); i++ ) { 
 			if( obj[i]!=NULL ) obj[i]->render();
@@ -107,14 +115,14 @@ namespace GLViewer
 		glTranslatef( t[0], t[1], t[2] );
 		if( videoSaver ) videoSaver->saveBuffer();
 		// Update Rotation Centre
-		glRotatef( xrot, vec_y[0], vec_y[1], vec_y[2] );
+		glRotatef( xrot * elapsedTick, vec_y[0], vec_y[1], vec_y[2] );
 		rotate_axis( vec_y[0], vec_y[1], vec_y[2], 
 			vec_x[0], vec_x[1], vec_x[2],
-			vec_x[0], vec_x[1], vec_x[2], -xrot );
-		glRotatef( yrot, vec_x[0], vec_x[1], vec_x[2] );
+			vec_x[0], vec_x[1], vec_x[2], -xrot * elapsedTick );
+		glRotatef( yrot * elapsedTick, vec_x[0], vec_x[1], vec_x[2] );
 		rotate_axis( vec_x[0], vec_x[1], vec_x[2], 
 			vec_y[0], vec_y[1], vec_y[2],
-			vec_y[0], vec_y[1], vec_y[2], -yrot );
+			vec_y[0], vec_y[1], vec_y[2], -yrot * elapsedTick );
 		// Draw Rotation Center with two axis
 		glBegin(GL_LINES);
 		glColor3f( 1.0, 0.0, 0.0 ); glVertex3i(  0,  0,  0 ); glVertex3f( vec_y[0]*10, vec_y[1]*10, vec_y[2]*10 );
