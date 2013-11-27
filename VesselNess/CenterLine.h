@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Graph.h"
-#include "MinSpanTree.h"
+//#include "MinSpanTree.h"
 #include "MinSpanTreeWrapper.h"
 #include "DataTypes.h"
 
@@ -12,7 +12,8 @@
 
 namespace GLViewer{ 
 
-	template<class T, class U=uchar>
+	// abstract template class
+	template<class T, class U=unsigned char>
 	class CenterLine : public GLViewer::Object { };
 
 	template<>

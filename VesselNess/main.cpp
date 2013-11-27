@@ -15,7 +15,7 @@
 
 // OpenGL Viewer With Maximum Intensity Projection
 #include "GLViewer.h"
-#include "GLViewerExt.h"
+#include "VideoSaver.h"
 #include "GLViwerWrapper.h"
 
 #include "CenterLine.h"
@@ -164,8 +164,27 @@ void xuefeng_cut(void){
 
 int main(int argc, char* argv[])
 {
-	compute_min_span_tree_vesselness();
-	compute_center_line();
+	Data3D<short> im_short;
+	bool falg = im_short.load( "data/roi15.data" );
+	if(!falg) return 0;
+
+	Data3D<unsigned char> im_unchar;
+	IP::normalize( im_short, short(255) );
+	im_short.convertTo( im_unchar );
+	GLViewerExt::Volumn vObj( 
+		im_unchar.getMat().data, 
+		im_unchar.SX(), im_unchar.SY(), im_unchar.SZ() );
+
+	GLViewer::VideoSaver aviObj( "output/temp.avi", 10 );
+
+	vector<GLViewer::Object*> objs;
+	objs.push_back( &vObj );
+	objs.push_back( &aviObj );
+
+	GLViewer::go( objs );
+
+	// compute_min_span_tree_vesselness();
+	// compute_center_line();
 
 	return 0;
 	

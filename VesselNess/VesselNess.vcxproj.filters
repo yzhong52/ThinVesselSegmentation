@@ -81,9 +81,6 @@
     <ClInclude Include="GLViewer.h">
       <Filter>Visualization</Filter>
     </ClInclude>
-    <ClInclude Include="GLViewerExt.h">
-      <Filter>Visualization</Filter>
-    </ClInclude>
     <ClInclude Include="GLViwerWrapper.h">
       <Filter>Visualization</Filter>
     </ClInclude>
@@ -106,6 +103,9 @@
       <Filter>Visualization</Filter>
     </ClInclude>
     <ClInclude Include="Volumn.h">
+      <Filter>Visualization</Filter>
+    </ClInclude>
+    <ClInclude Include="VideoSaver.h">
       <Filter>Visualization</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,13 +1,10 @@
 #pragma once
 
-
-#include "GLViewerExt.h"
-
 // Using OpenCV ot Save the Scene to video
 #define _CRT_SECURE_NO_DEPRECATE
-#include <opencv\cv.h>      
-#include "Data3D.h"
+#include <opencv\cv.h>
 
+#include "Data3D.h"
 #include "Volumn.h"
 
 namespace GLViewer{

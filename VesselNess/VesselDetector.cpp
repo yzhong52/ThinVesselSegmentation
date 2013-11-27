@@ -4,6 +4,7 @@
 #include "ImageProcessing.h"
 #include "Vesselness.h"
 
+#define _CRT_SECURE_NO_DEPRECATE
 #include <opencv2\core\core.hpp>
 
 bool VesselDetector::hessien( const Data3D<short>& src, Data3D<Vesselness_Nor>& dst, 
