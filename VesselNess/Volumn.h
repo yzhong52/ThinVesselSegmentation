@@ -105,23 +105,23 @@ namespace GLViewerExt
 		void render(void){
 			glBindTexture(GL_TEXTURE_3D, texture);
 			glBegin(GL_QUADS);
-			for( int i=0; i<=sz; i++ ) {
-				glTexCoord3f( 0,                  0,                  1.0f*i/texture_sz ); glVertex3i( 0,  0,  i );
-				glTexCoord3f( 1.0f*sx/texture_sx, 0,                  1.0f*i/texture_sz ); glVertex3i( sx, 0,  i );
-				glTexCoord3f( 1.0f*sx/texture_sx, 1.0f*sy/texture_sy, 1.0f*i/texture_sz ); glVertex3i( sx, sy, i );
-				glTexCoord3f( 0,                  1.0f*sy/texture_sy, 1.0f*i/texture_sz ); glVertex3i( 0,  sy, i );
+			for( float i=0; i<=sz; i+=0.25f ) {
+				glTexCoord3f( 0,                  0,                  1.0f*i/texture_sz ); glVertex3f( 0,  0,  i );
+				glTexCoord3f( 1.0f*sx/texture_sx, 0,                  1.0f*i/texture_sz ); glVertex3f( sx, 0,  i );
+				glTexCoord3f( 1.0f*sx/texture_sx, 1.0f*sy/texture_sy, 1.0f*i/texture_sz ); glVertex3f( sx, sy, i );
+				glTexCoord3f( 0,                  1.0f*sy/texture_sy, 1.0f*i/texture_sz ); glVertex3f( 0,  sy, i );
 			}
-			for( int i=0; i<=sy; i++ ) {
-				glTexCoord3f( 0,                  1.0f*i/texture_sy, 0 );                  glVertex3i(  0, i,  0 );
-				glTexCoord3f( 1.0f*sx/texture_sx, 1.0f*i/texture_sy, 0 );                  glVertex3i( sx, i,  0 );
-				glTexCoord3f( 1.0f*sx/texture_sx, 1.0f*i/texture_sy, 1.0f*sz/texture_sz ); glVertex3i( sx, i, sz );
-				glTexCoord3f( 0,                  1.0f*i/texture_sy, 1.0f*sz/texture_sz ); glVertex3i(  0, i, sz );
+			for( float i=0; i<=sy; i+=0.25f ) {
+				glTexCoord3f( 0,                  1.0f*i/texture_sy, 0 );                  glVertex3f(  0, i,  0 );
+				glTexCoord3f( 1.0f*sx/texture_sx, 1.0f*i/texture_sy, 0 );                  glVertex3f( sx, i,  0 );
+				glTexCoord3f( 1.0f*sx/texture_sx, 1.0f*i/texture_sy, 1.0f*sz/texture_sz ); glVertex3f( sx, i, sz );
+				glTexCoord3f( 0,                  1.0f*i/texture_sy, 1.0f*sz/texture_sz ); glVertex3f(  0, i, sz );
 			}
-			for( int i=0; i<=sx; i++ ) {
-				glTexCoord3f( 1.0f*i/texture_sx, 0,                  0 );                  glVertex3i( i,  0, 0 );
-				glTexCoord3f( 1.0f*i/texture_sx, 1.0f*sy/texture_sy, 0 );                  glVertex3i( i, sy, 0 );
-				glTexCoord3f( 1.0f*i/texture_sx, 1.0f*sy/texture_sy, 1.0f*sz/texture_sz ); glVertex3i( i, sy, sz );
-				glTexCoord3f( 1.0f*i/texture_sx, 0,                  1.0f*sz/texture_sz ); glVertex3i( i,  0, sz );
+			for( float i=0; i<=sx; i+=0.25f ) {
+				glTexCoord3f( 1.0f*i/texture_sx, 0,                  0 );                  glVertex3f( i,  0, 0 );
+				glTexCoord3f( 1.0f*i/texture_sx, 1.0f*sy/texture_sy, 0 );                  glVertex3f( i, sy, 0 );
+				glTexCoord3f( 1.0f*i/texture_sx, 1.0f*sy/texture_sy, 1.0f*sz/texture_sz ); glVertex3f( i, sy, sz );
+				glTexCoord3f( 1.0f*i/texture_sx, 0,                  1.0f*sz/texture_sz ); glVertex3f( i,  0, sz );
 			}
 			glEnd();
 

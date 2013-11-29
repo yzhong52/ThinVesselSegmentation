@@ -270,7 +270,8 @@ namespace GLViewer
 		obj = objects; 
 		videoSaver = video;
 
-		isDisplayObject.resize( objects.size(), true );
+		isDisplayObject.resize( objects.size(), false );
+		isDisplayObject[0] = true;
 
 		///////////////////////////////////////////////
 		// glut Initializaitons
