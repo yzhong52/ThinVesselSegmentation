@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Edge.h"
+#include <vector>
 
 /////////////////////////////////////////////////////////////
 // Some basic data structures
@@ -18,7 +19,13 @@ namespace MinSpanTree {
 		inline Vec3f operator*( const float& v) const { return Vec3f( v*x, v*y, v*z );      }
 	};
 
+	struct Point3D {
+		int x, y, z;
+	}; 
+
 	struct LineSegment{
+		float radius; 
+		std::vector<Point3D> points;
 		Vec3f p1, p2;
 		LineSegment( ) : p1( Vec3f(0,0,0) ), p2( Vec3f(0,0,0) ) { }
 		LineSegment(const LineSegment& l ) : p1(l.p1), p2(l.p2) { }

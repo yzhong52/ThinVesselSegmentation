@@ -155,21 +155,19 @@ int main(int argc, char* argv[])
 	viwer.addObject( im_short );
 
 	Data3D<Vesselness_Sig> vn_sig; 
-	vn_sig.load( "data/roi16.partial.vn_sig" );
+	vn_sig.load( "data/roi16.partial.sigma_to8.vn_sig" );
 	viwer.addObject( vn_sig );
 
 	Graph< MST::Edge_Ext, MST::LineSegment > tree;
-	MinSpanTree::build_tree_xuefeng( "data/roi16.partial.linedata.txt", tree, 250 );
+	MinSpanTree::build_tree_xuefeng( "data/roi16.partial", tree, 250 );
 	viwer.addObject( tree );
 	
-	
 	Data3D<Vesselness_All> vn_all; 
-	vn_all.load( "data/roi16.partial.vn_all" );
+	vn_all.load( "data/roi16.partial.sigma_to8.vn_all" );
 	MST::Graph3D<Edge> tree2; 
 	MST::edge_tracing( vn_all, tree2, 0.55f, 0.055f );
 	viwer.addObject( tree2 );
 	
-
 	viwer.go();
 
 	return 0;
