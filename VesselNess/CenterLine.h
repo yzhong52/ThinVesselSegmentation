@@ -13,7 +13,7 @@
 namespace GLViewer{ 
 
 	// abstract template class
-	template<class T, class U=unsigned char>
+	template<class T, class U=char>
 	class CenterLine : public GLViewer::Object { };
 
 	template<>

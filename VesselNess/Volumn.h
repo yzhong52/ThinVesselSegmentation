@@ -13,8 +13,9 @@
 #include <gl\gl.h>			// Header File For The OpenGL32 Library
 #include <gl\glu.h>			// Header File For The GLu32 Library
 
-namespace GLViewerExt
+namespace GLViewer
 {
+	// rendering object with Maximum Intenstiy Projection
 	class Volumn : public GLViewer::Object {
 		/////////////////////////////////////////
 		// Data
@@ -46,11 +47,11 @@ namespace GLViewerExt
 
 			int texture_size = texture_sx * texture_sy * texture_sz;
 			data = new (nothrow) unsigned char [ texture_size ];
-			memset( data, 0, sizeof(unsigned char) * texture_size );
 			if( data==NULL ) {
-				cout << "Unable to allocate memory for OpenGL rendering" << endl;
-				return;
+				cout << "Unable to allocate memory for OpenGL rendering" << endl; return;
 			}
+
+			memset( data, 0, sizeof(unsigned char) * texture_size );
 			for( int z=0;z<sz;z++ ) for( int y=0;y<sy;y++ ) for( int x=0; x<sx; x++ ) {
 				data[ z*texture_sy*texture_sx + y*texture_sx + x] = im_data[ z*sy*sx + y*sx + x];
 			}	

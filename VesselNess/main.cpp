@@ -21,6 +21,7 @@
 #include "CenterLine.h"
 #include "Volumn.h"
 
+GLViewerExt viwer;
 
 void compute_vesselness( string dataname = "vessel3d.rd.19",
 	float sigma_from = 0.5, float sigma_to = 45.0f, float sigma_step = 1.0 )
@@ -53,7 +54,7 @@ void compute_vesselness( string dataname = "vessel3d.rd.19",
 	vn_sig.copyDimTo( vn_float, 0 );
 	vn_float.save( vesselness_name.str()+".vn_float", vesselness_log.str() );
 	
-	GLViewer::MIP( vn_float );
+	// GLViewer::MIP( vn_float );
 }
 
 void compute_min_span_tree( string data_name = "roi16.partial" ) {
@@ -66,7 +67,7 @@ void compute_min_span_tree( string data_name = "roi16.partial" ) {
 	im_short.convertTo( im_uchar );
 	
 	vector<GLViewer::Object*> objs;
-	GLViewerExt::Volumn vObj( im_uchar.getMat().data, 
+	GLViewer::Volumn vObj( im_uchar.getMat().data, 
 		im_uchar.SX(), im_uchar.SY(), im_uchar.SZ() );
 	objs.push_back( &vObj );
 
@@ -105,7 +106,7 @@ void compute_center_line( string dataname = "roi15" ){
 	Data3D<unsigned char> im_unchar;
 	IP::normalize( im_short, short(255) );
 	im_short.convertTo( im_unchar );
-	GLViewerExt::Volumn vObj( 
+	GLViewer::Volumn vObj( 
 		im_unchar.getMat().data, 
 		im_unchar.SX(), im_unchar.SY(), im_unchar.SZ() );
 
@@ -147,91 +148,29 @@ void xuefeng_cut(void){
 
 int main(int argc, char* argv[])
 {
-	Data3D<Vesselness_Sig> vn_sig;
-	vn_sig.load( "data/parts/vessel3d.rd.19.part7.vn_sig" );
-	
-	Image3D<float> vn_float; 
-	vn_sig.copyDimTo( vn_float, 0 );
-	
-	vn_float.shrink_by_half();
-
-	Data3D<unsigned char> vn_uchar;
-	IP::normalize( vn_float, float(255) );
-	vn_float.convertTo( vn_uchar ); 
-	GLViewerExt::Volumn vObj2( vn_uchar.getMat().data,
-		vn_uchar.SX(), vn_uchar.SY(), vn_uchar.SZ() );
-
-	vector<GLViewer::Object*> objs;
-	objs.push_back( &vObj2 );
-	
-	GLViewer::go( objs );
-	return 0;
-
-	xuefeng_cut();
-
 	// compute_vesselness( "roi16.partial", 0.5f, 8.0f, 0.2f );
 
-	//Image3D<short> im_short;
-	//im_short.load( "data/vessel3d.data" );
-	//im_short.shrink_by_half();
-	//Data3D<unsigned char> im_uchar;
-	//IP::normalize( im_short, short(255) );
-	//im_short.convertTo( im_uchar ); 
-	//GLViewerExt::Volumn vObj1( im_uchar.getMat().data,
-	//	im_uchar.SX(), im_uchar.SY(), im_uchar.SZ() );
+	Image3D<short> im_short;
+	im_short.load( "data/roi16.partial.data" );
+	viwer.addObject( im_short );
 
-	//// Compute Center Line
-	//Image3D<float> vn_float; 
-	//vn_float.load( "data/vessel3d.rd.19.sigma45.vn_float" );
-	//vn_float.shrink_by_half();
-	//Data3D<unsigned char> vn_uchar;
-	//IP::normalize( vn_float, float(255) );
-	//vn_float.convertTo( vn_uchar ); 
-	//GLViewerExt::Volumn vObj2( vn_uchar.getMat().data,
-	//	vn_uchar.SX(), vn_uchar.SY(), vn_uchar.SZ() );
+	Data3D<Vesselness_Sig> vn_sig; 
+	vn_sig.load( "data/roi16.partial.vn_sig" );
+	viwer.addObject( vn_sig );
 
-	//vector<GLViewer::Object*> objs;
-	//objs.push_back( &vObj1 );
-	//objs.push_back( &vObj2 );
+	Graph< MST::Edge_Ext, MST::LineSegment > tree;
+	MinSpanTree::build_tree_xuefeng( "data/roi16.partial.linedata.txt", tree, 250 );
+	viwer.addObject( tree );
+	
+	
+	Data3D<Vesselness_All> vn_all; 
+	vn_all.load( "data/roi16.partial.vn_all" );
+	MST::Graph3D<Edge> tree2; 
+	MST::edge_tracing( vn_all, tree2, 0.55f, 0.055f );
+	viwer.addObject( tree2 );
+	
 
-	//GLViewer::go( objs );
-
-
-	//Image3D<short> im_short;
-	//im_short.load( "data/roi16.partial.data" );
-	//Data3D<unsigned char> im_uchar;
-	//IP::normalize( im_short, short(255) );
-	//im_short.convertTo( im_uchar ); 
-	//GLViewerExt::Volumn vObj1( im_uchar.getMat().data,
-	//	im_uchar.SX(), im_uchar.SY(), im_uchar.SZ() );
-
-	//// Compute Center Line
-	//Image3D<float> vn_float; 
-	//vn_float.load( "data/roi16.partial.sigma_to8.vn_float" );
-	//Data3D<unsigned char> vn_uchar;
-	//IP::normalize( vn_float, float(255) );
-	//vn_float.convertTo( vn_uchar ); 
-	//GLViewerExt::Volumn vObj2( vn_uchar.getMat().data,
-	//	vn_uchar.SX(), vn_uchar.SY(), vn_uchar.SZ() );
-
-	//// Computer Min Span Tree
-	//Graph< MST::Edge_Ext, MST::LineSegment > tree;
-	//MinSpanTree::build_tree_xuefeng( "data/roi16.partial.linedata.txt", tree, 250 );
-	//GLViewer::CenterLine<MST::Edge_Ext, MST::LineSegment> cObj1( tree );
-	//
-	//Image3D<Vesselness_All> vn_all; 
-	//vn_all.load( "data/roi16.partial.sigma_to8.vn_all" );
-	//MST::Graph3D<Edge> tree2; 
-	//MST::edge_tracing( vn_all, tree2, 0.55f, 0.055f );
-	//GLViewer::CenterLine<Edge> cObj2( tree2 );
-
-	//vector<GLViewer::Object*> objs;
-	//objs.push_back( &vObj1 );
-	//objs.push_back( &vObj2 );
-	//objs.push_back( &cObj1 );
-	//objs.push_back( &cObj2 );
-
-	//GLViewer::go( objs );
+	viwer.go();
 
 	return 0;
 	

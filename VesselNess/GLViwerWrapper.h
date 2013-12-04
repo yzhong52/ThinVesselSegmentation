@@ -6,44 +6,70 @@
 
 #include "Data3D.h"
 #include "Volumn.h"
+#include "MinSpanTreeWrapper.h"
 
-namespace GLViewer{
-	void MIP( Data3D<unsigned char>& im_uchar )
-	{
-		GLViewerExt::Volumn vObj( im_uchar.getMat().data, im_uchar.SX(), im_uchar.SY(), im_uchar.SZ() );
-		vector<GLViewer::Object*> objs;
-		objs.push_back( &vObj );
-		GLViewer::go( objs );
-	}
+class GLViewerExt{
+private:
+	vector<GLViewer::Object*> objs;
 
-	void MIP( Data3D<short>& im_short )
-	{
-		// normalize the data
-		IP::normalize( im_short, short(255) );
-		// convert to unsigned char
-		Data3D<unsigned char> im_uchar;
-		im_short.convertTo( im_uchar );
-		// visualize 
-		MIP( im_uchar );
-	}
-
-	void MIP( Data3D<float>& vn_float )
-	{
-		// normalize the data
-		IP::normalize( vn_float, float(255) );
-		// convert to unsigned char
-		Data3D<unsigned char> im_uchar;
-		vn_float.convertTo( im_uchar );
-		// visualize 
-		MIP( im_uchar );
+public:
+	~GLViewerExt() {
+		for( unsigned int i=0; i<objs.size(); i++ ) {
+			delete objs[i];
+			objs[i] = NULL; 
+		}
 	}
 
 	template<class T>
-	void MIP( Data3D<T>& vesselness )
+	void addObject( Data3D<T>& im_data )
 	{
-		// copy the first dimension to vn
-		Data3D<float> vn;
-		vesselness.copyDimTo( vn, 0 );
-		MIP( vn );
+		// change the data formate to unsigend char
+		Data3D<unsigned char> im_uchar;
+		IP::normalize( im_data, T(255) );
+		im_data.convertTo( im_uchar ); 
+		addObject( im_uchar );
 	}
-}
+
+	template<>
+	void addObject( Data3D<unsigned char>& im_uchar ) {
+		// copy the data
+		GLViewer::Volumn* vObj = new GLViewer::Volumn( im_uchar.getMat().data,
+			im_uchar.SX(), im_uchar.SY(), im_uchar.SZ() );
+		objs.push_back( vObj );
+	}
+
+	template<>
+	void addObject( Data3D<Vesselness_All>& vn_all ) {
+		Data3D<float> vn_float;
+		vn_all.copyDimTo( vn_float, 0 ); 
+		this->addObject( vn_float );
+	}
+	
+	template<>
+	void addObject( Data3D<Vesselness_Sig>& vn_sig ) {
+		Data3D<float> vn_float;
+		vn_sig.copyDimTo( vn_float, 0 ); 
+		this->addObject( vn_float );
+	}
+
+	template<class E, class N>
+	void addObject( Graph< E, N >& tree ) {
+		GLViewer::CenterLine<E, N> *cObj = new GLViewer::CenterLine<E, N>( tree ); 
+		objs.push_back( cObj );
+	}
+	
+	template<class E, class N>
+	void addObject( MinSpanTree::Graph3D< E, N >& tree ) {
+		GLViewer::CenterLine<E, N> *cObj = new GLViewer::CenterLine<E, N>( tree ); 
+		objs.push_back( cObj );
+	}
+
+	void go() {
+		GLViewer::go( objs );
+	}
+
+	void saveVideo() {
+		GLViewer::VideoSaver videoSaver( "output/video.avi" );
+		GLViewer::go( objs, &videoSaver );
+	}
+}; 
