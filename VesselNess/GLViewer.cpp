@@ -263,6 +263,9 @@ namespace GLViewer
 			cout << "Rednering done. Thanks you for using GLViewer. " << endl;
 			exit(0);
 		}
+		for( int i=0; i<isDisplayObject.size(); i++ ) {
+			if( isDisplayObject[i] ) obj[i]->keyboard( key );
+		}
 	}
 
 	void go( vector<Object*> objects, VideoSaver* video )

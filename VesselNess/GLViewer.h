@@ -13,6 +13,8 @@ namespace GLViewer
 		virtual void init(void) { };
 		// render function for OpenGL
 		virtual void render(void) = 0;
+		// keyboard function for OpenGL
+		virtual void keyboard(unsigned char key ) { }
 		// size of the object
 		virtual unsigned int size_x(void) const = 0;
 		virtual unsigned int size_y(void) const = 0;
