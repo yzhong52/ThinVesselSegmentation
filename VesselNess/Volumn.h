@@ -259,6 +259,7 @@ namespace GLViewer
 				// visualizing the data with maximum intensity projection
 				glBindTexture(GL_TEXTURE_3D, texture);
 				glBegin(GL_QUADS);
+				glColor3f( 1.0f, 1.0f, 1.0f );
 				for( float i=0; i<=sz; i+=1.25f ) {
 					glTexCoord3f( 0.0f,               0.0f,               1.0f*i/texture_sz ); glVertex3f( 0.0f,    0.0f,    i );
 					glTexCoord3f( 1.0f*sx/texture_sx, 0.0f,               1.0f*i/texture_sz ); glVertex3f( 1.0f*sx, 0.0f,    i );
@@ -302,7 +303,6 @@ namespace GLViewer
 				}
 				glEnd();
 				glBindTexture( GL_TEXTURE_3D, NULL );
-
 
 				// draw the boundary of the cross section
 				glColor3f( 0.8f, 0.0f, 0.0f );

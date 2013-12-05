@@ -84,6 +84,8 @@ namespace GLViewer
 	
 	VideoSaver* videoSaver = NULL;
 
+	bool isAxis = false;
+
 	void render(void)									// Here's Where We Do All The Drawing
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	// Clear The Screen And The Depth Buffer
@@ -99,8 +101,9 @@ namespace GLViewer
 			if( isDisplayObject[i] ) obj[i]->render();
 		}
 
-		glTranslatef( t[0], t[1], t[2] );
 		if( videoSaver ) videoSaver->saveBuffer();
+
+		glTranslatef( t[0], t[1], t[2] );
 		// Update Rotation Centre
 		glRotatef( xrot * elapsedTick, vec_y[0], vec_y[1], vec_y[2] );
 		rotate_axis( vec_y[0], vec_y[1], vec_y[2], 
@@ -111,11 +114,12 @@ namespace GLViewer
 			vec_y[0], vec_y[1], vec_y[2],
 			vec_y[0], vec_y[1], vec_y[2], -yrot * elapsedTick );
 		// Draw Rotation Center with two axis
-		glBegin(GL_LINES);
-		glColor3f( 1.0, 0.0, 0.0 ); glVertex3i(  0,  0,  0 ); glVertex3f( vec_y[0]*10, vec_y[1]*10, vec_y[2]*10 );
-		glColor3f( 0.0, 1.0, 0.0 ); glVertex3i(  0,  0,  0 ); glVertex3f( vec_x[0]*10, vec_x[1]*10, vec_x[2]*10 );
-		glEnd();
-		glColor3f( 1.0, 1.0, 1.0 );
+		if( isAxis ) { 
+			glBegin(GL_LINES);
+			glColor3f( 1.0, 0.0, 0.0 ); glVertex3i(  0,  0,  0 ); glVertex3f( vec_y[0]*10, vec_y[1]*10, vec_y[2]*10 );
+			glColor3f( 0.0, 1.0, 0.0 ); glVertex3i(  0,  0,  0 ); glVertex3f( vec_x[0]*10, vec_x[1]*10, vec_x[2]*10 );
+			glEnd();
+		}
 		glTranslatef( -t[0], -t[1], -t[2] );
 
 		glutSwapBuffers();
@@ -240,8 +244,15 @@ namespace GLViewer
 		} 
 
 		// additional key board control for objects
-		for( int i=0; i<isDisplayObject.size(); i++ ) {
-			if( isDisplayObject[i] ) obj[i]->keyboard( key );
+		if( key =='q' || key =='Q' && 0<obj.size() ) obj[0]->keyboard( '\t' );
+		if( key =='w' || key =='W' && 1<obj.size() ) obj[1]->keyboard( '\t' );
+		if( key =='e' || key =='E' && 2<obj.size() ) obj[2]->keyboard( '\t' );
+		if( key =='r' || key =='R' && 3<obj.size() ) obj[3]->keyboard( '\t' );
+		if( key =='t' || key =='T' && 4<obj.size() ) obj[4]->keyboard( '\t' );
+		
+		// TAB to toggle on/off the axis
+		if( key =='\t' ) {
+			isAxis = !isAxis;
 		}
 
 		switch (key) 
