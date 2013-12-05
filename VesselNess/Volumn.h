@@ -113,8 +113,8 @@ namespace GLViewer
 				if( mode==0x01 ) {
 					mode = 0x02;
 					// Disable Blending For Maximum Intensity Projection
-					glBlendFunc( GL_ONE, GL_ZERO);  // TODO: NOT WORKING
-					glBlendEquation( GL_FUNC_ADD ); // TODO: NOT WORKING
+					//glBlendFunc( GL_ONE, GL_ZERO);  // TODO: MAYBE NOT WORKING
+					//glBlendEquation( GL_FUNC_ADD ); // TODO: MAYBE NOT WORKING
 				} else{
 					mode = 0x01;
 					// Enable Blending For Maximum Intensity Projection
@@ -256,6 +256,7 @@ namespace GLViewer
 			static char THREE = 0x4;
 
 			if( mode & ONE ) {
+				// visualizing the data with maximum intensity projection
 				glBindTexture(GL_TEXTURE_3D, texture);
 				glBegin(GL_QUADS);
 				for( float i=0; i<=sz; i+=1.25f ) {
@@ -301,6 +302,15 @@ namespace GLViewer
 				}
 				glEnd();
 				glBindTexture( GL_TEXTURE_3D, NULL );
+
+
+				// draw the boundary of the cross section
+				glColor3f( 0.8f, 0.0f, 0.0f );
+				glBegin( GL_LINE_LOOP );
+				for( int i=0; i<points.size(); i++ ) {
+					glVertex3f( points[i].x, points[i].y, points[i].z ); 
+				}
+				glEnd();
 
 				// draw the boundary of the box
 				glColor3f( 0.0f, 0.0f, 0.8f );
