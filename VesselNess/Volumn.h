@@ -17,6 +17,7 @@ namespace GLViewer
 {
 	// rendering object with Maximum Intenstiy Projection
 	class Volumn : public GLViewer::Object {
+		char mode; // display mode
 		/////////////////////////////////////////
 		// Data
 		///////////////////////
@@ -54,8 +55,12 @@ namespace GLViewer
 			memset( data, 0, sizeof(unsigned char) * texture_size );
 			for( int z=0;z<sz;z++ ) for( int y=0;y<sy;y++ ) for( int x=0; x<sx; x++ ) {
 				data[ z*texture_sy*texture_sx + y*texture_sx + x] = im_data[ z*sy*sx + y*sx + x];
-			}	
+			}
+
+			mode = 0x1;
 		}
+
+
 
 		~Volumn() {
 			if(data){
@@ -89,7 +94,6 @@ namespace GLViewer
 			glEnable(GL_BLEND);
 			glBlendEquationEXT( GL_MAX_EXT ); // Enable Blending For Maximum Intensity Projection
 
-
 			// Use GL_NEAREST to see the voxels
 			glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR ); 
 			glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -103,30 +107,94 @@ namespace GLViewer
 			glHint (GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 		}
 
-		void render(void){
-			glBindTexture(GL_TEXTURE_3D, texture);
-			glBegin(GL_QUADS);
-			for( float i=0; i<=sz; i+=1.25f ) {
-				glTexCoord3f( 0.0f,               0.0f,               1.0f*i/texture_sz ); glVertex3f( 0.0f,    0.0f,    i );
-				glTexCoord3f( 1.0f*sx/texture_sx, 0.0f,               1.0f*i/texture_sz ); glVertex3f( 1.0f*sx, 0.0f,    i );
-				glTexCoord3f( 1.0f*sx/texture_sx, 1.0f*sy/texture_sy, 1.0f*i/texture_sz ); glVertex3f( 1.0f*sx, 1.0f*sy, i );
-				glTexCoord3f( 0.0f,               1.0f*sy/texture_sy, 1.0f*i/texture_sz ); glVertex3f( 0.0f,    1.0f*sy, i );
+		virtual void keyboard(unsigned char key ) {
+			if ( key == '\t' ) { /*TAB key*/
+				if( mode==0x01 ) {
+					mode = 0x02;
+				} else{
+					mode = 0x01;
+				}
 			}
-			for( float i=0; i<=sy; i+=1.25f ) {
-				glTexCoord3f( 0.0f,               1.0f*i/texture_sy, 0.0f );               glVertex3f( 0.0f,    i, 0.0f );
-				glTexCoord3f( 1.0f*sx/texture_sx, 1.0f*i/texture_sy, 0.0f );               glVertex3f( 1.0f*sx, i, 0.0f );
-				glTexCoord3f( 1.0f*sx/texture_sx, 1.0f*i/texture_sy, 1.0f*sz/texture_sz ); glVertex3f( 1.0f*sx, i, 1.0f*sz );
-				glTexCoord3f( 0.0f,               1.0f*i/texture_sy, 1.0f*sz/texture_sz ); glVertex3f( 0.0f,    i, 1.0f*sz );
-			}
-			for( float i=0; i<=sx; i+=1.25f ) {
-				glTexCoord3f( 1.0f*i/texture_sx, 0.0f,               0.0f );               glVertex3f( i, 0.0f,    0.0f );
-				glTexCoord3f( 1.0f*i/texture_sx, 1.0f*sy/texture_sy, 0.0f );               glVertex3f( i, 1.0f*sy, 0.0f );
-				glTexCoord3f( 1.0f*i/texture_sx, 1.0f*sy/texture_sy, 1.0f*sz/texture_sz ); glVertex3f( i, 1.0f*sy, 1.0f*sz );
-				glTexCoord3f( 1.0f*i/texture_sx, 0.0f,               1.0f*sz/texture_sz ); glVertex3f( i, 0.0f,    1.0f*sz );
-			}
-			glEnd();
+		}
 
-			glBindTexture( GL_TEXTURE_3D, NULL );
+		void render(void){
+			static char ONE = 0x1;
+			static char TWO = 0x2;
+			static char THREE = 0x4;
+			if( mode & ONE ) {
+				glBindTexture(GL_TEXTURE_3D, texture);
+				glBegin(GL_QUADS);
+				for( float i=0; i<=sz; i+=1.25f ) {
+					glTexCoord3f( 0.0f,               0.0f,               1.0f*i/texture_sz ); glVertex3f( 0.0f,    0.0f,    i );
+					glTexCoord3f( 1.0f*sx/texture_sx, 0.0f,               1.0f*i/texture_sz ); glVertex3f( 1.0f*sx, 0.0f,    i );
+					glTexCoord3f( 1.0f*sx/texture_sx, 1.0f*sy/texture_sy, 1.0f*i/texture_sz ); glVertex3f( 1.0f*sx, 1.0f*sy, i );
+					glTexCoord3f( 0.0f,               1.0f*sy/texture_sy, 1.0f*i/texture_sz ); glVertex3f( 0.0f,    1.0f*sy, i );
+				}
+				for( float i=0; i<=sy; i+=1.25f ) {
+					glTexCoord3f( 0.0f,               1.0f*i/texture_sy, 0.0f );               glVertex3f( 0.0f,    i, 0.0f );
+					glTexCoord3f( 1.0f*sx/texture_sx, 1.0f*i/texture_sy, 0.0f );               glVertex3f( 1.0f*sx, i, 0.0f );
+					glTexCoord3f( 1.0f*sx/texture_sx, 1.0f*i/texture_sy, 1.0f*sz/texture_sz ); glVertex3f( 1.0f*sx, i, 1.0f*sz );
+					glTexCoord3f( 0.0f,               1.0f*i/texture_sy, 1.0f*sz/texture_sz ); glVertex3f( 0.0f,    i, 1.0f*sz );
+				}
+				for( float i=0; i<=sx; i+=1.25f ) {
+					glTexCoord3f( 1.0f*i/texture_sx, 0.0f,               0.0f );               glVertex3f( i, 0.0f,    0.0f );
+					glTexCoord3f( 1.0f*i/texture_sx, 1.0f*sy/texture_sy, 0.0f );               glVertex3f( i, 1.0f*sy, 0.0f );
+					glTexCoord3f( 1.0f*i/texture_sx, 1.0f*sy/texture_sy, 1.0f*sz/texture_sz ); glVertex3f( i, 1.0f*sy, 1.0f*sz );
+					glTexCoord3f( 1.0f*i/texture_sx, 0.0f,               1.0f*sz/texture_sz ); glVertex3f( i, 0.0f,    1.0f*sz );
+				}
+				glEnd();
+				glBindTexture( GL_TEXTURE_3D, NULL );
+			}
+
+
+			if( mode & TWO && false ) {
+				GLfloat vec_z[3];
+				vec_z[0] = vec_x[1]*vec_y[2] - vec_x[2]*vec_y[1]; 
+				vec_z[1] = vec_x[2]*vec_y[0] - vec_x[0]*vec_y[2]; 
+				vec_z[2] = vec_x[0]*vec_y[1] - vec_x[1]*vec_y[0]; 
+				glBindTexture(GL_TEXTURE_3D, texture);
+				glBegin(GL_QUADS);
+				for( int i=0; i<=0; i++ ) {
+					// lower left
+					glTexCoord3f(
+						(t[0]-vec_x[0]*sx*2-vec_y[0]*sy*2-vec_z[0]*i)/texture_sx,
+						(t[1]-vec_x[1]*sx*2-vec_y[1]*sy*2-vec_z[0]*i)/texture_sy,
+						(t[2]-vec_x[2]*sx*2-vec_y[2]*sy*2-vec_z[0]*i)/texture_sz );
+					glVertex3f( 
+						(t[0]-vec_x[0]*sx*2-vec_y[0]*sy*2-vec_z[0]*i),
+						(t[1]-vec_x[1]*sx*2-vec_y[1]*sy*2-vec_z[0]*i),
+						(t[2]-vec_x[2]*sx*2-vec_y[2]*sy*2-vec_z[0]*i) );
+					// lower right
+					glTexCoord3f(
+						(t[0]+vec_x[0]*sx*2-vec_y[0]*sy*2-vec_z[0]*i)/texture_sx,
+						(t[1]+vec_x[1]*sx*2-vec_y[1]*sy*2-vec_z[0]*i)/texture_sy,
+						(t[2]+vec_x[2]*sx*2-vec_y[2]*sy*2-vec_z[0]*i)/texture_sz );
+					glVertex3f( 
+						(t[0]+vec_x[0]*sx*2-vec_y[0]*sy*2-vec_z[0]*i),
+						(t[1]+vec_x[1]*sx*2-vec_y[1]*sy*2-vec_z[0]*i),
+						(t[2]+vec_x[2]*sx*2-vec_y[2]*sy*2-vec_z[0]*i) );
+					// upper right
+					glTexCoord3f(
+						(t[0]+vec_x[0]*sx*2+vec_y[0]*sy*2-vec_z[0]*i)/texture_sx,
+						(t[1]+vec_x[1]*sx*2+vec_y[1]*sy*2-vec_z[0]*i)/texture_sy,
+						(t[2]+vec_x[2]*sx*2+vec_y[2]*sy*2-vec_z[0]*i)/texture_sz );
+					glVertex3f( 
+						(t[0]+vec_x[0]*sx*2+vec_y[0]*sy*2-vec_z[0]*i),
+						(t[1]+vec_x[1]*sx*2+vec_y[1]*sy*2-vec_z[0]*i),
+						(t[2]+vec_x[2]*sx*2+vec_y[2]*sy*2-vec_z[0]*i) );
+					// uppper left
+					glTexCoord3f(
+						(t[0]-vec_x[0]*sx+vec_y[0]*sy-vec_z[0]*i)/texture_sx,
+						(t[1]-vec_x[1]*sx+vec_y[1]*sy-vec_z[0]*i)/texture_sy,
+						(t[2]-vec_x[2]*sx+vec_y[2]*sy-vec_z[0]*i)/texture_sz );
+					glVertex3f( 
+						(t[0]-vec_x[0]*sx+vec_y[0]*sy-vec_z[0]*i),
+						(t[1]-vec_x[1]*sx+vec_y[1]*sy-vec_z[0]*i),
+						(t[2]-vec_x[2]*sx+vec_y[2]*sy-vec_z[0]*i) );
+				}
+				glEnd();
+				glBindTexture( GL_TEXTURE_3D, NULL );
+			}
 		}
 
 		unsigned int size_x() const { return sx; }

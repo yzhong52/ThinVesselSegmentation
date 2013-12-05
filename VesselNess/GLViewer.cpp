@@ -3,22 +3,7 @@
 #include <iostream>
 using namespace std;
 
-/////////////////////////////////////
-// Glew Library 
-// For Texture 3D and Blending_Ext
-#include "gl\glew.h" 
-#pragma comment(lib, "glew32.lib")
 
-/////////////////////////////////////
-// OpenGL Library
-#include <windows.h>		// Header File For Windows
-#include <gl\gl.h>			// Header File For The OpenGL32 Library
-#include <gl\glu.h>			// Header File For The GLu32 Library
-
-/////////////////////////////////////
-// Glut Library
-#include "GL\freeglut.h"
-#pragma comment(lib, "freeglut.lib")
 
 #include <time.h>
 
@@ -247,12 +232,18 @@ namespace GLViewer
 
 	void keyboard(unsigned char key, int x, int y)
 	{
-		if( key >= '0' && key <= '9' ){
-			int index = key - '0';
+		if( key >= '1' && key <= '9' ){
+			int index = key - '1';
 			if( index < isDisplayObject.size() ) {
 				isDisplayObject[index] = !isDisplayObject[index];
 			}
 		} 
+
+		// additional key board control for objects
+		for( int i=0; i<isDisplayObject.size(); i++ ) {
+			if( isDisplayObject[i] ) obj[i]->keyboard( key );
+		}
+
 		switch (key) 
 		{
 		case ' ': 
@@ -262,9 +253,6 @@ namespace GLViewer
 		case 27:
 			cout << "Rednering done. Thanks you for using GLViewer. " << endl;
 			exit(0);
-		}
-		for( int i=0; i<isDisplayObject.size(); i++ ) {
-			if( isDisplayObject[i] ) obj[i]->keyboard( key );
 		}
 	}
 

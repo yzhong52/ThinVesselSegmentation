@@ -1,9 +1,24 @@
 #pragma once
 
-#include <vector>
-using namespace std;
+/////////////////////////////////////
+// Glew Library 
+#include "gl\glew.h"  // For Texture 3D and Blending_Ext
+#pragma comment(lib, "glew32.lib")
+
+/////////////////////////////////////
+// OpenGL Library
+#include <windows.h>		// Header File For Windows
+#include <gl\gl.h>			// Header File For The OpenGL32 Library
+#include <gl\glu.h>			// Header File For The GLu32 Library
+
+/////////////////////////////////////
+// Glut Library
+#include "GL\freeglut.h"
+#pragma comment(lib, "freeglut.lib")
+
 
 #include "VideoSaver.h"
+#include <vector>
 
 namespace GLViewer
 {
@@ -21,7 +36,11 @@ namespace GLViewer
 		virtual unsigned int size_z(void) const = 0;
 	}; 
 
-	void go( vector<Object*> objects, VideoSaver* videoSaver = NULL ); 
+	// camera infos
+	extern GLfloat vec_y[3];
+	extern GLfloat vec_x[3];
+	extern GLfloat t[3];
+	void go( std::vector<Object*> objects, VideoSaver* videoSaver = NULL ); 
 
 	// TODO: to visualized color texture
 }
