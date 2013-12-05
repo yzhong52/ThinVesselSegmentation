@@ -89,12 +89,13 @@ namespace GLViewer
 
 			//////////////////////////////////////
 			// Set up OpenGL
-			glEnable( GL_TEXTURE_3D ); // Enable Texture Mapping
-			glBlendFunc(GL_ONE, GL_ONE);
+			
 			glEnable(GL_BLEND);
+			glBlendFunc(GL_ONE, GL_ONE);
 			glBlendEquationEXT( GL_MAX_EXT ); // Enable Blending For Maximum Intensity Projection
 
 			// Use GL_NEAREST to see the voxels
+			glEnable( GL_TEXTURE_3D ); // Enable Texture Mapping
 			glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR ); 
 			glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			// Sets the wrap parameter for texture coordinate
@@ -111,16 +112,149 @@ namespace GLViewer
 			if ( key == '\t' ) { /*TAB key*/
 				if( mode==0x01 ) {
 					mode = 0x02;
+					// Disable Blending For Maximum Intensity Projection
+					glBlendFunc( GL_ONE, GL_ZERO);  // TODO: NOT WORKING
+					glBlendEquation( GL_FUNC_ADD ); // TODO: NOT WORKING
 				} else{
 					mode = 0x01;
+					// Enable Blending For Maximum Intensity Projection
+					glBlendFunc(GL_ONE, GL_ONE);
+					glBlendEquationEXT( GL_MAX_EXT ); 
 				}
 			}
+		}
+
+		struct Vec3f{
+			float x, y, z;
+			Vec3f( float x=0, float y=0, float z=0 ) : x(x), y(y), z(z) { }
+			inline float dot( const Vec3f& v ) const { return x * v.x + y * v.y + z * v.z; }
+			inline Vec3f cross( const Vec3f& v ) const {
+				Vec3f res;
+				res.x = y * v.z - z * v.y; 
+				res.y = z * v.x - x * v.z; 
+				res.z = x * v.y - y * v.x; 
+				return res;
+			}
+			inline Vec3f operator-( const Vec3f& v) const { return Vec3f( x-v.x, y-v.y, z-v.z); }
+			inline Vec3f operator+( const Vec3f& v) const { return Vec3f( x+v.x, y+v.y, z+v.z); }
+			inline Vec3f operator*( const float& v) const { return Vec3f( v*x, v*y, v*z );      }
+			inline float length() const { return sqrt(x*x + y*y + z*z); }
+		}; 
+
+		vector<Vec3f> intersectPoints( const Vec3f& center, const Vec3f& norm )
+		{
+			float t;
+			vector<Vec3f> result;
+			if( abs(norm.z) > 1.0e-3 ) {
+				// (0, 0, t)
+				t = center.dot(norm);
+				t /= norm.z;
+				if( t>=0 && t<=sz ) result.push_back( Vec3f(0,0,t) );
+				// (0, sy, t)
+				t = center.dot(norm)- norm.y * sy;
+				t /= norm.z;
+				if( t>=0 && t<=sz ) result.push_back( Vec3f(0,(float)sy,t) );
+				// (sx, 0, t)
+				t = center.dot(norm) - norm.x * sx;
+				t /= norm.z;
+				if( t>=0 && t<=sz ) result.push_back( Vec3f((float)sx,0,t) );
+				// (sx, sy, t)
+				t = center.dot(norm) - norm.y * sy - norm.x * sx;
+				t /= norm.z;
+				if( t>=0 && t<=sz ) result.push_back( Vec3f((float)sx,(float)sy,t) );
+			}
+
+			if( abs(norm.y) > 1.0e-3 ) {
+				// (0, t, 0)
+				t = center.dot(norm);
+				t /= norm.y;
+				if( t>=0 && t<=sy ) result.push_back( Vec3f(0,t,0) );
+				// (sx, t, 0)
+				t = center.dot(norm) - norm.x * sx;
+				t /= norm.y;
+				if( t>=0 && t<=sy ) result.push_back( Vec3f((float)sx,t,0) );
+				// (0, t, sz)
+				t = center.dot(norm) - norm.z * sz;
+				t /= norm.y;
+				if( t>=0 && t<=sy ) result.push_back( Vec3f(0,t,(float)sz) );
+				// (sx, t, sz)
+				t = center.dot(norm) - norm.z * sz - norm.x * sx;
+				t /= norm.y;
+				if( t>=0 && t<=sy ) result.push_back( Vec3f((float)sx,t,(float)sz) );
+			}
+
+			if( abs(norm.x) > 1.0e-3 ) {
+				// (t, 0, 0)
+				t = center.dot(norm);
+				t /= norm.x;
+				if( t>=0 && t<=sx ) result.push_back( Vec3f(t,0,0) );
+				// (t, sy, 0)
+				t = center.dot(norm) - norm.y * sy;
+				t /= norm.x;
+				if( t>=0 && t<=sx ) result.push_back( Vec3f(t,(float)sy,0) );
+				// (t, 0, sz)
+				t = center.dot(norm) - norm.z * sz;
+				t /= norm.x;
+				if( t>=0 && t<=sx ) result.push_back( Vec3f(t,0,(float)sz) );
+				// (t, sy, sz)
+				t = center.dot(norm) - norm.y * sy - norm.z * sz;
+				t /= norm.x;
+				if( t>=0 && t<=sx ) result.push_back( Vec3f(t,(float)sy,(float)sz) );
+			}
+
+			
+			if( result.size()<=2 ) {
+				result.clear();
+			} else if( result.size()==3 ) {
+				// don't need to do anything
+			} else if( result.size()<=6 ) {
+				// sort them based on signed angle:
+				// http://stackoverflow.com/questions/20387282/compute-the-cross-section-of-a-cube
+
+				Vec3f centroid(0,0,0);
+				for( int i=0; i<result.size(); i++ ) {
+					centroid.x += result[i].x;
+					centroid.y += result[i].y;
+					centroid.z += result[i].z;
+				}
+				centroid.x /= result.size(); 
+				centroid.y /= result.size(); 
+				centroid.z /= result.size(); 
+
+				// We are not using the first index
+				static float angles[6];
+				static Vec3f va[6];
+				for( int i=0; i<result.size(); i++ ) {
+					va[i] = result[i] - centroid;
+					float dotproduct = va[0].dot( va[i] )/( va[i].length()*va[0].length() );
+					dotproduct = max( -1, min( 1, dotproduct) );
+					angles[i] = acos( dotproduct );
+					if( abs( angles[i] ) < 1e-3 ) continue;
+
+					Vec3f cross = va[0].cross( va[i] );
+					if( cross.dot( norm ) < 0 ) {
+						angles[i] = -angles[i];
+					}
+				}
+				for( int i=0; i<result.size(); i++ ) {
+					for( int j=i+1; j<result.size(); j++ ) {
+						if( angles[i] < angles[j] ) {
+							std::swap( angles[i], angles[j] );
+							std::swap( result[i], result[j] );
+						}
+					}
+				}
+			} else {
+				cout << "Error (Volumn.h): There are at most six points" << endl;
+			}
+			return result;
 		}
 
 		void render(void){
 			static char ONE = 0x1;
 			static char TWO = 0x2;
 			static char THREE = 0x4;
+
 			if( mode & ONE ) {
 				glBindTexture(GL_TEXTURE_3D, texture);
 				glBegin(GL_QUADS);
@@ -147,53 +281,50 @@ namespace GLViewer
 			}
 
 
-			if( mode & TWO && false ) {
-				GLfloat vec_z[3];
-				vec_z[0] = vec_x[1]*vec_y[2] - vec_x[2]*vec_y[1]; 
-				vec_z[1] = vec_x[2]*vec_y[0] - vec_x[0]*vec_y[2]; 
-				vec_z[2] = vec_x[0]*vec_y[1] - vec_x[1]*vec_y[0]; 
+			if( mode & TWO ) {
+				Vec3f center, vz;
+				center.x = t[0]; center.y = t[1]; center.z = t[2];
+				vz.x = vec_x[1]*vec_y[2] - vec_x[2]*vec_y[1]; 
+				vz.y = vec_x[2]*vec_y[0] - vec_x[0]*vec_y[2]; 
+				vz.z = vec_x[0]*vec_y[1] - vec_x[1]*vec_y[0]; 
+				vector<Vec3f> points = intersectPoints( center, vz );
+
+				glColor3f( 1.0f, 1.0f, 1.0f );
 				glBindTexture(GL_TEXTURE_3D, texture);
-				glBegin(GL_QUADS);
-				for( int i=0; i<=0; i++ ) {
-					// lower left
+				glBegin( GL_TRIANGLE_FAN );
+				for( int i=0; i<points.size(); i++ ) {
 					glTexCoord3f(
-						(t[0]-vec_x[0]*sx*2-vec_y[0]*sy*2-vec_z[0]*i)/texture_sx,
-						(t[1]-vec_x[1]*sx*2-vec_y[1]*sy*2-vec_z[0]*i)/texture_sy,
-						(t[2]-vec_x[2]*sx*2-vec_y[2]*sy*2-vec_z[0]*i)/texture_sz );
-					glVertex3f( 
-						(t[0]-vec_x[0]*sx*2-vec_y[0]*sy*2-vec_z[0]*i),
-						(t[1]-vec_x[1]*sx*2-vec_y[1]*sy*2-vec_z[0]*i),
-						(t[2]-vec_x[2]*sx*2-vec_y[2]*sy*2-vec_z[0]*i) );
-					// lower right
-					glTexCoord3f(
-						(t[0]+vec_x[0]*sx*2-vec_y[0]*sy*2-vec_z[0]*i)/texture_sx,
-						(t[1]+vec_x[1]*sx*2-vec_y[1]*sy*2-vec_z[0]*i)/texture_sy,
-						(t[2]+vec_x[2]*sx*2-vec_y[2]*sy*2-vec_z[0]*i)/texture_sz );
-					glVertex3f( 
-						(t[0]+vec_x[0]*sx*2-vec_y[0]*sy*2-vec_z[0]*i),
-						(t[1]+vec_x[1]*sx*2-vec_y[1]*sy*2-vec_z[0]*i),
-						(t[2]+vec_x[2]*sx*2-vec_y[2]*sy*2-vec_z[0]*i) );
-					// upper right
-					glTexCoord3f(
-						(t[0]+vec_x[0]*sx*2+vec_y[0]*sy*2-vec_z[0]*i)/texture_sx,
-						(t[1]+vec_x[1]*sx*2+vec_y[1]*sy*2-vec_z[0]*i)/texture_sy,
-						(t[2]+vec_x[2]*sx*2+vec_y[2]*sy*2-vec_z[0]*i)/texture_sz );
-					glVertex3f( 
-						(t[0]+vec_x[0]*sx*2+vec_y[0]*sy*2-vec_z[0]*i),
-						(t[1]+vec_x[1]*sx*2+vec_y[1]*sy*2-vec_z[0]*i),
-						(t[2]+vec_x[2]*sx*2+vec_y[2]*sy*2-vec_z[0]*i) );
-					// uppper left
-					glTexCoord3f(
-						(t[0]-vec_x[0]*sx+vec_y[0]*sy-vec_z[0]*i)/texture_sx,
-						(t[1]-vec_x[1]*sx+vec_y[1]*sy-vec_z[0]*i)/texture_sy,
-						(t[2]-vec_x[2]*sx+vec_y[2]*sy-vec_z[0]*i)/texture_sz );
-					glVertex3f( 
-						(t[0]-vec_x[0]*sx+vec_y[0]*sy-vec_z[0]*i),
-						(t[1]-vec_x[1]*sx+vec_y[1]*sy-vec_z[0]*i),
-						(t[2]-vec_x[2]*sx+vec_y[2]*sy-vec_z[0]*i) );
+						points[i].x / texture_sx,
+						points[i].y / texture_sy,
+						points[i].z / texture_sz );
+					glVertex3f( points[i].x, points[i].y, points[i].z ); 
 				}
 				glEnd();
 				glBindTexture( GL_TEXTURE_3D, NULL );
+
+				// draw the boundary of the box
+				glColor3f( 0.0f, 0.0f, 0.8f );
+				// left borders
+				glBegin(GL_LINE_LOOP);
+				glVertex3i( 0,0,0 );
+				glVertex3i( 0,0,sz );
+				glVertex3i( 0,sy,sz );
+				glVertex3i( 0,sy,0 );
+				glEnd();
+				// right borders
+				glBegin(GL_LINE_LOOP);
+				glVertex3i( sx,0,0 );
+				glVertex3i( sx,0,sz );
+				glVertex3i( sx,sy,sz );
+				glVertex3i( sx,sy,0 );
+				glEnd();
+				// parrenl lines to x
+				glBegin(GL_LINES);
+				glVertex3i( 0,0,0 );  glVertex3i( sx,0,0 );
+				glVertex3i( 0,0,sz ); glVertex3i( sx,0,sz );
+				glVertex3i( 0,sy,sz );glVertex3i( sx,sy,sz );
+				glVertex3i( 0,sy,0 ); glVertex3i( sx,sy,0 );
+				glEnd();
 			}
 		}
 

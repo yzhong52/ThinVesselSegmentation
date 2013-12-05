@@ -331,6 +331,7 @@
   <ItemGroup>
     <ClInclude Include="CenterLine.h" />
     <ClInclude Include="Data3D.h" />
+    <ClInclude Include="DataTypes.h" />
     <ClInclude Include="DisjointSet.h" />
     <ClInclude Include="Edge.h" />
     <ClInclude Include="GLViewer.h" />

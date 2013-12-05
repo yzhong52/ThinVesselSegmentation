@@ -108,6 +108,9 @@
     <ClInclude Include="VideoSaver.h">
       <Filter>Visualization</Filter>
     </ClInclude>
+    <ClInclude Include="DataTypes.h">
+      <Filter>MinSpanTree</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ImageProcessor.cpp">
