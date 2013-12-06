@@ -83,49 +83,62 @@ namespace GLViewer
 	/////////////////////////////////////////
 	// Initial Window Size
 	///////////////////////
-	int width = 800;
+	int width = 1000;
 	int height = 800;
 	
 	VideoSaver* videoSaver = NULL;
 
 	bool isAxis = false;
 
+	void rotate_scene(void){
+		static int tick = GetTickCount();
+		static int oldtick = GetTickCount(); 
+		tick = GetTickCount(); 
+		elapsedTick = tick - oldtick;
+		oldtick = tick; 
+		// update the rotation matrix as well as the rotation axis
+		glTranslatef( t[0], t[1], t[2] );
+		glRotatef( xrot * elapsedTick, vec_y[0], vec_y[1], vec_y[2] );
+		rotate_axis( vec_y[0], vec_y[1], vec_y[2], 
+			         vec_x[0], vec_x[1], vec_x[2],
+			         vec_x[0], vec_x[1], vec_x[2], -xrot * elapsedTick );
+		glRotatef( yrot * elapsedTick, vec_x[0], vec_x[1], vec_x[2] );
+		rotate_axis( vec_x[0], vec_x[1], vec_x[2], 
+			         vec_y[0], vec_y[1], vec_y[2],
+			         vec_y[0], vec_y[1], vec_y[2], -yrot * elapsedTick );
+		glTranslatef( -t[0], -t[1], -t[2] );
+	}
+
+	void draw_axis( void ) {
+		glTranslatef( t[0], t[1], t[2] );
+		// Draw Rotation Center with two axis
+		glBegin(GL_LINES);
+		glColor3f( 1.0, 0.0, 0.0 ); glVertex3i(  0,  0,  0 ); glVertex3f( vec_y[0]*10, vec_y[1]*10, vec_y[2]*10 );
+		glColor3f( 0.0, 1.0, 0.0 ); glVertex3i(  0,  0,  0 ); glVertex3f( vec_x[0]*10, vec_x[1]*10, vec_x[2]*10 );
+		glEnd();
+		glTranslatef( -t[0], -t[1], -t[2] );
+	}
+
 	void render(void)									// Here's Where We Do All The Drawing
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	// Clear The Screen And The Depth Buffer
 
-		static int tick = GetTickCount();
-		static int oldtick = GetTickCount(); 
-
-		tick = GetTickCount(); 
-		elapsedTick = tick - oldtick;
-		oldtick = tick; 
-
+		// Viewport 1
+		glViewport (0, 0, width/2, height);
 		for( unsigned int i=0; i<obj.size(); i++ ) { 
 			if( isDisplayObject[i] ) obj[i]->render();
 		}
+		if( isAxis ) draw_axis();
 
+		// Viewport 2
+		glViewport (width/2, 0, width/2, height);
+		if( obj.size()>=1 ) obj[0]->render();
+		if( isAxis ) draw_axis();
+
+		rotate_scene();
+		
+		// saving frame buffer as video
 		if( videoSaver ) videoSaver->saveBuffer();
-
-		glTranslatef( t[0], t[1], t[2] );
-		// Update Rotation Centre
-		glRotatef( xrot * elapsedTick, vec_y[0], vec_y[1], vec_y[2] );
-		rotate_axis( vec_y[0], vec_y[1], vec_y[2], 
-			vec_x[0], vec_x[1], vec_x[2],
-			vec_x[0], vec_x[1], vec_x[2], -xrot * elapsedTick );
-		glRotatef( yrot * elapsedTick, vec_x[0], vec_x[1], vec_x[2] );
-		rotate_axis( vec_x[0], vec_x[1], vec_x[2], 
-			vec_y[0], vec_y[1], vec_y[2],
-			vec_y[0], vec_y[1], vec_y[2], -yrot * elapsedTick );
-		// Draw Rotation Center with two axis
-		if( isAxis ) { 
-			glBegin(GL_LINES);
-			glColor3f( 1.0, 0.0, 0.0 ); glVertex3i(  0,  0,  0 ); glVertex3f( vec_y[0]*10, vec_y[1]*10, vec_y[2]*10 );
-			glColor3f( 0.0, 1.0, 0.0 ); glVertex3i(  0,  0,  0 ); glVertex3f( vec_x[0]*10, vec_x[1]*10, vec_x[2]*10 );
-			glEnd();
-		}
-		glTranslatef( -t[0], -t[1], -t[2] );
-
 		glutSwapBuffers();
 	}
 
@@ -221,7 +234,7 @@ namespace GLViewer
 		glMatrixMode(GL_PROJECTION);						// Select The Projection Matrix
 		glLoadIdentity();									// Reset The Projection Matrix
 		GLfloat maxVal = max( sx, max(sy, sz) ) * 0.9f;
-		GLfloat ratio = (GLfloat)width/(GLfloat)height;
+		GLfloat ratio = (GLfloat)width/(GLfloat)height * 0.5f;
 		glOrtho( -1, 1, -1, 1, -1, 1);
 		glScalef( 1.0f/(maxVal*ratio), 1.0f/maxVal, 1.0f/maxVal );
 	}
