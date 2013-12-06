@@ -25,7 +25,7 @@ namespace MinSpanTree {
 
 	struct LineSegment{
 		float radius; 
-		std::vector<Point3D> points;
+		std::vector<Point3D> points; // the points that are assigned to this label
 		Vec3f p1, p2;
 		LineSegment( ) : p1( Vec3f(0,0,0) ), p2( Vec3f(0,0,0) ) { }
 		LineSegment(const LineSegment& l ) : p1(l.p1), p2(l.p2) { }

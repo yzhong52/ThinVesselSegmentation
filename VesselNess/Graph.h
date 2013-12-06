@@ -19,7 +19,7 @@ private:
 public:
 	// Constructor & Destructor
 	Graph( unsigned int num_node ){  nodes.resize( num_node ); }
-	Graph( Graph& g ) : nodes( g.nodes), edges( g.edges ) { }
+	Graph( Graph& g ) : nodes( g.nodes ), edges( g.edges ) { }
 	Graph( void ){ };
 	~Graph( void ){ }
 
@@ -34,6 +34,11 @@ public:
 	// add an edge to a graph
 	void add_edge( Edge_Type edge ){
 		edges.push( edge ); 
+	}
+
+	// add an node to a graph
+	void add_node( Node_Type node ){
+		nodes.push_back( node ); 
 	}
 
 	//gettters
