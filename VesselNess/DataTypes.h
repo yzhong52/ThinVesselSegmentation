@@ -10,13 +10,22 @@ namespace MinSpanTree {
 	struct Vec3f{
 		float x, y, z;
 		// constructor
-		Vec3f(const Vec3f&v = Vec3f(0,0,0) ) : x(v.x), y(v.y), z(v.z) { }
-		Vec3f( float x, float y, float z ) : x(x), y(y), z(z) { }
+		Vec3f(const Vec3f&v ) : x(v.x), y(v.y), z(v.z) { }
+		Vec3f( float x=0, float y=0, float z=0 ) : x(x), y(y), z(z) { }
+		
 		// operator
 		const float dot( const Vec3f& v ) const { return x * v.x + y * v.y + z * v.z; } 
 		inline Vec3f operator-( const Vec3f& v) const { return Vec3f( x-v.x, y-v.y, z-v.z); }
 		inline Vec3f operator+( const Vec3f& v) const { return Vec3f( x+v.x, y+v.y, z+v.z); }
 		inline Vec3f operator*( const float& v) const { return Vec3f( v*x, v*y, v*z );      }
+		inline Vec3f cross( const Vec3f& v ) const {
+			Vec3f res;
+			res.x = y * v.z - z * v.y; 
+			res.y = z * v.x - x * v.z; 
+			res.z = x * v.y - y * v.x; 
+			return res;
+		}
+		inline float length() const { return sqrt(x*x + y*y + z*z); }
 	};
 
 	struct Point3D {

@@ -7,6 +7,7 @@
 #include "Data3D.h"
 #include "Volumn.h"
 #include "MinSpanTreeWrapper.h"
+#include "CenterLine.h"
 
 class GLViewerExt{
 private:
@@ -53,9 +54,12 @@ public:
 	}
 
 	template<class E, class N>
-	void addObject( Graph< E, N >& tree ) {
+	GLViewer::CenterLine<E, N>* addObject( Graph< E, N >& tree ) {
 		GLViewer::CenterLine<E, N> *cObj = new GLViewer::CenterLine<E, N>( tree ); 
 		objs.push_back( cObj );
+		// return the pointer to the rendering object so that
+		// we can have addtional configuration to it (if we want to)
+		return cObj; 
 	}
 	
 	template<class E, class N>

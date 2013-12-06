@@ -61,11 +61,8 @@ namespace MinSpanTree
 		cout << tree << endl;
 	}
 
-	bool pre_process_xuefeng( const std::string& file_name,
-		const std::string& save_file_name, 
-		/*Output*/ Graph<Edge_Ext, LineSegment>& ring, 
-		/*INPUT*/  Vec3f center_of_ring )
-	{
+
+	bool load_graph( Graph<Edge_Ext, LineSegment>& graph, const std::string& file_name ) {
 		/////////////////////////////////////////////////////////////
 		// Loading Data
 		/////////////////////////////////////////////////////////////
@@ -90,6 +87,7 @@ namespace MinSpanTree
 			return 0;
 		}
 
+		
 		// Reading Data from file
 		fin1 >> num_line1;
 		fin2 >> num_line2;
@@ -98,7 +96,6 @@ namespace MinSpanTree
 			return 0;
 		}
 		int& num_line = num_line1;
-		Graph<Edge_Ext, LineSegment> graph;
 		graph.reset( num_line1 );
 		for( int i=0; i<num_line1; i++ ) {
 			// each line segments are defined as two end points in 3d
@@ -129,7 +126,80 @@ namespace MinSpanTree
 				graph.get_node(i).points.push_back( p );
 			}
 		}
+		fin1.close();
+		fin2.close();
+		return true; 
+	}
 
+	bool save_graph( Graph<Edge_Ext, LineSegment>& graph, const std::string& file_name ) {
+		/////////////////////////////////////////////////////////////
+		// Saving Data
+		/////////////////////////////////////////////////////////////
+		// Yuchen: I am working with my collegue Xuefeng. 
+		// The data are supposed to be a bunch of line segments in 3D
+		
+		std::ofstream fout1, fout2; // Open File
+		string filename1 = file_name;
+		string filename2 = file_name;
+		filename1 += ".linedata.txt";
+		filename2 += ".models.txt";
+
+		fout1.open( filename1 );
+		fout2.open( filename2 );
+		if( !fout1.is_open() ){
+			std::cerr << "File cannot be open" << endl;
+			return 0;
+		}
+		if( !fout2.is_open() ){
+			std::cerr << "File cannot be open" << endl;
+			return 0;
+		}
+
+		
+		// Reading Data from file
+		fout1 << graph.num_nodes() << endl; 
+		fout2 << graph.num_nodes() << endl; 
+
+		for( unsigned int i=0; i<graph.num_nodes(); i++ ) {
+			// each line segments are defined as two end points in 3d
+			fout1 << graph.get_node(i).p1.x << " "; 
+			fout1 << graph.get_node(i).p1.y << " "; 
+			fout1 << graph.get_node(i).p1.z << " "; 
+			fout1 << graph.get_node(i).p2.x << " "; 
+			fout1 << graph.get_node(i).p2.y << " "; 
+			fout1 << graph.get_node(i).p2.z << endl; 
+			fout1 << graph.get_node(i).points.size() << endl;
+			for( int j=0; j<graph.get_node(i).points.size(); j++ ) {
+				MST::Point3D& p = graph.get_node(i).points[j];
+				fout1 << p.x << " "; 
+				fout1 << p.y << " "; 
+				fout1 << p.z << endl; 
+			}
+
+			fout2 << graph.get_node(i).p1.x << " "; 
+			fout2 << graph.get_node(i).p1.y << " "; 
+			fout2 << graph.get_node(i).p1.z << " "; 
+			fout2 << graph.get_node(i).p2.x << " "; 
+			fout2 << graph.get_node(i).p2.y << " "; 
+			fout2 << graph.get_node(i).p2.z << " "; 
+			fout2 << graph.get_node(i).radius << endl;
+		}
+		fout1.close();
+		fout2.close();
+		return true;
+	}
+
+	bool pre_process_xuefeng( const std::string& file_name,
+		const std::string& save_file_name, 
+		/*Output*/ Graph<Edge_Ext, LineSegment>& ring, 
+		/*INPUT*/  Vec3f center_of_ring )
+	{
+		Graph<Edge_Ext, LineSegment> graph;
+		Graph<Edge_Ext, LineSegment> graph_no_rings; 
+
+		// loading data from file
+		load_graph( graph, file_name );
+		
 		///////////////////////////////////////////////////////////////
 		// processing - rings reduction 
 		///////////////////////////////////////////////////////////////
@@ -137,22 +207,25 @@ namespace MinSpanTree
 		// 1) parallel to x-y plane
 		// 2) sigma is maller than (or equals to) 0.5
 		// 3) perpendicular to the radical direction of the rings (we know the center of the ring) 
-		for( int i=0; i<num_line1; i++ ) {
+		
+		for( unsigned int i=0; i<graph.num_nodes(); i++ ) {
 			MST::LineSegment& line = graph.get_node(i);
 			const Vec3f& p1 = line.p1;
 			const Vec3f& p2 = line.p2;
 
 			bool isRing = false;
-			if( abs(p1.z-p2.z) < 1e-3 ) { // 1) parallel to x-y plane
-				if( line.radius <= 0.5f ) {
+			if( abs(p1.z-p2.z)/((p1-p2).length()) < 0.1 ) {
+				if( line.radius <= 75.0f /*Not so usefully at the moment*/) {
 					// the center point of the line segment
 					const Vec3f p3 = (p1 + p2) * 0.5f;
-					const Vec3f dir_line = p1 - p2;
-					const Vec3f dir_radical = p3 - center_of_ring;
-					float dotproduct = dir_line.x*dir_radical.x+dir_line.y*dir_radical.y; 
-					dotproduct /= sqrt(dir_line.x*dir_line.x + dir_line.y*dir_line.y);
-					dotproduct /= sqrt(dir_radical.x*dir_radical.x + dir_radical.y*dir_radical.y);
-					if( abs(dotproduct) < 0.03 ) {
+					Vec3f dir_line = p1 - p2;
+					Vec3f dir_radical = p3 - center_of_ring;
+					dir_line.z = dir_radical.z = 0;
+
+					float dotproduct = dir_line.dot( dir_radical ); 
+					dotproduct /= dir_line.length();
+					dotproduct /= dir_radical.length();
+					if( abs(dotproduct) < 0.02 ) {
 						isRing = true; 
 					}
 				}
@@ -160,8 +233,14 @@ namespace MinSpanTree
 
 			if( isRing ) {
 				ring.add_node( line );
+			} else {
+				graph_no_rings.add_node( line );
 			}
 		}
+
+		// save the graph withour rings
+		save_graph( graph_no_rings, save_file_name );
+
 		return true;
 	}
 
@@ -170,6 +249,7 @@ namespace MinSpanTree
 		/*Input*/ float thres ) 
 	{
 		Graph<Edge_Ext, LineSegment> graph;
+		// load_graph( graph, dataname );
 
 		/////////////////////////////////////////////////////////////
 		// Loading Data
