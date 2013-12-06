@@ -305,7 +305,7 @@ namespace GLViewer
 				glBindTexture( GL_TEXTURE_3D, NULL );
 
 				// draw the boundary of the cross section
-				glColor3f( 0.8f, 0.0f, 0.0f );
+				glColor3f( 0.3f, 0.3f, 0.3f );
 				glBegin( GL_LINE_LOOP );
 				for( int i=0; i<points.size(); i++ ) {
 					glVertex3f( points[i].x, points[i].y, points[i].z ); 

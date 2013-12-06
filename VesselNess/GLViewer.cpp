@@ -58,20 +58,24 @@ namespace GLViewer
 	/////////////////////////////////////////
 	// Camera Controls by Mouse
 	///////////////////////
+	enum NavigationMode{
+		none, 
+		move_aside,
+		move_forward,
+		rotate
+	} navigationMode = none; 
 	// clicking position of the user
 	int drag_x = 0;
 	int drag_y = 0;
 	// Rotation
 	GLfloat	xrot = 0;              
 	GLfloat	yrot = 0;
-	GLboolean isRotating = false;
 	GLfloat rotate_speed = 0.001f;
 	// Rotation Axis
 	GLfloat vec_y[3] = {0, 1, 0};
 	GLfloat vec_x[3] = {1, 0, 0};
 	// Translation
 	GLfloat t[3] = { 0, 0, 0 };
-	GLboolean isTranslating = false;
 	GLfloat translate_speed = 0.2f;
 	
 	int elapsedTick = 0;
@@ -130,14 +134,14 @@ namespace GLViewer
 			static int mouse_down_x;
 			static int mouse_down_y;
 			if(state == GLUT_DOWN) {
-				isRotating = true;
+				navigationMode = rotate;
 				drag_x = x;
 				drag_y = y;
 				mouse_down_x = x;
 				mouse_down_y = y;
 			} else if( state == GLUT_UP ){
 				// stop tracking mouse move for rotating
-				isRotating = false;
+				navigationMode = none; 
 				// Stop the rotation immediately no matter what
 				// if the user click and release the mouse at the
 				// same point
@@ -148,32 +152,44 @@ namespace GLViewer
 			}
 		} else if(button == GLUT_RIGHT_BUTTON) { // mouse right button
 			if( state == GLUT_DOWN ) {
-				isTranslating = true;
+				navigationMode=move_aside; 
 				drag_x = x;
 				drag_y = y;
 			} else {
-				isTranslating = false;
+				navigationMode=none;
+			}
+		} else if( button==GLUT_MIDDLE_BUTTON ) { // center button
+			if( state == GLUT_DOWN ) {
+				navigationMode = move_forward;
+				drag_x = x;
+				drag_y = y;
+			} else {
+				navigationMode = none;
 			}
 		} else if ( button==3 ) { // mouse wheel scrolling up
 			// Zoom in
 			glTranslatef( t[0], t[1], t[2] );
 			glScalef( 1.01f, 1.01f, 1.01f );
 			glTranslatef( -t[0], -t[1], -t[2] );
+			translate_speed /= 1.01f; 
+			rotate_speed  /= 1.01f; 
 		} else if ( button==4 ) { // mouse wheel scrooling down 
 			// Zoom out
 			glTranslatef( t[0], t[1], t[2] );
 			glScalef( 0.99f, 0.99f, 0.99f );
 			glTranslatef( -t[0], -t[1], -t[2] );
+			translate_speed /= 0.99f; 
+			rotate_speed  /= 0.99f; 
 		}
 	}
 
 	void mouse_move(int x, int y) {
-		if( isRotating ) {
+		if( navigationMode == rotate ) {
 			xrot = 1.0f*(x - drag_x) * rotate_speed;
 			yrot = 1.0f*(y - drag_y) * rotate_speed;
 			glutPostRedisplay();
 		}
-		if( isTranslating ) {
+		if( navigationMode==move_aside ) {
 			GLfloat tx = -(x - drag_x) * translate_speed;
 			GLfloat ty =  (y - drag_y) * translate_speed;
 			glTranslatef( -tx*vec_x[0], -tx*vec_x[1], -tx*vec_x[2] );
@@ -184,6 +200,16 @@ namespace GLViewer
 			t[0] += ty * vec_y[0];
 			t[1] += ty * vec_y[1];
 			t[2] += ty * vec_y[2];
+		} else if( navigationMode==move_forward ) {
+			GLfloat tx = (x - drag_x) * translate_speed;
+			GLfloat ty = (y - drag_y) * translate_speed;
+			GLfloat vec_z[3];
+			vec_z[0] = vec_x[1]*vec_y[2] - vec_x[2]*vec_y[1]; 
+			vec_z[1] = vec_x[2]*vec_y[0] - vec_x[0]*vec_y[2]; 
+			vec_z[2] = vec_x[0]*vec_y[1] - vec_x[1]*vec_y[0]; 
+			t[0] += (tx+ty) * vec_z[0];
+			t[1] += (tx+ty) * vec_z[1];
+			t[2] += (tx+ty) * vec_z[2];
 		}
 		// update mouse location
 		drag_x = x;
@@ -194,7 +220,7 @@ namespace GLViewer
 	void reset_projection(void) {
 		glMatrixMode(GL_PROJECTION);						// Select The Projection Matrix
 		glLoadIdentity();									// Reset The Projection Matrix
-		GLfloat maxVal = max( sx, max(sy, sz) ) * 0.7f;
+		GLfloat maxVal = max( sx, max(sy, sz) ) * 0.9f;
 		GLfloat ratio = (GLfloat)width/(GLfloat)height;
 		glOrtho( -1, 1, -1, 1, -1, 1);
 		glScalef( 1.0f/(maxVal*ratio), 1.0f/maxVal, 1.0f/maxVal );
@@ -317,7 +343,18 @@ namespace GLViewer
 			videoSaver->init(width,height);
 		}
 
-		cout << "Redenring Begin!" << endl;
+		cout << "Redenring Begin..." << endl;
+		cout << "======================= Instructions =======================" << endl;
+		cout << "   Mouse Controls: " << endl;
+		cout << "       LEFT Button - Rotation " << endl;
+		cout << "       RIGHT Button - Translation (aside) " << endl;
+		cout << "       Middle Button - Translation (forward/backward) " << endl;
+		cout << "   Keyboard Controls: " << endl;
+		cout << "       TAB   - Toggle on/off Rotation Center " << endl;
+		cout << "       SPACE - Reset Projection Matrix " << endl;
+		cout << "       1,2,3 - Toggle on/off objects " << endl;
+		cout << "       ESC   - Exit " << endl;
+
 		glutMainLoop(); // No Code Will Be Executed After This Line
 	}
 
