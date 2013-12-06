@@ -284,6 +284,8 @@ bool Data3D<T>::load( const string& file_name ){
 template <typename T>
 bool Data3D<T>::load( const string& file_name, const Vec3i& size, bool isBigEndian, bool isLoadPartial )
 {
+	cout << "Loading Data '" << file_name << "'" << endl;
+
 	// reset size of the data
 	reset( size );
 	
@@ -317,6 +319,7 @@ bool Data3D<T>::load( const string& file_name, const Vec3i& size, bool isBigEndi
 		}
 	}
 
+	cout << "Done." << endl << endl;
 	return true;
 }
 
@@ -399,6 +402,7 @@ void Data3D<T>::show(const string& window_name, int current_slice ) const
 template<typename T>
 void Data3D<T>::save_info( const string& file_name, bool isBigEndian, const string& log  ) const {
 	string info_file = file_name + ".readme.txt";
+	cout << "Saving data information from '" << info_file << "' " << endl;
 	ofstream fout( info_file.c_str() );
 	fout << _size[0] << " ";
 	fout << _size[1] << " ";
@@ -414,6 +418,8 @@ template<typename T>
 bool Data3D<T>::load_info( const string& file_name, Vec3i& size, bool& isBigEndian ) {
 	// data info name
 	string info_file = file_name + ".readme.txt";
+	cout << "Loading data information from '" << info_file << "' " << endl;
+
 	// open file
 	ifstream fin( info_file.c_str() );
 	if( !fin.is_open() ){

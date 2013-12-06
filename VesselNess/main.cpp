@@ -154,24 +154,23 @@ int main(int argc, char* argv[])
 	im_short.load( "data/roi16.partial.data" );
 	viwer.addObject( im_short );
 
-	Data3D<Vesselness_Sig> vn_sig; 
-	vn_sig.load( "data/roi16.partial.sigma_to8.vn_sig" );
-	viwer.addObject( vn_sig );
-
-	//Graph< MST::Edge_Ext, MST::LineSegment > rings;
-	//pre_process_xuefeng( "data/roi16.partial", "data/roi16.partial.rd", rings, MST::Vec3f(234-120, 270-89, 0) );
-	//GLViewer::CenterLine<MST::Edge_Ext, MST::LineSegment> *cObj = viwer.addObject( rings );
-	//cObj->setColor( 1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f );
-	//
-	//Graph< MST::Edge_Ext, MST::LineSegment > tree;
-	//MinSpanTree::build_tree_xuefeng( "data/roi16.partial.rd", tree, 250 );
-	//viwer.addObject( tree );
-	//
-	//Data3D<Vesselness_All> vn_all; 
-	//vn_all.load( "data/roi16.partial.sigma_to8.vn_all" );
+	Data3D<Vesselness_All> vn_all;
+	vn_all.load( "data/roi16.rd.19.sigma45.vn_all" );
+	viwer.addObject( vn_all );
+	
+	Graph< MST::Edge_Ext, MST::LineSegment > rings;
+	pre_process_xuefeng( "data/roi16.partial", "data/roi16.partial.rd", rings, 
+		/*Center of Rings*/ MST::Vec3f(234-120, 270-89, 0) );
+	GLViewer::CenterLine<MST::Edge_Ext, MST::LineSegment> *cObj = viwer.addObject( rings );
+	cObj->setColor( 1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f );
+	
+	Graph< MST::Edge_Ext, MST::LineSegment > tree;
+	MinSpanTree::build_tree_xuefeng( "data/roi16.partial.rd", tree, 250 );
+	viwer.addObject( tree );
+	
 	//MST::Graph3D<Edge> tree2; 
-	//MST::edge_tracing( vn_all, tree2, 0.55f, 0.055f );
-	//viwer.addObject( tree2 );
+	//MST::edge_tracing( vn_all, tree2, 0.55f, 0.055f ); 
+	//viwer.addObject( tree2 ); 
 	
 	viwer.go();
 
