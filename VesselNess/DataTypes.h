@@ -27,8 +27,21 @@ namespace MinSpanTree {
 		float radius; 
 		std::vector<Point3D> points; // the points that are assigned to this label
 		Vec3f p1, p2;
-		LineSegment( ) : p1( Vec3f(0,0,0) ), p2( Vec3f(0,0,0) ) { }
-		LineSegment(const LineSegment& l ) : p1(l.p1), p2(l.p2) { }
+		LineSegment( ) 
+			: p1( Vec3f(0,0,0) )
+			, p2( Vec3f(0,0,0) )
+			, radius(0.0f)
+		{
+			
+		}
+		LineSegment(const LineSegment& l )
+			: p1(l.p1)
+			, p2(l.p2)
+			, points(l.points)
+			, radius(l.radius) 
+		{
+			
+		}
 		void get_distance( const Vec3f& from, 
 			/*Output*/ Vec3f& to, 
 			/*Output*/ float& distance )

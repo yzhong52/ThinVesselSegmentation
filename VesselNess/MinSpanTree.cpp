@@ -162,6 +162,7 @@ namespace MinSpanTree
 				ring.add_node( line );
 			}
 		}
+		return true;
 	}
 
 	bool build_tree_xuefeng( const std::string& dataname, 
