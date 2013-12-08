@@ -6,15 +6,12 @@ using namespace std;
 
 #include <time.h>
 
-
-
-
-
 namespace GLViewer
 {
 	// objects that need to be render
 	vector<Object*> obj;
 	vector<bool> isDisplayObject;
+	vector<bool> isDisplayObject2;
 
 	// Size of the data
 	unsigned int sx = 0;
@@ -37,22 +34,34 @@ namespace GLViewer
 	VideoSaver* videoSaver = NULL;
 
 	bool isAxis = false;
+	bool isTwoViewport = false;
 
 	void render(void)									// Here's Where We Do All The Drawing
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	// Clear The Screen And The Depth Buffer
 
-		// Viewport 1
-		glViewport (0, 0, width/2, height);
-		for( unsigned int i=0; i<obj.size(); i++ ) { 
-			if( isDisplayObject[i] ) obj[i]->render();
-		}
-		if( isAxis ) cam.draw_axis();
+		if( isTwoViewport ) {
+			// Viewport 1
+			glViewport (0, 0, width/2, height);
+			for( unsigned int i=0; i<obj.size(); i++ ) { 
+				if( isDisplayObject[i] ) obj[i]->render();
+			}
+			if( isAxis ) cam.draw_axis();
 
-		// Viewport 2
-		glViewport (width/2, 0, width/2, height);
-		if( obj.size()>=1 ) obj[0]->render();
-		if( isAxis ) cam.draw_axis();
+			// Viewport 2
+			glViewport (width/2, 0, width/2, height);
+			for( unsigned int i=0; i<obj.size(); i++ ) { 
+				if( isDisplayObject2[i] ) obj[i]->render();
+			}
+			if( isAxis ) cam.draw_axis();
+		}
+		else {
+			glViewport (0, 0, width, height);
+			for( unsigned int i=0; i<obj.size(); i++ ) { 
+				if( isDisplayObject[i] ) obj[i]->render();
+			}
+			if( isAxis ) cam.draw_axis();
+		}
 
 		cam.rotate_scene();
 		
@@ -104,6 +113,7 @@ namespace GLViewer
 		}
 	}
 
+	// the mouse_move function will only be called when at least one button of the mouse id down
 	void mouse_move(int x, int y) {
 		if( cam.getNavigationMode() == GLCamera::Rotate ) {
 			cam.setRotation( 1.0f*(x - drag_x), 1.0f*(y - drag_y) );
@@ -122,8 +132,12 @@ namespace GLViewer
 		glMatrixMode(GL_PROJECTION);						// Select The Projection Matrix
 		glLoadIdentity();									// Reset The Projection Matrix
 		GLfloat maxVal = max( sx, max(sy, sz) ) * 1.0f;
-		GLfloat ratio = (GLfloat)width / (GLfloat)height * 0.5f;
-		glOrtho( -maxVal, maxVal, -maxVal, maxVal, -maxVal, maxVal);
+		
+		GLfloat ratio = (GLfloat)width / (GLfloat)height;
+		if( isTwoViewport ) ratio *= 0.5f; 
+
+		glOrtho( -maxVal*ratio, maxVal*ratio, -maxVal, maxVal, -maxVal, maxVal);
+		glMatrixMode(GL_MODELVIEW);
 	}
 
 	void reset_modelview(void) {
@@ -135,10 +149,8 @@ namespace GLViewer
 		width = max(50, w); 
 		height = max(50, h);
 
-		// Reset Projection
-		reset_projection();
-		// Reset Model View
-		glMatrixMode(GL_MODELVIEW);
+		reset_projection(); // Reset Projection
+
 		glutPostRedisplay();
 	}
 
@@ -159,20 +171,25 @@ namespace GLViewer
 		if( key =='r' || key =='R' && 3<obj.size() ) obj[3]->keyboard( '\t' );
 		if( key =='t' || key =='T' && 4<obj.size() ) obj[4]->keyboard( '\t' );
 		
-		// TAB to toggle on/off the axis
-		if( key =='\t' ) {
-			isAxis = !isAxis;
-		}
-
 		switch (key) 
 		{
 		case ' ': 
 			reset_projection();
 			reset_modelview();
 			break;
+		case 'a': 
+			// toggle on/off the axis
+			isAxis = !isAxis;
+			break;
+		case '\t':
+			isTwoViewport = !isTwoViewport;
+			isDisplayObject2 = isDisplayObject;
+			reset_projection();
+			break;
 		case 27:
 			cout << "Rednering done. Thanks you for using GLViewer. " << endl;
 			exit(0);
+			break;
 		}
 	}
 
@@ -235,7 +252,8 @@ namespace GLViewer
 		cout << "       RIGHT Button - Translation (aside) " << endl;
 		cout << "       Middle Button - Translation (forward/backward) " << endl;
 		cout << "   Keyboard Controls: " << endl;
-		cout << "       TAB   - Toggle on/off Rotation Center " << endl;
+		cout << "       TAB   - Toggle on/off The Second Viewport" << endl;
+		cout << "       a     - Toggle on/off Rotation Center " << endl;
 		cout << "       SPACE - Reset Projection Matrix " << endl;
 		cout << "       1,2,3 - Toggle on/off objects " << endl;
 		cout << "       ESC   - Exit " << endl;
