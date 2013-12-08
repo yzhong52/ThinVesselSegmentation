@@ -49,14 +49,16 @@ public:
 	inline void translate_aside( int translate_x, int translate_y ){
 		GLfloat tx = -translate_x * translate_speed;
 		GLfloat ty =  translate_y * translate_speed;
-		glTranslatef( -tx*vec_x[0], -tx*vec_x[1], -tx*vec_x[2] );
-		glTranslatef( -ty*vec_y[0], -ty*vec_y[1], -ty*vec_y[2] );
+		// update the position of the center
 		t[0] += tx * vec_x[0];
 		t[1] += tx * vec_x[1];
 		t[2] += tx * vec_x[2];
 		t[0] += ty * vec_y[0];
 		t[1] += ty * vec_y[1];
 		t[2] += ty * vec_y[2];
+		// translate
+		glTranslatef( -tx*vec_x[0], -tx*vec_x[1], -tx*vec_x[2] );
+		glTranslatef( -ty*vec_y[0], -ty*vec_y[1], -ty*vec_y[2] );
 	}
 	inline void translate_forward( int translate_x, int translate_y ){
 		GLfloat tx = translate_x * translate_speed;
@@ -68,6 +70,8 @@ public:
 		t[0] += (tx+ty) * vec_z[0];
 		t[1] += (tx+ty) * vec_z[1];
 		t[2] += (tx+ty) * vec_z[2];
+		// translate
+		glTranslatef( -(tx+ty)*vec_z[0], -(tx+ty)*vec_z[1], -(tx+ty)*vec_z[2] );
 	}
 	inline void resetModelview( GLfloat cx, GLfloat cy, GLfloat cz ) {
 		t[0] = 0.5f * cx;
@@ -80,10 +84,9 @@ public:
 
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity(); // clear the identity matrix.
-		gluLookAt( 0, 0, 1, 0, 0, 0, 0, 1, 0 );
-
-		// move to the center of the data
-		glTranslatef(-t[0], -t[1], -t[2]); 
+		gluLookAt( t[0], t[1], t[2]+1, /*eye position*/ 
+			t[0], t[1], t[2], /*Center of the object*/ 
+			0, 1, 0 ); /*Up Vector*/ 
 
 		glutPostRedisplay();
 	}
@@ -91,8 +94,8 @@ public:
 		glTranslatef( t[0], t[1], t[2] );
 		// Draw Rotation Center with two axis
 		glBegin(GL_LINES);
-		glColor3f( 1.0, 0.0, 0.0 ); glVertex3i(  0,  0,  0 ); glVertex3f( vec_y[0]*10, vec_y[1]*10, vec_y[2]*10 );
-		glColor3f( 0.0, 1.0, 0.0 ); glVertex3i(  0,  0,  0 ); glVertex3f( vec_x[0]*10, vec_x[1]*10, vec_x[2]*10 );
+		glColor3f( 1.0, 0.0, 0.0 ); glVertex3i( 0, 0, 0 ); glVertex3f( vec_y[0]*10, vec_y[1]*10, vec_y[2]*10 );
+		glColor3f( 0.0, 1.0, 0.0 ); glVertex3i( 0, 0, 0 ); glVertex3f( vec_x[0]*10, vec_x[1]*10, vec_x[2]*10 );
 		glEnd();
 		glTranslatef( -t[0], -t[1], -t[2] );
 	}

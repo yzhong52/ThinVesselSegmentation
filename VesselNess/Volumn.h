@@ -20,7 +20,7 @@ namespace GLViewer
 {
 	// rendering object with Maximum Intenstiy Projection
 	class Volumn : public GLViewer::Object {
-		char mode; // display mode
+		bool isMIP; // Using Maximum Intensity Projection
 		/////////////////////////////////////////
 		// Data
 		///////////////////////
@@ -60,7 +60,7 @@ namespace GLViewer
 				data[ z*texture_sy*texture_sx + y*texture_sx + x] = im_data[ z*sy*sx + y*sx + x];
 			}
 
-			mode = 0x1;
+			isMIP = false;
 		}
 
 
@@ -112,19 +112,7 @@ namespace GLViewer
 		}
 
 		virtual void keyboard(unsigned char key ) {
-			if ( key == '\t' ) { /*TAB key*/
-				if( mode==0x01 ) {
-					mode = 0x02;
-					// Disable Blending For Maximum Intensity Projection
-					//glBlendFunc( GL_ONE, GL_ZERO);  // TODO: MAYBE NOT WORKING
-					//glBlendEquation( GL_FUNC_ADD ); // TODO: MAYBE NOT WORKING
-				} else{
-					mode = 0x01;
-					// Enable Blending For Maximum Intensity Projection
-					glBlendFunc(GL_ONE, GL_ONE);
-					glBlendEquationEXT( GL_MAX_EXT ); 
-				}
-			}
+			isMIP = !isMIP; 
 		}
 
 		struct Vec3f{
@@ -258,7 +246,7 @@ namespace GLViewer
 			static char TWO = 0x2;
 			static char THREE = 0x4;
 
-			if( mode & ONE ) {
+			if( isMIP ) {
 				// visualizing the data with maximum intensity projection
 				glBindTexture(GL_TEXTURE_3D, texture);
 				glBegin(GL_QUADS);
@@ -283,10 +271,9 @@ namespace GLViewer
 				}
 				glEnd();
 				glBindTexture( GL_TEXTURE_3D, NULL );
-			}
-
-
-			if( mode & TWO ) {
+			} 
+			else 
+			{
 				Vec3f center, vz;
 				center.x = cam.t[0]; center.y = cam.t[1]; center.z = cam.t[2];
 				vz.x = cam.vec_x[1]*cam.vec_y[2] - cam.vec_x[2]*cam.vec_y[1]; 

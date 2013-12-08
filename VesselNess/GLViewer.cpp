@@ -121,10 +121,9 @@ namespace GLViewer
 	void reset_projection(void) {
 		glMatrixMode(GL_PROJECTION);						// Select The Projection Matrix
 		glLoadIdentity();									// Reset The Projection Matrix
-		GLfloat maxVal = max( sx, max(sy, sz) ) * 1.41f;
-		GLfloat ratio = (GLfloat)width/(GLfloat)height * 0.5f;
-		glOrtho( -1, 1, -1, 1, -1, 1);
-		glScalef( 1.0f/(maxVal*ratio), 1.0f/maxVal, 1.0f/maxVal );
+		GLfloat maxVal = max( sx, max(sy, sz) ) * 1.0f;
+		GLfloat ratio = (GLfloat)width / (GLfloat)height * 0.5f;
+		glOrtho( -maxVal, maxVal, -maxVal, maxVal, -maxVal, maxVal);
 	}
 
 	void reset_modelview(void) {
@@ -133,11 +132,9 @@ namespace GLViewer
 
 	void reshape(int w, int h)
 	{
-		width = w; 
-		height = (h==0) ? 1 : h;
+		width = max(50, w); 
+		height = max(50, h);
 
-		// Reset The Current Viewport
-		glViewport( 0, 0, width, height );
 		// Reset Projection
 		reset_projection();
 		// Reset Model View
@@ -217,9 +214,11 @@ namespace GLViewer
 			sy = max( sy, obj[i]->size_y() );
 			sz = max( sz, obj[i]->size_z() );
 		}
+
 		// reset the modelview and projection
 		reset_projection();
 		reset_modelview();
+
 		// setting up for video captures if there is any
 		if( videoSaver ) {
 			// Initial Rotation (Do as you want ); Now it is faciton the x-y plane
