@@ -111,6 +111,9 @@
     <ClInclude Include="DataTypes.h">
       <Filter>MinSpanTree</Filter>
     </ClInclude>
+    <ClInclude Include="GLCamera.h">
+      <Filter>Visualization</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ImageProcessor.cpp">
@@ -162,6 +165,9 @@
       <Filter>Vesselness</Filter>
     </ClCompile>
     <ClCompile Include="VideoSaver.cpp">
+      <Filter>Visualization</Filter>
+    </ClCompile>
+    <ClCompile Include="GLCamera.cpp">
       <Filter>Visualization</Filter>
     </ClCompile>
   </ItemGroup>

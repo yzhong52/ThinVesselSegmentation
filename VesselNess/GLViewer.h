@@ -20,6 +20,8 @@
 #include "VideoSaver.h"
 #include <vector>
 
+class GLCamera; 
+
 namespace GLViewer
 {
 	class Object{
@@ -37,9 +39,10 @@ namespace GLViewer
 	}; 
 
 	// camera infos
-	extern GLfloat vec_y[3];
+	extern GLCamera cam;
+	/*extern GLfloat vec_y[3];
 	extern GLfloat vec_x[3];
-	extern GLfloat t[3];
+	extern GLfloat t[3];*/
 	void go( std::vector<Object*> objects, VideoSaver* videoSaver = NULL ); 
 
 	// TODO: to visualized color texture

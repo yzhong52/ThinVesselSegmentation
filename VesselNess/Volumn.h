@@ -13,6 +13,9 @@
 #include <gl\gl.h>			// Header File For The OpenGL32 Library
 #include <gl\glu.h>			// Header File For The GLu32 Library
 
+
+#include "GLCamera.h" 
+
 namespace GLViewer
 {
 	// rendering object with Maximum Intenstiy Projection
@@ -285,10 +288,10 @@ namespace GLViewer
 
 			if( mode & TWO ) {
 				Vec3f center, vz;
-				center.x = t[0]; center.y = t[1]; center.z = t[2];
-				vz.x = vec_x[1]*vec_y[2] - vec_x[2]*vec_y[1]; 
-				vz.y = vec_x[2]*vec_y[0] - vec_x[0]*vec_y[2]; 
-				vz.z = vec_x[0]*vec_y[1] - vec_x[1]*vec_y[0]; 
+				center.x = cam.t[0]; center.y = cam.t[1]; center.z = cam.t[2];
+				vz.x = cam.vec_x[1]*cam.vec_y[2] - cam.vec_x[2]*cam.vec_y[1]; 
+				vz.y = cam.vec_x[2]*cam.vec_y[0] - cam.vec_x[0]*cam.vec_y[2]; 
+				vz.z = cam.vec_x[0]*cam.vec_y[1] - cam.vec_x[1]*cam.vec_y[0]; 
 				vector<Vec3f> points = intersectPoints( center, vz );
 
 				glColor3f( 1.0f, 1.0f, 1.0f );

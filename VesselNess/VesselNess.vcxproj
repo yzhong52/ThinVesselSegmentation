@@ -334,6 +334,7 @@
     <ClInclude Include="DataTypes.h" />
     <ClInclude Include="DisjointSet.h" />
     <ClInclude Include="Edge.h" />
+    <ClInclude Include="GLCamera.h" />
     <ClInclude Include="GLViewer.h" />
     <ClInclude Include="VideoSaver.h" />
     <ClInclude Include="GLViwerWrapper.h" />
@@ -357,6 +358,7 @@
   <ItemGroup>
     <ClCompile Include="DisjointSet.cpp" />
     <ClCompile Include="Edge.cpp" />
+    <ClCompile Include="GLCamera.cpp" />
     <ClCompile Include="GLViewer.cpp" />
     <ClCompile Include="ImageProcessor.cpp" />
     <ClCompile Include="Kernel3D.cpp" />
