@@ -188,9 +188,12 @@ void save_graph( MST::Graph3D<Edge>& graph, const string& filename ) {
 
 int main(int argc, char* argv[])
 {
-	// compute_vesselness( "roi16.partial", 0.5f, 8.0f, 0.2f );
+	// Original Data (Before Rings Reduction) 
+	Data3D<short> im_short0;
+	im_short0.load( "data/roi16.partial.original.data" );
+	viwer.addObject( im_short0 );
 
-	// Original Data
+	// Original Data (After Rings Reduction) 
 	Image3D<short> im_short;
 	im_short.load( "data/roi16.partial.data" );
 	viwer.addObject( im_short );

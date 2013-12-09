@@ -10,9 +10,10 @@ namespace GLViewer
 {
 	// objects that need to be render
 	vector<Object*> obj;
-	vector<bool> isDisplayObject;
-	vector<bool> isDisplayObject2;
-
+	const int maxNumViewports = 3; 
+	int numViewports = maxNumViewports;
+	vector<bool> isDisplayObject[maxNumViewports];
+	
 	// Size of the data
 	unsigned int sx = 0;
 	unsigned int sy = 0;
@@ -28,39 +29,24 @@ namespace GLViewer
 	/////////////////////////////////////////
 	// Initial Window Size
 	///////////////////////
-	int width = 1024;
+	int width = 512 * numViewports;
 	int height = 512;
 	
 	VideoSaver* videoSaver = NULL;
 
 	bool isAxis = false;
-	bool isTwoViewport = false;
+	
 
 	void render(void)									// Here's Where We Do All The Drawing
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	// Clear The Screen And The Depth Buffer
 
 		// rending two viewports
-		if( isTwoViewport ) {
-			// Viewport 1
-			glViewport (0, 0, width/2, height);
-			for( unsigned int i=0; i<obj.size(); i++ ) { 
-				if( isDisplayObject[i] ) obj[i]->render();
-			}
-			if( isAxis ) cam.draw_axis();
-
-			// Viewport 2
-			glViewport (width/2, 0, width/2, height);
-			for( unsigned int i=0; i<obj.size(); i++ ) { 
-				if( isDisplayObject2[i] ) obj[i]->render();
-			}
-			if( isAxis ) cam.draw_axis();
-		}
-		else // rending one viewport
-		{
-			glViewport (0, 0, width, height);
-			for( unsigned int i=0; i<obj.size(); i++ ) { 
-				if( isDisplayObject[i] ) obj[i]->render();
+		for( int i=0; i<numViewports; i++ ) {
+			// For viewport i
+			glViewport (i*width/numViewports, 0, width/numViewports, height);
+			for( unsigned int j=0; j<obj.size(); j++ ) { 
+				if( isDisplayObject[i][j] ) obj[j]->render();
 			}
 			if( isAxis ) cam.draw_axis();
 		}
@@ -135,9 +121,8 @@ namespace GLViewer
 		glLoadIdentity();									// Reset The Projection Matrix
 		GLfloat maxVal = max( sx, max(sy, sz) ) * 1.0f;
 		
-		GLfloat ratio = (GLfloat)width / (GLfloat)height;
-		if( isTwoViewport ) ratio *= 0.5f; 
-
+		GLfloat ratio = (GLfloat)width / (GLfloat)height / numViewports;
+		
 		glOrtho( -maxVal*ratio, maxVal*ratio, -maxVal, maxVal, -maxVal, maxVal);
 		glMatrixMode(GL_MODELVIEW);
 	}
@@ -161,8 +146,8 @@ namespace GLViewer
 	{
 		if( key >= '1' && key <= '9' ){
 			int index = key - '1';
-			if( index < isDisplayObject.size() ) {
-				isDisplayObject[index] = !isDisplayObject[index];
+			if( index < isDisplayObject[numViewports-1].size() ) {
+				isDisplayObject[numViewports-1][index] = !isDisplayObject[numViewports-1][index];
 			}
 		} 
 
@@ -184,8 +169,7 @@ namespace GLViewer
 			isAxis = !isAxis;
 			break;
 		case '\t':
-			isTwoViewport = !isTwoViewport;
-			isDisplayObject2 = isDisplayObject;
+			numViewports = (numViewports+1)%maxNumViewports + 1; 
 			reset_projection();
 			break;
 		case 27:
@@ -199,9 +183,16 @@ namespace GLViewer
 	{
 		obj = objects; 
 		videoSaver = video;
-
-		isDisplayObject.resize( objects.size(), false );
-		isDisplayObject[0] = true;
+		for( int i=0; i<maxNumViewports; i++ ){ 
+			isDisplayObject[i].resize( objects.size(), false );
+			if(i<objects.size()) { // put the i-th object in the i-th viewport
+				isDisplayObject[i][i] = true;
+			} else {
+				isDisplayObject[i][0] = true;
+			}
+		}
+		
+		
 
 		///////////////////////////////////////////////
 		// glut Initializaitons

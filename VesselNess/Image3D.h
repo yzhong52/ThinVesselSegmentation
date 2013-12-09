@@ -323,7 +323,7 @@ bool Image3D<T>::saveROI( const string& roi_file_name, const string& log, bool i
 	for(int i=0; i<3; i++ ) fout << roi_corner[1][i] << " ";
 	fout << " - position of roi with the respect to the original data" << endl;
 
-	fout << log << endl;
+	fout << log << " - log"<< endl;
 
 	fout.close();
 
