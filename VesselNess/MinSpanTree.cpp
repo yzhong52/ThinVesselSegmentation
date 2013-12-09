@@ -333,10 +333,13 @@ namespace MinSpanTree
 				// Case 1
 				graph.get_node(i).get_distance( graph.get_node(j).p1, to, weight );
 				e.weight = weight;
+				weight -= graph.get_node(j).radius + graph.get_node(i).radius;
 				e.line.p1 = graph.get_node(j).p1;
 				e.line.p2 = to;
+
 				// Case 2
 				graph.get_node(i).get_distance( graph.get_node(j).p2, to, weight );
+				weight -= graph.get_node(j).radius + graph.get_node(i).radius;
 				if( e.weight > weight ){
 					e.weight = weight;
 					e.line.p1 = graph.get_node(j).p2;
@@ -344,6 +347,7 @@ namespace MinSpanTree
 				}
 				// Case 3
 				graph.get_node(j).get_distance( graph.get_node(i).p1, to, weight );
+				weight -= graph.get_node(j).radius + graph.get_node(i).radius;
 				if( e.weight > weight ){
 					e.weight = weight;
 					e.line.p1 = graph.get_node(i).p1;
@@ -351,14 +355,16 @@ namespace MinSpanTree
 				}
 				// Case 4
 				graph.get_node(j).get_distance( graph.get_node(i).p2, to, weight );
+				weight -= graph.get_node(j).radius + graph.get_node(i).radius;
 				if( e.weight > weight ){
 					e.weight = weight;
 					e.line.p1 = graph.get_node(i).p2;
 					e.line.p2 = to; 
 				}
 
-				if( e.weight < thres ) 
+				if( e.weight < thres ) {
 					graph.add_edge( e );
+				}
 			}
 		}
 
