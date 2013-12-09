@@ -40,6 +40,7 @@ namespace GLViewer
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	// Clear The Screen And The Depth Buffer
 
+		// rending two viewports
 		if( isTwoViewport ) {
 			// Viewport 1
 			glViewport (0, 0, width/2, height);
@@ -55,7 +56,8 @@ namespace GLViewer
 			}
 			if( isAxis ) cam.draw_axis();
 		}
-		else {
+		else // rending one viewport
+		{
 			glViewport (0, 0, width, height);
 			for( unsigned int i=0; i<obj.size(); i++ ) { 
 				if( isDisplayObject[i] ) obj[i]->render();

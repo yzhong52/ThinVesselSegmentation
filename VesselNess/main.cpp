@@ -150,27 +150,29 @@ int main(int argc, char* argv[])
 {
 	// compute_vesselness( "roi16.partial", 0.5f, 8.0f, 0.2f );
 
+	// Original Data
 	Image3D<short> im_short;
 	im_short.load( "data/roi16.partial.data" );
 	viwer.addObject( im_short );
 
-	//Data3D<Vesselness_All> vn_all;
-	//vn_all.load( "data/roi16.rd.19.sigma45.vn_all" );
-	//viwer.addObject( vn_all );
+	// Vesselness
+	Data3D<Vesselness_All> vn_all;
+	vn_all.load( "data/roi16.rd.19.sigma45.vn_all" );
+	viwer.addObject( vn_all );
 	
 	Graph< MST::Edge_Ext, MST::LineSegment > rings;
 	pre_process_xuefeng( "data/roi16.partial", "data/roi16.partial.rd", rings, 
 		/*Center of Rings*/ MST::Vec3f(234-120, 270-89, 0) );
 	GLViewer::CenterLine<MST::Edge_Ext, MST::LineSegment> *cObj = viwer.addObject( rings );
-	cObj->setColor( 1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f );
+	cObj->setColor( 1.0f, 1.0f, 0.0f,/*Yellow*/ 1.0f, 1.0f, 0.0f/*Yellow*/ );
 	
 	Graph< MST::Edge_Ext, MST::LineSegment > tree;
 	MinSpanTree::build_tree_xuefeng( "data/roi16.partial.rd", tree, 250 );
 	viwer.addObject( tree );
 	
-	//MST::Graph3D<Edge> tree2; 
-	//MST::edge_tracing( vn_all, tree2, 0.55f, 0.055f ); 
-	//viwer.addObject( tree2 ); 
+	MST::Graph3D<Edge> tree2; 
+	MST::edge_tracing( vn_all, tree2, 0.55f, 0.055f ); 
+	viwer.addObject( tree2 ); 
 	
 	viwer.go();
 
