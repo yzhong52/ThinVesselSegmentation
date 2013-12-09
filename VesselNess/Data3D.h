@@ -147,7 +147,7 @@ public:
 	// remove some margin of the data
 	// such that left_margin and right_margin are the same
 	inline bool remove_margin( const Vec3i& margin ) {
-		remove_margin( margin, margin );
+		return remove_margin( margin, margin );
 	}
 	// remove some margin of the data
 	void remove_margin( const Vec3i& margin1, const Vec3i& margin2 ) {

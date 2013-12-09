@@ -19,7 +19,7 @@ namespace MinSpanTree {
 		Graph3D( unsigned int x, unsigned int y, unsigned int z ) 
 			: Graph( x*y*z ), sx( x ) , sy( y ) , sz( z ) {  }
 		Graph3D( Graph3D& g ) 
-			: Graph( g ), sx( g.sx ) , sy( g.sx ) , sz( g.sx ) {  }
+			: Graph( g ), sx( g.sx ) , sy( g.sy ) , sz( g.sz ) {  }
 
 		// get node id from position
 		inline int nodeid(const Vec3i& pos ) {
@@ -113,14 +113,6 @@ namespace MinSpanTree {
 			}
 		}
 		
-		
-
-
-
-
-
-
-
 
 		const unsigned char ENDPOINT_YES = 255;
 		const unsigned char ENDPOINT_NO  = 144;

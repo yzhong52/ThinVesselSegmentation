@@ -238,7 +238,7 @@ namespace MinSpanTree
 			}
 		}
 
-		// save the graph withour rings
+		// save the graph without rings
 		save_graph( graph_no_rings, save_file_name );
 
 		return true;

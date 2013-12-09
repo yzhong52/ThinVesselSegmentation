@@ -146,6 +146,46 @@ void xuefeng_cut(void){
 }
 
 
+void load_graph( MST::Graph3D<Edge>& graph, const string& filename ) {
+	ifstream fin;
+	fin.open( filename );
+
+	int sx, sy, sz;
+	fin >> sx;
+	fin >> sy;
+	fin >> sz;
+
+	graph.sx = sx;
+	graph.sy = sy;
+	graph.sz = sz;
+	graph.reset( sx*sy*sz );
+
+	unsigned int num_edges;
+	fin >> num_edges; 
+	for( unsigned int i=0; i<num_edges; i++ ) {
+		Edge e;
+		fin >> e.node1;
+		fin >> e.node2;
+		fin >> e.weight;
+		graph.add_edge( e );
+	}
+}
+
+
+void save_graph( MST::Graph3D<Edge>& graph, const string& filename ) {
+	ofstream fout;
+	fout.open( filename );
+	fout << graph.sx << " ";
+	fout << graph.sy << " ";
+	fout << graph.sz << endl;
+	fout << graph.num_edges() << endl;
+	for( unsigned int i=0; i<graph.num_edges(); i++ ) {
+		fout << graph.get_edge(i).node1 << " ";
+		fout << graph.get_edge(i).node2 << " ";
+		fout << graph.get_edge(i).weight << endl;
+	}
+}
+
 int main(int argc, char* argv[])
 {
 	// compute_vesselness( "roi16.partial", 0.5f, 8.0f, 0.2f );
@@ -158,10 +198,12 @@ int main(int argc, char* argv[])
 	// Vesselness
 	Data3D<Vesselness_All> vn_all;
 	vn_all.load( "data/roi16.rd.19.sigma45.vn_all" );
+	// vn_all.load( "data/roi16.partial.sigma_to8.vn_all" );
 	viwer.addObject( vn_all );
 	
+	// Ring reduction after model fitting
 	Graph< MST::Edge_Ext, MST::LineSegment > rings;
-	pre_process_xuefeng( "data/roi16.partial", "data/roi16.partial.rd", rings, 
+	 pre_process_xuefeng( "data/roi16.partial", "data/roi16.partial.rd", rings, 
 		/*Center of Rings*/ MST::Vec3f(234-120, 270-89, 0) );
 	GLViewer::CenterLine<MST::Edge_Ext, MST::LineSegment> *cObj = viwer.addObject( rings );
 	cObj->setColor( 1.0f, 1.0f, 0.0f,/*Yellow*/ 1.0f, 1.0f, 0.0f/*Yellow*/ );
@@ -170,8 +212,11 @@ int main(int argc, char* argv[])
 	MinSpanTree::build_tree_xuefeng( "data/roi16.partial.rd", tree, 250 );
 	viwer.addObject( tree );
 	
+	cout << "Begin Edge Tracing " << endl;
 	MST::Graph3D<Edge> tree2; 
-	MST::edge_tracing( vn_all, tree2, 0.55f, 0.055f ); 
+	// MST::edge_tracing( vn_all, tree2, 0.55f, 0.015f ); 
+	// save_graph( tree2, "output/roi16.rd.19.sigma45.edge_tracing.min_span_tree.txt" );
+	load_graph( tree2, "output/roi16.rd.19.sigma45.edge_tracing.min_span_tree.txt" );
 	viwer.addObject( tree2 ); 
 	
 	viwer.go();
