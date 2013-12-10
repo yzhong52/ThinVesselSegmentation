@@ -228,7 +228,7 @@ namespace GLViewer{
 				for( unsigned int i=0; i< ptrTree->num_nodes(); i++ ) {
 					MST::LineSegment& line = ptrTree->get_node( i );
 					vector<MST::Point3D>& points = line.points;
-					for( int j=0; j<points.size(); j++ ) {
+					for( unsigned int j=0; j<points.size(); j++ ) {
 						glVertex3i( points[j].x, points[j].y, points[j].z );	
 					}
 				}

@@ -204,7 +204,7 @@ namespace GLViewer
 				// http://stackoverflow.com/questions/20387282/compute-the-cross-section-of-a-cube
 
 				Vec3f centroid(0,0,0);
-				for( int i=0; i<result.size(); i++ ) {
+				for( unsigned int i=0; i<result.size(); i++ ) {
 					centroid.x += result[i].x;
 					centroid.y += result[i].y;
 					centroid.z += result[i].z;
@@ -216,7 +216,7 @@ namespace GLViewer
 				// We are not using the first index
 				static float angles[6];
 				static Vec3f va[6];
-				for( int i=0; i<result.size(); i++ ) {
+				for( unsigned int i=0; i<result.size(); i++ ) {
 					va[i] = result[i] - centroid;
 					float dotproduct = va[0].dot( va[i] )/( va[i].length()*va[0].length() );
 					dotproduct = max( -1, min( 1, dotproduct) );
@@ -228,8 +228,8 @@ namespace GLViewer
 						angles[i] = -angles[i];
 					}
 				}
-				for( int i=0; i<result.size(); i++ ) {
-					for( int j=i+1; j<result.size(); j++ ) {
+				for( unsigned int i=0; i<result.size(); i++ ) {
+					for( unsigned int j=i+1; j<result.size(); j++ ) {
 						if( angles[i] < angles[j] ) {
 							std::swap( angles[i], angles[j] );
 							std::swap( result[i], result[j] );
@@ -285,7 +285,7 @@ namespace GLViewer
 				glColor3f( 1.0f, 1.0f, 1.0f );
 				glBindTexture(GL_TEXTURE_3D, texture);
 				glBegin( GL_TRIANGLE_FAN );
-				for( int i=0; i<points.size(); i++ ) {
+				for( unsigned int i=0; i<points.size(); i++ ) {
 					glTexCoord3f(
 						points[i].x / texture_sx,
 						points[i].y / texture_sy,
@@ -298,7 +298,7 @@ namespace GLViewer
 				// draw the boundary of the cross section
 				glColor3f( 0.3f, 0.3f, 0.3f );
 				glBegin( GL_LINE_LOOP );
-				for( int i=0; i<points.size(); i++ ) {
+				for( unsigned int i=0; i<points.size(); i++ ) {
 					glVertex3f( points[i].x, points[i].y, points[i].z ); 
 				}
 				glEnd();
@@ -378,7 +378,7 @@ namespace GLViewer
 			}
 			// the roi
 			glColor3f( 1.0f, 1.0f, 0.0f );
-			for( float i=zmin; i<=zmax; i+=1.0f ) {
+			for( float i=1.0f*zmin; i<=1.0f*zmax; i+=1.0f ) {
 				glTexCoord3f( 1.0f*xmin/texture_sx, 1.0f*ymin/texture_sx, 1.0f*i/texture_sz ); glVertex3f( 1.0f*xmin, 1.0f*ymin, i );
 				glTexCoord3f( 1.0f*xmax/texture_sx, 1.0f*ymin/texture_sx, 1.0f*i/texture_sz ); glVertex3f( 1.0f*xmax, 1.0f*ymin, i );
 				glTexCoord3f( 1.0f*xmax/texture_sx, 1.0f*ymax/texture_sy, 1.0f*i/texture_sz ); glVertex3f( 1.0f*xmax, 1.0f*ymax, i );

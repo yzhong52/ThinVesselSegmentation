@@ -145,7 +145,7 @@ namespace GLViewer
 	void keyboard(unsigned char key, int x, int y)
 	{
 		if( key >= '1' && key <= '9' ){
-			int index = key - '1';
+			unsigned int index = key - '1';
 			if( index < isDisplayObject[numViewports-1].size() ) {
 				isDisplayObject[numViewports-1][index] = !isDisplayObject[numViewports-1][index];
 			}
@@ -183,7 +183,7 @@ namespace GLViewer
 	{
 		obj = objects; 
 		videoSaver = video;
-		for( int i=0; i<maxNumViewports; i++ ){ 
+		for( unsigned int i=0; i<maxNumViewports; i++ ){ 
 			isDisplayObject[i].resize( objects.size(), false );
 			if(i<objects.size()) { // put the i-th object in the i-th viewport
 				isDisplayObject[i][i] = true;

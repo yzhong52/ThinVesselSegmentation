@@ -189,7 +189,7 @@ void save_graph( MST::Graph3D<Edge>& graph, const string& filename ) {
 int main(int argc, char* argv[])
 {
 	Image3D<short> im_vessel3d;
-	im_vessel3d.load( "data/vessel3d.data" );
+	im_vessel3d.load( "data/temp.tiny.data" );
 	Data3D<unsigned char> im_vessel3d_char;
 	IP::normalize( im_vessel3d, short(255) );
 	im_vessel3d.convertTo( im_vessel3d_char );
