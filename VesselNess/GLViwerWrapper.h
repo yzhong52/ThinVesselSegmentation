@@ -10,7 +10,7 @@
 #include "CenterLine.h"
 
 class GLViewerExt{
-private:
+public:
 	vector<GLViewer::Object*> objs;
 
 public:

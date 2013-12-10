@@ -10,7 +10,7 @@ namespace GLViewer
 {
 	// objects that need to be render
 	vector<Object*> obj;
-	const int maxNumViewports = 3; 
+	const int maxNumViewports = 1; 
 	int numViewports = maxNumViewports;
 	vector<bool> isDisplayObject[maxNumViewports];
 	

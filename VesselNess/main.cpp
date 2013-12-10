@@ -188,6 +188,22 @@ void save_graph( MST::Graph3D<Edge>& graph, const string& filename ) {
 
 int main(int argc, char* argv[])
 {
+	Image3D<short> im_vessel3d;
+	im_vessel3d.load( "data/vessel3d.data" );
+	Data3D<unsigned char> im_vessel3d_char;
+	IP::normalize( im_vessel3d, short(255) );
+	im_vessel3d.convertTo( im_vessel3d_char );
+	GLViewer::VolumnWithROI* vroi = new GLViewer::VolumnWithROI( 
+		im_vessel3d_char.getMat().data, 
+		im_vessel3d_char.SX(),
+		im_vessel3d_char.SY(),
+		im_vessel3d_char.SZ(),
+		120, 89, 468, 270, 172, 618);
+	viwer.objs.push_back( vroi );
+	viwer.go(); 
+
+	return 0;
+
 	// Original Data (Before Rings Reduction) 
 	Data3D<short> im_short0;
 	im_short0.load( "data/roi16.partial.original.data" );

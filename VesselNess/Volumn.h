@@ -35,6 +35,7 @@ namespace GLViewer
 		int sy;
 		int sz;
 		unsigned char* data;
+		friend class VolumnWithROI;
 	public:
 		Volumn( unsigned char* im_data, const int& im_x, const int& im_y, const int& im_z ) {
 			// From wikipedia: Do not forget that all 3 dimensions must be a power of 2! so your 2D textures must have 
@@ -331,5 +332,72 @@ namespace GLViewer
 		unsigned int size_x() const { return sx; }
 		unsigned int size_y() const { return sy; }
 		unsigned int size_z() const { return sz; }
+	}; 
+
+	class VolumnWithROI : public Volumn {
+	public:
+		int xmin, ymin, zmin;
+		int xmax, ymax, zmax;
+
+		VolumnWithROI( unsigned char* im_data, const int& im_x, const int& im_y, const int& im_z,
+			int xmin, int ymin, int zmin, int xmax, int ymax, int zmax ) 
+			: Volumn( im_data, im_x, im_y, im_z )
+			, xmin( xmin )
+			, ymin( ymin )
+			, zmin( zmin )
+			, xmax( xmax )
+			, ymax( ymax )
+			, zmax( zmax )
+		{
+
+		}
+
+		void render(void){
+			
+			// visualizing the data with maximum intensity projection
+			glBindTexture(GL_TEXTURE_3D, texture);
+			glBegin(GL_QUADS);
+			glColor3f( 0.5f, 0.5f, 0.5f );
+			for( float i=0; i<=sz; i+=1.0f ) {
+				glTexCoord3f( 0.0f,               0.0f,               1.0f*i/texture_sz ); glVertex3f( 0.0f,    0.0f,    i );
+				glTexCoord3f( 1.0f*sx/texture_sx, 0.0f,               1.0f*i/texture_sz ); glVertex3f( 1.0f*sx, 0.0f,    i );
+				glTexCoord3f( 1.0f*sx/texture_sx, 1.0f*sy/texture_sy, 1.0f*i/texture_sz ); glVertex3f( 1.0f*sx, 1.0f*sy, i );
+				glTexCoord3f( 0.0f,               1.0f*sy/texture_sy, 1.0f*i/texture_sz ); glVertex3f( 0.0f,    1.0f*sy, i );
+			}
+			for( float i=0; i<=sy; i+=1.0f ) {
+				glTexCoord3f( 0.0f,               1.0f*i/texture_sy, 0.0f );               glVertex3f( 0.0f,    i, 0.0f );
+				glTexCoord3f( 1.0f*sx/texture_sx, 1.0f*i/texture_sy, 0.0f );               glVertex3f( 1.0f*sx, i, 0.0f );
+				glTexCoord3f( 1.0f*sx/texture_sx, 1.0f*i/texture_sy, 1.0f*sz/texture_sz ); glVertex3f( 1.0f*sx, i, 1.0f*sz );
+				glTexCoord3f( 0.0f,               1.0f*i/texture_sy, 1.0f*sz/texture_sz ); glVertex3f( 0.0f,    i, 1.0f*sz );
+			}
+			for( float i=0; i<=sx; i+=1.0f ) {
+				glTexCoord3f( 1.0f*i/texture_sx, 0.0f,               0.0f );               glVertex3f( i, 0.0f,    0.0f );
+				glTexCoord3f( 1.0f*i/texture_sx, 1.0f*sy/texture_sy, 0.0f );               glVertex3f( i, 1.0f*sy, 0.0f );
+				glTexCoord3f( 1.0f*i/texture_sx, 1.0f*sy/texture_sy, 1.0f*sz/texture_sz ); glVertex3f( i, 1.0f*sy, 1.0f*sz );
+				glTexCoord3f( 1.0f*i/texture_sx, 0.0f,               1.0f*sz/texture_sz ); glVertex3f( i, 0.0f,    1.0f*sz );
+			}
+			// the roi
+			glColor3f( 1.0f, 1.0f, 0.0f );
+			for( float i=zmin; i<=zmax; i+=1.0f ) {
+				glTexCoord3f( 1.0f*xmin/texture_sx, 1.0f*ymin/texture_sx, 1.0f*i/texture_sz ); glVertex3f( 1.0f*xmin, 1.0f*ymin, i );
+				glTexCoord3f( 1.0f*xmax/texture_sx, 1.0f*ymin/texture_sx, 1.0f*i/texture_sz ); glVertex3f( 1.0f*xmax, 1.0f*ymin, i );
+				glTexCoord3f( 1.0f*xmax/texture_sx, 1.0f*ymax/texture_sy, 1.0f*i/texture_sz ); glVertex3f( 1.0f*xmax, 1.0f*ymax, i );
+				glTexCoord3f( 1.0f*xmin/texture_sx, 1.0f*ymax/texture_sy, 1.0f*i/texture_sz ); glVertex3f( 1.0f*xmin, 1.0f*ymax, i );
+			}
+			//for( float i=ymin; i<=ymax; i+=1.0f ) {
+			//	glTexCoord3f( 0.0f,               1.0f*i/texture_sy, 0.0f );               glVertex3f( 0.0f,    i, 0.0f );
+			//	glTexCoord3f( 1.0f*sx/texture_sx, 1.0f*i/texture_sy, 0.0f );               glVertex3f( 1.0f*sx, i, 0.0f );
+			//	glTexCoord3f( 1.0f*sx/texture_sx, 1.0f*i/texture_sy, 1.0f*sz/texture_sz ); glVertex3f( 1.0f*sx, i, 1.0f*sz );
+			//	glTexCoord3f( 0.0f,               1.0f*i/texture_sy, 1.0f*sz/texture_sz ); glVertex3f( 0.0f,    i, 1.0f*sz );
+			//}
+			//for( float i=zmin; i<=zmax; i+=1.0f ) {
+			//	glTexCoord3f( 1.0f*i/texture_sx, 0.0f,               0.0f );               glVertex3f( i, 0.0f,    0.0f );
+			//	glTexCoord3f( 1.0f*i/texture_sx, 1.0f*sy/texture_sy, 0.0f );               glVertex3f( i, 1.0f*sy, 0.0f );
+			//	glTexCoord3f( 1.0f*i/texture_sx, 1.0f*sy/texture_sy, 1.0f*sz/texture_sz ); glVertex3f( i, 1.0f*sy, 1.0f*sz );
+			//	glTexCoord3f( 1.0f*i/texture_sx, 0.0f,               1.0f*sz/texture_sz ); glVertex3f( i, 0.0f,    1.0f*sz );
+			//}
+			glEnd();
+			glBindTexture( GL_TEXTURE_3D, NULL );
+		}
 	}; 
 }
