@@ -208,7 +208,7 @@ void ImageProcessing::non_max_suppress( const Data3D<Vesselness_All>& src, Data3
 						mdi = di;// update the major direction id
 					}
 				}
-				for( int i=0; i<cross_section[mdi].size(); i++ ){
+				for( unsigned int i=0; i<cross_section[mdi].size(); i++ ){
 					int ox = x + cross_section[mdi][i][0];
 					int oy = y + cross_section[mdi][i][1];
 					int oz = z + cross_section[mdi][i][2];
