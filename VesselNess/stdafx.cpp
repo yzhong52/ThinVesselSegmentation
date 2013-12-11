@@ -102,9 +102,12 @@ long long fwrite_big( const void* _Str, size_t _Size, long long _Count, FILE* _F
 	for( ; size>page_size; size-=page_size, ptr+=page_size ){
 		size_write = fwrite( ptr, 1, page_size, _File);
 		size_write_total += size_write; 
-		if( size_write < page_size ) return size_write_total; 
+		if( size_write < page_size ){
+			// this indicates an error while writing 
+			return size_write_total; 
+		}
 	}
-	size_write = fwrite( ptr, 1, size, _File);
+	size_write = fwrite( ptr, 1, (size_t) size, _File);
 	size_write_total += size_write; 
 	return size_write_total; 
 }
@@ -119,9 +122,12 @@ long long fread_big( void* _DstBuf, size_t _ElementSize, long long _Count, FILE*
 	for( ; size>page_size; size-=page_size, ptr+=page_size ){
 		size_read = fread( ptr, 1, page_size, _File );
 		size_read_total += size_read;
-		if( size_read < page_size ) return size_read_total; 
+		if( size_read < page_size ) {
+			// this indicates an error while reading 
+			return size_read_total; 
+		}
 	}
-	size_read = fread( ptr, 1, size, _File);
+	size_read = fread( ptr, 1, (size_t) size, _File);
 	size_read_total += size_read;
 	return size_read_total; 
 };

@@ -27,7 +27,8 @@ public:
 			 this_it < this->getMat().end(),   src_it < src.getMat().end();
 			 this_it++, src_it++ )
 		{
-			*(this_it) = *(src_it);
+			// Yuchen: The convertion from T2 to T may be unsafe
+			*(this_it) = T( *(src_it) );
 		}
 	}
 

@@ -119,6 +119,12 @@ public:
 		sigma = s ;
 	} 
 
+	Vesselness_Sig( const Vesselness_All& src ) {
+		this->rsp   = src.rsp;
+		this->dir   = src.dir;
+		this->sigma = src.sigma;
+	} 
+
 	Vesselness_Sig& operator=( const Vesselness_All& src ){
 		this->rsp   = src.rsp;
 		this->dir   = src.dir;

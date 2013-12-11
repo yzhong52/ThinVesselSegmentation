@@ -18,6 +18,9 @@ temp.*
 /Vesselness/[Rr]elease/
 /Vesselness/x64/
 /Vesselness/*.exe
+/Visualization/[Dd]ebug/
+/Visualization/[Rr]elease/
+
 
 # Visual C++ cache files
 ipch/
