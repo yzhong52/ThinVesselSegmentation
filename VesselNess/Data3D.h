@@ -6,17 +6,21 @@ template<typename T>
 class Data3D {
 public:
 	// Constructors & Destructors
+	// Default Constructors
 	Data3D( const Vec3i& n_size = 0){ 
 		reset(n_size); 
-	}	
+	}
+	// Constructor with size and value
 	Data3D( const Vec3i& n_size, const T& value ){ 
 		reset(n_size, value);
 	}	
-	// this copy constructor is extremely similar to the copyTo function
+
+	// Copy Constructor - extremely similar to the copyTo function
 	template <class T2>
 	Data3D( const Data3D<T2>& src ) {
+		// resize 
 		this->resize( src.get_size() );
-
+		// copy the data over
 		cv::Mat_<T>::iterator        this_it;
 		cv::Mat_<T2>::const_iterator src_it;
 		for( this_it = this->getMat().begin(), src_it = src.getMat().begin(); 
@@ -28,7 +32,6 @@ public:
 	}
 
 	virtual ~Data3D(void){ }
-
 
 	//////////////////////////////////////////////////////////////////////
 	// reset the data
@@ -59,7 +62,6 @@ public:
 		_mat = Mat_<T>( _size[2], _size_slice );
 	}
 
-	
 	// getters about the size of the data
 	inline const int& SX(void) const { return _size[0]; }
 	inline const int& SY(void) const { return _size[1]; }
