@@ -2,6 +2,7 @@
 
 #include "Edge.h"
 #include <vector>
+#include <algorithm>    // std::max
 
 /////////////////////////////////////////////////////////////
 // Some basic data structures
@@ -60,7 +61,12 @@ namespace MinSpanTree {
 			float numerator = temp2.dot( temp1 );
 			float denominator = temp1.dot( temp1 );
 			float t = -numerator / denominator;
-			t = std::max( std::min(1.0f, t), 0.0f);
+			// constrain t to be within 0 and 1
+			if( t>=1.0f ) { 
+				t = 1.0f;
+			} else if( t< 0.0f ) {
+				t = 0.0f; 
+			}
 			to = p2 * t + p1 * (1-t);
 			Vec3f dir = from - to;
 			distance = dir.dot( dir );

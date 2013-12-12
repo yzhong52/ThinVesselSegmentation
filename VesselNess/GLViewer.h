@@ -11,10 +11,7 @@
 #include <gl\gl.h>			// Header File For The OpenGL32 Library
 #include <gl\glu.h>			// Header File For The GLu32 Library
 
-/////////////////////////////////////
-// Glut Library
-#include "GL\freeglut.h"
-#pragma comment(lib, "freeglut.lib")
+
 
 
 #include "VideoSaver.h"

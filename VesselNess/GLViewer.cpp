@@ -6,6 +6,11 @@ using namespace std;
 
 #include <time.h>
 
+/////////////////////////////////////
+// Glut Library
+#include "GL\freeglut.h"
+#pragma comment(lib, "freeglut.lib")
+
 namespace GLViewer
 {
 	// objects that need to be render
@@ -23,8 +28,8 @@ namespace GLViewer
 	// Camera Controls by Mouse
 	///////////////////////
 	GLCamera cam; 
-	int drag_x = 0;
-	int drag_y = 0;
+	int mouse_pos_x = 0;
+	int mouse_pos_y = 0;
 
 	/////////////////////////////////////////
 	// Initial Window Size
@@ -64,8 +69,8 @@ namespace GLViewer
 			static int mouse_down_y;
 			if(state == GLUT_DOWN) {
 				cam.setNavigationMode( GLCamera::Rotate );
-				drag_x = x;
-				drag_y = y;
+				mouse_pos_x = x;
+				mouse_pos_y = y;
 				mouse_down_x = x;
 				mouse_down_y = y;
 			} else if( state == GLUT_UP ){
@@ -81,16 +86,16 @@ namespace GLViewer
 		} else if(button == GLUT_RIGHT_BUTTON) { // mouse right button
 			if( state == GLUT_DOWN ) {
 				cam.setNavigationMode( GLCamera::MoveAside );
-				drag_x = x;
-				drag_y = y;
+				mouse_pos_x = x;
+				mouse_pos_y = y;
 			} else {
 				cam.setNavigationMode( GLCamera::None );
 			}
 		} else if( button==GLUT_MIDDLE_BUTTON ) { // center button
 			if( state == GLUT_DOWN ) {
 				cam.setNavigationMode( GLCamera::MoveForward );
-				drag_x = x;
-				drag_y = y;
+				mouse_pos_x = x;
+				mouse_pos_y = y;
 			} else {
 				cam.setNavigationMode( GLCamera::None );
 			}
@@ -104,15 +109,15 @@ namespace GLViewer
 	// the mouse_move function will only be called when at least one button of the mouse id down
 	void mouse_move(int x, int y) {
 		if( cam.getNavigationMode() == GLCamera::Rotate ) {
-			cam.setRotation( 1.0f*(x - drag_x), 1.0f*(y - drag_y) );
+			cam.setRotation( 1.0f*(x - mouse_pos_x), 1.0f*(y - mouse_pos_y) );
 			glutPostRedisplay();
-		} else  if( cam.getNavigationMode() == GLCamera::MoveAside ) {
-			cam.translate_aside( x - drag_x, y - drag_y );
+		} else if( cam.getNavigationMode() == GLCamera::MoveAside ) {
+			cam.translate_aside( x - mouse_pos_x, y - mouse_pos_y );
 		} else if( cam.getNavigationMode()==GLCamera::MoveForward ) {
-			cam.translate_forward( x - drag_x, y - drag_y );
+			cam.translate_forward( x - mouse_pos_x, y - mouse_pos_y );
 		}
-		drag_x = x; // update mouse location
-		drag_y = y; // update mouse location
+		mouse_pos_x = x; // update mouse location
+		mouse_pos_y = y; // update mouse location
 	}
 
 
@@ -129,6 +134,7 @@ namespace GLViewer
 
 	void reset_modelview(void) {
 		cam.resetModelview( (GLfloat)sx, (GLfloat)sy, (GLfloat)sz );
+		glutPostRedisplay(); 
 	}
 
 	void reshape(int w, int h)

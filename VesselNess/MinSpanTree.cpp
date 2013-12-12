@@ -169,7 +169,7 @@ namespace MinSpanTree
 			fout1 << graph.get_node(i).p2.y << " "; 
 			fout1 << graph.get_node(i).p2.z << endl; 
 			fout1 << graph.get_node(i).points.size() << endl;
-			for( int j=0; j<graph.get_node(i).points.size(); j++ ) {
+			for( unsigned int j=0; j<graph.get_node(i).points.size(); j++ ) {
 				MST::Point3D& p = graph.get_node(i).points[j];
 				fout1 << p.x << " "; 
 				fout1 << p.y << " "; 

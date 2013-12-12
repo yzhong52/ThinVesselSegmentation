@@ -13,10 +13,6 @@
 	#include "Log.h"
 #endif
 
-
-#include "GLViewer.h" // Yuchen
-#include "Volumn.h" // Yuchen
-
 #include "glew.h" // Yuchen
 #pragma comment(lib, "glew32.lib") //Yuchen
 
@@ -26,13 +22,12 @@
 #include "Bmp.h"
 #include "smart_assert.h"
 
-// Going to borrow a lot of code from Vesselness 
-
+// Yuchen: there files are from in Porject VesselNess
+// Borrowing to borrow a lot of code from Vesselness 
+#include "Volumn.h" 
 #include "Data3D.h"
+#include "GLCamera.h" 
 #include "ImageProcessing.h"
-
-#include <fstream>
-using namespace std; 
 
 GLCamera cam;
 GLViewer::Volumn *vObj; 
@@ -51,7 +46,7 @@ void reset_projection( int width, int height ) {
 	glMatrixMode(GL_MODELVIEW);
 }
 
-void reset_modelview(void) {
+void reset_modelview(void) { 
 	cam.resetModelview( (GLfloat)sx, (GLfloat)sy, (GLfloat)sz );
 }
 
@@ -118,8 +113,6 @@ void ModelGL::setViewport(int w, int h)
     // assign the width/height of viewport
     windowWidth = w;
     windowHeight = h;
-    //bufferSize = w * h * 4; // rgba
-    //frameBuffer = new unsigned char [bufferSize];
 
     // set viewport to be the entire window
     glViewport(0, 0, (GLsizei)w, (GLsizei)h);
@@ -158,29 +151,27 @@ void ModelGL::draw()
 	// clear buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-    // save the initial ModelView matrix before modifying ModelView matrix
-    glPushMatrix();
+  //  // save the initial ModelView matrix before modifying ModelView matrix
+  //  glPushMatrix();
+		//// tramsform camera
+		//glTranslatef(0, 0, cameraDistance);
+		//glRotatef(cameraAngleX, 1, 0, 0);   // pitch
+		//glRotatef(cameraAngleY, 0, 1, 0);   // heading
+		//// draw a triangle
+		//glBegin(GL_TRIANGLES);
+		//	glColor3f(1, 0, 0);
+		//	glVertex3f(3, -2, 0);
+		//	glColor3f(0, 1, 0);
+		//	glVertex3f(0, 2, 0);
+		//	glColor3f(0, 0, 1);
+		//	glVertex3f(-3, -2, 0);	
+		//glEnd();
+		//vObj->render(); 
+  //  glPopMatrix();
 
-    // tramsform camera
-    glTranslatef(0, 0, cameraDistance);
-    glRotatef(cameraAngleX, 1, 0, 0);   // pitch
-    glRotatef(cameraAngleY, 0, 1, 0);   // heading
 
-    // draw a triangle
-    glBegin(GL_TRIANGLES);
-        glColor3f(1, 0, 0);
-        glVertex3f(3, -2, 0);
-        glColor3f(0, 1, 0);
-        glVertex3f(0, 2, 0);
-        glColor3f(0, 0, 1);
-        glVertex3f(-3, -2, 0);	
-    glEnd();
-	
+	cam.rotate_scene();
 	vObj->render(); 
-
-    glPopMatrix();
-
-	
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -232,25 +223,101 @@ void ModelGL::setDrawMode(int mode)
 ///////////////////////////////////////////////////////////////////////////////
 void ModelGL::setBackgroundRed(float value)
 {
-    if(bgColor[0] != value)
-    {
-        bgColor[0] = value;
-        bgFlag = true;
-    }
+
 }
 void ModelGL::setBackgroundGreen(float value)
 {
-    if(bgColor[1] != value)
-    {
-        bgColor[1] = value;
-        bgFlag = true;
-    }
+    
 }
 void ModelGL::setBackgroundBlue(float value)
 {
-    if(bgColor[2] != value)
-    {
-        bgColor[2] = value;
-        bgFlag = true;
-    }
+    
+}
+
+// Mouse Control Message
+////////////////////////////////////////////////
+// Mouse Button Down
+////////////////////////////////////////////////
+void ModelGL::mouseDown_RightButton( int x, int y )
+{
+	cam.setNavigationMode( GLCamera::MoveAside );
+	mouse_pos_x = x;
+	mouse_pos_y = y;
+}
+
+void ModelGL::mouseDown_LeftButton( int x, int y )
+{
+	cam.setNavigationMode( GLCamera::Rotate );
+	mouse_pos_x = x;
+	mouse_pos_y = y;
+	mouse_down_x = x;
+	mouse_down_y = y;
+}
+
+void ModelGL::mouseDown_MiddleButton( int x, int y )
+{
+	cam.setNavigationMode( GLCamera::None );
+	mouse_pos_x = x; 
+	mouse_pos_y = y; 
+}
+
+////////////////////////////////////////////////
+// Mouse Button Up
+////////////////////////////////////////////////
+void ModelGL::mouseUp_LeftButton( int x, int y )
+{
+	// stop tracking mouse move for rotating
+	cam.setNavigationMode( GLCamera::None );
+	// Stop the rotation immediately no matter what
+	// if the user click and release the mouse at the
+	// same point
+	if( mouse_down_x==x && mouse_down_y==y ) {
+		cam.setRotation( 0, 0 ); // stop rotation
+	}
+}
+
+void ModelGL::mouseUp_MiddleButton( int x, int y )
+{
+	cam.setNavigationMode( GLCamera::None );
+}
+
+void ModelGL::mouseUp_RightButton( int x, int y )
+{
+	cam.setNavigationMode( GLCamera::None );
+}
+
+
+void ModelGL::mouseMove_LeftButton( int x, int y ){
+	if( cam.getNavigationMode() == GLCamera::Rotate ) {
+		cam.setRotation( 1.0f*(x - mouse_pos_x), 1.0f*(y - mouse_pos_y) );
+	}
+	mouse_pos_x = x; // update mouse location
+	mouse_pos_y = y; // update mouse location
+	Win::log( "Mouse Moved. " );
+}
+
+void ModelGL::mouseMove_RightButton( int x, int y ){
+	if( cam.getNavigationMode() == GLCamera::MoveAside ) {
+		cam.translate_aside( x - mouse_pos_x, y - mouse_pos_y );
+	}
+	mouse_pos_x = x; // update mouse location
+	mouse_pos_y = y; // update mouse location
+}
+
+void ModelGL::mouseMove_MiddleButton( int x, int y ){
+	if( cam.getNavigationMode()==GLCamera::MoveForward ) {
+		cam.translate_forward( x - mouse_pos_x, y - mouse_pos_y );
+	}
+	mouse_pos_x = x; // update mouse location
+	mouse_pos_y = y; // update mouse location
+}
+
+void ModelGL::mouseWheel_Up( void ){
+	// Yuchen: This is not working yet
+	cam.zoomIn(); 
+}
+
+void ModelGL::mouseWheel_Down( void ){
+	// Yuchen: This is not working yet
+	cam.zoomOut(); 
 }

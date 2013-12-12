@@ -69,15 +69,6 @@
     <ClCompile Include="Bmp.cpp">
       <Filter>Model</Filter>
     </ClCompile>
-    <ClCompile Include="GLViewer.cpp">
-      <Filter>Model</Filter>
-    </ClCompile>
-    <ClCompile Include="Volumn.cpp">
-      <Filter>Model</Filter>
-    </ClCompile>
-    <ClCompile Include="GLCamera.cpp">
-      <Filter>Model</Filter>
-    </ClCompile>
     <ClCompile Include="..\VesselNess\Data3D.cpp">
       <Filter>Model\Vesselness</Filter>
     </ClCompile>
@@ -85,6 +76,12 @@
       <Filter>Model\Vesselness</Filter>
     </ClCompile>
     <ClCompile Include="..\VesselNess\stdafx.cpp">
+      <Filter>Model\Vesselness</Filter>
+    </ClCompile>
+    <ClCompile Include="..\VesselNess\Volumn.cpp">
+      <Filter>Model\Vesselness</Filter>
+    </ClCompile>
+    <ClCompile Include="..\VesselNess\GLCamera.cpp">
       <Filter>Model\Vesselness</Filter>
     </ClCompile>
   </ItemGroup>
@@ -137,19 +134,16 @@
     <ClInclude Include="Bmp.h">
       <Filter>Model</Filter>
     </ClInclude>
-    <ClInclude Include="GLViewer.h">
-      <Filter>Model</Filter>
-    </ClInclude>
-    <ClInclude Include="Volumn.h">
-      <Filter>Model</Filter>
-    </ClInclude>
-    <ClInclude Include="GLCamera.h">
-      <Filter>Model</Filter>
-    </ClInclude>
     <ClInclude Include="..\VesselNess\Data3D.h">
       <Filter>Model\Vesselness</Filter>
     </ClInclude>
     <ClInclude Include="..\VesselNess\ImageProcessing.h">
+      <Filter>Model\Vesselness</Filter>
+    </ClInclude>
+    <ClInclude Include="..\VesselNess\Volumn.h">
+      <Filter>Model\Vesselness</Filter>
+    </ClInclude>
+    <ClInclude Include="..\VesselNess\GLCamera.h">
       <Filter>Model\Vesselness</Filter>
     </ClInclude>
   </ItemGroup>

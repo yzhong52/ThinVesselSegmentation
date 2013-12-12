@@ -36,6 +36,25 @@ public:
     void setBackgroundGreen(float value);
     void setBackgroundBlue(float value);
 
+	// Mouse Control Message
+	int mouse_pos_x, mouse_pos_y; 
+	int mouse_down_x, mouse_down_y; 
+	// Mouse Up
+	void mouseUp_RightButton( int x, int y );
+	void mouseUp_LeftButton( int x, int y );
+	void mouseUp_MiddleButton( int x, int y );
+	// Mouse Down
+	void mouseDown_RightButton( int x, int y );
+	void mouseDown_LeftButton( int x, int y );
+	void mouseDown_MiddleButton( int x, int y );
+	// Mouse Move
+	void mouseMove_LeftButton( int x, int y );
+	void mouseMove_RightButton( int x, int y );
+	void mouseMove_MiddleButton( int x, int y );
+	// Mouse Wheel 
+	void mouseWheel_Up( void ); 
+	void mouseWheel_Down( void ); 
+
 protected:
 
 private:

@@ -122,6 +122,16 @@ LRESULT CALLBACK Win::windowProcedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
         returnValue = ctrl->keyUp((int)wParam, lParam);                         // keyCode, keyDetail
         break;
 
+	//case WM_MOUSEWHEEL:
+	//	// In this message, virtual function is not working, why? 
+ //       returnValue = ctrl->mouseWheel(LOWORD(wParam), HIWORD(wParam)/WHEEL_DELTA, LOWORD(lParam), HIWORD(lParam));   // state, delta, x, y
+ //       break;
+
+	case WM_MOUSEWHEEL:
+        //returnValue = ctrl->(LOWORD(wParam), HIWORD(wParam), LOWORD(lParam), HIWORD(lParam));   // state, delta, x, y
+		returnValue = ctrl->mouseWheel(LOWORD(wParam), HIWORD(wParam), LOWORD(lParam), HIWORD(lParam));   // state, delta, x, y
+        break;
+
     case WM_LBUTTONDOWN:
         returnValue = ctrl->lButtonDown(wParam, LOWORD(lParam), HIWORD(lParam)); // state, x, y
         break;
@@ -142,12 +152,9 @@ LRESULT CALLBACK Win::windowProcedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
         returnValue = ctrl->mButtonDown(wParam, LOWORD(lParam), HIWORD(lParam)); // state, x, y
         break;
 
+
     case WM_MBUTTONUP:
         returnValue = ctrl->mButtonUp(wParam, LOWORD(lParam), HIWORD(lParam));   // state, x, y
-        break;
-
-    case WM_MOUSEWHEEL:
-        returnValue = ctrl->mouseWheel((short)LOWORD(wParam), (short)HIWORD(wParam)/WHEEL_DELTA, (short)LOWORD(lParam), (short)HIWORD(lParam));   // state, delta, x, y
         break;
 
     case WM_HSCROLL:

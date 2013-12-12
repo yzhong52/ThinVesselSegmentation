@@ -158,6 +158,11 @@ int ControllerGL::lButtonDown(WPARAM state, int x, int y)
         model->setMouseLeft(true);
     }
 
+	// Yuchen
+	if(state == MK_LBUTTON)
+    {
+		model->mouseDown_LeftButton(x,y);
+    }
     return 0;
 }
 
@@ -172,6 +177,9 @@ int ControllerGL::lButtonUp(WPARAM state, int x, int y)
     model->setMousePosition(x, y);
 
     model->setMouseLeft(false);
+
+	// Yuchen
+	model->mouseUp_LeftButton(x, y);
 
     return 0;
 }
@@ -191,6 +199,11 @@ int ControllerGL::rButtonDown(WPARAM state, int x, int y)
         model->setMouseRight(true);
     }
 
+	// Yuchen
+	if(state == MK_RBUTTON)
+    {
+		model->mouseDown_RightButton(x,y);
+    }
     return 0;
 }
 
@@ -206,6 +219,9 @@ int ControllerGL::rButtonUp(WPARAM state, int x, int y)
 
     model->setMouseRight(false);
 
+
+	// Yuchen 
+    model->mouseUp_RightButton(x,y);
     return 0;
 }
 
@@ -224,7 +240,21 @@ int ControllerGL::mouseMove(WPARAM state, int x, int y)
     {
         model->zoomCamera(y);
     }
-
+	// Yuchen: Added 
+	if(state == MK_LBUTTON)
+    {
+		model->mouseMove_LeftButton(x, y);
+    }
+	// Right Button
+    if(state == MK_RBUTTON)
+    {
+        model->mouseMove_RightButton(x, y);
+    }
+	// Center Button
+	if( state == MK_MBUTTON ) 
+	{
+		model->mouseMove_MiddleButton(x, y);
+	}
     return 0;
 }
 

@@ -11,11 +11,6 @@
 #include <gl\gl.h>			// Header File For The OpenGL32 Library
 #include <gl\glu.h>			// Header File For The GLu32 Library
 
-/////////////////////////////////////
-// Glut Library
-#include "GL\freeglut.h"
-#pragma comment(lib, "freeglut.lib")
-
 class GLCamera
 {
 public:
@@ -87,8 +82,6 @@ public:
 		gluLookAt( t[0], t[1], t[2]+1, /*eye position*/ 
 			t[0], t[1], t[2], /*Center of the object*/ 
 			0, 1, 0 ); /*Up Vector*/ 
-
-		glutPostRedisplay();
 	}
 	inline void draw_axis( void ) {
 		glTranslatef( t[0], t[1], t[2] );
