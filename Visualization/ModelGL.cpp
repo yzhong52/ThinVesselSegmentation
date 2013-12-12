@@ -151,27 +151,11 @@ void ModelGL::draw()
 	// clear buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-  //  // save the initial ModelView matrix before modifying ModelView matrix
-  //  glPushMatrix();
-		//// tramsform camera
-		//glTranslatef(0, 0, cameraDistance);
-		//glRotatef(cameraAngleX, 1, 0, 0);   // pitch
-		//glRotatef(cameraAngleY, 0, 1, 0);   // heading
-		//// draw a triangle
-		//glBegin(GL_TRIANGLES);
-		//	glColor3f(1, 0, 0);
-		//	glVertex3f(3, -2, 0);
-		//	glColor3f(0, 1, 0);
-		//	glVertex3f(0, 2, 0);
-		//	glColor3f(0, 0, 1);
-		//	glVertex3f(-3, -2, 0);	
-		//glEnd();
-		//vObj->render(); 
-  //  glPopMatrix();
-
-
+	cam.translate_scene();
 	cam.rotate_scene();
 	vObj->render(); 
+	cam.draw_axis();
+	cam.translate_scene_reverse();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -293,12 +277,11 @@ void ModelGL::mouseMove_LeftButton( int x, int y ){
 	}
 	mouse_pos_x = x; // update mouse location
 	mouse_pos_y = y; // update mouse location
-	Win::log( "Mouse Moved. " );
 }
 
 void ModelGL::mouseMove_RightButton( int x, int y ){
 	if( cam.getNavigationMode() == GLCamera::MoveAside ) {
-		cam.translate_aside( x - mouse_pos_x, y - mouse_pos_y );
+		cam.translate_aside( mouse_pos_x-x, mouse_pos_y-y );	
 	}
 	mouse_pos_x = x; // update mouse location
 	mouse_pos_y = y; // update mouse location

@@ -56,6 +56,7 @@ GLCamera::GLCamera(void)
 	vec_x[2] = 0;
 
 	// translation
+	center[0] = center[1] = center[2] = 0; 
 	t[0] = t[1] = t[2] = 0;
 	translate_speed = 0.2f;
 
@@ -93,7 +94,7 @@ void GLCamera::rotate_scene(void){
 	elapsedTick = tick - oldtick;
 	oldtick = tick; 
 	// update the rotation matrix as well as the rotation axis
-	glTranslatef( t[0], t[1], t[2] );
+	glTranslatef( center[0]-t[0], center[1]-t[1], center[2]-t[2] );
 	glRotatef( xrot * elapsedTick, vec_y[0], vec_y[1], vec_y[2] );
 	rotate_axis( vec_y[0], vec_y[1], vec_y[2], 
 		vec_x[0], vec_x[1], vec_x[2],
@@ -102,5 +103,8 @@ void GLCamera::rotate_scene(void){
 	rotate_axis( vec_x[0], vec_x[1], vec_x[2], 
 		vec_y[0], vec_y[1], vec_y[2],
 		vec_y[0], vec_y[1], vec_y[2], -yrot * elapsedTick );
-	glTranslatef( -t[0], -t[1], -t[2] );
+	glTranslatef( 
+			-center[0]+t[0], 
+			-center[1]+t[1], 
+			-center[2]+t[2] );
 }

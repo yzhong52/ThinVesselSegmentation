@@ -1,56 +1,15 @@
-===== Log started at 2013-12-12, 11:50:09. =====
+===== Log started at 2013-12-12, 12:36:00. =====
 
-11:50:09  Main window is created.
-11:50:11  Created a rendering thread for OpenGL.
-11:50:11  OpenGL window is resized: 296x296.
-11:50:11  OpenGL child window is created.
-11:50:11  OpenGL form dialog is created.
-11:50:11  Status bar window is created.
-11:50:11  Initialized OpenGL states.
-11:50:11  Initialized OpenGL viewport and projection matrix.
-11:50:11  Entering OpenGL rendering thread...
-11:50:12  Mouse Moved. 
-11:50:12  Mouse Moved. 
-11:50:13  Mouse Moved. 
-11:50:13  Mouse Moved. 
-11:50:13  Mouse Moved. 
-11:50:13  Mouse Moved. 
-11:50:13  Mouse Moved. 
-11:50:13  Mouse Moved. 
-11:50:13  Mouse Moved. 
-11:50:13  Mouse Moved. 
-11:50:13  Mouse Moved. 
-11:50:13  Mouse Moved. 
-11:50:13  Mouse Moved. 
-11:50:13  Mouse Moved. 
-11:50:13  Mouse Moved. 
-11:50:14  Mouse Moved. 
-11:50:14  Mouse Moved. 
-11:50:14  Mouse Moved. 
-11:50:14  Mouse Moved. 
-11:50:14  Mouse Moved. 
-11:50:14  Mouse Moved. 
-11:50:14  Mouse Moved. 
-11:50:16  Mouse Moved. 
-11:50:16  Mouse Moved. 
-11:50:16  Mouse Moved. 
-11:50:16  Mouse Moved. 
-11:50:16  Mouse Moved. 
-11:50:16  Mouse Moved. 
-11:50:16  Mouse Moved. 
-11:50:16  Mouse Moved. 
-11:50:16  Mouse Moved. 
-11:50:16  Mouse Moved. 
-11:50:16  Mouse Moved. 
-11:50:16  Mouse Moved. 
-11:50:17  Mouse Moved. 
-11:50:17  Mouse Moved. 
-11:50:17  Mouse Moved. 
-11:50:17  Mouse Moved. 
-11:50:17  Mouse Moved. 
-11:50:17  Mouse Moved. 
-11:50:17  Mouse Moved. 
-11:50:20  Exit OpenGL rendering thread.
+12:36:00  Main window is created.
+12:36:03  Created a rendering thread for OpenGL.
+12:36:03  OpenGL window is resized: 296x296.
+12:36:03  OpenGL child window is created.
+12:36:03  OpenGL form dialog is created.
+12:36:03  Status bar window is created.
+12:36:03  Initialized OpenGL states.
+12:36:03  Initialized OpenGL viewport and projection matrix.
+12:36:03  Entering OpenGL rendering thread...
+12:36:17  Exit OpenGL rendering thread.
 
 
 ===== END OF LOG =====
