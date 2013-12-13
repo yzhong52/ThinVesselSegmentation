@@ -57,29 +57,29 @@ int ControllerFormGL::command(int id, int command, LPARAM msg)
         if(command == BN_CLICKED)
         {
             flag = !flag;
-            model->animate(flag);
-            view->animate(flag);
+            // model->animate(flag);
+            // view->animate(flag);
         }
         break;
 
     case IDC_FILL:
         if(command == BN_CLICKED)
         {
-            model->setDrawMode(0);
+            // model->setDrawMode(0);
         }
         break;
 
     case IDC_WIREFRAME:
         if(command == BN_CLICKED)
         {
-            model->setDrawMode(1);
+            // model->setDrawMode(1);
         }
         break;
 
     case IDC_POINT:
         if(command == BN_CLICKED)
         {
-            model->setDrawMode(2);
+            // model->setDrawMode(2);
         }
         break;
     }
@@ -107,12 +107,12 @@ int ControllerFormGL::hScroll(WPARAM wParam, LPARAM lParam)
         {
         case TB_THUMBTRACK:     // user dragged the slider
             view->updateTrackbars(trackbarHandle, position);
-            if(trackbarId == IDC_RED)
-                model->setBackgroundRed(position / 255.0f);
-            else if(trackbarId == IDC_GREEN)
-                model->setBackgroundGreen(position / 255.0f);
-            else if(trackbarId == IDC_BLUE)
-                model->setBackgroundBlue(position / 255.0f);
+            //if(trackbarId == IDC_RED)
+            //    model->setBackgroundRed(position / 255.0f);
+            //else if(trackbarId == IDC_GREEN)
+            //    model->setBackgroundGreen(position / 255.0f);
+            //else if(trackbarId == IDC_BLUE)
+            //    model->setBackgroundBlue(position / 255.0f);
             break;
 
         case TB_THUMBPOSITION:  // by WM_LBUTTONUP
@@ -139,12 +139,12 @@ int ControllerFormGL::hScroll(WPARAM wParam, LPARAM lParam)
         case TB_ENDTRACK:       // by WM_KEYUP (User release a key.)
             position = ::SendMessage(trackbarHandle, TBM_GETPOS, 0, 0);
             view->updateTrackbars(trackbarHandle, position);
-            if(trackbarId == IDC_RED)
+            /*if(trackbarId == IDC_RED)
                 model->setBackgroundRed(position / 255.0f);
             else if(trackbarId == IDC_GREEN)
                 model->setBackgroundGreen(position / 255.0f);
             else if(trackbarId == IDC_BLUE)
-                model->setBackgroundBlue(position / 255.0f);
+                model->setBackgroundBlue(position / 255.0f); */
             break;
         }
     }

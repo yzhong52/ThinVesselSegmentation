@@ -53,11 +53,7 @@ void reset_modelview(void) {
 ///////////////////////////////////////////////////////////////////////////////
 // default ctor
 ///////////////////////////////////////////////////////////////////////////////
-ModelGL::ModelGL() : windowWidth(0), windowHeight(0), mouseLeftDown(false),
-                     mouseRightDown(false), changeDrawMode(false), drawMode(0),
-                     cameraAngleX(0), cameraAngleY(0), cameraDistance(5),
-                     animateFlag(false), bgFlag(0), frameBuffer(0), bufferSize(0),
-                     windowResized(false)
+ModelGL::ModelGL() : windowWidth(0), windowHeight(0), windowResized(false)
 {
 	Data3D<short> im_short;	
 	im_short.load( "data/roi15.data" ); 
@@ -93,36 +89,16 @@ void ModelGL::init()
 	reset_modelview();
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// set camera position and lookat direction
-///////////////////////////////////////////////////////////////////////////////
-void ModelGL::setCamera(float posX, float posY, float posZ, float targetX, float targetY, float targetZ)
-{
-    //glMatrixMode(GL_MODELVIEW);
-    //glLoadIdentity();
-    //gluLookAt(posX, posY, posZ, targetX, targetY, targetZ, 0, 1, 0); // eye(x,y,z), focal(x,y,z), up(x,y,z)
-}
-
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // configure projection and viewport
 ///////////////////////////////////////////////////////////////////////////////
-void ModelGL::setViewport(int w, int h)
+void ModelGL::setViewport()
 {
-    // assign the width/height of viewport
-    windowWidth = w;
-    windowHeight = h;
+	reset_projection( windowWidth, windowHeight );
 
-    // set viewport to be the entire window
-    glViewport(0, 0, (GLsizei)w, (GLsizei)h);
-
-    // set perspective viewing frustum
-    float aspectRatio = (float)w / h;
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluPerspective(60.0f, (float)(w)/h, 0.1f, 20.0f); // FOV, AspectRatio, NearClip, FarClip
-	reset_projection( w, h );
+	// set viewport to be the entire window
+    glViewport(0, 0, (GLsizei)windowWidth, (GLsizei)windowHeight);
 
     // switch to modelview matrix in order to set scene
     glMatrixMode(GL_MODELVIEW);
@@ -146,8 +122,14 @@ void ModelGL::resizeWindow(int w, int h)
 ///////////////////////////////////////////////////////////////////////////////
 // draw 2D/3D scene
 ///////////////////////////////////////////////////////////////////////////////
-void ModelGL::draw()
+void ModelGL::draw() 
 {
+	// Yuchen: the draw function is in another process
+	if( windowResized ) {
+		setViewport();
+		windowResized = false;
+	}
+
 	// clear buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
@@ -160,65 +142,6 @@ void ModelGL::draw()
 	cam.scale_scene_reverse();
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// rotate the camera
-///////////////////////////////////////////////////////////////////////////////
-void ModelGL::rotateCamera(int x, int y)
-{
-    if(mouseLeftDown)
-    {
-        cameraAngleY += (x - mouseX);
-        cameraAngleX += (y - mouseY);
-        mouseX = x;
-        mouseY = y;
-    }
-}
-
-
-
-///////////////////////////////////////////////////////////////////////////////
-// zoom the camera
-///////////////////////////////////////////////////////////////////////////////
-void ModelGL::zoomCamera(int delta)
-{
-    if(mouseRightDown)
-    {
-        cameraDistance += (delta - mouseY) * 0.05f;
-        mouseY = delta;
-    }
-}
-
-
-
-///////////////////////////////////////////////////////////////////////////////
-// change drawing mode
-///////////////////////////////////////////////////////////////////////////////
-void ModelGL::setDrawMode(int mode)
-{
-    if(drawMode != mode)
-    {
-        changeDrawMode = true;
-        drawMode = mode;
-    }
-}
-
-
-
-///////////////////////////////////////////////////////////////////////////////
-// change background colour, the value should be between 0 and 1
-///////////////////////////////////////////////////////////////////////////////
-void ModelGL::setBackgroundRed(float value)
-{
-
-}
-void ModelGL::setBackgroundGreen(float value)
-{
-    
-}
-void ModelGL::setBackgroundBlue(float value)
-{
-    
-}
 
 // Mouse Control Message
 ////////////////////////////////////////////////
@@ -298,13 +221,9 @@ void ModelGL::mouseMove_MiddleButton( int x, int y ){
 }
 
 void ModelGL::mouseWheel_Up( void ){
-	// Yuchen: This is not working yet
-	Win::log( "Wheel Up" );
 	cam.zoomIn(); 
 }
 
 void ModelGL::mouseWheel_Down( void ){
-	// Yuchen: This is not working yet
-	Win::log( "Wheel Down" );
 	cam.zoomOut(); 
 }

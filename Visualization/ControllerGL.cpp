@@ -132,7 +132,6 @@ void ControllerGL::runThread()
     while(loopFlag)
     {
         Sleep(1);                       // yield to other processes or threads
-		model->setViewport(rect.right, rect.bottom); 
         model->draw();
         view->swapBuffers();
     }
@@ -150,13 +149,13 @@ void ControllerGL::runThread()
 ///////////////////////////////////////////////////////////////////////////////
 int ControllerGL::lButtonDown(WPARAM state, int x, int y)
 {
-    // update mouse position
-    model->setMousePosition(x, y);
+    //// update mouse position
+    //model->setMousePosition(x, y);
 
-    if(state == MK_LBUTTON)
-    {
-        model->setMouseLeft(true);
-    }
+    //if(state == MK_LBUTTON)
+    //{
+    //    model->setMouseLeft(true);
+    //}
 
 	// Yuchen
 	if(state == MK_LBUTTON)
@@ -173,10 +172,10 @@ int ControllerGL::lButtonDown(WPARAM state, int x, int y)
 ///////////////////////////////////////////////////////////////////////////////
 int ControllerGL::lButtonUp(WPARAM state, int x, int y)
 {
-    // update mouse position
-    model->setMousePosition(x, y);
+    //// update mouse position
+    //model->setMousePosition(x, y);
 
-    model->setMouseLeft(false);
+    //model->setMouseLeft(false);
 
 	// Yuchen
 	model->mouseUp_LeftButton(x, y);
@@ -191,13 +190,13 @@ int ControllerGL::lButtonUp(WPARAM state, int x, int y)
 ///////////////////////////////////////////////////////////////////////////////
 int ControllerGL::rButtonDown(WPARAM state, int x, int y)
 {
-    // update mouse position
-    model->setMousePosition(x, y);
+    //// update mouse position
+    //model->setMousePosition(x, y);
 
-    if(state == MK_RBUTTON)
-    {
-        model->setMouseRight(true);
-    }
+    //if(state == MK_RBUTTON)
+    //{
+    //    model->setMouseRight(true);
+    //}
 
 	// Yuchen
 	if(state == MK_RBUTTON)
@@ -214,10 +213,10 @@ int ControllerGL::rButtonDown(WPARAM state, int x, int y)
 ///////////////////////////////////////////////////////////////////////////////
 int ControllerGL::rButtonUp(WPARAM state, int x, int y)
 {
-    // update mouse position
-    model->setMousePosition(x, y);
+    //// update mouse position
+    //model->setMousePosition(x, y);
 
-    model->setMouseRight(false);
+    //model->setMouseRight(false);
 
 
 	// Yuchen 
@@ -232,14 +231,14 @@ int ControllerGL::rButtonUp(WPARAM state, int x, int y)
 ///////////////////////////////////////////////////////////////////////////////
 int ControllerGL::mouseMove(WPARAM state, int x, int y)
 {
-    if(state == MK_LBUTTON)
-    {
-        model->rotateCamera(x, y);
-    }
-    if(state == MK_RBUTTON)
-    {
-        model->zoomCamera(y);
-    }
+    //if(state == MK_LBUTTON)
+    //{
+    //    model->rotateCamera(x, y);
+    //}
+    //if(state == MK_RBUTTON)
+    //{
+    //    model->zoomCamera(y);
+    //}
 	// Yuchen: Added 
 	if(state == MK_LBUTTON)
     {
@@ -259,7 +258,6 @@ int ControllerGL::mouseMove(WPARAM state, int x, int y)
 }
 
 int ControllerGL::mouseWheel(int state, int delta, int x, int y) {
-	Win::log( "delta %d", delta );
 	if( delta > 0 ) 
 		model->mouseWheel_Up();
 	else 

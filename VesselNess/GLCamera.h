@@ -17,22 +17,21 @@ public:
 	GLCamera(void);
 	~GLCamera(void);
 	
+	// Navigation Mode
 	enum NavigationMode{
 		None, 
 		MoveAside,
 		MoveForward,
 		Rotate
 	} navigationMode; 
-
+	// setter and getters
+	inline void setNavigationMode( NavigationMode nMode ) { navigationMode = nMode; }
+	inline NavigationMode getNavigationMode(void) { return navigationMode; }
 
 	void zoomIn(void);
 	void zoomOut(void);
 
 	void rotate_scene(void); 
-
-	// setter and getters
-	inline void setNavigationMode( NavigationMode nMode ) { navigationMode = nMode; }
-	inline NavigationMode getNavigationMode(void) { return navigationMode; }
 
 	inline void setRotation( GLfloat rotation_x, GLfloat rotation_y ) {
 		xrot = rotation_x * rotate_speed;
@@ -82,6 +81,7 @@ public:
 		vec_z[0] = vec_x[1]*vec_y[2] - vec_x[2]*vec_y[1]; 
 		vec_z[1] = vec_x[2]*vec_y[0] - vec_x[0]*vec_y[2]; 
 		vec_z[2] = vec_x[0]*vec_y[1] - vec_x[1]*vec_y[0]; 
+		// update translation vector
 		t[0] += (tx+ty) * vec_z[0];
 		t[1] += (tx+ty) * vec_z[1];
 		t[2] += (tx+ty) * vec_z[2];
@@ -96,8 +96,10 @@ public:
 
 		t[0] = t[1] = t[2] = 0; 
 
+		// rotation axis
 		vec_y[0] = 0; vec_y[1] = 1; vec_y[2] = 0;
 		vec_x[0] = 1; vec_x[1] = 0; vec_x[2] = 0;
+		// rotation parameters
 		xrot = 0;
 		yrot = 0;
 

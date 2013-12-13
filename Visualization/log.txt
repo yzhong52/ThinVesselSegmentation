@@ -1,15 +1,42 @@
-===== Log started at 2013-12-12, 12:36:00. =====
+===== Log started at 2013-12-12, 19:54:43. =====
 
-12:36:00  Main window is created.
-12:36:03  Created a rendering thread for OpenGL.
-12:36:03  OpenGL window is resized: 296x296.
-12:36:03  OpenGL child window is created.
-12:36:03  OpenGL form dialog is created.
-12:36:03  Status bar window is created.
-12:36:03  Initialized OpenGL states.
-12:36:03  Initialized OpenGL viewport and projection matrix.
-12:36:03  Entering OpenGL rendering thread...
-12:36:17  Exit OpenGL rendering thread.
+19:54:43  Main window is created.
+19:54:46  Created a rendering thread for OpenGL.
+19:54:46  OpenGL window is resized: 296x296.
+19:54:46  OpenGL child window is created.
+19:54:46  OpenGL form dialog is created.
+19:54:46  Status bar window is created.
+19:54:46  Initialized OpenGL states.
+19:54:46  Initialized OpenGL viewport and projection matrix.
+19:54:46  Entering OpenGL rendering thread...
+19:54:49  OpenGL window is resized: 298x296.
+19:54:49  OpenGL window is resized: 430x296.
+19:54:49  OpenGL window is resized: 578x296.
+19:54:49  OpenGL window is resized: 617x296.
+19:54:49  OpenGL window is resized: 634x296.
+19:54:49  OpenGL window is resized: 638x296.
+19:54:49  OpenGL window is resized: 665x296.
+19:54:49  OpenGL window is resized: 686x296.
+19:54:49  OpenGL window is resized: 690x296.
+19:54:50  OpenGL window is resized: 689x298.
+19:54:50  OpenGL window is resized: 702x344.
+19:54:50  OpenGL window is resized: 736x410.
+19:54:50  OpenGL window is resized: 751x443.
+19:54:50  OpenGL window is resized: 762x496.
+19:54:50  OpenGL window is resized: 765x518.
+19:54:51  OpenGL window is resized: 765x522.
+19:54:51  OpenGL window is resized: 776x433.
+19:54:51  OpenGL window is resized: 779x366.
+19:54:51  OpenGL window is resized: 779x349.
+19:54:51  OpenGL window is resized: 780x331.
+19:54:51  OpenGL window is resized: 780x330.
+19:54:51  OpenGL window is resized: 799x322.
+19:54:51  OpenGL window is resized: 827x337.
+19:54:51  OpenGL window is resized: 832x365.
+19:54:51  OpenGL window is resized: 830x382.
+19:54:52  OpenGL window is resized: 823x416.
+19:54:52  OpenGL window is resized: 821x421.
+19:54:53  Exit OpenGL rendering thread.
 
 
 ===== END OF LOG =====
