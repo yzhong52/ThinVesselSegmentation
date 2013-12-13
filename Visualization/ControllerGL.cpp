@@ -258,6 +258,14 @@ int ControllerGL::mouseMove(WPARAM state, int x, int y)
     return 0;
 }
 
+int ControllerGL::mouseWheel(int state, int delta, int x, int y) {
+	Win::log( "delta %d", delta );
+	if( delta > 0 ) 
+		model->mouseWheel_Up();
+	else 
+		model->mouseWheel_Down();
+	return 0;
+}
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -269,3 +277,4 @@ int ControllerGL::size(int w, int h, WPARAM wParam)
     Win::log(L"OpenGL window is resized: %dx%d.", w, h);
     return 0;
 }
+

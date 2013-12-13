@@ -31,18 +31,32 @@ public:
 	void rotate_scene(void); 
 
 	// setter and getters
-	inline void setNavigationMode( NavigationMode nMode ) {
-		navigationMode = nMode; 
-	}
-	inline NavigationMode getNavigationMode(void) {
-		return navigationMode; 
-	}
+	inline void setNavigationMode( NavigationMode nMode ) { navigationMode = nMode; }
+	inline NavigationMode getNavigationMode(void) { return navigationMode; }
+
 	inline void setRotation( GLfloat rotation_x, GLfloat rotation_y ) {
 		xrot = rotation_x * rotate_speed;
 		yrot = rotation_y * rotate_speed;
 	}
+
 	inline void translate_scene() {
 		glTranslatef( t[0], t[1], t[2] );
+	}
+	inline void scale_scene() {
+		glTranslatef( center[0]-t[0], center[1]-t[1], center[2]-t[2] );
+		glScalef( scale, scale, scale );
+		glTranslatef( 
+			-center[0]+t[0], 
+			-center[1]+t[1], 
+			-center[2]+t[2] );
+	}
+	inline void scale_scene_reverse() {
+		glTranslatef( center[0]-t[0], center[1]-t[1], center[2]-t[2] );
+		glScalef( 1.0f/scale, 1.0f/scale, 1.0f/scale );
+		glTranslatef( 
+			-center[0]+t[0], 
+			-center[1]+t[1], 
+			-center[2]+t[2] );
 	}
 	inline void translate_scene_reverse() {
 		glTranslatef( -t[0], -t[1], -t[2] );
@@ -74,6 +88,7 @@ public:
 		// translate
 		glTranslatef( -(tx+ty)*vec_z[0], -(tx+ty)*vec_z[1], -(tx+ty)*vec_z[2] );
 	}
+
 	inline void resetModelview( GLfloat cx, GLfloat cy, GLfloat cz ) {
 		center[0] = 0.5f * cx;
 		center[1] = 0.5f * cy;
@@ -93,6 +108,8 @@ public:
 			0, 1, 0 ); /*Up Vector*/ 
 		glTranslatef( -center[0], -center[1], -center[2] );
 	}
+
+
 	inline void draw_axis( void ) {
 		glTranslatef( center[0]-t[0], center[1]-t[1], center[2]-t[2] );
 		// Draw Rotation Center with two axis
@@ -122,5 +139,6 @@ public:
 	GLfloat center[3];
 
 	int elapsedTick;
+	float scale; 
 };
 

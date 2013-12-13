@@ -76,7 +76,11 @@ LRESULT CALLBACK Win::windowProcedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
         returnValue = ctrl->command(LOWORD(wParam), HIWORD(wParam), lParam);   // id, code, msg
         break;
 
-    case WM_MOUSEMOVE:
+    case WM_MOUSEMOVE: /* Mouse Move */
+		// Yuchen: Set Focus on the window. This is very important because 
+		// WM_MOUSEWHEEL event is triggered only on the focused window. 
+		// Have to call SetFocus() once to receive WM_MOUSEWHEEL message to OpenGL window
+		::SetFocus( hwnd ); 
         returnValue = ctrl->mouseMove(wParam, LOWORD(lParam), HIWORD(lParam));  // state, x, y
         break;
 
@@ -122,14 +126,8 @@ LRESULT CALLBACK Win::windowProcedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
         returnValue = ctrl->keyUp((int)wParam, lParam);                         // keyCode, keyDetail
         break;
 
-	//case WM_MOUSEWHEEL:
-	//	// In this message, virtual function is not working, why? 
- //       returnValue = ctrl->mouseWheel(LOWORD(wParam), HIWORD(wParam)/WHEEL_DELTA, LOWORD(lParam), HIWORD(lParam));   // state, delta, x, y
- //       break;
-
-	case WM_MOUSEWHEEL:
-        //returnValue = ctrl->(LOWORD(wParam), HIWORD(wParam), LOWORD(lParam), HIWORD(lParam));   // state, delta, x, y
-		returnValue = ctrl->mouseWheel(LOWORD(wParam), HIWORD(wParam), LOWORD(lParam), HIWORD(lParam));   // state, delta, x, y
+	case WM_MOUSEWHEEL: /* Mouse Wheel */ 
+		returnValue = ctrl->mouseWheel(LOWORD(wParam), GET_WHEEL_DELTA_WPARAM(wParam), LOWORD(lParam), HIWORD(lParam));   // state, delta, x, y
         break;
 
     case WM_LBUTTONDOWN:
@@ -151,7 +149,6 @@ LRESULT CALLBACK Win::windowProcedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
     case WM_MBUTTONDOWN:
         returnValue = ctrl->mButtonDown(wParam, LOWORD(lParam), HIWORD(lParam)); // state, x, y
         break;
-
 
     case WM_MBUTTONUP:
         returnValue = ctrl->mButtonUp(wParam, LOWORD(lParam), HIWORD(lParam));   // state, x, y
@@ -180,6 +177,14 @@ LRESULT CALLBACK Win::windowProcedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
     //    returnValue = ctrl->eraseBkgnd((HDC)wParam);                            // handle to device context
     //    break;
 
+	case WM_MOUSEHOVER: 
+		Win::log( "Mouse Hover" ); // Yuchen TODO: This message is not working
+		break;
+
+	case WM_MOUSELEAVE:
+		Win::log( "Mouse Leave" );  // Yuchen TODO: This message is not working
+		break;
+	
     default:
         returnValue = ::DefWindowProc(hwnd, msg, wParam, lParam);
     }
@@ -263,9 +268,8 @@ BOOL CALLBACK Win::dialogProcedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lP
         ctrl->notify((int)wParam, lParam);                      // controllerID, lParam
         return true;
 
-    case WM_MOUSEMOVE:
-        ctrl->mouseMove(wParam, LOWORD(lParam), HIWORD(lParam));
-        //ctrl->mouseMove(wParam, (int)GET_X_LPARAM(lParam), (int)GET_Y_LPARAM(lParam));  // state, x, y
+    case WM_MOUSEMOVE: /*Mouse Move*/
+        ctrl->mouseMove(wParam, LOWORD(lParam), HIWORD(lParam)); // state, x, y
         return true;
 
     case WM_LBUTTONUP:
@@ -275,6 +279,16 @@ BOOL CALLBACK Win::dialogProcedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lP
     case WM_CONTEXTMENU:
         ctrl->contextMenu((HWND)wParam, LOWORD(lParam), HIWORD(lParam));    // handle, x, y (from screen coords)
         return true;
+	
+	case WM_MOUSEHOVER: 
+		Win::log( "Mouse Hover" ); // Yuchen TODO: This message is not working
+		return true;
+		break;
+
+	case WM_MOUSELEAVE:
+		Win::log( "Mouse Leave" );  // Yuchen TODO: This message is not working
+		return true;
+		break;
 
     default:
         return false;

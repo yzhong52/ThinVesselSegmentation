@@ -21,7 +21,7 @@
 #define WIN_CONTROLLER_H
 
 #include <windows.h>
-
+#include "Log.h" // Yuchen: TODO: Remove this after debugging
 
 namespace Win
 {
@@ -89,7 +89,10 @@ namespace Win
     inline int Controller::mButtonDown(WPARAM wParam, int x, int y) { return 0; }
     inline int Controller::mButtonUp(WPARAM wParam, int x, int y) { return 0; }
     inline int Controller::mouseMove(WPARAM keyState, int x, int y) { return 0; }
-    inline int Controller::mouseWheel(int state, int delta, int x, int y) { return 0; }
+    inline int Controller::mouseWheel(int state, int delta, int x, int y) { 
+		Win::log( "Controller:: Mouse Wheel" );
+		return 0; 
+	}
     inline int Controller::notify(int id, LPARAM lParam) { return 0; }
     inline int Controller::paint() { return 0; }
     inline int Controller::rButtonDown(WPARAM wParam, int x, int y) { return 0; }

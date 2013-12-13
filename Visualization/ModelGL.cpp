@@ -151,11 +151,13 @@ void ModelGL::draw()
 	// clear buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
+	cam.scale_scene();
 	cam.translate_scene();
 	cam.rotate_scene();
 	vObj->render(); 
 	cam.draw_axis();
 	cam.translate_scene_reverse();
+	cam.scale_scene_reverse();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -297,10 +299,12 @@ void ModelGL::mouseMove_MiddleButton( int x, int y ){
 
 void ModelGL::mouseWheel_Up( void ){
 	// Yuchen: This is not working yet
+	Win::log( "Wheel Up" );
 	cam.zoomIn(); 
 }
 
 void ModelGL::mouseWheel_Down( void ){
 	// Yuchen: This is not working yet
+	Win::log( "Wheel Down" );
 	cam.zoomOut(); 
 }

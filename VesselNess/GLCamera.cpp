@@ -39,6 +39,7 @@ void rotate_axis(
 }
 
 GLCamera::GLCamera(void)
+	: scale(1.0f)
 {
 	navigationMode = None;
 
@@ -74,16 +75,21 @@ void GLCamera::zoomIn(void){
 	glTranslatef( t[0], t[1], t[2] );
 	glScalef( 1.01f, 1.01f, 1.01f );
 	glTranslatef( -t[0], -t[1], -t[2] );
+
 	translate_speed /= 1.01f; 
 	rotate_speed  /= 1.01f; 
+
+	scale *= 1.01f; 
 }
 
 void GLCamera::zoomOut(void){
 	glTranslatef( t[0], t[1], t[2] );
 	glScalef( 0.99f, 0.99f, 0.99f );
 	glTranslatef( -t[0], -t[1], -t[2] );
+
 	translate_speed /= 0.99f; 
 	rotate_speed  /= 0.99f; 
+	scale *= 0.99f; 
 }
 
 

@@ -43,6 +43,7 @@ namespace Win
         // not needed anymore
         //void setModel(ModelGL* model) { if(model) modelGL = model; };   // get reference of ModelGL
         //void setView(ViewGL* view) { if(view) viewGL = view; };         // get reference of ViewGL
+		inline int mouseWheel(int state, int delta, int x, int y); 
 
     private:
         static void threadFunction(void* arg);      // static thread function, it will route to member function, runThread()

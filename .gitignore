@@ -20,6 +20,8 @@ temp.*
 /Vesselness/*.exe
 /Visualization/[Dd]ebug/
 /Visualization/[Rr]elease/
+/Visualization/log.txt
+
 
 
 # Visual C++ cache files
