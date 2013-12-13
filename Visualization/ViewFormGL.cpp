@@ -36,24 +36,32 @@ ViewFormGL::~ViewFormGL()
 void ViewFormGL::initControls(HWND handle)
 {
     // set all controls
-    buttonAnimate.set(handle, IDC_ANIMATE);
-    radioFill.set(handle, IDC_FILL);
-    radioWireframe.set(handle, IDC_WIREFRAME);
-    radioPoint.set(handle, IDC_POINT);
-    trackbarRed.set(handle, IDC_RED);
-    trackbarGreen.set(handle, IDC_GREEN);
-    trackbarBlue.set(handle, IDC_BLUE);
+    //buttonAnimate.set(handle, IDC_ANIMATE);
+    //radioFill.set(handle, IDC_FILL);
+    //radioWireframe.set(handle, IDC_WIREFRAME);
+    //radioPoint.set(handle, IDC_POINT);
+    //trackbarRed.set(handle, IDC_RED);
+    //trackbarGreen.set(handle, IDC_GREEN);
+    //trackbarBlue.set(handle, IDC_BLUE);
 
     // initial state
-    radioFill.check();
-    trackbarRed.setRange(0, 255);
-    trackbarRed.setPos(0);
-    trackbarGreen.setRange(0, 255);
-    trackbarGreen.setPos(0);
-    trackbarBlue.setRange(0, 255);
-    trackbarBlue.setPos(0);
-}
+    //radioFill.check();
+    //trackbarRed.setRange(0, 255);
+    //trackbarRed.setPos(0);
+    //trackbarGreen.setRange(0, 255);
+    //trackbarGreen.setPos(0);
+    //trackbarBlue.setRange(0, 255);
+    //trackbarBlue.setPos(125);
 
+	// Yuchen 
+	trackbarWindowCenterMin.set( handle, IDC_MIN );
+	trackbarWindowCenterMin.setRange(-32767, 32767); 
+	trackbarWindowCenterMin.setPos(-32767); 
+
+	trackbarWindowCenterMax.set( handle, IDC_MAX );
+	trackbarWindowCenterMax.setRange(-32767, 32767); 
+	trackbarWindowCenterMax.setPos(32767);
+}
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -61,10 +69,10 @@ void ViewFormGL::initControls(HWND handle)
 ///////////////////////////////////////////////////////////////////////////////
 void ViewFormGL::animate(bool flag)
 {
-    if(flag)
-        buttonAnimate.setText(L"Stop");
-    else
-        buttonAnimate.setText(L"Animate");
+    //if(flag)
+    //    buttonAnimate.setText(L"Stop");
+    //else
+    //    buttonAnimate.setText(L"Animate");
 }
 
 
@@ -74,7 +82,7 @@ void ViewFormGL::animate(bool flag)
 ///////////////////////////////////////////////////////////////////////////////
 void ViewFormGL::updateTrackbars(HWND handle, int position)
 {
-    if(handle == trackbarRed.getHandle())
+    /*if(handle == trackbarRed.getHandle())
     {
         trackbarRed.setPos(position);
     }
@@ -85,5 +93,11 @@ void ViewFormGL::updateTrackbars(HWND handle, int position)
     else if(handle == trackbarBlue.getHandle())
     {
         trackbarBlue.setPos(position);
-    }
+	} 
+	else if (handle == trackbarWindowCenterMin.getHandle() ) {
+		trackbarWindowCenterMin.setPos(position);
+	} 
+	else if (handle == trackbarWindowCenterMax.getHandle() ) {
+		trackbarWindowCenterMax.setPos(position);
+	}*/
 }

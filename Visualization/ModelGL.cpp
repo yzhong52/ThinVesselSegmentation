@@ -35,6 +35,10 @@ unsigned int sx = 0;
 unsigned int sy = 0;
 unsigned int sz = 0;
 
+bool isUpdateTexture = false;
+Data3D<short> im_short;	
+Data3D<unsigned char> im_uchar;	
+
 void reset_projection( int width, int height ) {
 	glMatrixMode(GL_PROJECTION);						// Select The Projection Matrix
 	glLoadIdentity();									// Reset The Projection Matrix
@@ -55,12 +59,18 @@ void reset_modelview(void) {
 ///////////////////////////////////////////////////////////////////////////////
 ModelGL::ModelGL() : windowWidth(0), windowHeight(0), windowResized(false)
 {
-	Data3D<short> im_short;	
 	im_short.load( "data/roi15.data" ); 
+	// normalized data to [0,255]
 	IP::normalize( im_short, short(255) );
-	Data3D<unsigned char> im_uchar = Data3D<unsigned char>( im_short );
+	// convert data to unsigned char
+	im_uchar = Data3D<unsigned char>( im_short );
 	vObj = new GLViewer::Volumn( im_uchar.getMat().data, 
 		im_uchar.SX(), im_uchar.SY(), im_uchar.SZ() );
+
+	windowCenterMin = short(1<<15); 
+	windowCenterMax = windowCenterMin-1;
+	Win::log( "Min: %d", windowCenterMin );
+	Win::log( "Max: %d", windowCenterMax );
 }
 
 
@@ -132,6 +142,13 @@ void ModelGL::draw()
 
 	// clear buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+	if( isUpdateTexture ) {
+		Win::log( "Texture Updating" );
+		vObj->updateTexture( im_uchar.getMat().data );
+		isUpdateTexture = false;
+		Win::log( "Texture Updated" );
+	}
 
 	cam.scale_scene();
 	cam.translate_scene();
@@ -226,4 +243,27 @@ void ModelGL::mouseWheel_Up( void ){
 
 void ModelGL::mouseWheel_Down( void ){
 	cam.zoomOut(); 
+}
+
+
+void ModelGL::updateWindowCenterMin( int position )
+{
+	Win::log( "Min Pos: %d", position );
+
+	Data3D<short> im_temp_short( im_short.get_size() );
+	
+	for( int i=0; i<im_temp_short.get_size_total(); i++ ) {
+		if( im_short.at(i) < 125 ) { 
+			im_temp_short.at(i) = 0; 
+		} else {
+			im_temp_short.at(i) = 255;//  * ( (int)im_short.at(i) - position) / ( (int)windowCenterMin - (int)windowCenterMin ); 
+		}
+	}
+	im_uchar = im_temp_short; 
+	isUpdateTexture = true;
+}
+
+void ModelGL::updateWindowCenterMax( int position )
+{
+	Win::log( "Max Pos: %d", position );
 }

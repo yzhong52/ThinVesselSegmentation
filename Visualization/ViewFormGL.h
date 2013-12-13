@@ -32,13 +32,17 @@ namespace Win
 
     private:
         // controls
-        Win::Button buttonAnimate;
-        Win::RadioButton radioFill;
-        Win::RadioButton radioWireframe;
-        Win::RadioButton radioPoint;
-        Win::Trackbar trackbarRed;
-        Win::Trackbar trackbarGreen;
-        Win::Trackbar trackbarBlue;
+        //Win::Button buttonAnimate;
+        //Win::RadioButton radioFill;
+        //Win::RadioButton radioWireframe;
+        //Win::RadioButton radioPoint;
+        //Win::Trackbar trackbarRed;
+        //Win::Trackbar trackbarGreen;
+        //Win::Trackbar trackbarBlue;
+
+		// Yuchen: Tracker For Window Center
+		Win::Trackbar trackbarWindowCenterMin; 
+		Win::Trackbar trackbarWindowCenterMax; 
     };
 }
 

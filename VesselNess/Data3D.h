@@ -79,6 +79,12 @@ public:
 	inline const Vec3i& get_size(void) const { return _size; }
 	
 	// getters about values of the data
+	virtual const inline T& at( const int& i ) const {
+		return _mat.at<T>( i ); 
+	}
+	virtual inline T& at( const int& i ) {
+		return _mat.at<T>( i ); 
+	}
 	virtual const inline T& at( const int& x, const int& y, const int& z ) const { 
 		return _mat.at<T>( z, y * _size[0] + x ); 
 	}

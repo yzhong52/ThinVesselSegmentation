@@ -64,7 +64,24 @@ namespace GLViewer
 			isMIP = true;
 		}
 
+		void updateTexture( unsigned char* im_data ) {
+			glBindTexture(GL_TEXTURE_3D, texture);
 
+			int texture_size = texture_sx * texture_sy * texture_sz; 
+			data = new (nothrow) unsigned char [ texture_size ];
+			if( data==NULL ) {
+				cout << "Unable to allocate memory for OpenGL rendering" << endl; return;
+			}
+
+			memset( data, 0, sizeof(unsigned char) * texture_size );
+			for( int z=0;z<sz;z++ ) for( int y=0;y<sy;y++ ) for( int x=0; x<sx; x++ ) {
+				data[ z*texture_sy*texture_sx + y*texture_sx + x] = im_data[ z*sy*sx + y*sx + x];
+			}
+
+			glTexImage3D(GL_TEXTURE_3D, 0, GL_LUMINANCE, 
+				texture_sx, texture_sy, texture_sz, 0,
+				GL_LUMINANCE, GL_UNSIGNED_BYTE, data );
+		}
 
 		~Volumn() {
 			if(data){

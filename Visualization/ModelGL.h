@@ -18,7 +18,6 @@ public:
     ~ModelGL();
 
     void init();                                    // initialize OpenGL states
-    void setCamera(float posX, float posY, float posZ, float targetX, float targetY, float targetZ);
     void setViewport();
     void resizeWindow(int width, int height);
     void draw();
@@ -41,6 +40,11 @@ public:
 	// Mouse Wheel 
 	void mouseWheel_Up( void ); 
 	void mouseWheel_Down( void ); 
+
+	short windowCenterMin; 
+	short windowCenterMax; 
+	void updateWindowCenterMin( int position );
+	void updateWindowCenterMax( int position );
 
 protected:
 

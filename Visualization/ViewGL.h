@@ -40,13 +40,13 @@ namespace Win
         HGLRC hglrc;                                    // handle to OpenGL rendering context
 
         // controls
-        Win::Button buttonAnimate;
-        Win::RadioButton radioFill;
-        Win::RadioButton radioWireframe;
-        Win::RadioButton radioPoint;
-        Win::Trackbar trackbarRed;
-        Win::Trackbar trackbarGreen;
-        Win::Trackbar trackbarBlue;
+        //Win::Button buttonAnimate;
+        //Win::RadioButton radioFill;
+        //Win::RadioButton radioWireframe;
+        //Win::RadioButton radioPoint;
+        //Win::Trackbar trackbarRed;
+        //Win::Trackbar trackbarGreen;
+        //Win::Trackbar trackbarBlue;
     };
 }
 

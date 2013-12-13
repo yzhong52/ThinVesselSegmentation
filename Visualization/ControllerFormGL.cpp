@@ -105,16 +105,6 @@ int ControllerFormGL::hScroll(WPARAM wParam, LPARAM lParam)
 
         switch(LOWORD(wParam))
         {
-        case TB_THUMBTRACK:     // user dragged the slider
-            view->updateTrackbars(trackbarHandle, position);
-            //if(trackbarId == IDC_RED)
-            //    model->setBackgroundRed(position / 255.0f);
-            //else if(trackbarId == IDC_GREEN)
-            //    model->setBackgroundGreen(position / 255.0f);
-            //else if(trackbarId == IDC_BLUE)
-            //    model->setBackgroundBlue(position / 255.0f);
-            break;
-
         case TB_THUMBPOSITION:  // by WM_LBUTTONUP
             break;
 
@@ -137,14 +127,13 @@ int ControllerFormGL::hScroll(WPARAM wParam, LPARAM lParam)
             break;
 
         case TB_ENDTRACK:       // by WM_KEYUP (User release a key.)
+		case TB_THUMBTRACK:     // user dragged the slider
             position = ::SendMessage(trackbarHandle, TBM_GETPOS, 0, 0);
             view->updateTrackbars(trackbarHandle, position);
-            /*if(trackbarId == IDC_RED)
-                model->setBackgroundRed(position / 255.0f);
-            else if(trackbarId == IDC_GREEN)
-                model->setBackgroundGreen(position / 255.0f);
-            else if(trackbarId == IDC_BLUE)
-                model->setBackgroundBlue(position / 255.0f); */
+            if( trackbarId == IDC_MIN )
+                model->updateWindowCenterMin( position );
+            else if( trackbarId == IDC_MAX )
+                model->updateWindowCenterMax( position );
             break;
         }
     }
