@@ -1,20 +1,205 @@
-===== Log started at 2013-12-12, 22:09:47. =====
+===== Log started at 2013-12-13, 11:26:32. =====
 
-22:09:47  Main window is created.
-22:09:47  Min: -32768
-22:09:47  Max: 32767
-22:09:47  Created a rendering thread for OpenGL.
-22:09:47  OpenGL window is resized: 296x296.
-22:09:47  OpenGL child window is created.
-22:09:47  OpenGL form dialog is created.
-22:09:47  Status bar window is created.
-22:09:47  Initialized OpenGL states.
-22:09:47  Initialized OpenGL viewport and projection matrix.
-22:09:47  Entering OpenGL rendering thread...
-22:09:50  Min Pos: -19661
-22:09:50  Texture Updating
-22:09:50  Texture Updated
-22:10:06  Exit OpenGL rendering thread.
+11:26:32  Main window is created.
+11:26:32  Created a rendering thread for OpenGL.
+11:26:32  OpenGL window is resized: 496x496.
+11:26:32  OpenGL child window is created.
+11:26:32  OpenGL form dialog is created.
+11:26:32  Status bar window is created.
+11:26:32  Initialized OpenGL states.
+11:26:32  Initialized OpenGL viewport and projection matrix.
+11:26:32  Entering OpenGL rendering thread...
+11:26:34  Updating Window Center [-19661, 32767]
+11:26:34  Texture Updating
+11:26:34  Texture Updated
+11:26:35  Updating Window Center [-6555, 32767]
+11:26:35  Texture Updating
+11:26:35  Texture Updated
+11:26:35  Updating Window Center [6551, 32767]
+11:26:36  Texture Updating
+11:26:36  Texture Updated
+11:26:36  Updating Window Center [6551, 32767]
+11:26:36  Texture Updating
+11:26:36  Texture Updated
+11:26:37  Updating Window Center [6551, 19661]
+11:26:37  Texture Updating
+11:26:37  Texture Updated
+11:26:38  Updating Window Center [4915, 19661]
+11:26:38  Updating Window Center [4096, 19661]
+11:26:38  Texture Updating
+11:26:38  Updating Window Center [3277, 19661]
+11:26:38  Texture Updated
+11:26:38  Texture Updating
+11:26:38  Updating Window Center [1638, 19661]
+11:26:38  Texture Updated
+11:26:38  Texture Updating
+11:26:38  Texture Updated
+11:26:38  Updating Window Center [819, 19661]
+11:26:38  Updating Window Center [0, 19661]
+11:26:38  Texture Updating
+11:26:38  Updating Window Center [-819, 19661]
+11:26:38  Texture Updated
+11:26:38  Texture Updating
+11:26:38  Texture Updated
+11:26:38  Updating Window Center [-1638, 19661]
+11:26:38  Texture Updating
+11:26:38  Texture Updated
+11:26:38  Updating Window Center [-2458, 19661]
+11:26:38  Texture Updating
+11:26:38  Texture Updated
+11:26:39  Updating Window Center [-4915, 19661]
+11:26:39  Texture Updating
+11:26:39  Texture Updated
+11:26:39  Updating Window Center [-4096, 19661]
+11:26:39  Texture Updating
+11:26:39  Texture Updated
+11:26:39  Updating Window Center [-2458, 19661]
+11:26:39  Texture Updating
+11:26:39  Texture Updated
+11:26:39  Updating Window Center [-819, 19661]
+11:26:39  Texture Updating
+11:26:39  Updating Window Center [0, 19661]
+11:26:39  Updating Window Center [819, 19661]
+11:26:39  Texture Updated
+11:26:39  Texture Updating
+11:26:39  Texture Updated
+11:26:39  Updating Window Center [1638, 19661]
+11:26:39  Texture Updating
+11:26:39  Texture Updated
+11:26:41  Updating Window Center [2458, 19661]
+11:26:41  Texture Updating
+11:26:41  Texture Updated
+11:26:41  Updating Window Center [1638, 19661]
+11:26:41  Updating Window Center [819, 19661]
+11:26:41  Updating Window Center [-819, 19661]
+11:26:41  Texture Updating
+11:26:41  Updating Window Center [-1638, 19661]
+11:26:41  Texture Updated
+11:26:41  Texture Updating
+11:26:41  Texture Updated
+11:26:41  Updating Window Center [-3277, 19661]
+11:26:41  Texture Updating
+11:26:41  Texture Updated
+11:26:41  Updating Window Center [-4096, 19661]
+11:26:41  Texture Updating
+11:26:41  Texture Updated
+11:26:42  Updating Window Center [-2458, 19661]
+11:26:42  Texture Updating
+11:26:42  Texture Updated
+11:26:42  Updating Window Center [-1638, 19661]
+11:26:42  Texture Updating
+11:26:42  Texture Updated
+11:26:42  Updating Window Center [-819, 19661]
+11:26:42  Texture Updating
+11:26:42  Texture Updated
+11:26:42  Updating Window Center [0, 19661]
+11:26:42  Texture Updating
+11:26:42  Texture Updated
+11:26:42  Updating Window Center [819, 19661]
+11:26:42  Texture Updating
+11:26:42  Texture Updated
+11:26:42  Updating Window Center [1638, 19661]
+11:26:42  Texture Updating
+11:26:42  Texture Updated
+11:26:43  Updating Window Center [2458, 19661]
+11:26:43  Updating Window Center [3277, 19661]
+11:26:43  Texture Updating
+11:26:43  Texture Updated
+11:26:43  Updating Window Center [1638, 19661]
+11:26:43  Texture Updating
+11:26:43  Texture Updated
+11:26:43  Updating Window Center [819, 19661]
+11:26:43  Texture Updating
+11:26:43  Updating Window Center [0, 19661]
+11:26:43  Texture Updated
+11:26:43  Texture Updating
+11:26:43  Texture Updated
+11:26:43  Updating Window Center [-819, 19661]
+11:26:43  Texture Updating
+11:26:43  Updating Window Center [-1638, 19661]
+11:26:43  Texture Updated
+11:26:43  Texture Updating
+11:26:43  Texture Updated
+11:26:44  Updating Window Center [-2458, 19661]
+11:26:44  Texture Updating
+11:26:44  Updating Window Center [-4096, 19661]
+11:26:44  Texture Updated
+11:26:44  Texture Updating
+11:26:44  Updating Window Center [-4915, 19661]
+11:26:44  Texture Updated
+11:26:44  Texture Updating
+11:26:44  Texture Updated
+11:26:44  Updating Window Center [-5734, 19661]
+11:26:44  Updating Window Center [-7373, 19661]
+11:26:44  Texture Updating
+11:26:44  Texture Updated
+11:26:44  Updating Window Center [-8192, 19661]
+11:26:44  Texture Updating
+11:26:44  Texture Updated
+11:26:44  Updating Window Center [-7373, 19661]
+11:26:44  Updating Window Center [-5734, 19661]
+11:26:44  Texture Updating
+11:26:44  Texture Updated
+11:26:44  Updating Window Center [-4915, 19661]
+11:26:45  Texture Updating
+11:26:45  Texture Updated
+11:26:45  Updating Window Center [-4096, 19661]
+11:26:45  Texture Updating
+11:26:45  Updating Window Center [-3277, 19661]
+11:26:45  Texture Updated
+11:26:45  Texture Updating
+11:26:45  Texture Updated
+11:26:45  Updating Window Center [-2458, 19661]
+11:26:45  Updating Window Center [-1638, 19661]
+11:26:45  Texture Updating
+11:26:45  Texture Updated
+11:26:45  Updating Window Center [-819, 19661]
+11:26:45  Updating Window Center [0, 19661]
+11:26:45  Texture Updating
+11:26:45  Texture Updated
+11:26:45  Updating Window Center [819, 19661]
+11:26:45  Texture Updating
+11:26:45  Texture Updated
+11:26:45  Updating Window Center [1638, 19661]
+11:26:45  Texture Updating
+11:26:45  Texture Updated
+11:26:45  Updating Window Center [2458, 19661]
+11:26:45  Texture Updating
+11:26:46  Updating Window Center [3277, 19661]
+11:26:46  Texture Updated
+11:26:46  Texture Updating
+11:26:46  Updating Window Center [4096, 19661]
+11:26:46  Texture Updated
+11:26:46  Texture Updating
+11:26:46  Texture Updated
+11:26:46  Updating Window Center [5734, 19661]
+11:26:46  Texture Updating
+11:26:46  Updating Window Center [6553, 19661]
+11:26:46  Texture Updated
+11:26:46  Texture Updating
+11:26:46  Texture Updated
+11:26:46  Updating Window Center [7373, 19661]
+11:26:46  Texture Updating
+11:26:46  Updating Window Center [9011, 19661]
+11:26:46  Texture Updated
+11:26:46  Texture Updating
+11:26:46  Texture Updated
+11:26:46  Updating Window Center [9830, 19661]
+11:26:46  Texture Updating
+11:26:46  Updating Window Center [10649, 19661]
+11:26:46  Texture Updated
+11:26:46  Texture Updating
+11:26:46  Texture Updated
+11:26:46  Updating Window Center [11468, 19661]
+11:26:46  Texture Updating
+11:26:47  Texture Updated
+11:26:47  Updating Window Center [12288, 19661]
+11:26:47  Texture Updating
+11:26:47  Texture Updated
+11:26:47  Updating Window Center [12288, 19661]
+11:26:47  Texture Updating
+11:26:47  Texture Updated
+11:26:49  Exit OpenGL rendering thread.
 
 
 ===== END OF LOG =====

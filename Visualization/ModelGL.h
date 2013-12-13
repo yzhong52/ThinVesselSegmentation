@@ -45,6 +45,7 @@ public:
 	short windowCenterMax; 
 	void updateWindowCenterMin( int position );
 	void updateWindowCenterMax( int position );
+	void windowCenterUpdateData();
 
 protected:
 

@@ -52,12 +52,12 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR cmdArgs, int cmdS
 
     // add menu to window class
     mainWin.setMenuName(MAKEINTRESOURCE(IDR_MAIN_MENU));
-    mainWin.setWidth(300);
-    mainWin.setHeight(460);
+    mainWin.setWidth(500);
+    mainWin.setHeight(660);
     mainWin.setWindowStyleEx(WS_EX_WINDOWEDGE);
 
     // create a window and show
-    if(mainWin.create())
+    if( mainWin.create() )
         Win::log("Main window is created.");
     else
         Win::log("[ERROR] Failed to create main window.");
@@ -72,8 +72,8 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR cmdArgs, int cmdS
     Win::Window glWin(hInst, L"WindowGL", mainWin.getHandle(), &glCtrl);
     glWin.setClassStyle(CS_OWNDC);
     glWin.setWindowStyle(WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
-    glWin.setWidth(300);
-    glWin.setHeight(300);
+    glWin.setWidth(500);
+    glWin.setHeight(500);
     if(glWin.create())
         Win::log("OpenGL child window is created.");
     else
@@ -82,7 +82,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR cmdArgs, int cmdS
     // create a child dialog box contains controls
     Win::ControllerFormGL formCtrl(&modelGL, &viewFormGL);
     Win::DialogWindow glDialog(hInst, IDD_CONTROLS, mainWin.getHandle(), &formCtrl);
-    glDialog.setWidth(300);
+    glDialog.setWidth(500);
     glDialog.setHeight(160);
     if(glDialog.create())
         Win::log("OpenGL form dialog is created.");
@@ -121,7 +121,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR cmdArgs, int cmdS
     DWORD style = ::GetWindowLong(mainWin.getHandle(), GWL_STYLE);      // get current window style
     DWORD styleEx = ::GetWindowLong(mainWin.getHandle(), GWL_EXSTYLE);  // get current extended window style
     rect.left = 0;
-    rect.right = 300;
+    rect.right = 500;
     rect.top = 0;
     rect.bottom = height;
     ::AdjustWindowRectEx(&rect, style, TRUE, styleEx);

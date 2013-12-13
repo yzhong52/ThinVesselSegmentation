@@ -60,17 +60,17 @@ void reset_modelview(void) {
 ModelGL::ModelGL() : windowWidth(0), windowHeight(0), windowResized(false)
 {
 	im_short.load( "data/roi15.data" ); 
-	// normalized data to [0,255]
-	IP::normalize( im_short, short(255) );
 	// convert data to unsigned char
-	im_uchar = Data3D<unsigned char>( im_short );
-	vObj = new GLViewer::Volumn( im_uchar.getMat().data, 
-		im_uchar.SX(), im_uchar.SY(), im_uchar.SZ() );
-
+	im_uchar.resize( im_short.get_size() ); 
+	// copy data based on window center
 	windowCenterMin = short(1<<15); 
 	windowCenterMax = windowCenterMin-1;
-	Win::log( "Min: %d", windowCenterMin );
-	Win::log( "Max: %d", windowCenterMax );
+	int window_size = max( 1, (int) windowCenterMax - (int)windowCenterMin );
+	for( int i=0; i<im_uchar.get_size_total(); i++ ) {
+		im_uchar.at(i) = 255 * ( (int) im_short.at(i) - (int)windowCenterMin ) / window_size; 
+	}
+	vObj = new GLViewer::Volumn( im_uchar.getMat().data, 
+		im_uchar.SX(), im_uchar.SY(), im_uchar.SZ() );
 }
 
 
@@ -145,7 +145,7 @@ void ModelGL::draw()
 
 	if( isUpdateTexture ) {
 		Win::log( "Texture Updating" );
-		vObj->updateTexture( im_uchar.getMat().data );
+		vObj->update_texture();
 		isUpdateTexture = false;
 		Win::log( "Texture Updated" );
 	}
@@ -248,22 +248,30 @@ void ModelGL::mouseWheel_Down( void ){
 
 void ModelGL::updateWindowCenterMin( int position )
 {
-	Win::log( "Min Pos: %d", position );
-
-	Data3D<short> im_temp_short( im_short.get_size() );
-	
-	for( int i=0; i<im_temp_short.get_size_total(); i++ ) {
-		if( im_short.at(i) < 125 ) { 
-			im_temp_short.at(i) = 0; 
-		} else {
-			im_temp_short.at(i) = 255;//  * ( (int)im_short.at(i) - position) / ( (int)windowCenterMin - (int)windowCenterMin ); 
-		}
-	}
-	im_uchar = im_temp_short; 
-	isUpdateTexture = true;
+	windowCenterMin = position; 
+	windowCenterUpdateData(); 
 }
 
 void ModelGL::updateWindowCenterMax( int position )
 {
-	Win::log( "Max Pos: %d", position );
+	windowCenterMax = position; 
+	windowCenterUpdateData(); 
+}
+
+
+void ModelGL::windowCenterUpdateData() {
+	Win::log( "Updating Window Center [%d, %d]", windowCenterMin, windowCenterMax );
+	
+	int window_size = max( 1, windowCenterMax-windowCenterMin );
+	for( int i=0; i<im_uchar.get_size_total(); i++ ) {
+		if( im_short.at(i) < windowCenterMin ) { 
+			im_uchar.at(i) = 0; 
+		} else if ( im_short.at(i) > windowCenterMax ) { 
+			im_uchar.at(i) = 255; 
+		} else {
+			im_uchar.at(i) = 255 * ( (int) im_short.at(i) - (int) windowCenterMin ) / window_size; 
+		}
+	}
+	vObj->update_data( im_uchar.getMat().data ); 
+	isUpdateTexture = true;
 }

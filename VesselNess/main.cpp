@@ -58,28 +58,28 @@ void compute_vesselness( string dataname = "vessel3d.rd.19",
 }
 
 void compute_min_span_tree( string data_name = "roi16.partial" ) {
-	Data3D<short> im_short;
+	//Data3D<short> im_short;
 
-	im_short.load( "data/" +data_name+ ".data" );
-	
-	Image3D<unsigned char> im_uchar;
-	IP::normalize( im_short, short(255) );
-	im_short.convertTo( im_uchar );
-	
-	vector<GLViewer::Object*> objs;
-	GLViewer::Volumn vObj( im_uchar.getMat().data, 
-		im_uchar.SX(), im_uchar.SY(), im_uchar.SZ() );
-	objs.push_back( &vObj );
+	//im_short.load( "data/" +data_name+ ".data" );
+	//
+	//Image3D<unsigned char> im_uchar;
+	//IP::normalize( im_short, short(255) );
+	//im_short.convertTo( im_uchar );
+	//
+	//vector<GLViewer::Object*> objs;
+	//GLViewer::Volumn vObj( im_uchar.getMat().data, 
+	//	im_uchar.SX(), im_uchar.SY(), im_uchar.SZ() );
+	//objs.push_back( &vObj );
 
-	// Computer Min Span Tree
-	Graph< MST::Edge_Ext, MST::LineSegment > tree;
-	MinSpanTree::build_tree_xuefeng( "data/" +data_name+ ".linedata.txt", tree, 150 );
+	//// Computer Min Span Tree
+	//Graph< MST::Edge_Ext, MST::LineSegment > tree;
+	//MinSpanTree::build_tree_xuefeng( "data/" +data_name+ ".linedata.txt", tree, 150 );
 
-	GLViewer::CenterLine<MST::Edge_Ext, MST::LineSegment> cObj( tree );
-	objs.push_back( &cObj );
+	//GLViewer::CenterLine<MST::Edge_Ext, MST::LineSegment> cObj( tree );
+	//objs.push_back( &cObj );
 
-	GLViewer::VideoSaver videoSaver( "output/line fitting.avi" );
-	GLViewer::go( objs/*, &videoSaver*/ );
+	//GLViewer::VideoSaver videoSaver( "output/line fitting.avi" );
+	//GLViewer::go( objs/*, &videoSaver*/ );
 }
 
 void compute_rings_redection(void){

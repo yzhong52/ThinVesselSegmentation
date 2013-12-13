@@ -8,6 +8,7 @@
 #include "Volumn.h"
 #include "MinSpanTreeWrapper.h"
 #include "CenterLine.h"
+#include "GLViewer.h" 
 
 class GLViewerExt{
 public:
@@ -34,8 +35,11 @@ public:
 	template<>
 	void addObject( Data3D<unsigned char>& im_uchar ) {
 		// copy the data
-		GLViewer::Volumn* vObj = new GLViewer::Volumn( im_uchar.getMat().data,
-			im_uchar.SX(), im_uchar.SY(), im_uchar.SZ() );
+		GLViewer::Volumn* vObj = new GLViewer::Volumn(
+			im_uchar.getMat().data,
+			im_uchar.SX(),
+			im_uchar.SY(),
+			im_uchar.SZ(), &GLViewer::cam );
 		objs.push_back( vObj );
 	}
 

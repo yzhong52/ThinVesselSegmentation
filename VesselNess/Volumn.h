@@ -20,40 +20,46 @@ namespace GLViewer
 {
 	// rendering object with Maximum Intenstiy Projection
 	class Volumn : public GLViewer::Object {
-		bool isMIP; // Using Maximum Intensity Projection
+		friend class VolumnWithROI;
+		// rendeing mode
+		enum RenderMode{ 
+			MIP, //Maximum Intensity Projection
+			CrossSection 
+		} render_mode; 
 		/////////////////////////////////////////
 		// Data
 		///////////////////////
 		// 3D Volumn Texture
 		GLuint texture;
 		// size of texture
-		int texture_sx;
-		int texture_sy;
-		int texture_sz;
+		int texture_sx, texture_sy, texture_sz;
 		// Original Data
-		int sx;
-		int sy;
-		int sz;
-		unsigned char* data;
-		friend class VolumnWithROI;
+		int sx, sy, sz; 
+		// Texture Data
+		unsigned char* data; 
+		// Reference to the camera
+		GLCamera* ptrCam; 
 	public:
-		Volumn( unsigned char* im_data, const int& im_x, const int& im_y, const int& im_z ) {
+		Volumn(unsigned char* im_data, const int& im_x, const int& im_y, const int& im_z,  GLCamera* ptrCamera = NULL ) 
+			: sx( im_x )
+			, sy( im_y )
+			, sz( im_z )
+			, ptrCam( ptrCamera )
+		{
 			// From wikipedia: Do not forget that all 3 dimensions must be a power of 2! so your 2D textures must have 
 			// the same size and this size be a power of 2 AND the number of layers (=2D textures) you use to create 
 			// your 3D texture must be a power of 2 too.
-			sx = im_x;
-			sy = im_y;
-			sz = im_z;
-
 			static const double log2 = log(2.0);
 			texture_sx = (int) pow(2, ceil( log( 1.0*sx )/log2 ));
 			texture_sy = (int) pow(2, ceil( log( 1.0*sy )/log2 ));
 			texture_sz = (int) pow(2, ceil( log( 1.0*sz )/log2 ));
 
+			// allocating memeory for texture
 			int texture_size = texture_sx * texture_sy * texture_sz;
 			data = new (nothrow) unsigned char [ texture_size ];
 			if( data==NULL ) {
-				cout << "Unable to allocate memory for OpenGL rendering" << endl; return;
+				cout << "Unable to allocate memory for OpenGL texture" << endl;
+				return;
 			}
 
 			memset( data, 0, sizeof(unsigned char) * texture_size );
@@ -61,26 +67,32 @@ namespace GLViewer
 				data[ z*texture_sy*texture_sx + y*texture_sx + x] = im_data[ z*sy*sx + y*sx + x];
 			}
 
-			isMIP = true;
+			render_mode = MIP;
 		}
 
-		void updateTexture( unsigned char* im_data ) {
-			glBindTexture(GL_TEXTURE_3D, texture);
 
-			int texture_size = texture_sx * texture_sy * texture_sz; 
-			data = new (nothrow) unsigned char [ texture_size ];
+		bool update_data( unsigned char* im_data ) {
 			if( data==NULL ) {
-				cout << "Unable to allocate memory for OpenGL rendering" << endl; return;
+				return false; 
 			}
+			// update data for texture
+			int texture_size = texture_sx * texture_sy * texture_sz; 
+			for( int z=0;z<sz;z++ ) for( int y=0;y<sy;y++ ) { 
+				memcpy( data + z*texture_sy*texture_sx + y*texture_sx, im_data + z*sy*sx + y*sx, sx );
+			} 
+			return true;
+		}
 
-			memset( data, 0, sizeof(unsigned char) * texture_size );
-			for( int z=0;z<sz;z++ ) for( int y=0;y<sy;y++ ) for( int x=0; x<sx; x++ ) {
-				data[ z*texture_sy*texture_sx + y*texture_sx + x] = im_data[ z*sy*sx + y*sx + x];
+		bool update_texture(  ) {
+			if( data==NULL ) {
+				return false; 
 			}
-
+			// update texture for rendering 
+			glBindTexture(GL_TEXTURE_3D, texture);
 			glTexImage3D(GL_TEXTURE_3D, 0, GL_LUMINANCE, 
 				texture_sx, texture_sy, texture_sz, 0,
 				GL_LUMINANCE, GL_UNSIGNED_BYTE, data );
+			return true;
 		}
 
 		~Volumn() {
@@ -103,10 +115,6 @@ namespace GLViewer
 			glTexImage3D(GL_TEXTURE_3D, 0, GL_LUMINANCE, 
 				texture_sx, texture_sy, texture_sz, 0,
 				GL_LUMINANCE, GL_UNSIGNED_BYTE, data );
-			if(data){
-				delete[] data;
-				data = NULL;
-			}
 
 			//////////////////////////////////////
 			// Set up OpenGL
@@ -129,8 +137,12 @@ namespace GLViewer
 			glHint (GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 		}
 
-		virtual void keyboard(unsigned char key ) {
-			isMIP = !isMIP; 
+		virtual void keyboard( unsigned char key ) {
+			if( render_mode == MIP ) {
+				render_mode = CrossSection; 
+			} else {
+				render_mode = MIP; 
+			}
 		}
 
 		struct Vec3f{
@@ -271,7 +283,7 @@ namespace GLViewer
 			static char TWO = 0x2;
 			static char THREE = 0x4;
 
-			if( isMIP ) {
+			if( render_mode == MIP ) {
 				// visualizing the data with maximum intensity projection
 				glBindTexture(GL_TEXTURE_3D, texture);
 				glBegin(GL_QUADS);
