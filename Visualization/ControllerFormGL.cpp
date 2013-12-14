@@ -98,6 +98,7 @@ int ControllerFormGL::hScroll(WPARAM wParam, LPARAM lParam)
     HWND trackbarHandle = (HWND)lParam;
 
     int position = HIWORD(wParam);              // current tick mark position
+	int temp; 
     if(trackbarHandle)
     {
         // get control ID
@@ -105,35 +106,27 @@ int ControllerFormGL::hScroll(WPARAM wParam, LPARAM lParam)
 
         switch(LOWORD(wParam))
         {
-        case TB_THUMBPOSITION:  // by WM_LBUTTONUP
-            break;
-
-        case TB_LINEUP:         // by VK_RIGHT, VK_DOWN
-            break;
-
-        case TB_LINEDOWN:       // by VK_LEFT, VK_UP
-            break;
-
-        case TB_TOP:            // by VK_HOME
-            break;
-
-        case TB_BOTTOM:         // by VK_END
-            break;
-
-        case TB_PAGEUP:         // by VK_PRIOR (User click the channel to prior.)
-            break;
-
-        case TB_PAGEDOWN:       // by VK_NEXT (User click the channel to next.)
-            break;
-
-        case TB_ENDTRACK:       // by WM_KEYUP (User release a key.)
 		case TB_THUMBTRACK:     // user dragged the slider
-            position = ::SendMessage(trackbarHandle, TBM_GETPOS, 0, 0);
-            view->updateTrackbars(trackbarHandle, position);
-            if( trackbarId == IDC_MIN )
-                model->updateWindowCenterMin( position );
-            else if( trackbarId == IDC_MAX )
-                model->updateWindowCenterMax( position );
+		case WM_HSCROLL:
+            position = SendMessage(trackbarHandle, TBM_GETPOS, 0, 0);
+            if( trackbarId == IDC_MIN ) {
+				temp = view->getTrackbarWindowCenterMax();
+				if( temp < position ) {
+					view->updateTrackbarWindowCenterMax( position );
+					model->updateWindowCenter( position, position ); 
+				} else {
+					model->updateWindowCenterMin( position );
+				}
+			}
+            else if( trackbarId == IDC_MAX ) {
+				temp = view->getTrackbarWindowCenterMin();
+				if( temp > position ) {
+					view->updateTrackbarWindowCenterMin( position );
+					model->updateWindowCenter( position, position ); 
+				} else {
+					model->updateWindowCenterMax( position );
+				}
+			}
             break;
         }
     }

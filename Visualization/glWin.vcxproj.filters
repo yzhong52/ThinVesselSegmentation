@@ -25,12 +25,12 @@
     <Filter Include="Model\Vesselness">
       <UniqueIdentifier>{36c8ef5a-a472-437c-b5d2-1a044334ba34}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Log">
+      <UniqueIdentifier>{bc8ea8de-483e-43d5-bfb1-ee9e304c3873}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DialogWindow.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Log.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
@@ -66,9 +66,6 @@
     <ClCompile Include="ModelGL.cpp">
       <Filter>Model</Filter>
     </ClCompile>
-    <ClCompile Include="Bmp.cpp">
-      <Filter>Model</Filter>
-    </ClCompile>
     <ClCompile Include="..\VesselNess\Data3D.cpp">
       <Filter>Model\Vesselness</Filter>
     </ClCompile>
@@ -84,15 +81,12 @@
     <ClCompile Include="..\VesselNess\GLCamera.cpp">
       <Filter>Model\Vesselness</Filter>
     </ClCompile>
+    <ClCompile Include="Log.cpp">
+      <Filter>Log</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DialogWindow.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Log.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="logResource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="procedure.h">
@@ -131,9 +125,6 @@
     <ClInclude Include="Controller.h">
       <Filter>Controller</Filter>
     </ClInclude>
-    <ClInclude Include="Bmp.h">
-      <Filter>Model</Filter>
-    </ClInclude>
     <ClInclude Include="..\VesselNess\Data3D.h">
       <Filter>Model\Vesselness</Filter>
     </ClInclude>
@@ -145,6 +136,12 @@
     </ClInclude>
     <ClInclude Include="..\VesselNess\GLCamera.h">
       <Filter>Model\Vesselness</Filter>
+    </ClInclude>
+    <ClInclude Include="logResource.h">
+      <Filter>Log</Filter>
+    </ClInclude>
+    <ClInclude Include="Log.h">
+      <Filter>Log</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -160,7 +157,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="log.txt">
-      <Filter>Header Files</Filter>
+      <Filter>Log</Filter>
     </None>
   </ItemGroup>
 </Project>

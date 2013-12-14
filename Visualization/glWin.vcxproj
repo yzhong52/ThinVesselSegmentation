@@ -160,7 +160,6 @@
     <ClCompile Include="..\VesselNess\ImageProcessor.cpp" />
     <ClCompile Include="..\VesselNess\stdafx.cpp" />
     <ClCompile Include="..\VesselNess\Volumn.cpp" />
-    <ClCompile Include="Bmp.cpp" />
     <ClCompile Include="Controller.cpp" />
     <ClCompile Include="ControllerFormGL.cpp" />
     <ClCompile Include="ControllerGL.cpp" />
@@ -180,7 +179,6 @@
     <ClInclude Include="..\VesselNess\GLCamera.h" />
     <ClInclude Include="..\VesselNess\ImageProcessing.h" />
     <ClInclude Include="..\VesselNess\Volumn.h" />
-    <ClInclude Include="Bmp.h" />
     <ClInclude Include="Controller.h" />
     <ClInclude Include="ControllerFormGL.h" />
     <ClInclude Include="ControllerGL.h" />

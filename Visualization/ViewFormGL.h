@@ -25,21 +25,22 @@ namespace Win
         void initControls(HWND handle);         // init all controls
 
         // update controls on the form
-        void animate(bool flag);
-        void updateTrackbars(HWND handle, int position);
+        // void updateTrackbars(HWND handle, int position);
+
+		void updateTrackbarWindowCenterMin( int position );
+		void updateTrackbarWindowCenterMax( int position );
+
+		inline int getTrackbarWindowCenterMin(void) {
+			return trackbarWindowCenterMin.getPos(); 
+		}
+		inline int getTrackbarWindowCenterMax(void) {
+			return trackbarWindowCenterMax.getPos(); 
+		}
 
     protected:
 
     private:
-        // controls
-        //Win::Button buttonAnimate;
-        //Win::RadioButton radioFill;
-        //Win::RadioButton radioWireframe;
-        //Win::RadioButton radioPoint;
-        //Win::Trackbar trackbarRed;
-        //Win::Trackbar trackbarGreen;
-        //Win::Trackbar trackbarBlue;
-
+        // controls        
 		// Yuchen: Tracker For Window Center
 		Win::Trackbar trackbarWindowCenterMin; 
 		Win::Trackbar trackbarWindowCenterMax; 

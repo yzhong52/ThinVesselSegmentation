@@ -259,6 +259,12 @@ void ModelGL::updateWindowCenterMax( int position )
 }
 
 
+void ModelGL::updateWindowCenter( int min, int max ){
+	windowCenterMin = min; 
+	windowCenterMax = max; 
+	windowCenterUpdateData(); 
+}
+
 void ModelGL::windowCenterUpdateData() {
 	Win::log( "Updating Window Center [%d, %d]", windowCenterMin, windowCenterMax );
 	

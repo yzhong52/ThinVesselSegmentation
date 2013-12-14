@@ -276,7 +276,7 @@ namespace Win
         void setTicFreq(int freq) { SendMessage(handle, TBM_SETTICFREQ, (WPARAM)freq, 0); }
 
         // set/get current thumb position
-        int  getPos() const { SendMessage(handle, TBM_GETPOS, 0, 0); }
+        int  getPos() const { return SendMessage(handle, TBM_GETPOS, 0, 0); }
         void setPos(int pos) { SendMessage(handle, TBM_SETPOS, (WPARAM)true, (LPARAM)pos); }
     };
 
