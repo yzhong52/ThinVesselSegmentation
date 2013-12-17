@@ -32,7 +32,6 @@ public:
 	void zoomOut(void);
 
 	void rotate_scene(void); 
-
 	inline void setRotation( GLfloat rotation_x, GLfloat rotation_y ) {
 		xrot = rotation_x * rotate_speed;
 		yrot = rotation_y * rotate_speed;
@@ -60,6 +59,7 @@ public:
 	inline void translate_scene_reverse() {
 		glTranslatef( -t[0], -t[1], -t[2] );
 	}
+
 	inline void translate_aside( int translate_x, int translate_y ){
 		GLfloat tx = -translate_x * translate_speed;
 		GLfloat ty =  translate_y * translate_speed;

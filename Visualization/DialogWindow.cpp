@@ -44,8 +44,17 @@ DialogWindow::~DialogWindow()
 ///////////////////////////////////////////////////////////////////////////////
 HWND DialogWindow::create()
 {
-    handle = ::CreateDialogParam(instance, MAKEINTRESOURCE(id), parentHandle, Win::dialogProcedure, (LPARAM)controller);
 
+	//CreateDialogParamW(
+	//	/*__in_opt HINSTANCE hInstance*/ instance, 
+	//	/*__in LPCWSTR lpTemplateName*/ MAKEINTRESOURCE(id), 
+	//	/*__in_opt HWND hWndParent*/ parentHandle, 
+	//	/*__in_opt DLGPROC lpDialogFunc*/Win::dialogProcedure, 
+	//	/*__in LPARAM dwInitParam*/ (LPARAM)controller
+	//);
+
+    handle = ::CreateDialogParam(instance, MAKEINTRESOURCE(id), parentHandle, (DLGPROC)Win::dialogProcedure, (LPARAM)controller);
+	
     //this->show(SW_SHOWDEFAULT);                     // make it visible
 
     return handle;

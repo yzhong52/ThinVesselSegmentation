@@ -106,11 +106,13 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalIncludeDirectories>../dependencies/OpenCV 2.4.3/include;../VesselNess;../dependencies/glew-1.10.0/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>opengl32.lib;glu32.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opencv_core243d.lib;opencv_highgui243d.lib;opencv_imgproc243d.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
+      <AdditionalLibraryDirectories>$(ProjectDir)..\dependencies\OpenCV 2.4.3\x64\vc10\lib;$(ProjectDir)dependencies\glew-1.10.0\lib\Release\x64</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -145,13 +147,15 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalIncludeDirectories>../dependencies/OpenCV 2.4.3/include;../VesselNess;../dependencies/glew-1.10.0/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>opengl32.lib;glu32.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opencv_core243.lib;opencv_highgui243.lib;opencv_imgproc243.lib;glu32.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <AdditionalLibraryDirectories>$(ProjectDir)..\dependencies\OpenCV 2.4.3\x64\vc10\lib;$(ProjectDir)dependencies\glew-1.10.0\lib\Release\x64</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

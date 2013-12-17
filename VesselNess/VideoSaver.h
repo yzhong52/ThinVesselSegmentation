@@ -38,7 +38,12 @@ namespace GLViewer
 		unsigned int size_z(void) const { return 0; }
 
 		void init(int weight, int height);
+
+		// saving video
 		void saveBuffer(void);
+
+		// take screen shot
+		void takeScreenShot( int w, int h); 
 	};
 }
 

@@ -309,61 +309,65 @@ namespace GLViewer
 				glEnd();
 				glBindTexture( GL_TEXTURE_3D, NULL );
 			} 
-			// Yuchen: This rendering Mode requires the information of camera, which is wired 
-			//else 
-			//{
-			//	Vec3f center, vz;
-			//	center.x = cam.t[0]; center.y = cam.t[1]; center.z = cam.t[2];
-			//	vz.x = cam.vec_x[1]*cam.vec_y[2] - cam.vec_x[2]*cam.vec_y[1]; 
-			//	vz.y = cam.vec_x[2]*cam.vec_y[0] - cam.vec_x[0]*cam.vec_y[2]; 
-			//	vz.z = cam.vec_x[0]*cam.vec_y[1] - cam.vec_x[1]*cam.vec_y[0]; 
-			//	vector<Vec3f> points = intersectPoints( center, vz );
+			else if( ptrCam ) // Yuchen: This rendering Mode requires the information of camera 
+			{
+				// retrive camera infomation 
+				Vec3f center, vz;
+				center.x = -ptrCam->t[0] + ptrCam->center[0];
+				center.y = -ptrCam->t[1] + ptrCam->center[1];
+				center.z = -ptrCam->t[2] + ptrCam->center[2];
+				vz.x = ptrCam->vec_x[1]*ptrCam->vec_y[2] - ptrCam->vec_x[2]*ptrCam->vec_y[1]; 
+				vz.y = ptrCam->vec_x[2]*ptrCam->vec_y[0] - ptrCam->vec_x[0]*ptrCam->vec_y[2]; 
+				vz.z = ptrCam->vec_x[0]*ptrCam->vec_y[1] - ptrCam->vec_x[1]*ptrCam->vec_y[0]; 
 
-			//	glColor3f( 1.0f, 1.0f, 1.0f );
-			//	glBindTexture(GL_TEXTURE_3D, texture);
-			//	glBegin( GL_TRIANGLE_FAN );
-			//	for( unsigned int i=0; i<points.size(); i++ ) {
-			//		glTexCoord3f(
-			//			points[i].x / texture_sx,
-			//			points[i].y / texture_sy,
-			//			points[i].z / texture_sz );
-			//		glVertex3f( points[i].x, points[i].y, points[i].z ); 
-			//	}
-			//	glEnd();
-			//	glBindTexture( GL_TEXTURE_3D, NULL );
+				// get the cross section of cube
+				// the cross section can vary from a point to hexagon 
+				vector<Vec3f> points = intersectPoints( center, vz );
+				// draw the cross section
+				glColor3f( 1.0f, 1.0f, 1.0f );
+				glBindTexture(GL_TEXTURE_3D, texture);
+				glBegin( GL_TRIANGLE_FAN );
+				for( unsigned int i=0; i<points.size(); i++ ) {
+					glTexCoord3f(
+						points[i].x / texture_sx,
+						points[i].y / texture_sy,
+						points[i].z / texture_sz );
+					glVertex3f( points[i].x, points[i].y, points[i].z ); 
+				}
+				glEnd();
+				glBindTexture( GL_TEXTURE_3D, NULL );
+				// draw the boundary of the cross section
+				glColor3f( 0.3f, 0.3f, 0.3f );
+				glBegin( GL_LINE_LOOP );
+				for( unsigned int i=0; i<points.size(); i++ ) {
+					glVertex3f( points[i].x, points[i].y, points[i].z ); 
+				}
+				glEnd();
 
-			//	// draw the boundary of the cross section
-			//	glColor3f( 0.3f, 0.3f, 0.3f );
-			//	glBegin( GL_LINE_LOOP );
-			//	for( unsigned int i=0; i<points.size(); i++ ) {
-			//		glVertex3f( points[i].x, points[i].y, points[i].z ); 
-			//	}
-			//	glEnd();
-
-			//	// draw the boundary of the box
-			//	glColor3f( 0.0f, 0.0f, 0.8f );
-			//	// left borders
-			//	glBegin(GL_LINE_LOOP);
-			//	glVertex3i( 0,0,0 );
-			//	glVertex3i( 0,0,sz );
-			//	glVertex3i( 0,sy,sz );
-			//	glVertex3i( 0,sy,0 );
-			//	glEnd();
-			//	// right borders
-			//	glBegin(GL_LINE_LOOP);
-			//	glVertex3i( sx,0,0 );
-			//	glVertex3i( sx,0,sz );
-			//	glVertex3i( sx,sy,sz );
-			//	glVertex3i( sx,sy,0 );
-			//	glEnd();
-			//	// parrenl lines to x
-			//	glBegin(GL_LINES);
-			//	glVertex3i( 0,0,0 );  glVertex3i( sx,0,0 );
-			//	glVertex3i( 0,0,sz ); glVertex3i( sx,0,sz );
-			//	glVertex3i( 0,sy,sz );glVertex3i( sx,sy,sz );
-			//	glVertex3i( 0,sy,0 ); glVertex3i( sx,sy,0 );
-			//	glEnd();
-			//}
+				// draw the boundary of the box
+				glColor3f( 0.0f, 0.0f, 0.8f );
+				// left borders
+				glBegin(GL_LINE_LOOP);
+				glVertex3i( 0,0,0 );
+				glVertex3i( 0,0,sz );
+				glVertex3i( 0,sy,sz );
+				glVertex3i( 0,sy,0 );
+				glEnd();
+				// right borders
+				glBegin(GL_LINE_LOOP);
+				glVertex3i( sx,0,0 );
+				glVertex3i( sx,0,sz );
+				glVertex3i( sx,sy,sz );
+				glVertex3i( sx,sy,0 );
+				glEnd();
+				// parrenl lines to x-axix
+				glBegin(GL_LINES);
+				glVertex3i( 0,0,0 );  glVertex3i( sx,0,0 );
+				glVertex3i( 0,0,sz ); glVertex3i( sx,0,sz );
+				glVertex3i( 0,sy,sz );glVertex3i( sx,sy,sz );
+				glVertex3i( 0,sy,0 ); glVertex3i( sx,sy,0 );
+				glEnd();
+			}
 		}
 
 		unsigned int size_x() const { return sx; }

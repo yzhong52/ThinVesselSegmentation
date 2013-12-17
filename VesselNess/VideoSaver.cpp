@@ -59,9 +59,9 @@ namespace GLViewer
 		if( autoRotate ) glRotatef( 1, 0, 0, 1 ); 
 		if( !isInit ) return;
 		
-		Mat pixels( width, height, CV_8UC3 );
+		Mat pixels( /* num of rows */ height, /* num of cols */ width, CV_8UC3 );
 		glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, pixels.data );
-		Mat cv_pixels( width, height, CV_8UC3 );
+		Mat cv_pixels( /* num of rows */ height, /* num of cols */ width, CV_8UC3 );
 		for( int y=0; y<height; y++ ) for( int x=0; x<width; x++ ) 
 		{
 			cv_pixels.at<Vec3b>(y,x)[2] = pixels.at<Vec3b>(height-y-1,x)[0];
@@ -80,6 +80,23 @@ namespace GLViewer
 			cout << '\r' << "All Done. Thank you for waiting. " << endl;
 			exit(0);
 		} 
+	}
+
+	void VideoSaver::takeScreenShot( int w, int h){
+		Mat pixels( /* num of rows */ h, /* num of cols */ w, CV_8UC3 );
+		glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, pixels.data );
+		Mat cv_pixels( /* num of rows */ h, /* num of cols */ w, CV_8UC3 );
+		for( int y=0; y<h; y++ ) for( int x=0; x<w; x++ ) 
+		{
+			cv_pixels.at<Vec3b>(y,x)[2] = pixels.at<Vec3b>(h-y-1,x)[0];
+			cv_pixels.at<Vec3b>(y,x)[1] = pixels.at<Vec3b>(h-y-1,x)[1];
+			cv_pixels.at<Vec3b>(y,x)[0] = pixels.at<Vec3b>(h-y-1,x)[2];
+		}
+
+		stringstream ss; 
+		static int index = 0;
+		ss << "gl_screen_shot" << ++index << ".jpg"; 
+		imwrite( ss.str(), cv_pixels ); 
 	}
 }
 

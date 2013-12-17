@@ -15,7 +15,7 @@ namespace GLViewer
 {
 	// objects that need to be render
 	vector<Object*> obj;
-	const int maxNumViewports = 1; 
+	const int maxNumViewports = 2; 
 	int numViewports = maxNumViewports;
 	vector<bool> isDisplayObject[maxNumViewports];
 	
@@ -41,6 +41,7 @@ namespace GLViewer
 
 	bool isAxis = false;
 	
+	bool isSaveFrame = false; 
 
 	void render(void)									// Here's Where We Do All The Drawing
 	{
@@ -59,7 +60,13 @@ namespace GLViewer
 		cam.rotate_scene();
 		
 		// saving frame buffer as video
-		if( videoSaver ) videoSaver->saveBuffer();
+		if( videoSaver ) {
+			videoSaver->saveBuffer();
+		}
+		if( isSaveFrame ) {
+			videoSaver->takeScreenShot( width, height );
+			isSaveFrame = false; 
+		}
 		glutSwapBuffers();
 	}
 
@@ -177,6 +184,9 @@ namespace GLViewer
 		case '\t':
 			numViewports = (numViewports+1)%maxNumViewports + 1; 
 			reset_projection();
+			break;
+		case 's': case 'S': 
+			isSaveFrame = true; 
 			break;
 		case 27:
 			cout << "Rednering done. Thanks you for using GLViewer. " << endl;
