@@ -249,7 +249,7 @@ bool Data3D<T>::save( const string& file_name, const string& log, bool saveInfo,
 	smart_return_value( _size_total, "Save File Failed: Data is empty", false );
 
 	cout << "Saving file to " << file_name << endl;
-	cout << "Data Size: " << (long) _size_total * sizeof(T) << endl;
+	cout << "Data Size: " << (long) _size_total * sizeof(T) << " bytes "<< endl;
 
 	FILE* pFile = fopen( file_name.c_str(), "wb" );
 	if( isBigEndian ) {

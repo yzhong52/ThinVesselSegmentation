@@ -23,7 +23,7 @@
 
 GLViewerExt viwer;
 
-void compute_vesselness( string dataname = "vessel3d.rd.19",
+void compute_and_save_vesselness( string dataname = "vessel3d.rd.19",
 	float sigma_from = 0.5, float sigma_to = 45.0f, float sigma_step = 1.0 )
 {
 	// laoding data
@@ -37,9 +37,10 @@ void compute_vesselness( string dataname = "vessel3d.rd.19",
 	vesselness_name << ".sigma_to" << sigma_to;
 
 	stringstream vesselness_log;
-	vesselness_log << " sigma from " << sigma_from;
-	vesselness_log << " to "   << sigma_to;
-	vesselness_log << " with setp " << sigma_step;
+	vesselness_log << "Vesselness is computed with sigmas: ";
+	for( float sigma = sigma_from; sigma < sigma_to; sigma += sigma_step ) {
+		vesselness_log << sigma << ","; 
+	}
 
 	// compute vesselness
 	Data3D<Vesselness_All> vn_all;
@@ -188,6 +189,9 @@ void save_graph( MST::Graph3D<Edge>& graph, const string& filename ) {
 
 int main(int argc, char* argv[])
 {
+	
+	return 0; 
+
 	// Original Data (Before Rings Reduction) 
 	//Data3D<short> im_short0;
 	//im_short0.load( "data/roi16.partial.original.data" );
