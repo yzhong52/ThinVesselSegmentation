@@ -13,7 +13,7 @@
 	#include "Log.h"
 #endif
 
-#include "glew.h" // Yuchen
+#include "gl\glew.h" // Yuchen
 #pragma comment(lib, "glew32.lib") //Yuchen
 
 #include <GL/gl.h>
@@ -59,7 +59,7 @@ void reset_modelview(void) {
 ///////////////////////////////////////////////////////////////////////////////
 ModelGL::ModelGL() : windowWidth(0), windowHeight(0), windowResized(false)
 {
-	im_short.load( "data/roi15.data" ); 
+	im_short.load( "data/roi16.partial.data" ); 
 	// convert data to unsigned char
 	im_uchar.resize( im_short.get_size() ); 
 	// copy data based on window center

@@ -33,9 +33,6 @@
     <ClCompile Include="DialogWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="procedure.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -84,6 +81,7 @@
     <ClCompile Include="Log.cpp">
       <Filter>Log</Filter>
     </ClCompile>
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DialogWindow.h">

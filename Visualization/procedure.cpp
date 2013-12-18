@@ -22,7 +22,7 @@ LRESULT CALLBACK Win::windowProcedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 
     // find controller associated with window handle
     static Win::Controller *ctrl;
-    ctrl = (Controller*)::GetWindowLongPtr(hwnd, GWL_USERDATA);
+    ctrl = (Controller*)::GetWindowLongPtr(hwnd, GWLP_USERDATA);
 
     if(msg == WM_NCCREATE)  // Non-Client Create
     {
@@ -37,7 +37,7 @@ LRESULT CALLBACK Win::windowProcedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 
         // Second, store the pointer to the Controller into GWL_USERDATA,
         // so, other messege can be routed to the associated Controller.
-        ::SetWindowLongPtr(hwnd, GWL_USERDATA, (LONG_PTR)ctrl);
+        ::SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)ctrl);
 
         return ::DefWindowProc(hwnd, msg, wParam, lParam);
     }
@@ -202,7 +202,7 @@ BOOL CALLBACK Win::dialogProcedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lP
 {
     // find controller associated with window handle
     static Win::Controller *ctrl;
-    ctrl = (Controller*)::GetWindowLongPtr(hwnd, GWL_USERDATA);
+    ctrl = (Controller*)::GetWindowLongPtr(hwnd, GWLP_USERDATA);
 
     // WM_INITDIALOG message is called before displaying the dialog box.
     // lParam contains the value of dwInitParam of CreateDialogBoxParam(),
@@ -216,7 +216,7 @@ BOOL CALLBACK Win::dialogProcedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lP
 
         // Second, store the pointer to the Controller into GWL_USERDATA,
         // so, other messege can be routed to the associated Controller.
-        ::SetWindowLongPtr(hwnd, GWL_USERDATA, (LONG_PTR)ctrl);
+        ::SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)ctrl);
 
         // When WM_INITDIALOG is called, all controls in the dialog are created.
         // It is good time to initalize the appearance of controls here.

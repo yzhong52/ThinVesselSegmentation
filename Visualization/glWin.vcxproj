@@ -150,7 +150,7 @@
       <AdditionalIncludeDirectories>../dependencies/OpenCV 2.4.3/include;../VesselNess;../dependencies/glew-1.10.0/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>opencv_core243.lib;opencv_highgui243.lib;opencv_imgproc243.lib;glu32.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opencv_core243.lib;opencv_highgui243.lib;opencv_imgproc243.lib;opengl32.lib;glu32.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
