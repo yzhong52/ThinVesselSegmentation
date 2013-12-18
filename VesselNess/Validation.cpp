@@ -1,9 +1,14 @@
 #include "stdafx.h"
 #include "Validation.h"
-#include "Viewer.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
+
+#include "Data3D.h"
+#include "Kernel3D.h"
+#include "Image3D.h"
+#include "Viewer.h"
+#include "ImageProcessing.h" 
 
 namespace Validation{
 	namespace Eigenvalues {

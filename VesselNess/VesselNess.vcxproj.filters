@@ -39,9 +39,6 @@
     <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Viewer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Data3D.h">
       <Filter>3D Data Structures</Filter>
     </ClInclude>
@@ -114,12 +111,12 @@
     <ClInclude Include="GLCamera.h">
       <Filter>Visualization</Filter>
     </ClInclude>
+    <ClInclude Include="Direction.h">
+      <Filter>Visualization</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ImageProcessor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Viewer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Kernel3D.cpp">
@@ -168,5 +165,8 @@
       <Filter>Visualization</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Viewer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

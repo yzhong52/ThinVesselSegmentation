@@ -190,24 +190,29 @@ void save_graph( MST::Graph3D<Edge>& graph, const string& filename ) {
 int main(int argc, char* argv[])
 {
 	
-	return 0; 
-
 	// Original Data (Before Rings Reduction) 
 	//Data3D<short> im_short0;
 	//im_short0.load( "data/roi16.partial.original.data" );
 	//viwer.addObject( im_short0 );
 
-	// Original Data (After Rings Reduction) 
-	Image3D<short> im_short;
-	im_short.load( "data/roi16.partial.data" );
-	viwer.addObject( im_short );
+	//// Original Data (After Rings Reduction) 
+	//Image3D<short> im_short;
+	//im_short.load( "data/roi16.partial.data" );
+	//viwer.addObject( im_short );
 
-	// Vesselness
-	Data3D<Vesselness_All> vn_all;
-	//vn_all.load( "data/roi16.rd.19.sigma45.vn_all" );
-	vn_all.load( "data/roi16.partial.sigma_to8.vn_all" );
-	viwer.addObject( vn_all );
+	//// Vesselness
+	//Data3D<Vesselness_All> vn_all;
+	////vn_all.load( "data/roi16.rd.19.sigma45.vn_all" );
+	//vn_all.load( "data/roi16.partial.sigma_to8.vn_all" );
+	//viwer.addObject( vn_all );
 	
+	// Direction of Vesselness
+	Data3D<Vesselness_Sig> vn_sig;
+	//vn_all.load( "data/roi16.rd.19.sigma45.vn_all" );
+	vn_sig.load( "data/roi16.partial.sigma_to8.vn_sig" );
+	viwer.addObject( vn_sig );
+
+
 	// Ring reduction after model fitting
 	//Graph< MST::Edge_Ext, MST::LineSegment > rings;
 	// pre_process_xuefeng( "data/roi16.partial", "data/roi16.partial.rd", rings, 

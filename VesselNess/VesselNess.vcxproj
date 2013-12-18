@@ -332,6 +332,7 @@
     <ClInclude Include="CenterLine.h" />
     <ClInclude Include="Data3D.h" />
     <ClInclude Include="DataTypes.h" />
+    <ClInclude Include="Direction.h" />
     <ClInclude Include="DisjointSet.h" />
     <ClInclude Include="Edge.h" />
     <ClInclude Include="GLCamera.h" />
@@ -352,7 +353,6 @@
     <ClInclude Include="Validation.h" />
     <ClInclude Include="VesselDetector.h" />
     <ClInclude Include="Vesselness.h" />
-    <ClInclude Include="Viewer.h" />
     <ClInclude Include="Volumn.h" />
   </ItemGroup>
   <ItemGroup>

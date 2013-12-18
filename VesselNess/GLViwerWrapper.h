@@ -6,6 +6,7 @@
 
 #include "Data3D.h"
 #include "Volumn.h"
+#include "Direction.h"
 #include "MinSpanTreeWrapper.h"
 #include "CenterLine.h"
 #include "GLViewer.h" 
@@ -52,9 +53,8 @@ public:
 	
 	template<>
 	void addObject( Data3D<Vesselness_Sig>& vn_sig ) {
-		Data3D<float> vn_float;
-		vn_sig.copyDimTo( vn_float, 0 ); 
-		this->addObject( vn_float );
+		GLViewer::Direction* vDir = new GLViewer::Direction( vn_sig ); 
+		objs.push_back( vDir );
 	}
 
 	template<class E, class N>
