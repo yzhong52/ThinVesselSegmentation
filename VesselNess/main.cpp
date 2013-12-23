@@ -20,6 +20,7 @@
 
 #include "CenterLine.h"
 #include "Volumn.h"
+#include "Validation.h" 
 
 GLViewerExt viwer;
 
@@ -187,6 +188,12 @@ void save_graph( MST::Graph3D<Edge>& graph, const string& filename ) {
 
 int main(int argc, char* argv[])
 {
+	Validation::Eigenvalues::plot_1d_box();
+	Validation::Eigenvalues::plot_2d_tubes();
+	Validation::Eigenvalues::plot_2d_ball();
+	Validation::Eigenvalues::plot_3d_tubes();
+	return 0;
+
 	// Vesselness for different sigmas
 	 Data3D<float> vn_float1, vn_float2, vn_float3, vn_float4;
 	vn_float1.load( "output/roi16.partial.sigma_to0.8.vn_float" );  viwer.addObject( vn_float1 ); 

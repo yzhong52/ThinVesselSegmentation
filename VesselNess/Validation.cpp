@@ -200,8 +200,8 @@ namespace Validation{
 			for( int x=0; x<src.SX(); x++ ) {
 				background = 255 - src.at(x, cy, cz) / 65536 * 55;
 			}
-			VI::OpenCV::plot( "3d_tubes_hessians_square_sum", plot_square_sum, 100, 0 );
-			VI::OpenCV::plot( "3d_tubes_hessians_multiply", plot_multiply, 100, 0 );
+			VI::OpenCV::plot( "3d_tubes_hessians_square_sum", plot_square_sum );
+			VI::OpenCV::plot( "3d_tubes_hessians_multiply", plot_multiply );
 		}
 
 		void plot_2d_tubes(void) {
@@ -270,7 +270,7 @@ namespace Validation{
 			// Visualization of Eigenvalues of Hessian Matrix
 			Mat_<unsigned char> background = src.row( rid ).clone().reshape(0, src.cols);
 			background = 255 - background / 5;
-			VI::OpenCV::plot( "2d_tubes_hessians", plot_big_eigen, 100, 0, background );
+			VI::OpenCV::plot( "2d_tubes_hessians", plot_big_eigen, 200, 0, background );
 
 			// visualzie and save original image
 			imshow("Original Image", src);
@@ -349,8 +349,8 @@ namespace Validation{
 
 			// Visualization of Eigenvalues of Hessian Matrix
 			VI::OpenCV::plot( "2d_balls_log", plot_log, 100, 0, background );
-			VI::OpenCV::plot( "2d_balls_hessians_multiply", plot_multiply, 100, 0, background );
-			VI::OpenCV::plot( "2d_balls_hessians_square_sum", plot_square_sum, 100, 0, background );
+			VI::OpenCV::plot( "2d_balls_hessians_multiply", plot_multiply, 200, 0, background );
+			VI::OpenCV::plot( "2d_balls_hessians_square_sum", plot_square_sum, 200, 0, background );
 
 			imshow("Original Image", src);
 			imwrite("output/original_image_2d_balls.jpg", src);
@@ -388,7 +388,7 @@ namespace Validation{
 			}
 
 			// visualize the 1D image
-			VI::OpenCV::plot( "1d_boxes_2nd_gaussian", plot_boxes_gxx, 100, 0 );
+			VI::OpenCV::plot( "1d_boxes_2nd_gaussian", plot_boxes_gxx, 200, 0 );
 		}
 	}
 
