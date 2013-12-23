@@ -313,9 +313,9 @@ namespace GLViewer
 			{
 				// retrive camera infomation 
 				Vec3f center, vz;
-				center.x = -ptrCam->t[0] + ptrCam->center[0];
-				center.y = -ptrCam->t[1] + ptrCam->center[1];
-				center.z = -ptrCam->t[2] + ptrCam->center[2];
+				center.x = -ptrCam->t[0];
+				center.y = -ptrCam->t[1];
+				center.z = -ptrCam->t[2];
 				vz.x = ptrCam->vec_x[1]*ptrCam->vec_y[2] - ptrCam->vec_x[2]*ptrCam->vec_y[1]; 
 				vz.y = ptrCam->vec_x[2]*ptrCam->vec_y[0] - ptrCam->vec_x[0]*ptrCam->vec_y[2]; 
 				vz.z = ptrCam->vec_x[0]*ptrCam->vec_y[1] - ptrCam->vec_x[1]*ptrCam->vec_y[0]; 

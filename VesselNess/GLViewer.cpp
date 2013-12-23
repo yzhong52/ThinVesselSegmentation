@@ -46,7 +46,8 @@ namespace GLViewer
 	void render(void)									// Here's Where We Do All The Drawing
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	// Clear The Screen And The Depth Buffer
-
+		
+		cam.pushMatrix();
 		// rending two viewports
 		for( int i=0; i<numViewports; i++ ) {
 			// For viewport i
@@ -56,7 +57,7 @@ namespace GLViewer
 			}
 			if( isAxis ) cam.draw_axis();
 		}
-
+		cam.popMatrix();
 		cam.rotate_scene();
 		
 		// saving frame buffer as video

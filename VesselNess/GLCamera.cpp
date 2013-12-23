@@ -57,7 +57,6 @@ GLCamera::GLCamera(void)
 	vec_x[2] = 0;
 
 	// translation
-	center[0] = center[1] = center[2] = 0; 
 	t[0] = t[1] = t[2] = 0;
 	translate_speed = 0.2f;
 
@@ -72,21 +71,12 @@ GLCamera::~GLCamera(void)
 
 
 void GLCamera::zoomIn(void){
-	glTranslatef( t[0], t[1], t[2] );
-	glScalef( 1.01f, 1.01f, 1.01f );
-	glTranslatef( -t[0], -t[1], -t[2] );
-
 	translate_speed /= 1.01f; 
 	rotate_speed  /= 1.01f; 
-
 	scale *= 1.01f; 
 }
 
 void GLCamera::zoomOut(void){
-	glTranslatef( t[0], t[1], t[2] );
-	glScalef( 0.99f, 0.99f, 0.99f );
-	glTranslatef( -t[0], -t[1], -t[2] );
-
 	translate_speed /= 0.99f; 
 	rotate_speed  /= 0.99f; 
 	scale *= 0.99f; 
@@ -99,18 +89,14 @@ void GLCamera::rotate_scene(void){
 	tick = GetTickCount(); 
 	elapsedTick = tick - oldtick;
 	oldtick = tick; 
+
 	// update the rotation matrix as well as the rotation axis
-	glTranslatef( center[0]-t[0], center[1]-t[1], center[2]-t[2] );
 	glRotatef( xrot * elapsedTick, vec_y[0], vec_y[1], vec_y[2] );
 	rotate_axis( vec_y[0], vec_y[1], vec_y[2], 
-		vec_x[0], vec_x[1], vec_x[2],
-		vec_x[0], vec_x[1], vec_x[2], -xrot * elapsedTick );
+                 vec_x[0], vec_x[1], vec_x[2],
+		         vec_x[0], vec_x[1], vec_x[2], -xrot * elapsedTick );
 	glRotatef( yrot * elapsedTick, vec_x[0], vec_x[1], vec_x[2] );
 	rotate_axis( vec_x[0], vec_x[1], vec_x[2], 
-		vec_y[0], vec_y[1], vec_y[2],
-		vec_y[0], vec_y[1], vec_y[2], -yrot * elapsedTick );
-	glTranslatef( 
-			-center[0]+t[0], 
-			-center[1]+t[1], 
-			-center[2]+t[2] );
+		         vec_y[0], vec_y[1], vec_y[2],
+		         vec_y[0], vec_y[1], vec_y[2], -yrot * elapsedTick );
 }

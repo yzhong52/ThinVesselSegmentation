@@ -54,8 +54,6 @@ void compute_and_save_vesselness( string dataname = "vessel3d.rd.19",
 	Data3D<float> vn_float; 
 	vn_sig.copyDimTo( vn_float, 0 );
 	vn_float.save( vesselness_name.str()+".vn_float", vesselness_log.str() );
-	
-	// GLViewer::MIP( vn_float );
 }
 
 void compute_min_span_tree( string data_name = "roi16.partial" ) {
@@ -189,16 +187,22 @@ void save_graph( MST::Graph3D<Edge>& graph, const string& filename ) {
 
 int main(int argc, char* argv[])
 {
-	
+	// Vesselness for different sigmas
+	 Data3D<float> vn_float1, vn_float2, vn_float3, vn_float4;
+	vn_float1.load( "output/roi16.partial.sigma_to0.8.vn_float" );  viwer.addObject( vn_float1 ); 
+	vn_float2.load( "output/roi16.partial.sigma_to1.3.vn_float" );  viwer.addObject( vn_float2 ); 
+	vn_float3.load( "output/roi16.partial.sigma_to2.6.vn_float" );  viwer.addObject( vn_float3 ); 
+	vn_float4.load( "output/roi16.partial.sigma_to5.1.vn_float" );  viwer.addObject( vn_float4 ); 
+
 	// Original Data (Before Rings Reduction) 
-	//Data3D<short> im_short0;
-	//im_short0.load( "data/roi16.partial.original.data" );
-	//viwer.addObject( im_short0 );
+	Data3D<short> im_short0;
+	im_short0.load( "data/roi16.partial.original.data" );
+	viwer.addObject( im_short0 );
 
 	//// Original Data (After Rings Reduction) 
-	//Image3D<short> im_short;
-	//im_short.load( "data/roi16.partial.data" );
-	//viwer.addObject( im_short );
+	Image3D<short> im_short;
+	im_short.load( "data/roi16.partial.data" );
+	viwer.addObject( im_short );
 
 	//// Vesselness
 	//Data3D<Vesselness_All> vn_all;
@@ -208,9 +212,14 @@ int main(int argc, char* argv[])
 	
 	// Direction of Vesselness
 	Data3D<Vesselness_Sig> vn_sig;
-	//vn_all.load( "data/roi16.rd.19.sigma45.vn_all" );
 	vn_sig.load( "data/roi16.partial.sigma_to8.vn_sig" );
 	viwer.addObject( vn_sig );
+
+
+	// Direction of Vesselness
+	Data3D<float> vn_float;
+	vn_float.load( "data/roi16.partial.sigma_to8.vn_float" );
+	viwer.addObject( vn_float );
 
 
 	// Ring reduction after model fitting
