@@ -366,7 +366,7 @@ namespace Validation{
 			// visualize the 1D image
 			vector< Mat_<double> > im_vec;
 			im_vec.push_back( im );
-			VI::OpenCV::plot( "riginal_image_1d_boxes", im_vec, 100 );
+			VI::OpenCV::plot( "riginal_image_1d_boxes", im_vec, 200 );
 
 			// convolution
 			vector< Mat_<double> > plot_boxes_gxx;
@@ -388,7 +388,7 @@ namespace Validation{
 			}
 
 			// visualize the 1D image
-			VI::OpenCV::plot( "1d_boxes_2nd_gaussian", plot_boxes_gxx, 200, 0 );
+			VI::OpenCV::plot( "1d_boxes_2nd_gaussian", plot_boxes_gxx, 200  );
 		}
 	}
 

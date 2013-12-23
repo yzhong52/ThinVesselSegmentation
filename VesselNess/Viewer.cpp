@@ -34,7 +34,7 @@ namespace Viewer{
 
 			if( im_width==0 ) im_width = width;
 
-			double scale = 1.0f * im_width / width;
+			double scale = 2.0f * im_width / width;
 
 			// Set the color the lines for each group
 			// Maximum number of groups is 6. 
