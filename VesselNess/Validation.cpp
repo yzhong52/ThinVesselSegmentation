@@ -223,9 +223,12 @@ namespace Validation{
 			// Eigenvalues result will be stored in these matrix
 			Mat big_eigen( src.rows, src.cols, CV_32F );
 
-			vector< Mat_<double> > plot_big_eigen;
+			// get the center row
+			int rid = src.rows / 2;
 
 			for( unsigned int i=0; i<radius.size(); i++ ) {
+				vector< Mat_<double> > plot_big_eigen;
+
 				// coresponding sigma
 				float sigma = radius[i];
 				float sigma2 = sigma * sigma;
@@ -262,19 +265,18 @@ namespace Validation{
 				}
 
 				plot_big_eigen.push_back( big_eigen.row( src.rows/2 ).reshape( 0, big_eigen.cols) );
+				// Visualization of Eigenvalues of Hessian Matrix
+				Mat_<unsigned char> background = src.row( rid ).clone().reshape(0, src.cols);
+				background = 255 - background / 5;
+				
+				stringstream ss;
+				ss << "2d_tubes_hessians_" << radius[i]; 
+				VI::OpenCV::plot( ss.str(), plot_big_eigen, 200, 0, background );
 			}
-
-			// get the center row
-			int rid = src.rows / 2;
-
-			// Visualization of Eigenvalues of Hessian Matrix
-			Mat_<unsigned char> background = src.row( rid ).clone().reshape(0, src.cols);
-			background = 255 - background / 5;
-			VI::OpenCV::plot( "2d_tubes_hessians", plot_big_eigen, 200, 0, background );
 
 			// visualzie and save original image
 			imshow("Original Image", src);
-			imwrite("output/original_image_2d_tubes.jpg", src);
+			imwrite("output/original_image_2d_tubes_20.jpg", src);
 
 			return;
 		}
@@ -285,14 +287,19 @@ namespace Validation{
 			get_2d_balls( src, radius );
 
 			// Eigenvalues result will be stored in these matrix
-			vector< Mat_<double> > plot_log;
+			vector< Mat_<double> > plot_log; // laplacian of gaussian
+			
+			vector< Mat_<double> > plot_negative_add;
 			vector< Mat_<double> > plot_multiply;
 			vector< Mat_<double> > plot_square_sum;
-
+			vector< Mat_<double> > plot_max_abs;
+			vector< Mat_<double> > plot_negative_min;
+			vector< Mat_<double> > plot_eigenvalues;
+			
 			// get the center row
 			int rid = src.rows / 2;
 
-			for( unsigned int i=0; i<radius.size(); i++ ) {
+			for( unsigned int i=1; i<radius.size(); i++ ) {
 				// coresponding sigma
 				double sigma = radius[i] / sqrt(2.0);
 				// Kernel Size of Gaussian Blur
@@ -312,6 +319,7 @@ namespace Validation{
 				Mat log, im_log;
 				cv::add( gxx, gyy, log, noArray(), CV_64F );
 				filter2D( src, im_log, CV_64F, log );
+				// laplacian of gaussian
 				plot_log.push_back( im_log.row( rid ).reshape( 0, im_log.cols) );
 
 				Mat fxx, fxy, fyy;
@@ -319,8 +327,14 @@ namespace Validation{
 				filter2D( src, fxx, CV_64F, gxx );
 				filter2D( src, fyy, CV_64F, gyy );
 				// compute the vessel ness
-				Mat_<double> hessian_square_sum( src.rows, src.cols, CV_32F );
-				Mat_<double> hessian_multiply(   src.rows, src.cols, CV_32F );
+				Mat_<double> hessian_negative_add( src.rows, src.cols, CV_32F );
+				Mat_<double> hessian_multiply(     src.rows, src.cols, CV_32F );
+				Mat_<double> hessian_square_sum(   src.rows, src.cols, CV_32F );
+				Mat_<double> hessian_max_abs( src.rows, src.cols, CV_32F );
+				Mat_<double> hessian_negative_min( src.rows, src.cols, CV_32F );
+				Mat_<double> hessian_eigenvalue1( src.rows, src.cols, CV_32F );
+				Mat_<double> hessian_eigenvalue2( src.rows, src.cols, CV_32F );
+				
 				for( int y=0; y<src.rows; y++ ) for( int x=0; x<src.cols; x++ ){
 					// construct the harris matrix
 					Mat hessian = (Mat_<double>( 2, 2) << 
@@ -334,12 +348,28 @@ namespace Validation{
 					double eigenvalue2 = eigenvalues.at<double>(1);
 					if( abs(eigenvalue1)>abs(eigenvalue2) ) std::swap( eigenvalue1, eigenvalue2 );
 					// Now we have |eigenvalue1| < |eigenvalue2| 
-
-					hessian_square_sum.at<double>(y, x) = sqrt( eigenvalue1 * eigenvalue1 + eigenvalue2 * eigenvalue2 );
+					hessian_negative_add.at<double>(y, x)  = - (eigenvalue1 + eigenvalue2); 
 					hessian_multiply.at<double>(y, x) = eigenvalue1 * eigenvalue2;
+					hessian_square_sum.at<double>(y, x) = sqrt( eigenvalue1 * eigenvalue1 + eigenvalue2 * eigenvalue2 );
+					hessian_max_abs.at<double>(y, x)  = max(abs(eigenvalue1), abs(eigenvalue2) ); 
+					hessian_negative_min.at<double>(y, x)  = - min(eigenvalue1, eigenvalue2); 
+
+					if( eigenvalue1 > eigenvalue2 ) {
+						hessian_eigenvalue1.at<double>(y, x)  = eigenvalue1; 
+						hessian_eigenvalue2.at<double>(y, x)  = eigenvalue2; 
+					} else {
+						hessian_eigenvalue1.at<double>(y, x)  = eigenvalue2; 
+						hessian_eigenvalue2.at<double>(y, x)  = eigenvalue1; 
+					}
 				}
-				plot_square_sum.push_back( hessian_square_sum.row( rid ).reshape( 0, hessian_square_sum.cols) );
+				plot_negative_add.push_back( hessian_negative_add.row( rid ).reshape( 0, hessian_negative_add.cols) ); 
 				plot_multiply.push_back( hessian_multiply.row( rid ).reshape( 0, hessian_multiply.cols) );
+				plot_square_sum.push_back( hessian_square_sum.row( rid ).reshape( 0, hessian_square_sum.cols) );
+				plot_max_abs.push_back( hessian_max_abs.row( rid ).reshape( 0, hessian_max_abs.cols) ); 
+				plot_negative_min.push_back( hessian_negative_min.row( rid ).reshape( 0, hessian_negative_min.cols) ); 
+				plot_eigenvalues.push_back( hessian_eigenvalue1.row( rid ).reshape( 0, hessian_eigenvalue1.cols) ); 
+				plot_eigenvalues.push_back( hessian_eigenvalue2.row( rid ).reshape( 0, hessian_eigenvalue2.cols) ); 
+				break;
 			}
 
 			int row = src.rows / 2;
@@ -349,8 +379,15 @@ namespace Validation{
 
 			// Visualization of Eigenvalues of Hessian Matrix
 			VI::OpenCV::plot( "2d_balls_log", plot_log, 100, 0, background );
+
+			VI::OpenCV::plot( "2d_balls_hessians_negative_add", plot_negative_add, 200, 0, background );
 			VI::OpenCV::plot( "2d_balls_hessians_multiply", plot_multiply, 200, 0, background );
 			VI::OpenCV::plot( "2d_balls_hessians_square_sum", plot_square_sum, 200, 0, background );
+			VI::OpenCV::plot( "2d_balls_hessians_negative_min", plot_negative_min, 200, 0, background );
+			VI::OpenCV::plot( "2d_balls_hessians_max_abs", plot_max_abs, 200, 0, background );
+			VI::OpenCV::plot( "2d_balls_hessians_eigenvalues", plot_eigenvalues, 200, 0, background );
+			
+			
 
 			imshow("Original Image", src);
 			imwrite("output/original_image_2d_balls.jpg", src);
@@ -368,9 +405,10 @@ namespace Validation{
 			im_vec.push_back( im );
 			VI::OpenCV::plot( "riginal_image_1d_boxes", im_vec, 200 );
 
-			// convolution
-			vector< Mat_<double> > plot_boxes_gxx;
 			for( int i=0; i<3; i++ ) {
+				// convolution
+				vector< Mat_<double> > plot_boxes_gxx;
+
 				// generate the gaussian filter
 				float sigma = radius[i];
 				int ks = int( sigma * 6 + 1 );
@@ -385,10 +423,12 @@ namespace Validation{
 				Mat_<double> boxes_gxx;
 				filter2D( im, boxes_gxx, CV_64F, gxx );
 				plot_boxes_gxx.push_back( boxes_gxx );
+				
+				// visualize the 1D image
+				stringstream ss; 
+				ss << "1d_boxes_2nd_gaussian_" << radius[i]; 
+				VI::OpenCV::plot( ss.str(), plot_boxes_gxx, 200  );
 			}
-
-			// visualize the 1D image
-			VI::OpenCV::plot( "1d_boxes_2nd_gaussian", plot_boxes_gxx, 200  );
 		}
 	}
 

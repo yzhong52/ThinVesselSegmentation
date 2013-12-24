@@ -94,7 +94,7 @@ namespace Viewer{
 						p2.x = int( j * scale );
 						p2.y = int( im_height * scale * ( margin + (1-2*margin)*(1.0 - (v2-minVal)/max_min_gap ) ) );
 
-						cv::line( temp, p1, p2, colors[i], 1, CV_AA );
+						cv::line( temp, p1, p2, colors[i], 3, CV_AA );
 					}
 				}
 				// color blending
