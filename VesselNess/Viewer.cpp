@@ -40,12 +40,13 @@ namespace Viewer{
 			// Maximum number of groups is 6. 
 			Scalar colors[MAX_GROUP] = {
 				Scalar(0, 0, 255), // red
+				Scalar(0, 0, 255), // red
 				Scalar(0, 155, 0), // green
 				Scalar(255, 0, 0), // blue
 				// Scalar(0, 255, 255), // yellow
 				Scalar(255, 0, 255), 
 				Scalar(255, 255, 0), 
-				Scalar(0, 0, 0)
+				// Scalar(0, 0, 0)
 			};
 
 			// find the maximum and minimum among all mat_y
@@ -73,7 +74,7 @@ namespace Viewer{
 				line( im_bg, 
 					Point(i, 0)*scale, 
 					Point(i, im_height-1)*scale, 
-					color, 1, CV_AA, 0 );
+					color, 2, CV_AA, 0 );
 			}
 
 			Mat im_result = im_bg.clone();

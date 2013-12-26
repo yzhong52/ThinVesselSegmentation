@@ -188,7 +188,10 @@ void save_graph( MST::Graph3D<Edge>& graph, const string& filename ) {
 
 int main(int argc, char* argv[])
 {
-	Validation::Eigenvalues::plot_1d_box();
+	//Validation::box_func_and_2nd_gaussian::plot_different_size();
+	//Validation::box_func_and_2nd_gaussian::plot_different_pos();
+	
+	//Validation::Eigenvalues::plot_1d_box();
 	Validation::Eigenvalues::plot_2d_tubes();
 	// Validation::Eigenvalues::plot_2d_ball();
 	//Validation::Eigenvalues::plot_3d_tubes();

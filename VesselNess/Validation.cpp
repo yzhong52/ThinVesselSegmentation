@@ -271,7 +271,7 @@ namespace Validation{
 				
 				stringstream ss;
 				ss << "2d_tubes_hessians_" << radius[i]; 
-				VI::OpenCV::plot( ss.str(), plot_big_eigen, 200, 0, background );
+				VI::OpenCV::plot( ss.str(), plot_big_eigen, 100, 0, background );
 			}
 
 			// visualzie and save original image
@@ -380,12 +380,12 @@ namespace Validation{
 			// Visualization of Eigenvalues of Hessian Matrix
 			VI::OpenCV::plot( "2d_balls_log", plot_log, 100, 0, background );
 
-			VI::OpenCV::plot( "2d_balls_hessians_negative_add", plot_negative_add, 200, 0, background );
-			VI::OpenCV::plot( "2d_balls_hessians_multiply", plot_multiply, 200, 0, background );
-			VI::OpenCV::plot( "2d_balls_hessians_square_sum", plot_square_sum, 200, 0, background );
-			VI::OpenCV::plot( "2d_balls_hessians_negative_min", plot_negative_min, 200, 0, background );
-			VI::OpenCV::plot( "2d_balls_hessians_max_abs", plot_max_abs, 200, 0, background );
-			VI::OpenCV::plot( "2d_balls_hessians_eigenvalues", plot_eigenvalues, 200, 0, background );
+			VI::OpenCV::plot( "2d_balls_hessians_negative_add", plot_negative_add, 100, 0, background );
+			VI::OpenCV::plot( "2d_balls_hessians_multiply", plot_multiply, 100, 0, background );
+			VI::OpenCV::plot( "2d_balls_hessians_square_sum", plot_square_sum, 100, 0, background );
+			VI::OpenCV::plot( "2d_balls_hessians_negative_min", plot_negative_min, 100, 0, background );
+			VI::OpenCV::plot( "2d_balls_hessians_max_abs", plot_max_abs, 100, 0, background );
+			VI::OpenCV::plot( "2d_balls_hessians_eigenvalues", plot_eigenvalues, 100, 0, background );
 			
 			
 
@@ -403,7 +403,7 @@ namespace Validation{
 			// visualize the 1D image
 			vector< Mat_<double> > im_vec;
 			im_vec.push_back( im );
-			VI::OpenCV::plot( "riginal_image_1d_boxes", im_vec, 200 );
+			VI::OpenCV::plot( "riginal_image_1d_boxes", im_vec, 100 );
 
 			for( int i=0; i<3; i++ ) {
 				// convolution
@@ -427,7 +427,7 @@ namespace Validation{
 				// visualize the 1D image
 				stringstream ss; 
 				ss << "1d_boxes_2nd_gaussian_" << radius[i]; 
-				VI::OpenCV::plot( ss.str(), plot_boxes_gxx, 200  );
+				VI::OpenCV::plot( ss.str(), plot_boxes_gxx, 100 );
 			}
 		}
 	}
