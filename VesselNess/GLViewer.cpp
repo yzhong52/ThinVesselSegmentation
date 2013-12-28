@@ -34,8 +34,8 @@ namespace GLViewer
 	/////////////////////////////////////////
 	// Initial Window Size
 	///////////////////////
-	int width = 512 * numViewports;
-	int height = 512;
+	int width = 1024 * numViewports;
+	int height = 1024;
 	
 	VideoSaver* videoSaver = NULL;
 
@@ -132,7 +132,7 @@ namespace GLViewer
 	void reset_projection(void) {
 		glMatrixMode(GL_PROJECTION);						// Select The Projection Matrix
 		glLoadIdentity();									// Reset The Projection Matrix
-		GLfloat maxVal = max( sx, max(sy, sz) ) * 1.0f;
+		GLfloat maxVal = max( sx, max(sy, sz) ) * 0.8f;
 		
 		GLfloat ratio = (GLfloat)width / (GLfloat)height / numViewports;
 		
@@ -198,6 +198,11 @@ namespace GLViewer
 
 	void go( vector<Object*> objects, VideoSaver* video )
 	{
+		if( objects.size()==0 ) {
+			std::cerr << "No Objects For Rendering... " << std::endl;
+			return;
+		}
+
 		obj = objects; 
 		videoSaver = video;
 		for( unsigned int i=0; i<maxNumViewports; i++ ){ 

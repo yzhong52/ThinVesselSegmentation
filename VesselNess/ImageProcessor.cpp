@@ -218,19 +218,20 @@ void ImageProcessing::non_max_suppress( const Data3D<Vesselness_All>& src, Data3
 				}
 
 				// Method II: Based on Sigma
-				int sigma = (int) ceil( src.at(x,y,z).sigma );
-				for( int i = -sigma; i <= sigma; i++ ) for( int j = -sigma; j <= sigma; j++ ) {
-					Vec3i offset = src.at(x,y,z).normals[0] * i + src.at(x,y,z).normals[1] * j;
-					int ox = x + offset[0];
-					int oy = y + offset[1];
-					int oz = z + offset[2];
-					if( src.isValid(ox,oy,oz) && src.at(x,y,z).rsp < src.at(ox,oy,oz).rsp ) {
-						isMaximum = false; break;
-					} 
-				}
+				//int sigma = (int) ceil( src.at(x,y,z).sigma );
+				//for( int i = -sigma; i <= sigma; i++ ) for( int j = -sigma; j <= sigma; j++ ) {
+				//	Vec3i offset = src.at(x,y,z).normals[0] * i + src.at(x,y,z).normals[1] * j;
+				//	int ox = x + offset[0];
+				//	int oy = y + offset[1];
+				//	int oz = z + offset[2];
+				//	if( src.isValid(ox,oy,oz) && src.at(x,y,z).rsp < src.at(ox,oy,oz).rsp ) {
+				//		isMaximum = false; break;
+				//	} 
+				//}
 
 				if( isMaximum ) {
 					dst.at(x,y,z) = src.at(x,y,z);
+					// dst.at(x,y,z).rsp = sqrt( dst.at(x,y,z).rsp ); 
 				}
 			}
 		}
@@ -279,7 +280,7 @@ void ImageProcessing::edge_tracing( Data3D<Vesselness_Sig>& src, Data3D<Vesselne
 	for(z=0;z<src.SZ();z++) for (y=0;y<src.SY();y++) for(x=0;x<src.SX();x++) {
 		if( mask.at( x,y,z ) ) {
 			dst.at( x,y,z ) = src.at( x,y,z );
-			dst.at( x,y,z ).rsp = sqrt( src1d.at( x,y,z ) );
+			// dst.at( x,y,z ).rsp = sqrt( src1d.at( x,y,z ) );
 		}
 	} 
 }

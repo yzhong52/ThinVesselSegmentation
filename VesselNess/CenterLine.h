@@ -182,7 +182,7 @@ namespace GLViewer{
 			static char LINES = 0x1;
 			static char CYLINDERS = 0x2;
 			static char POINTS  = 0x4;
-
+			
 			if( mode & LINES ) {
 				glBegin( GL_LINES );
 				// draw 3d line

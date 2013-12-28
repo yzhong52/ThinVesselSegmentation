@@ -190,47 +190,39 @@ int main(int argc, char* argv[])
 {
 	//Validation::box_func_and_2nd_gaussian::plot_different_size();
 	//Validation::box_func_and_2nd_gaussian::plot_different_pos();
-	
 	//Validation::Eigenvalues::plot_1d_box();
-	Validation::Eigenvalues::plot_2d_tubes();
-	// Validation::Eigenvalues::plot_2d_ball();
+	//Validation::Eigenvalues::plot_2d_tubes();
+	//Validation::Eigenvalues::plot_2d_ball();
 	//Validation::Eigenvalues::plot_3d_tubes();
-	return 0;
+	
 
 	// Vesselness for different sigmas
-	 Data3D<float> vn_float1, vn_float2, vn_float3, vn_float4;
-	vn_float1.load( "output/roi16.partial.sigma_to0.8.vn_float" );  viwer.addObject( vn_float1 ); 
-	vn_float2.load( "output/roi16.partial.sigma_to1.3.vn_float" );  viwer.addObject( vn_float2 ); 
-	vn_float3.load( "output/roi16.partial.sigma_to2.6.vn_float" );  viwer.addObject( vn_float3 ); 
-	vn_float4.load( "output/roi16.partial.sigma_to5.1.vn_float" );  viwer.addObject( vn_float4 ); 
+	//Data3D<float> vn_float1, vn_float2, vn_float3, vn_float4;
+	//vn_float1.load( "output/roi16.partial.sigma_to0.8.vn_float" );  viwer.addObject( vn_float1 ); 
+	//vn_float2.load( "output/roi16.partial.sigma_to1.3.vn_float" );  viwer.addObject( vn_float2 ); 
+	//vn_float3.load( "output/roi16.partial.sigma_to2.6.vn_float" );  viwer.addObject( vn_float3 ); 
+	//vn_float4.load( "output/roi16.partial.sigma_to5.1.vn_float" );  viwer.addObject( vn_float4 ); 
 
 	// Original Data (Before Rings Reduction) 
-	Data3D<short> im_short0;
-	im_short0.load( "data/roi16.partial.original.data" );
-	viwer.addObject( im_short0 );
+	//Data3D<short> im_short0;
+	//im_short0.load( "data/roi16.partial.original.data" );
+	//viwer.addObject( im_short0 );
 
 	//// Original Data (After Rings Reduction) 
-	Image3D<short> im_short;
-	im_short.load( "data/roi16.partial.data" );
-	viwer.addObject( im_short );
+	//Image3D<short> im_short;
+	//im_short.load( "data/roi16.partial.data" );
+	//viwer.addObject( im_short );
 
 	//// Vesselness
-	//Data3D<Vesselness_All> vn_all;
-	////vn_all.load( "data/roi16.rd.19.sigma45.vn_all" );
-	//vn_all.load( "data/roi16.partial.sigma_to8.vn_all" );
-	//viwer.addObject( vn_all );
+	Data3D<Vesselness_All> vn_all;
+	//vn_all.load( "data/roi16.rd.19.sigma45.vn_all" );
+	vn_all.load( "data/roi16.partial.sigma_to8.vn_all" );
+	viwer.addObject( vn_all );
 	
-	// Direction of Vesselness
+	//// Direction of Vesselness
 	Data3D<Vesselness_Sig> vn_sig;
 	vn_sig.load( "data/roi16.partial.sigma_to8.vn_sig" );
-	viwer.addObject( vn_sig );
-
-
-	// Direction of Vesselness
-	Data3D<float> vn_float;
-	vn_float.load( "data/roi16.partial.sigma_to8.vn_float" );
-	viwer.addObject( vn_float );
-
+	//viwer.addObject( vn_sig );
 
 	// Ring reduction after model fitting
 	//Graph< MST::Edge_Ext, MST::LineSegment > rings;
@@ -239,16 +231,32 @@ int main(int argc, char* argv[])
 	//GLViewer::CenterLine<MST::Edge_Ext, MST::LineSegment> *cObj = viwer.addObject( rings );
 	//cObj->setColor( 1.0f, 1.0f, 0.0f,/*Yellow*/ 1.0f, 1.0f, 0.0f/*Yellow*/ );
 	
-	//Graph< MST::Edge_Ext, MST::LineSegment > tree;
-	//MinSpanTree::build_tree_xuefeng( "data/roi16.partial.rd", tree, 250 );
-	//viwer.addObject( tree );
-	
+	// Model Fitting 
+	Graph< MST::Edge_Ext, MST::LineSegment > tree;
+	MinSpanTree::build_tree_xuefeng( "data/roi16.partial.rd", tree, 250 );
+	viwer.addObject( tree );
+
+	// Model Fitting - without min span tree
+	Graph< MST::Edge_Ext, MST::LineSegment > tree_without_mst;
+	tree_without_mst.get_nodes() = tree.get_nodes();
+	viwer.addObject( tree_without_mst );
+
+	// Data Thining
 	//MST::Graph3D<Edge> tree2; 
 	//// MST::edge_tracing( vn_all, tree2, 0.55f, 0.015f ); 
 	//// save_graph( tree2, "output/roi16.rd.19.sigma45.edge_tracing.min_span_tree.txt" );
 	//load_graph( tree2, "output/roi16.rd.19.sigma45.edge_tracing.min_span_tree.txt" );
 	//viwer.addObject( tree2 ); 
 	
+	// Data Thinning
+	Data3D<Vesselness_Sig> vn_sig_nms; 
+	IP::non_max_suppress( vn_all, vn_sig_nms ); 
+	viwer.addObject( vn_sig_nms ); 
+
+	Data3D<Vesselness_Sig> vn_sig_et; 
+	IP::edge_tracing( vn_sig_nms, vn_sig_et, 0.38f, 0.05f );
+	viwer.addObject( vn_sig_et ); 
+
 	viwer.go();
 
 	return 0;

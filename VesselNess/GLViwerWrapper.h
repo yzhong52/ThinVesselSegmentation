@@ -53,10 +53,11 @@ public:
 	
 	template<>
 	void addObject( Data3D<Vesselness_Sig>& vn_sig ) {
-		GLViewer::Direction* vDir = new GLViewer::Direction( vn_sig ); 
-		objs.push_back( vDir );
+		Data3D<float> vn_float;
+		vn_sig.copyDimTo( vn_float, 0 ); 
+		this->addObject( vn_float );
 	}
-
+	
 	template<class E, class N>
 	GLViewer::CenterLine<E, N>* addObject( Graph< E, N >& tree ) {
 		GLViewer::CenterLine<E, N> *cObj = new GLViewer::CenterLine<E, N>( tree ); 
@@ -70,6 +71,12 @@ public:
 	void addObject( MinSpanTree::Graph3D< E, N >& tree ) {
 		GLViewer::CenterLine<E, N> *cObj = new GLViewer::CenterLine<E, N>( tree ); 
 		objs.push_back( cObj );
+	}
+
+
+	void addDiretionObject( Data3D<Vesselness_Sig>& vn_sig ) {
+		GLViewer::Direction* vDir = new GLViewer::Direction( vn_sig ); 
+		objs.push_back( vDir );
 	}
 
 	void go() {

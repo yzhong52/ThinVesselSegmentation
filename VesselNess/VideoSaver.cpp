@@ -83,8 +83,12 @@ namespace GLViewer
 	}
 
 	void VideoSaver::takeScreenShot( int w, int h){
-		Mat pixels( /* num of rows */ h, /* num of cols */ w, CV_8UC3 );
-		glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, pixels.data );
+		int width  = (int) pow(2, ceil( log(1.0f*w)/log(2.0f) )); 
+		int height = (int) pow(2, ceil( log(1.0f*h)/log(2.0f) )); 
+
+		Mat pixels( /* num of rows */ height, /* num of cols */ width, CV_8UC3 );
+		glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, pixels.data );
+
 		Mat cv_pixels( /* num of rows */ h, /* num of cols */ w, CV_8UC3 );
 		for( int y=0; y<h; y++ ) for( int x=0; x<w; x++ ) 
 		{
@@ -95,7 +99,7 @@ namespace GLViewer
 
 		stringstream ss; 
 		static int index = 0;
-		ss << "gl_screen_shot" << ++index << ".jpg"; 
+		ss << "output/gl_screen_shot" << ++index << ".jpg"; 
 		imwrite( ss.str(), cv_pixels ); 
 	}
 }
