@@ -253,9 +253,15 @@ int main(int argc, char* argv[])
 	IP::non_max_suppress( vn_all, vn_sig_nms ); 
 	viwer.addObject( vn_sig_nms ); 
 
+	Data3D<Vesselness_Sig> vn_sig_et1; 
+	IP::edge_tracing( vn_sig_nms, vn_sig_et1, 0.38f, 0.38f );
+	viwer.addObject( vn_sig_et1 ); 
+
 	Data3D<Vesselness_Sig> vn_sig_et; 
 	IP::edge_tracing( vn_sig_nms, vn_sig_et, 0.38f, 0.05f );
 	viwer.addObject( vn_sig_et ); 
+
+	
 
 	viwer.go();
 
