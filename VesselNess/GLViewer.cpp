@@ -160,18 +160,15 @@ namespace GLViewer
 	{
 		if( key >= '1' && key <= '9' ){
 			unsigned int index = key - '1';
-			if( index < isDisplayObject[numViewports-1].size() ) {
+			if( index >= isDisplayObject[numViewports-1].size() )  return;
+
+			if (glutGetModifiers() == GLUT_ACTIVE_ALT ) {
+				obj[index]->keyboard( '\t' );
+			} else {
 				isDisplayObject[numViewports-1][index] = !isDisplayObject[numViewports-1][index];
 			}
 		} 
 
-		// additional key board control for objects
-		if( key =='q' || key =='Q' && 0<obj.size() ) obj[0]->keyboard( '\t' );
-		if( key =='w' || key =='W' && 1<obj.size() ) obj[1]->keyboard( '\t' );
-		if( key =='e' || key =='E' && 2<obj.size() ) obj[2]->keyboard( '\t' );
-		if( key =='r' || key =='R' && 3<obj.size() ) obj[3]->keyboard( '\t' );
-		if( key =='t' || key =='T' && 4<obj.size() ) obj[4]->keyboard( '\t' );
-		
 		switch (key) 
 		{
 		case ' ': 
@@ -263,15 +260,16 @@ namespace GLViewer
 		cout << "Redenring Begin..." << endl;
 		cout << "======================= Instructions =======================" << endl;
 		cout << "   Mouse Controls: " << endl;
-		cout << "       LEFT Button - Rotation " << endl;
-		cout << "       RIGHT Button - Translation (aside) " << endl;
-		cout << "       Middle Button - Translation (forward/backward) " << endl;
+		cout << "       LEFT Button       - Rotation " << endl;
+		cout << "       RIGHT Button      - Translation (aside) " << endl;
+		cout << "       Middle Button     - Translation (forward/backward) " << endl;
 		cout << "   Keyboard Controls: " << endl;
-		cout << "       TAB   - Toggle on/off The Second Viewport" << endl;
-		cout << "       a     - Toggle on/off Rotation Center " << endl;
-		cout << "       SPACE - Reset Projection Matrix " << endl;
-		cout << "       1,2,3 - Toggle on/off objects " << endl;
-		cout << "       ESC   - Exit " << endl;
+		cout << "       TAB               - Toggle on/off The Second Viewport" << endl;
+		cout << "       a                 - Toggle on/off Rotation Center " << endl;
+		cout << "       SPACE             - Reset Projection Matrix " << endl;
+		cout << "       1,2,3...          - Toggle on/off objects " << endl;
+		cout << "       SHIFT + 1,2,3...  - Change Rendering Mode for a object " << endl;
+		cout << "       ESC               - Exit " << endl;
 
 		glutMainLoop(); // No Code Will Be Executed After This Line
 	}

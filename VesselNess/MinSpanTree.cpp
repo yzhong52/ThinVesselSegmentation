@@ -261,8 +261,12 @@ namespace MinSpanTree
 		std::ifstream fin1, fin2;
 		string filename1 = dataname;
 		string filename2 = dataname;
-		filename1 += ".linedata.txt";
-		filename2 += ".models.txt";
+		if( dataname.back() != '/' ){
+			filename1 += ".";
+			filename2 += ".";
+		}
+		filename1 += "linedata.txt";
+		filename2 += "models.txt";
 
 		fin1.open( filename1 );
 		fin2.open( filename2 );

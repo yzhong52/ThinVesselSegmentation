@@ -28,9 +28,14 @@ public:
 		// resize the nodes
 		nodes.resize( num_node );
 		// clear the edges
-		while( !edges.empty() ) edges.pop();
+		clear_edges(); 
 	}
 	
+	inline void clear_edges(void) {
+		// clear the edges
+		edges = std::priority_queue<Edge_Type>();
+	}
+
 	// add an edge to a graph
 	void add_edge( Edge_Type edge ){
 		edges.push( edge ); 
