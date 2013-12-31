@@ -220,8 +220,8 @@ int main(int argc, char* argv[])
 	viwer.addObject( vn_all );
 	
 	//// Direction of Vesselness
-	Data3D<Vesselness_Sig> vn_sig;
-	vn_sig.load( "data/roi16.partial.sigma_to8.vn_sig" );
+	//Data3D<Vesselness_Sig> vn_sig;
+	//vn_sig.load( "data/roi16.partial.sigma_to8.vn_sig" );
 	//viwer.addObject( vn_sig );
 
 	// Ring reduction after model fitting
@@ -236,32 +236,38 @@ int main(int argc, char* argv[])
 	MinSpanTree::build_tree_xuefeng( "data/roi16.partial.rd", tree, 250 );
 	viwer.addObject( tree );
 
-	// Model Fitting - without min span tree
+	//// Model Fitting - without min span tree
 	Graph< MST::Edge_Ext, MST::LineSegment > tree_without_mst;
 	tree_without_mst.get_nodes() = tree.get_nodes();
 	viwer.addObject( tree_without_mst );
 
 	// Data Thining
-	//MST::Graph3D<Edge> tree2; 
-	//// MST::edge_tracing( vn_all, tree2, 0.55f, 0.015f ); 
-	//// save_graph( tree2, "output/roi16.rd.19.sigma45.edge_tracing.min_span_tree.txt" );
-	//load_graph( tree2, "output/roi16.rd.19.sigma45.edge_tracing.min_span_tree.txt" );
-	//viwer.addObject( tree2 ); 
-	
+	MST::Graph3D<Edge> tree2; 
+	// MST::edge_tracing( vn_all, tree2, 0.55f, 0.015f ); 
+	// save_graph( tree2, "output/roi16.rd.19.sigma45.edge_tracing.min_span_tree.txt" );
+	load_graph( tree2, "output/roi16.rd.19.sigma45.edge_tracing.min_span_tree.txt" );
+	viwer.addObject( tree2 ); 
+	// Data Thining (Data Points)
+	Data3D<float> tree2_nodes( vn_all.get_size() ); 
+	for( unsigned int i=0; i< tree2.num_edges(); i++ ) {
+		Edge& e = tree2.get_edge(i);
+		tree2_nodes.at( tree2.get_pos(e.node1) ) = max(vn_all.at( tree2.get_pos(e.node1) ).rsp, 0.2f); 
+		tree2_nodes.at( tree2.get_pos(e.node2) ) = max(vn_all.at( tree2.get_pos(e.node2) ).rsp, 0.2f); 
+	}
+	viwer.addObject( tree2_nodes ); 
+
 	// Data Thinning
-	Data3D<Vesselness_Sig> vn_sig_nms; 
-	IP::non_max_suppress( vn_all, vn_sig_nms ); 
-	viwer.addObject( vn_sig_nms ); 
-
-	Data3D<Vesselness_Sig> vn_sig_et1; 
-	IP::edge_tracing( vn_sig_nms, vn_sig_et1, 0.38f, 0.38f );
-	viwer.addObject( vn_sig_et1 ); 
-
-	Data3D<Vesselness_Sig> vn_sig_et; 
-	IP::edge_tracing( vn_sig_nms, vn_sig_et, 0.38f, 0.05f );
-	viwer.addObject( vn_sig_et ); 
-
-	
+	//Data3D<Vesselness_Sig> vn_sig_nms; 
+	//IP::non_max_suppress( vn_all, vn_sig_nms ); 
+	//viwer.addObject( vn_sig_nms ); 
+	//// Data Thinning with One Threshold
+	//Data3D<Vesselness_Sig> vn_sig_et1; 
+	//IP::edge_tracing( vn_sig_nms, vn_sig_et1, 0.38f, 0.38f );
+	//viwer.addObject( vn_sig_et1 ); 
+	//// Data Thinning with Dual Threshold
+	//Data3D<Vesselness_Sig> vn_sig_et; 
+	//IP::edge_tracing( vn_sig_nms, vn_sig_et, 0.38f, 0.05f );
+	//viwer.addObject( vn_sig_et ); 
 
 	viwer.go();
 

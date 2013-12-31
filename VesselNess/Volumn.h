@@ -285,6 +285,7 @@ namespace GLViewer
 
 			if( render_mode == MIP ) {
 				// visualizing the data with maximum intensity projection
+				glTranslatef( -0.5f, -0.5f, -0.5f );
 				glBindTexture(GL_TEXTURE_3D, texture);
 				glBegin(GL_QUADS);
 				glColor3f( 1.0f, 1.0f, 1.0f );
@@ -308,6 +309,7 @@ namespace GLViewer
 				}
 				glEnd();
 				glBindTexture( GL_TEXTURE_3D, NULL );
+				glTranslatef( 0.5f, 0.5f, 0.5f );
 			} 
 			else if( ptrCam ) // Yuchen: This rendering Mode requires the information of camera 
 			{

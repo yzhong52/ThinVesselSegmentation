@@ -48,7 +48,7 @@ namespace GLViewer
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	// Clear The Screen And The Depth Buffer
 		
 		cam.pushMatrix();
-		// rending two viewports
+		// rending viewports
 		for( int i=0; i<numViewports; i++ ) {
 			// For viewport i
 			glViewport (i*width/numViewports, 0, width/numViewports, height);
