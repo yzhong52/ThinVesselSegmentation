@@ -119,7 +119,11 @@ namespace GLViewer
 			// Set up OpenGL
 			
 			// Enable Blending For Maximum Intensity Projection
-			setRenderMode( MIP );
+			setRenderMode( CrossSection );
+			
+			// Antialiasing
+			glEnable (GL_LINE_SMOOTH);
+			glHint (GL_LINE_SMOOTH_HINT, GL_NICEST );
 
 			// Use GL_NEAREST to see the voxels
 			glEnable( GL_TEXTURE_3D ); // Enable Texture Mapping
