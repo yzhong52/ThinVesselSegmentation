@@ -34,8 +34,8 @@ namespace GLViewer
 	/////////////////////////////////////////
 	// Initial Window Size
 	///////////////////////
-	int width = 1024 * numViewports;
-	int height = 1024;
+	int width = 512 * numViewports;
+	int height = 512;
 	
 	VideoSaver* videoSaver = NULL;
 
@@ -68,6 +68,7 @@ namespace GLViewer
 			videoSaver->takeScreenShot( width, height );
 			isSaveFrame = false; 
 		}
+
 		glutSwapBuffers();
 	}
 

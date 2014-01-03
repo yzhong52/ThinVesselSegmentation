@@ -24,7 +24,8 @@ namespace GLViewer
 		// rendeing mode
 		enum RenderMode{ 
 			MIP, //Maximum Intensity Projection
-			CrossSection 
+			CrossSection, 
+			Surface
 		} render_mode; 
 		/////////////////////////////////////////
 		// Data
@@ -66,8 +67,6 @@ namespace GLViewer
 			for( int z=0;z<sz;z++ ) for( int y=0;y<sy;y++ ) for( int x=0; x<sx; x++ ) {
 				data[ z*texture_sy*texture_sx + y*texture_sx + x] = im_data[ z*sy*sx + y*sx + x];
 			}
-
-			render_mode = MIP;
 		}
 
 
@@ -119,9 +118,8 @@ namespace GLViewer
 			//////////////////////////////////////
 			// Set up OpenGL
 			
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_ONE, GL_ONE);
-			glBlendEquationEXT( GL_MAX_EXT ); // Enable Blending For Maximum Intensity Projection
+			// Enable Blending For Maximum Intensity Projection
+			setRenderMode( MIP );
 
 			// Use GL_NEAREST to see the voxels
 			glEnable( GL_TEXTURE_3D ); // Enable Texture Mapping
@@ -137,11 +135,34 @@ namespace GLViewer
 			glHint (GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 		}
 
+		void setRenderMode( RenderMode mode ){
+			switch( mode ) {
+			case MIP:
+				glDisable(GL_DEPTH_TEST);
+				glEnable(GL_BLEND);
+				glBlendFunc(GL_ONE, GL_ONE);
+				glBlendEquation( GL_MAX_EXT ); 
+				cout << "Volumn Rendeing Mode is set to MIP" << endl;
+				break;
+			case CrossSection:
+				glEnable(GL_DEPTH_TEST);
+				glDisable(GL_BLEND);
+				cout << "Volumn Rendeing Mode is set to CrossSection" << endl;
+				break;
+			case Surface:
+				glEnable(GL_DEPTH_TEST);
+				glDisable(GL_BLEND);
+				cout << "Volumn Rendeing Mode is set to Surface" << endl;
+				break;
+			}
+			render_mode = mode; 
+		}
+
 		virtual void keyboard( unsigned char key ) {
-			if( render_mode == MIP ) {
-				render_mode = CrossSection; 
-			} else {
-				render_mode = MIP; 
+			switch (render_mode){
+			case MIP:                setRenderMode( CrossSection ); break;
+			case CrossSection:       setRenderMode( Surface ); break;
+			case Surface:            setRenderMode( MIP ); break;
 			}
 		}
 
@@ -278,6 +299,62 @@ namespace GLViewer
 			return result;
 		}
 
+
+		void render_volumn( const float& x_increase = 0.27f, const float& y_increase = 0.27f, const float& z_increase = 0.27f ){
+			glBindTexture(GL_TEXTURE_3D, texture);
+			glBegin(GL_QUADS);
+			for( float i=0.0f; i<=sx-1; i+=x_increase ) {
+				glTexCoord3f( 1.0f*(i+0.5f)/texture_sx, 0.0f,                      0.0f );                      glVertex3f( i, 0.0f,        0.0f );
+				glTexCoord3f( 1.0f*(i+0.5f)/texture_sx, 1.0f*(sy-0.5f)/texture_sy, 0.0f );                      glVertex3f( i, 1.0f*(sy-1), 0.0f );
+				glTexCoord3f( 1.0f*(i+0.5f)/texture_sx, 1.0f*(sy-0.5f)/texture_sy, 1.0f*(sz-0.5f)/texture_sz ); glVertex3f( i, 1.0f*(sy-1), 1.0f*(sz-1) );
+				glTexCoord3f( 1.0f*(i+0.5f)/texture_sx, 0.0f,                      1.0f*(sz-0.5f)/texture_sz ); glVertex3f( i, 0.0f,        1.0f*(sz-1) );
+			}
+			for( float i=0.0f; i<=sy-1; i+=y_increase ) {
+				glTexCoord3f( 0.0f,                      1.0f*(i+0.5f)/texture_sy, 0.0f );                      glVertex3f( 0.0f,        i, 0.0f );
+				glTexCoord3f( 1.0f*(sx-0.5f)/texture_sx, 1.0f*(i+0.5f)/texture_sy, 0.0f );                      glVertex3f( 1.0f*(sx-1), i, 0.0f );
+				glTexCoord3f( 1.0f*(sx-0.5f)/texture_sx, 1.0f*(i+0.5f)/texture_sy, 1.0f*(sz-0.5f)/texture_sz ); glVertex3f( 1.0f*(sx-1), i, 1.0f*(sz-1) );
+				glTexCoord3f( 0.0f,                      1.0f*(i+0.5f)/texture_sy, 1.0f*(sz-0.5f)/texture_sz ); glVertex3f( 0.0f,        i, 1.0f*(sz-1) );
+			}
+			for( float i=0.0f; i<=sz-1; i+=z_increase ) {
+				glTexCoord3f( 0.0f,                      0.0f,                      1.0f*(i+0.5f)/texture_sz ); glVertex3f( 0.0f,        0.0f,        i );
+				glTexCoord3f( 1.0f*(sx-0.5f)/texture_sx, 0.0f,                      1.0f*(i+0.5f)/texture_sz ); glVertex3f( 1.0f*(sx-1), 0.0f,        i );
+				glTexCoord3f( 1.0f*(sx-0.5f)/texture_sx, 1.0f*(sy-0.5f)/texture_sy, 1.0f*(i+0.5f)/texture_sz ); glVertex3f( 1.0f*(sx-1), 1.0f*(sy-1), i );
+				glTexCoord3f( 0.0f,                      1.0f*(sy-0.5f)/texture_sy, 1.0f*(i+0.5f)/texture_sz ); glVertex3f( 0.0f,        1.0f*(sy-1), i );
+			}
+			glEnd();
+			glBindTexture( GL_TEXTURE_3D, NULL );
+		}
+
+		void render_outline(void){
+			float x_min = -0.5f;
+			float y_min = -0.5f;
+			float z_min = -0.5f;
+			float X_MAX = sx-1 - x_min;
+			float Y_MAX = sy-1 - y_min;
+			float Z_MAX = sz-1 - z_min;
+			// left borders
+			glBegin(GL_LINE_LOOP);
+			glVertex3f( x_min, y_min, z_min );
+			glVertex3f( x_min, Y_MAX, z_min );
+			glVertex3f( x_min, Y_MAX, Z_MAX );
+			glVertex3f( x_min, y_min, Z_MAX );
+			glEnd();
+			// right borders
+			glBegin(GL_LINE_LOOP);
+			glVertex3f( X_MAX, y_min, z_min );
+			glVertex3f( X_MAX, Y_MAX, z_min );
+			glVertex3f( X_MAX, Y_MAX, Z_MAX );
+			glVertex3f( X_MAX, y_min, Z_MAX );
+			glEnd();
+			// parrenl lines to x-axix
+			glBegin(GL_LINES);
+			glVertex3f( x_min, y_min, z_min ); glVertex3f( X_MAX, y_min, z_min );
+			glVertex3f( x_min, Y_MAX, z_min ); glVertex3f( X_MAX, Y_MAX, z_min );
+			glVertex3f( x_min, Y_MAX, Z_MAX ); glVertex3f( X_MAX, Y_MAX, Z_MAX );
+			glVertex3f( x_min, y_min, Z_MAX ); glVertex3f( X_MAX, y_min, Z_MAX );
+			glEnd();
+		}
+
 		void render(void){
 			static char ONE = 0x1;
 			static char TWO = 0x2;
@@ -285,46 +362,26 @@ namespace GLViewer
 
 			if( render_mode == MIP ) {
 				// visualizing the data with maximum intensity projection
-				glTranslatef( -0.5f, -0.5f, -0.5f );
-				glBindTexture(GL_TEXTURE_3D, texture);
-				glBegin(GL_QUADS);
-				glColor3f( 1.0f, 1.0f, 1.0f );
-				for( float i=0; i<=sz; i+=0.27f ) {
-					glTexCoord3f( 0.0f,               0.0f,               1.0f*i/texture_sz ); glVertex3f( 0.0f,    0.0f,    i );
-					glTexCoord3f( 1.0f*sx/texture_sx, 0.0f,               1.0f*i/texture_sz ); glVertex3f( 1.0f*sx, 0.0f,    i );
-					glTexCoord3f( 1.0f*sx/texture_sx, 1.0f*sy/texture_sy, 1.0f*i/texture_sz ); glVertex3f( 1.0f*sx, 1.0f*sy, i );
-					glTexCoord3f( 0.0f,               1.0f*sy/texture_sy, 1.0f*i/texture_sz ); glVertex3f( 0.0f,    1.0f*sy, i );
-				}
-				for( float i=0; i<=sy; i+=0.27f ) {
-					glTexCoord3f( 0.0f,               1.0f*i/texture_sy, 0.0f );               glVertex3f( 0.0f,    i, 0.0f );
-					glTexCoord3f( 1.0f*sx/texture_sx, 1.0f*i/texture_sy, 0.0f );               glVertex3f( 1.0f*sx, i, 0.0f );
-					glTexCoord3f( 1.0f*sx/texture_sx, 1.0f*i/texture_sy, 1.0f*sz/texture_sz ); glVertex3f( 1.0f*sx, i, 1.0f*sz );
-					glTexCoord3f( 0.0f,               1.0f*i/texture_sy, 1.0f*sz/texture_sz ); glVertex3f( 0.0f,    i, 1.0f*sz );
-				}
-				for( float i=0; i<=sx; i+=0.27f ) {
-					glTexCoord3f( 1.0f*i/texture_sx, 0.0f,               0.0f );               glVertex3f( i, 0.0f,    0.0f );
-					glTexCoord3f( 1.0f*i/texture_sx, 1.0f*sy/texture_sy, 0.0f );               glVertex3f( i, 1.0f*sy, 0.0f );
-					glTexCoord3f( 1.0f*i/texture_sx, 1.0f*sy/texture_sy, 1.0f*sz/texture_sz ); glVertex3f( i, 1.0f*sy, 1.0f*sz );
-					glTexCoord3f( 1.0f*i/texture_sx, 0.0f,               1.0f*sz/texture_sz ); glVertex3f( i, 0.0f,    1.0f*sz );
-				}
-				glEnd();
-				glBindTexture( GL_TEXTURE_3D, NULL );
-				glTranslatef( 0.5f, 0.5f, 0.5f );
+				glColor3f( 1.0f, 1.0f, 1.0f ); render_volumn();
+				glColor3f( 0.2f, 0.2f, 0.2f ); render_outline();
 			} 
-			else if( ptrCam ) // Yuchen: This rendering Mode requires the information of camera 
+			else if( render_mode == CrossSection ) // Yuchen: This rendering Mode requires the information of camera 
 			{
+				if( ptrCam==NULL ) return; 
 				// retrive camera infomation 
 				Vec3f center, vz;
-				center.x = -ptrCam->t[0];
-				center.y = -ptrCam->t[1];
-				center.z = -ptrCam->t[2];
+				center.x = ptrCam->t[0];
+				center.y = ptrCam->t[1];
+				center.z = ptrCam->t[2];
 				vz.x = ptrCam->vec_x[1]*ptrCam->vec_y[2] - ptrCam->vec_x[2]*ptrCam->vec_y[1]; 
 				vz.y = ptrCam->vec_x[2]*ptrCam->vec_y[0] - ptrCam->vec_x[0]*ptrCam->vec_y[2]; 
 				vz.z = ptrCam->vec_x[0]*ptrCam->vec_y[1] - ptrCam->vec_x[1]*ptrCam->vec_y[0]; 
-
 				// get the cross section of cube
 				// the cross section can vary from a point to hexagon 
 				vector<Vec3f> points = intersectPoints( center, vz );
+
+				glEnable(GL_DEPTH_TEST);
+
 				// draw the cross section
 				glColor3f( 1.0f, 1.0f, 1.0f );
 				glBindTexture(GL_TEXTURE_3D, texture);
@@ -338,6 +395,13 @@ namespace GLViewer
 				}
 				glEnd();
 				glBindTexture( GL_TEXTURE_3D, NULL );
+
+				// draw the boundary of the box
+				glColor3f( 0.0f, 0.0f, 0.8f );
+				render_outline(); 
+
+				// We want to boarder to be visible all the time; therefore disable depth_test
+				glDisable(GL_DEPTH_TEST); 
 				// draw the boundary of the cross section
 				glColor3f( 0.3f, 0.3f, 0.3f );
 				glBegin( GL_LINE_LOOP );
@@ -346,101 +410,14 @@ namespace GLViewer
 				}
 				glEnd();
 
-				// draw the boundary of the box
-				glColor3f( 0.0f, 0.0f, 0.8f );
-				// left borders
-				glBegin(GL_LINE_LOOP);
-				glVertex3i( 0,0,0 );
-				glVertex3i( 0,0,sz );
-				glVertex3i( 0,sy,sz );
-				glVertex3i( 0,sy,0 );
-				glEnd();
-				// right borders
-				glBegin(GL_LINE_LOOP);
-				glVertex3i( sx,0,0 );
-				glVertex3i( sx,0,sz );
-				glVertex3i( sx,sy,sz );
-				glVertex3i( sx,sy,0 );
-				glEnd();
-				// parrenl lines to x-axix
-				glBegin(GL_LINES);
-				glVertex3i( 0,0,0 );  glVertex3i( sx,0,0 );
-				glVertex3i( 0,0,sz ); glVertex3i( sx,0,sz );
-				glVertex3i( 0,sy,sz );glVertex3i( sx,sy,sz );
-				glVertex3i( 0,sy,0 ); glVertex3i( sx,sy,0 );
-				glEnd();
+			} else if ( render_mode==Surface ) {
+				glColor3f( 1.0f, 1.0f, 1.0f ); render_volumn( sx-1.0f, sy-1.0f, sz-1.f );
+				glColor3f( 0.2f, 0.2f, 0.2f ); render_outline();
 			}
-		}
+		} 
 
 		unsigned int size_x() const { return sx; }
 		unsigned int size_y() const { return sy; }
 		unsigned int size_z() const { return sz; }
-	}; 
-
-	class VolumnWithROI : public Volumn {
-	public:
-		int xmin, ymin, zmin;
-		int xmax, ymax, zmax;
-
-		VolumnWithROI( unsigned char* im_data, const int& im_x, const int& im_y, const int& im_z,
-			int xmin, int ymin, int zmin, int xmax, int ymax, int zmax ) 
-			: Volumn( im_data, im_x, im_y, im_z )
-			, xmin( xmin )
-			, ymin( ymin )
-			, zmin( zmin )
-			, xmax( xmax )
-			, ymax( ymax )
-			, zmax( zmax )
-		{
-
-		}
-
-		void render(void){
-			
-			// visualizing the data with maximum intensity projection
-			glBindTexture(GL_TEXTURE_3D, texture);
-			glBegin(GL_QUADS);
-			glColor3f( 0.5f, 0.5f, 0.5f );
-			for( float i=0; i<=sz; i+=1.0f ) {
-				glTexCoord3f( 0.0f,               0.0f,               1.0f*i/texture_sz ); glVertex3f( 0.0f,    0.0f,    i );
-				glTexCoord3f( 1.0f*sx/texture_sx, 0.0f,               1.0f*i/texture_sz ); glVertex3f( 1.0f*sx, 0.0f,    i );
-				glTexCoord3f( 1.0f*sx/texture_sx, 1.0f*sy/texture_sy, 1.0f*i/texture_sz ); glVertex3f( 1.0f*sx, 1.0f*sy, i );
-				glTexCoord3f( 0.0f,               1.0f*sy/texture_sy, 1.0f*i/texture_sz ); glVertex3f( 0.0f,    1.0f*sy, i );
-			}
-			for( float i=0; i<=sy; i+=1.0f ) {
-				glTexCoord3f( 0.0f,               1.0f*i/texture_sy, 0.0f );               glVertex3f( 0.0f,    i, 0.0f );
-				glTexCoord3f( 1.0f*sx/texture_sx, 1.0f*i/texture_sy, 0.0f );               glVertex3f( 1.0f*sx, i, 0.0f );
-				glTexCoord3f( 1.0f*sx/texture_sx, 1.0f*i/texture_sy, 1.0f*sz/texture_sz ); glVertex3f( 1.0f*sx, i, 1.0f*sz );
-				glTexCoord3f( 0.0f,               1.0f*i/texture_sy, 1.0f*sz/texture_sz ); glVertex3f( 0.0f,    i, 1.0f*sz );
-			}
-			for( float i=0; i<=sx; i+=1.0f ) {
-				glTexCoord3f( 1.0f*i/texture_sx, 0.0f,               0.0f );               glVertex3f( i, 0.0f,    0.0f );
-				glTexCoord3f( 1.0f*i/texture_sx, 1.0f*sy/texture_sy, 0.0f );               glVertex3f( i, 1.0f*sy, 0.0f );
-				glTexCoord3f( 1.0f*i/texture_sx, 1.0f*sy/texture_sy, 1.0f*sz/texture_sz ); glVertex3f( i, 1.0f*sy, 1.0f*sz );
-				glTexCoord3f( 1.0f*i/texture_sx, 0.0f,               1.0f*sz/texture_sz ); glVertex3f( i, 0.0f,    1.0f*sz );
-			}
-			// the roi
-			glColor3f( 1.0f, 1.0f, 0.0f );
-			for( float i=1.0f*zmin; i<=1.0f*zmax; i+=1.0f ) {
-				glTexCoord3f( 1.0f*xmin/texture_sx, 1.0f*ymin/texture_sx, 1.0f*i/texture_sz ); glVertex3f( 1.0f*xmin, 1.0f*ymin, i );
-				glTexCoord3f( 1.0f*xmax/texture_sx, 1.0f*ymin/texture_sx, 1.0f*i/texture_sz ); glVertex3f( 1.0f*xmax, 1.0f*ymin, i );
-				glTexCoord3f( 1.0f*xmax/texture_sx, 1.0f*ymax/texture_sy, 1.0f*i/texture_sz ); glVertex3f( 1.0f*xmax, 1.0f*ymax, i );
-				glTexCoord3f( 1.0f*xmin/texture_sx, 1.0f*ymax/texture_sy, 1.0f*i/texture_sz ); glVertex3f( 1.0f*xmin, 1.0f*ymax, i );
-			}
-			//for( float i=ymin; i<=ymax; i+=1.0f ) {
-			//	glTexCoord3f( 0.0f,               1.0f*i/texture_sy, 0.0f );               glVertex3f( 0.0f,    i, 0.0f );
-			//	glTexCoord3f( 1.0f*sx/texture_sx, 1.0f*i/texture_sy, 0.0f );               glVertex3f( 1.0f*sx, i, 0.0f );
-			//	glTexCoord3f( 1.0f*sx/texture_sx, 1.0f*i/texture_sy, 1.0f*sz/texture_sz ); glVertex3f( 1.0f*sx, i, 1.0f*sz );
-			//	glTexCoord3f( 0.0f,               1.0f*i/texture_sy, 1.0f*sz/texture_sz ); glVertex3f( 0.0f,    i, 1.0f*sz );
-			//}
-			//for( float i=zmin; i<=zmax; i+=1.0f ) {
-			//	glTexCoord3f( 1.0f*i/texture_sx, 0.0f,               0.0f );               glVertex3f( i, 0.0f,    0.0f );
-			//	glTexCoord3f( 1.0f*i/texture_sx, 1.0f*sy/texture_sy, 0.0f );               glVertex3f( i, 1.0f*sy, 0.0f );
-			//	glTexCoord3f( 1.0f*i/texture_sx, 1.0f*sy/texture_sy, 1.0f*sz/texture_sz ); glVertex3f( i, 1.0f*sy, 1.0f*sz );
-			//	glTexCoord3f( 1.0f*i/texture_sx, 0.0f,               1.0f*sz/texture_sz ); glVertex3f( i, 0.0f,    1.0f*sz );
-			//}
-			glEnd();
-			glBindTexture( GL_TEXTURE_3D, NULL );
-		}
 	}; 
 }
