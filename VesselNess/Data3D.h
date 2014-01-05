@@ -108,6 +108,7 @@ public:
 	bool save( const string& file_name, const string& log = "", 
 		bool saveInfo = true, bool isBigEndian = false ) const;
 	void show( const string& window_name = "Show 3D Data by Slice", int current_slice = 0 ) const;
+	void show( const string& window_name, int current_slice, T max_value, T min_value ) const; 
 
 	// overwrite operators
 	template<typename T1, typename T2>
@@ -333,9 +334,8 @@ bool Data3D<T>::load( const string& file_name, const Vec3i& size, bool isBigEndi
 }
 
 
-
 template<typename T>
-void Data3D<T>::show(const string& window_name, int current_slice ) const 
+void Data3D<T>::show(const string& window_name, int current_slice, T min_value, T max_value ) const 
 {
 	smart_return( this->get_size_total(), "Data is empty." );
 	smart_return( 
@@ -357,13 +357,6 @@ void Data3D<T>::show(const string& window_name, int current_slice ) const
 	
 	cout << "Displaying data by slice. " << endl;
 	cout << instructions << endl;
-
-	// find the maximum and minimum value (method3)
-	Point minLoc, maxLoc;
-	minMaxLoc( _mat, NULL, NULL, &minLoc, &maxLoc);
-	T max_value = _mat.at<T>( maxLoc );
-	T min_value = _mat.at<T>( minLoc );
-
 	cout << "Displaying Slice #" << current_slice;
 	do {
 		Mat mat_temp = _mat.row(current_slice).reshape( 0, get_height() ).clone(); 
@@ -395,7 +388,7 @@ void Data3D<T>::show(const string& window_name, int current_slice ) const
 			}
 		} else if ( key =='s' ) {
 			stringstream ss;
-			ss << "Original_Data_Slice_"; 
+			ss << "output/" << window_name << "_Data_Slice_"; 
 			ss.width(3); ss.fill('0');
 			ss << current_slice << ".jpg"; 
 			cv::imwrite( ss.str(), mat_temp );
@@ -405,6 +398,18 @@ void Data3D<T>::show(const string& window_name, int current_slice ) const
 	} while( cvGetWindowHandle( window_name.c_str()) );
 	destroyWindow( window_name.c_str() );
 	cout << endl << "done." << endl << endl;
+}
+
+template<typename T>
+void Data3D<T>::show(const string& window_name, int current_slice ) const 
+{
+	// find the maximum and minimum value (method3)
+	Point minLoc, maxLoc;
+	minMaxLoc( _mat, NULL, NULL, &minLoc, &maxLoc);
+	T max_value = _mat.at<T>( maxLoc );
+	T min_value = _mat.at<T>( minLoc );
+
+	this->show( window_name, current_slice, min_value, max_value );
 }
 
 
