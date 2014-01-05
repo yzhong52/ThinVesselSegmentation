@@ -34,8 +34,8 @@ namespace GLViewer
 	/////////////////////////////////////////
 	// Initial Window Size
 	///////////////////////
-	int width = 512 * numViewports;
-	int height = 512;
+	int width = 1024 * numViewports;
+	int height = 1024;
 	
 	VideoSaver* videoSaver = NULL;
 

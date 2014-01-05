@@ -184,6 +184,19 @@ namespace GLViewer
 			inline Vec3f operator-( const Vec3f& v) const { return Vec3f( x-v.x, y-v.y, z-v.z); }
 			inline Vec3f operator+( const Vec3f& v) const { return Vec3f( x+v.x, y+v.y, z+v.z); }
 			inline Vec3f operator*( const float& v) const { return Vec3f( v*x, v*y, v*z );      }
+			inline Vec3f& operator+=( const Vec3f& v) {
+				this->x += v.x;
+				this->y += v.y;
+				this->z += v.z;
+				return *this;
+			}
+			template<class T>
+			inline Vec3f& operator/=( const T& v) { 
+				this->x /= v;
+				this->y /= v;
+				this->z /= v;
+				return *this; 
+			}
 			inline float length() const { return sqrt(x*x + y*y + z*z); }
 		}; 
 
@@ -259,18 +272,14 @@ namespace GLViewer
 
 				Vec3f centroid(0,0,0);
 				for( unsigned int i=0; i<result.size(); i++ ) {
-					centroid.x += result[i].x;
-					centroid.y += result[i].y;
-					centroid.z += result[i].z;
+					centroid += result[i];
 				}
-				centroid.x /= result.size(); 
-				centroid.y /= result.size(); 
-				centroid.z /= result.size(); 
+				centroid /= result.size(); 
 
 				// We are not using the first index
-				static float angles[6];
-				static Vec3f va[6];
+				static float signed_angle[6];
 				for( unsigned int i=0; i<result.size(); i++ ) {
+					static Vec3f va[6];
 					va[i] = result[i] - centroid;
 					float dotproduct = va[0].dot( va[i] )/( va[i].length()*va[0].length() );
 					// constraint the result of dotproduct be within -1 and 1 (it might
@@ -281,18 +290,19 @@ namespace GLViewer
 					} else if( dotproduct>1 ) {
 						dotproduct = 1;
 					}
-					angles[i] = acos( dotproduct );
-					if( abs( angles[i] ) < 1e-3 ) continue;
+					signed_angle[i] = acos( dotproduct );
+					if( abs( signed_angle[i] ) < 1e-3 ) continue;
 
 					Vec3f cross = va[0].cross( va[i] );
 					if( cross.dot( norm ) < 0 ) {
-						angles[i] = -angles[i];
+						signed_angle[i] = -signed_angle[i];
 					}
 				}
+				// bubble sort the result by signed_angle
 				for( unsigned int i=0; i<result.size(); i++ ) {
 					for( unsigned int j=i+1; j<result.size(); j++ ) {
-						if( angles[i] < angles[j] ) {
-							std::swap( angles[i], angles[j] );
+						if( signed_angle[i] < signed_angle[j] ) {
+							std::swap( signed_angle[i], signed_angle[j] );
 							std::swap( result[i], result[j] );
 						}
 					}
