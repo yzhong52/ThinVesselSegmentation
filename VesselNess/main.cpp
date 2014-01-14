@@ -146,9 +146,13 @@ void xuefeng_cut(void){
 }
 
 
-void load_graph( MST::Graph3D<Edge>& graph, const string& filename ) {
+bool load_graph( MST::Graph3D<Edge>& graph, const string& filename ) {
 	ifstream fin;
 	fin.open( filename );
+	if( !fin.is_open() ){
+		cout << "File not found" << endl; 
+		return false;
+	}
 
 	int sx, sy, sz;
 	fin >> sx;
@@ -169,6 +173,7 @@ void load_graph( MST::Graph3D<Edge>& graph, const string& filename ) {
 		fin >> e.weight;
 		graph.add_edge( e );
 	}
+	return true; 
 }
 
 
@@ -188,6 +193,7 @@ void save_graph( MST::Graph3D<Edge>& graph, const string& filename ) {
 
 int main(int argc, char* argv[])
 {
+	bool flag = false;
 	//Validation::box_func_and_2nd_gaussian::plot_different_size();
 	//Validation::box_func_and_2nd_gaussian::plot_different_pos();
 	//Validation::Eigenvalues::plot_1d_box();
@@ -204,14 +210,14 @@ int main(int argc, char* argv[])
 	//vn_float4.load( "output/roi16.partial.sigma_to5.1.vn_float" );  viwer.addObject( vn_float4 ); 
 
 	// Original Data (Before Rings Reduction) 
-	//Data3D<short> im_short0;
-	//im_short0.load( "data/roi16.partial.original.data" );
-	//viwer.addObject( im_short0 );
+	Data3D<short> im_short0;
+	im_short0.load( "data/roi16.partial.original.data" );
+	viwer.addObject( im_short0 );
 
 	// Original Data (After Rings Reduction) 
-	Image3D<short> im_short;
-	im_short.load( "data/roi16.partial.data" );
-	viwer.addObject( im_short );
+	//Image3D<short> im_short;
+	//im_short.load( "data/roi16.partial.data" );
+	//viwer.addObject( im_short );
 
 	////// Vesselness
 	//Data3D<Vesselness_All> vn_all;
@@ -232,22 +238,25 @@ int main(int argc, char* argv[])
 	//cObj->setColor( 1.0f, 1.0f, 0.0f,/*Yellow*/ 1.0f, 1.0f, 0.0f/*Yellow*/ );
 	
 	//// Model Fitting 
-	//Graph< MST::Edge_Ext, MST::LineSegment > tree;
-	//MinSpanTree::build_tree_xuefeng( "data/roi16.partial.rd", tree, 250 );
-	//viwer.addObject( tree );
+	Graph< MST::Edge_Ext, MST::LineSegment > line_tree;
+	MinSpanTree::build_tree_xuefeng( "data/roi16.partial.rd", line_tree, 250 );
+	viwer.addObject( line_tree );
 
 	////// Model Fitting - without min span tree
-	//Graph< MST::Edge_Ext, MST::LineSegment > tree_without_mst;
-	//tree_without_mst.get_nodes() = tree.get_nodes();
-	//viwer.addObject( tree_without_mst );
+	Graph< MST::Edge_Ext, MST::LineSegment > tree_without_mst;
+	tree_without_mst.get_nodes() = line_tree.get_nodes();
+	viwer.addObject( tree_without_mst );
 
-	//// Data Thining
-	//MST::Graph3D<Edge> tree2; 
-	//// MST::edge_tracing( vn_all, tree2, 0.55f, 0.015f ); 
-	//// save_graph( tree2, "output/roi16.rd.19.sigma45.edge_tracing.min_span_tree.txt" );
-	//load_graph( tree2, "output/roi16.rd.19.sigma45.edge_tracing.min_span_tree.txt" );
-	//viwer.addObject( tree2 ); 
-	//// Data Thining (Data Points)
+	// Data Thining
+	MST::Graph3D<Edge> thin_data_tree; 
+	// MST::edge_tracing( vn_all, tree2, 0.55f, 0.015f ); 
+	// save_graph( tree2, "output/roi16.rd.19.sigma45.edge_tracing.min_span_tree.txt" );
+	flag = load_graph( thin_data_tree, "output/roi16.rd.19.sigma45.edge_tracing.min_span_tree.txt" );
+	if( !flag ) {
+		return 0; 
+	}
+	viwer.addObject( thin_data_tree ); 
+	// Data Thining (Data Points)
 	//Data3D<float> tree2_nodes( vn_all.get_size() ); 
 	//for( unsigned int i=0; i< tree2.num_edges(); i++ ) {
 	//	Edge& e = tree2.get_edge(i);

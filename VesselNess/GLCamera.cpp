@@ -72,13 +72,13 @@ GLCamera::~GLCamera(void)
 
 void GLCamera::zoomIn(void){
 	translate_speed /= 1.01f; 
-	rotate_speed  /= 1.01f; 
+	// rotate_speed  *= 1.01f; 
 	scale *= 1.01f; 
 }
 
 void GLCamera::zoomOut(void){
 	translate_speed /= 0.99f; 
-	rotate_speed  /= 0.99f; 
+	// rotate_speed  *= 0.99f; 
 	scale *= 0.99f; 
 }
 

@@ -23,6 +23,12 @@ namespace GLViewer{
 		// Original Data
 		int sx, sy, sz;
 		GLfloat red, green, blue;
+
+		// rendeing mode
+		enum RenderMode{ 
+			POINTS,
+			CONNECTIONS
+		} render_mode; 
 	public:
 		CenterLine( MST::Graph3D<Edge>& tree ) : ptrTree( &tree ) { 
 			sx = sy = sz = 0;
@@ -39,25 +45,57 @@ namespace GLViewer{
 			}
 			// default color
 			red = 0.0f; green = 1.0f; blue = 0.0f;
+			// default rendering mode
+			render_mode = POINTS; 
 		}
 
 		void init( void ) { }
 		void setColor( GLfloat r, GLfloat g, GLfloat b ) {
 			red = r; green = g; blue = b;
 		}
+
+		virtual void keyboard(unsigned char key ) {
+			if ( key == '\t' ) { /*TAB key*/
+				switch (render_mode)
+				{
+				case POINTS:
+					render_mode = CONNECTIONS;
+					break;
+				case CONNECTIONS:
+					render_mode = POINTS; 
+					break; 
+				}
+			}
+		}
+
 		void render(void) {
 			glColor3f( red, green, blue );
 			if( !ptrTree->num_edges() ) return;
-			glBegin( GL_LINES );
-			
-			for( int unsigned i=0; i<ptrTree->num_edges(); i++ ) {
-				Edge& e = ptrTree->get_edge(i);
-				Vec3i p1 = ptrTree->get_pos( e.node1 );
-				Vec3i p2 = ptrTree->get_pos( e.node2 );
-				glVertex3i( p1[0], p1[1], p1[2] );
-				glVertex3i( p2[0], p2[1], p2[2] );
+
+			if( render_mode == POINTS ){
+				glBegin( GL_POINTS );
+				for( int unsigned i=0; i<ptrTree->num_edges(); i++ ) {
+					Edge& e = ptrTree->get_edge(i);
+					Vec3i p1 = ptrTree->get_pos( e.node1 );
+					Vec3i p2 = ptrTree->get_pos( e.node2 );
+					glVertex3i( p1[0], p1[1], p1[2] );
+					glVertex3i( p2[0], p2[1], p2[2] );
+				}
+				glEnd();
+			} else if( render_mode == CONNECTIONS ) {
+				glBegin( GL_LINES );
+				for( int unsigned i=0; i<ptrTree->num_edges(); i++ ) {
+					Edge& e = ptrTree->get_edge(i);
+					Vec3i p1 = ptrTree->get_pos( e.node1 );
+					Vec3i p2 = ptrTree->get_pos( e.node2 );
+					glVertex3i( p1[0], p1[1], p1[2] );
+					glVertex3i( p2[0], p2[1], p2[2] );
+				}
+				glEnd();
+			} else {
+				cout << "rendering mode is not defined" << endl;
+				return;
 			}
-			glEnd();
 		}
 		unsigned int size_x() const { return sx; }
 		unsigned int size_y() const { return sy; }
