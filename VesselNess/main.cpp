@@ -210,18 +210,18 @@ int main(int argc, char* argv[])
 	//vn_float4.load( "output/roi16.partial.sigma_to5.1.vn_float" );  viwer.addObject( vn_float4 ); 
 
 	// Original Data (Before Rings Reduction) 
-	Data3D<short> im_short0;
-	im_short0.load( "data/roi16.partial.original.data" );
-	viwer.addObject( im_short0 );
+	//Data3D<short> im_short0;
+	//im_short0.load( "data/roi16.partial.original.data" );
+	//viwer.addObject( im_short0 );
 
 	// Original Data (After Rings Reduction) 
-	//Image3D<short> im_short;
-	//im_short.load( "data/roi16.partial.data" );
-	//viwer.addObject( im_short );
+	Image3D<short> im_short;
+	im_short.load( "data/roi16.partial.data" );
+	viwer.addObject( im_short, GLViewer::Volumn::Surface );
 
 	////// Vesselness
 	//Data3D<Vesselness_All> vn_all;
-	////vn_all.load( "data/roi16.rd.19.sigma45.vn_all" );
+	//vn_all.load( "data/roi16.rd.19.sigma45.vn_all" );
 	//vn_all.load( "data/roi16.partial.sigma_to8.vn_all" );
 	//viwer.addObject( vn_all );
 	
@@ -238,14 +238,15 @@ int main(int argc, char* argv[])
 	//cObj->setColor( 1.0f, 1.0f, 0.0f,/*Yellow*/ 1.0f, 1.0f, 0.0f/*Yellow*/ );
 	
 	//// Model Fitting 
-	Graph< MST::Edge_Ext, MST::LineSegment > line_tree;
-	MinSpanTree::build_tree_xuefeng( "data/roi16.partial.rd", line_tree, 250 );
-	viwer.addObject( line_tree );
+	//Graph< MST::Edge_Ext, MST::LineSegment > line_tree;
+	//MinSpanTree::build_tree_xuefeng( "data/roi16.partial.rd", line_tree, 250 );
+	//viwer.addObject( line_tree );
 
 	////// Model Fitting - without min span tree
-	Graph< MST::Edge_Ext, MST::LineSegment > tree_without_mst;
-	tree_without_mst.get_nodes() = line_tree.get_nodes();
-	viwer.addObject( tree_without_mst );
+	//Graph< MST::Edge_Ext, MST::LineSegment > tree_without_mst;
+	//tree_without_mst.get_nodes() = line_tree.get_nodes();
+	//viwer.addObject( tree_without_mst );
+	//
 
 	// Data Thining
 	MST::Graph3D<Edge> thin_data_tree; 
@@ -279,6 +280,7 @@ int main(int argc, char* argv[])
 	//viwer.addObject( vn_sig_et ); 
 
 	viwer.go();
+	//viwer.saveVideo(); 
 
 	return 0;
 	

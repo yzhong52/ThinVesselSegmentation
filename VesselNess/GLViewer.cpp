@@ -15,7 +15,7 @@ namespace GLViewer
 {
 	// objects that need to be render
 	vector<Object*> obj;
-	const int maxNumViewports = 1; 
+	const int maxNumViewports = 2; 
 	int numViewports = maxNumViewports;
 	vector<bool> isDisplayObject[maxNumViewports];
 	
@@ -34,12 +34,12 @@ namespace GLViewer
 	/////////////////////////////////////////
 	// Initial Window Size
 	///////////////////////
-	int width = 1024 * numViewports;
-	int height = 1024;
+	int width = 1280 /2 * numViewports;
+	int height = 720;
 	
 	VideoSaver* videoSaver = NULL;
 
-	bool isAxis = false;
+	bool isAxis = true;
 	
 	bool isSaveFrame = false; 
 
@@ -55,13 +55,20 @@ namespace GLViewer
 			for( unsigned int j=0; j<obj.size(); j++ ) { 
 				if( isDisplayObject[i][j] ) obj[j]->render();
 			}
-			if( isAxis ) cam.draw_axis();
+			if( isAxis ) {
+				// draw rotation matrix
+				cam.draw_axis();
+			}
 		}
-		cam.popMatrix();
-		cam.rotate_scene();
+		cam.popMatrix(); 
+		cam.rotate_scene(); 
 		
 		// saving frame buffer as video
 		if( videoSaver ) {
+			static bool autoRotate = true;
+			if( autoRotate ) {
+				cam.rotate_y(1); // rotate the camera for 1 degree 
+			}
 			videoSaver->saveBuffer();
 		}
 		if( isSaveFrame ) {
@@ -211,8 +218,6 @@ namespace GLViewer
 				isDisplayObject[i][0] = true;
 			}
 		}
-		
-		
 
 		///////////////////////////////////////////////
 		// glut Initializaitons
@@ -236,6 +241,10 @@ namespace GLViewer
 		glutIdleFunc( render );
 		glutDisplayFunc( render );
 
+
+		// Global Inits - Antialiasing
+		glEnable (GL_LINE_SMOOTH);
+		glHint (GL_LINE_SMOOTH_HINT, GL_NICEST );
 		// The order of the following settings do matters
 		// Setting up the size of the scence
 		for( unsigned int i=0; i<obj.size(); i++ ) {
@@ -252,12 +261,10 @@ namespace GLViewer
 		// setting up for video captures if there is any
 		if( videoSaver ) {
 			// Initial Rotation (Do as you want ); Now it is faciton the x-y plane
-			glTranslatef( 0.5f*sx, 0.5f*sy, 0.5f*sx );
-			glRotatef( -90, 1, 0, 0 );
-			glTranslatef( -0.5f*sx, -0.5f*sy, -0.5f*sx );
+			cam.rotate_x(-90); // rotate around x-axis for 90 degrees
 			videoSaver->init(width, height);
 		}
-
+		
 		cout << "Redenring Begin..." << endl;
 		cout << "======================= Instructions =======================" << endl;
 		cout << "   Mouse Controls: " << endl;

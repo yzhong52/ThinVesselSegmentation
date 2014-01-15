@@ -22,11 +22,13 @@ namespace GLViewer
 	class Volumn : public GLViewer::Object {
 		friend class VolumnWithROI;
 		// rendeing mode
+	public:
 		enum RenderMode{ 
 			MIP, //Maximum Intensity Projection
 			CrossSection, 
 			Surface
 		} render_mode; 
+	private:
 		/////////////////////////////////////////
 		// Data
 		///////////////////////
@@ -67,6 +69,8 @@ namespace GLViewer
 			for( int z=0;z<sz;z++ ) for( int y=0;y<sy;y++ ) for( int x=0; x<sx; x++ ) {
 				data[ z*texture_sy*texture_sx + y*texture_sx + x] = im_data[ z*sy*sx + y*sx + x];
 			}
+
+			render_mode = MIP;
 		}
 
 
@@ -119,7 +123,7 @@ namespace GLViewer
 			// Set up OpenGL
 			
 			// Enable Blending For Maximum Intensity Projection
-			setRenderMode( CrossSection );
+			setRenderMode( render_mode );
 			
 			// Antialiasing
 			glEnable (GL_LINE_SMOOTH);

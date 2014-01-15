@@ -24,38 +24,39 @@ public:
 	}
 
 	template<class T>
-	void addObject( Data3D<T>& im_data )
+	void addObject( Data3D<T>& im_data, GLViewer::Volumn::RenderMode mode = GLViewer::Volumn::Surface )
 	{
 		// change the data formate to unsigend char
 		Data3D<unsigned char> im_uchar;
 		IP::normalize( im_data, T(255) );
 		im_data.convertTo( im_uchar ); 
-		addObject( im_uchar );
+		addObject( im_uchar, mode );
 	}
-
+	
 	template<>
-	void addObject( Data3D<unsigned char>& im_uchar ) {
+	void addObject( Data3D<unsigned char>& im_uchar, GLViewer::Volumn::RenderMode mode ) {
 		// copy the data
 		GLViewer::Volumn* vObj = new GLViewer::Volumn(
 			im_uchar.getMat().data,
 			im_uchar.SX(),
 			im_uchar.SY(),
 			im_uchar.SZ(), &GLViewer::cam );
+		vObj->setRenderMode( mode ); 
 		objs.push_back( vObj );
 	}
 
 	template<>
-	void addObject( Data3D<Vesselness_All>& vn_all ) {
+	void addObject( Data3D<Vesselness_All>& vn_all, GLViewer::Volumn::RenderMode mode ) {
 		Data3D<float> vn_float;
 		vn_all.copyDimTo( vn_float, 0 ); 
-		this->addObject( vn_float );
+		this->addObject( vn_float, mode );
 	}
 	
 	template<>
-	void addObject( Data3D<Vesselness_Sig>& vn_sig ) {
+	void addObject( Data3D<Vesselness_Sig>& vn_sig, GLViewer::Volumn::RenderMode mode ) {
 		Data3D<float> vn_float;
 		vn_sig.copyDimTo( vn_float, 0 ); 
-		this->addObject( vn_float );
+		this->addObject( vn_float, mode );
 	}
 	
 	template<class E, class N>
@@ -82,7 +83,7 @@ public:
 	void go() {
 		GLViewer::go( objs );
 	}
-
+	
 	void saveVideo() {
 		GLViewer::VideoSaver videoSaver( "output/video.avi" );
 		GLViewer::go( objs, &videoSaver );

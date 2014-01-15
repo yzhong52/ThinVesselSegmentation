@@ -21,14 +21,11 @@ namespace GLViewer
 		bool isInit;
 		int width;
 		int height;
-		// auto rotaion
-		bool autoRotate;
 	public:
-		VideoSaver( std::string video_name, double duration = 18, bool autoRotate = true ) 
+		VideoSaver( std::string video_name, double duration = 18 ) 
 			: isInit( false )
 			, video_name( video_name )
-			, duration( duration)
-			, autoRotate( autoRotate )
+			, duration( duration )
 		{
 			total_frames = int( fps * duration ); 
 		}

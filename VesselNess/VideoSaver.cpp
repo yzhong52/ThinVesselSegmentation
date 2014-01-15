@@ -56,7 +56,6 @@ namespace GLViewer
 	}
 
 	void VideoSaver::saveBuffer(void) {
-		if( autoRotate ) glRotatef( 1, 0, 0, 1 ); 
 		if( !isInit ) return;
 		
 		Mat pixels( /* num of rows */ height, /* num of cols */ width, CV_8UC3 );
@@ -71,7 +70,7 @@ namespace GLViewer
 		(*outputVideo) << cv_pixels; 
 		
 		current_frame++;
-		cout << '\r' << " - Current Frame: " << current_frame;
+		cout << '\r' << " - Current Frame: " << current_frame << "\t";
 
 		if ( current_frame == total_frames ) {
 			delete outputVideo;

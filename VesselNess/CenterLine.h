@@ -135,7 +135,7 @@ namespace GLViewer{
 			}
 			// initialized the default color of the lines
 			red =  1.0f; green = 0.0f;  blue = 0.0f;
-			red2 = 0.0f; green2 = 0.0f; blue2 = 1.0f;
+			red2 = 0.0f; green2 = 1.0f; blue2 = 0.0f;
 			// for rendering cylinder
 			quadric = NULL;
 			// decide what to display and what not to
