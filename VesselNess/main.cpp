@@ -223,7 +223,7 @@ int main(int argc, char* argv[])
 	Data3D<Vesselness_All> vn_all;
 	//vn_all.load( "data/roi16.rd.19.sigma45.vn_all" );
 	vn_all.load( "data/roi16.partial.sigma_to8.vn_all" );
-	viwer.addObject( vn_all, GLViewer::Volumn::MIP );
+	//viwer.addObject( vn_all, GLViewer::Volumn::MIP );
 	
 	//// Direction of Vesselness
 	//Data3D<Vesselness_Sig> vn_sig;
@@ -265,6 +265,8 @@ int main(int argc, char* argv[])
 		tree2_nodes.at( thin_data_tree.get_pos(e.node2) ) = max(vn_all.at( thin_data_tree.get_pos(e.node2) ).rsp, 0.2f); 
 	}
 	viwer.addObject( tree2_nodes, GLViewer::Volumn::MIP ); 
+	viwer.addObject( thin_data_tree ); 
+
 
 	// Data Thinning
 	//Data3D<Vesselness_Sig> vn_sig_nms; 

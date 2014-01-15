@@ -46,7 +46,7 @@ namespace GLViewer{
 			// default color
 			red = 0.0f; green = 1.0f; blue = 0.0f;
 			// default rendering mode
-			render_mode = POINTS; 
+			render_mode = CONNECTIONS; 
 		}
 
 		void init( void ) { }

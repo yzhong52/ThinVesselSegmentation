@@ -276,7 +276,7 @@ namespace GLViewer
 		cout << "       a                 - Toggle on/off Rotation Center " << endl;
 		cout << "       SPACE             - Reset Projection Matrix " << endl;
 		cout << "       1,2,3...          - Toggle on/off objects " << endl;
-		cout << "       SHIFT + 1,2,3...  - Change Rendering Mode for a object " << endl;
+		cout << "       ALT + 1,2,3...  - Change Rendering Mode for a object " << endl;
 		cout << "       ESC               - Exit " << endl;
 
 		glutMainLoop(); // No Code Will Be Executed After This Line
