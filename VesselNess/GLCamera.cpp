@@ -91,16 +91,8 @@ void GLCamera::rotate_scene(void){
 	oldtick = tick; 
 
 	// update the rotation matrix as well as the rotation axis
-	/*glRotatef( xrot * elapsedTick, vec_x[0], vec_x[1], vec_x[2] );
-	rotate_axis( vec_x[0], vec_x[1], vec_x[2], 
-		         vec_y[0], vec_y[1], vec_y[2],
-		         vec_y[0], vec_y[1], vec_y[2], -xrot * elapsedTick );*/
 	rotate_x( yrot * elapsedTick ); 
 	rotate_y( xrot * elapsedTick ); 
-	/*glRotatef( yrot * elapsedTick, vec_y[0], vec_y[1], vec_y[2] );
-	rotate_axis( vec_y[0], vec_y[1], vec_y[2], 
-                 vec_x[0], vec_x[1], vec_x[2],
-		         vec_x[0], vec_x[1], vec_x[2], -yrot * elapsedTick );*/
 }
 
 

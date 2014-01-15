@@ -39,7 +39,7 @@ namespace GLViewer
 	
 	VideoSaver* videoSaver = NULL;
 
-	bool isAxis = true;
+	bool isAxis = false;
 	
 	bool isSaveFrame = false; 
 

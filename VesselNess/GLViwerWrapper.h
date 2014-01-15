@@ -41,7 +41,7 @@ public:
 			im_uchar.SX(),
 			im_uchar.SY(),
 			im_uchar.SZ(), &GLViewer::cam );
-		vObj->setRenderMode( mode ); 
+		vObj->render_mode = mode; 
 		objs.push_back( vObj );
 	}
 
