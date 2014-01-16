@@ -12,7 +12,7 @@ int main(int argc, char* argv[])
 	// Original Data (Before Rings Reduction) 
 	Data3D<short> im_short; 
 	// Load The Data
-	bool flag = im_short.load( "data/roi16.partial.original.data" ); 
+	bool flag = im_short.load( "sample.data" ); 
 	if( !flag ) { 
 		cout << "Load Data Fail." << endl; 
 		return 0; 

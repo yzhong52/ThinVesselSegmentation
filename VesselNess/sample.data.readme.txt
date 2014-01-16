@@ -1,0 +1,4 @@
+151 84 151 - data size
+short - data type
+0 - Big Endian (1 for yes, 0 for no)
+120 89 468 270 172 618 - position of roi with respect to the original data
