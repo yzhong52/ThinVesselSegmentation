@@ -15,7 +15,7 @@ namespace GLViewer
 {
 	// objects that need to be render
 	vector<Object*> obj;
-	const int maxNumViewports = 2; 
+	const int maxNumViewports = 1; 
 	int numViewports = maxNumViewports;
 	vector<bool> isDisplayObject[maxNumViewports];
 	
@@ -34,7 +34,7 @@ namespace GLViewer
 	/////////////////////////////////////////
 	// Initial Window Size
 	///////////////////////
-	int width = 1280 /2 * numViewports;
+	int width = 1280 * numViewports;
 	int height = 720;
 	
 	VideoSaver* videoSaver = NULL;
