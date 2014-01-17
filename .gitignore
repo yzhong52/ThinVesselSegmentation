@@ -5,6 +5,8 @@
 data/
 output/
 temp.*
+*.data
+*.data.readme.txt
 
 # User-specific files
 *.suo

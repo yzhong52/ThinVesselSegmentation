@@ -87,7 +87,7 @@ void compute_rings_redection(void){
 	bool falg = im_short.load( "data/vessel3d.data" );
 	if(!falg) return;
 	
-	RD::mm_filter( im_short, 19 );
+	RD::gm_filter( im_short, 19 );
 	im_short.save( "data/vessel3d.rd.19.data" );
 }
 
@@ -193,6 +193,9 @@ void save_graph( MST::Graph3D<Edge>& graph, const string& filename ) {
 
 int main(int argc, char* argv[])
 {
+	compute_rings_redection(); 
+	return 0; 
+
 	bool flag = false;
 	//Validation::box_func_and_2nd_gaussian::plot_different_size();
 	//Validation::box_func_and_2nd_gaussian::plot_different_pos();
@@ -210,19 +213,19 @@ int main(int argc, char* argv[])
 	//vn_float4.load( "output/roi16.partial.sigma_to5.1.vn_float" );  viwer.addObject( vn_float4 ); 
 
 	// Original Data (Before Rings Reduction) 
-	//Data3D<short> im_short0;
-	//im_short0.load( "data/roi16.partial.original.data" );
-	//viwer.addObject( im_short0 );
+	Data3D<short> im_short0;
+	im_short0.load( "data/roi16.partial.original.data" );
+	viwer.addObject( im_short0, GLViewer::Volumn::Surface  );
 
 	// Original Data (After Rings Reduction) 
-	//Image3D<short> im_short;
-	//im_short.load( "data/roi16.partial.data" );
-	//viwer.addObject( im_short, GLViewer::Volumn::Surface );
+	Image3D<short> im_short;
+	im_short.load( "data/roi16.partial.data" );
+	viwer.addObject( im_short, GLViewer::Volumn::Surface );
 
 	////// Vesselness
-	Data3D<Vesselness_All> vn_all;
+	//Data3D<Vesselness_All> vn_all;
 	//vn_all.load( "data/roi16.rd.19.sigma45.vn_all" );
-	vn_all.load( "data/roi16.partial.sigma_to8.vn_all" );
+	//vn_all.load( "data/roi16.partial.sigma_to8.vn_all" );
 	//viwer.addObject( vn_all, GLViewer::Volumn::MIP );
 	
 	//// Direction of Vesselness
@@ -249,23 +252,23 @@ int main(int argc, char* argv[])
 	//
 
 	// Data Thining
-	MST::Graph3D<Edge> thin_data_tree; 
+	//MST::Graph3D<Edge> thin_data_tree; 
 	// MST::edge_tracing( vn_all, thin_data_tree, 0.55f, 0.015f ); 
 	// save_graph( thin_data_tree, "output/roi16.rd.19.sigma45.edge_tracing.min_span_tree.txt" );
-	flag = load_graph( thin_data_tree, "output/roi16.rd.19.sigma45.edge_tracing.min_span_tree.txt" );
-	if( !flag ) {
-		return 0; 
-	}
+	//flag = load_graph( thin_data_tree, "output/roi16.rd.19.sigma45.edge_tracing.min_span_tree.txt" );
+	//if( !flag ) {
+	//	return 0; 
+	//}
 	//viwer.addObject( thin_data_tree ); 
 	//// Data Thining (Data Points)
-	Data3D<float> tree2_nodes( vn_all.get_size() ); 
-	for( unsigned int i=0; i< thin_data_tree.num_edges(); i++ ) {
-		Edge& e = thin_data_tree.get_edge(i);
-		tree2_nodes.at( thin_data_tree.get_pos(e.node1) ) = max(vn_all.at( thin_data_tree.get_pos(e.node1) ).rsp, 0.2f); 
-		tree2_nodes.at( thin_data_tree.get_pos(e.node2) ) = max(vn_all.at( thin_data_tree.get_pos(e.node2) ).rsp, 0.2f); 
-	}
-	viwer.addObject( tree2_nodes, GLViewer::Volumn::MIP ); 
-	viwer.addObject( thin_data_tree ); 
+	//Data3D<float> tree2_nodes( vn_all.get_size() ); 
+	//for( unsigned int i=0; i< thin_data_tree.num_edges(); i++ ) {
+	//	Edge& e = thin_data_tree.get_edge(i);
+	//	tree2_nodes.at( thin_data_tree.get_pos(e.node1) ) = max(vn_all.at( thin_data_tree.get_pos(e.node1) ).rsp, 0.2f); 
+	//	tree2_nodes.at( thin_data_tree.get_pos(e.node2) ) = max(vn_all.at( thin_data_tree.get_pos(e.node2) ).rsp, 0.2f); 
+	//}
+	//viwer.addObject( tree2_nodes, GLViewer::Volumn::MIP ); 
+	//viwer.addObject( thin_data_tree ); 
 
 
 	// Data Thinning
@@ -281,8 +284,8 @@ int main(int argc, char* argv[])
 	//IP::edge_tracing( vn_sig_nms, vn_sig_et, 0.38f, 0.05f );
 	//viwer.addObject( vn_sig_et ); 
 
-	//viwer.go(); 
-	viwer.saveVideo(); 
+	viwer.go(); 
+	// viwer.saveVideo(); 
 
 	return 0;
 	
