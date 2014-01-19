@@ -263,6 +263,11 @@ namespace Validation{
 						big_eigen.at<float>(y, x) = abs(eigenvalue1)>abs(eigenvalue2) ? eigenvalue1 : eigenvalue2;
 					}
 				}
+				Mat big_eigen_normalized; 
+				cv::normalize( big_eigen,big_eigen_normalized, 0, 255, NORM_MINMAX, CV_8UC1); 
+				cv::imshow("The Eigenvalue with a bigger absolute value", big_eigen_normalized);
+				cv::imwrite("output/2d_tubes_hessians_bigger_eigenvalue.bmp", big_eigen_normalized);
+				waitKey(0); 
 
 				plot_big_eigen.push_back( big_eigen.row( src.rows/2 ).reshape( 0, big_eigen.cols) );
 				// Visualization of Eigenvalues of Hessian Matrix
@@ -502,6 +507,29 @@ namespace Validation{
 			}
 
 			VI::OpenCV::plot( "box_2nd_gaussian_different_pos", plot );
+		}
+
+		void plot(void){
+			// final result to plot
+			vector< Mat_<double> > plot;
+			
+			double sigma = 10;
+			int ks = 1000;
+			if( ks%2 == 0 ) ks++;
+			Mat g = cv::getGaussianKernel( ks, sigma, CV_64F ); 
+			g = g * pow( box_radius ,3.0) * sqrt( 2*3.14 );
+			Mat gx, gxx;
+			filter2D( g,  gx,  CV_64F, dy );
+			filter2D( gx, gxx, CV_64F, dy );
+			Mat_<double> gxx_offset( gxx.rows, 1 );
+
+			for( int j=0; j< gxx.rows; j++ ){
+				gxx_offset.at<double>(j) = gxx.at<double>( ( j+gxx.rows ) % gxx.rows );
+			}
+			plot.push_back( gxx_offset );
+
+
+			VI::OpenCV::plot( "2nd_gaussian", plot );
 		}
 	}
 }
@@ -799,19 +827,20 @@ bool Validation::Harris_Hessian_OOP(void)
 	return 0;
 }
 
-bool Validation::Hessian_2D(void)
-{
-	// loading image
-	Mat src = imread( "data/2d images/tree smal bright.png");
-	if( !src.data ){ 
-		cout << "Image not found..." << endl;
-		return false; 
-	}
+// This function calculate the eigenvalues of the hessian matrix of an image
+// src_gray: a grey scale 2d image
+// sigma: sigma for gaussian blur
+Mat_<Vec2f> Hessian_Eigens( Mat src_gray, float sigma ){
+	Mat_<Vec2f> eigenvalues( src_gray.size() );
 
-	// convert form CV_8UC3 to CV_8U
-	Mat src_gray;
-	cvtColor( src, src_gray, CV_RGB2GRAY ); 
-	
+	// Kernel Size of Gaussian Blur
+	int ks = int( ( sigma - 0.35f ) / 0.15f ); 
+	if( ks%2==0 ) ks++;
+	cv::Size ksize( ks, ks );
+	cout << "Kernel Size: " << ks << endl;
+	sigma = 0.15f*ks + 0.35f;
+	cout << "Sigma: " << sigma << endl;
+
 	// Image gradient along x, y direction
 	Mat Ix, Iy;
 	Sobel( src_gray, Ix, CV_32F, 1, 0, 1 );
@@ -825,27 +854,6 @@ bool Validation::Hessian_2D(void)
 	// derivative fileters
 	Mat filter_dx = ( Mat_<float>(1,3) << -0.5, 0, 0.5 );
 	Mat filter_dy = ( Mat_<float>(3,1) << -0.5, 0, 0.5 );
-
-	// Calculate the vesselness response
-	const int NUM = 1;
-
-	// Eigenvalues result will be stored in these matrix
-	Mat hessian_eigenvalue1( src.rows, src.cols, CV_32F );
-	Mat hessian_eigenvalue2( src.rows, src.cols, CV_32F );
-	Mat hessian_vesselness(  src.rows, src.cols, CV_32F );
-
-	// coresponding sigma
-	float sigma = 4.0f;
-	// Kernel Size of Gaussian Blur
-	int ks = int( ( sigma - 0.35f ) / 0.15f ); 
-	if( ks%2==0 ) ks++;
-	cv::Size ksize( ks, ks );
-	cout << "Kernel Size: " << ks << endl;
-	sigma = 0.15f*ks + 0.35f;
-	cout << "Sigma: " << sigma << endl;
-
-	static const float beta = 0.20f; 
-	static const float c = 70000.0f; 
 
 	///////////////////////////////////////////////////////////////////////
 	// Hessian Matrix
@@ -862,8 +870,8 @@ bool Validation::Hessian_2D(void)
 	hessian_Iyy *= sigma2;
 
 	// compute the vessel ness
-	for( int y=0; y<src.rows; y++ ) {
-		for( int x=0; x<src.cols; x++ ){
+	for( int y=0; y<src_gray.rows; y++ ) {
+		for( int x=0; x<src_gray.cols; x++ ){
 			// construct the harris matrix
 			Mat hessian( 2, 2, CV_32F );
 			hessian.at<float>(0, 0) = hessian_Ixx.at<float>(y, x);
@@ -871,42 +879,93 @@ bool Validation::Hessian_2D(void)
 			hessian.at<float>(0, 1) = hessian_Ixy.at<float>(y, x);
 			hessian.at<float>(1, 1) = hessian_Iyy.at<float>(y, x);
 			// calculate the eigen values
-			Mat eigenvalues;
-			eigen( hessian, eigenvalues ); 
-			float eigenvalue1 = eigenvalues.at<float>(0);
-			float eigenvalue2 = eigenvalues.at<float>(1);
+			Mat eigens;
+			eigen( hessian, eigens ); 
+			float eigenvalue1 = eigens.at<float>(0);
+			float eigenvalue2 = eigens.at<float>(1);
 			if( abs(eigenvalue1)>abs(eigenvalue2) ) std::swap( eigenvalue1, eigenvalue2 );
 			// Now we have |eigenvalue1| < |eigenvalue2| 
-			hessian_eigenvalue1.at<float>(y, x) = eigenvalue1;
-			hessian_eigenvalue2.at<float>(y, x) = eigenvalue2;
-			if( eigenvalue2 > 0 ) {
-				hessian_vesselness.at<float>(y, x) = 0;
-			} else {
-				float RB = eigenvalue1 / eigenvalue2;
-				float S = sqrt( eigenvalue1*eigenvalue1 + eigenvalue2*eigenvalue2 );
-				hessian_vesselness.at<float>(y, x) = exp( -RB*RB/beta ) * ( 1-exp(-S*S/c) );
-			}
+			eigenvalues.at<Vec2f>(y, x)[0] = eigenvalue1;
+			eigenvalues.at<Vec2f>(y, x)[1] = eigenvalue2;
 		}
 	}
 
-	// Vesselness 
-	stringstream ss;
-	ss << "Vesselness2 " << "ksize=" << ks << " sigma=" << sigma;
-	ss << " beta=" << beta << " c=" << c;
-	imshow( ss.str(), hessian_vesselness );
-	imwrite( ss.str()+".bmp", hessian_vesselness*255 );
+	return eigenvalues; 
+}
 
-	// draw a line
+bool Validation::Hessian_2D(void)
+{
+	// loading image
+	Mat src = imread( "data/2d images/tree smal bright.png");
+	if( !src.data ){ 
+		cout << "Image not found..." << endl;
+		return false; 
+	}
+
+	// convert form CV_8UC3 to CV_8U
+	Mat src_gray;
+	cvtColor( src, src_gray, CV_RGB2GRAY ); 
+	
+	// Add some noise to the image
+	for( int y=0; y<src_gray.rows; y++ ) for( int x=0; x<src_gray.cols; x++ ){
+		if( rand()%100 < 20 ) src_gray.at<unsigned char>(y,x) = rand()%255;
+	}
+	imshow("Oringal With Noise", src_gray);
+	imwrite("output/tree_with_noise.jpg", src_gray);
+	
+	// parameters
+	static const float beta = 0.280f; 
+	static const float c = 500000.0f; 
+
+	Mat vesselness( src.rows, src.cols, CV_32F );
+	Mat_<Vec2f> eigenvalues; 
+	for( float sigma = 1.2f; sigma<5.0f; sigma+=0.3f ) {
+		eigenvalues = Hessian_Eigens( src_gray, sigma );
+		// compute the vessel ness
+		for( int y=sigma; y<src.rows-sigma; y++ ) for( int x=sigma; x<src.cols-sigma; x++ ){
+			float vn = 0; // vesselness on this point 
+			// calculate the eigen values
+			const float& eigenvalue1 = eigenvalues.at<Vec2f>(y,x)[0];
+			const float& eigenvalue2 = eigenvalues.at<Vec2f>(y,x)[1];
+			if( eigenvalue2 < 0 ) {
+				float RB = eigenvalue1 / eigenvalue2;
+				float S = sqrt( eigenvalue1*eigenvalue1 + eigenvalue2*eigenvalue2 );
+				vn = exp( -RB*RB/beta ) * ( 1-exp(-S*S/c) );
+			}
+			vesselness.at<float>(y,x) = max( vn, vesselness.at<float>(y,x) ); 
+		}
+	}
+
+	Mat vesselness_char;
+	cv::normalize( vesselness, vesselness_char, 255, 0, CV_MINMAX, CV_8UC3 ); 
+	imshow( "vesselness_2d_trees.jpg", vesselness_char);
+	cv::imwrite( "output/vesselness_2d_trees.jpg", vesselness_char );
+	waitKey(); 
+	
+	return 0; 
+	// The following is just for some clumssy visulization of 
+	// the eigenvalues of the hessian matrix on a scan line
+	// uncommmand the return 0 above if you want to see. 
+
+	// Eigenvalues result will be stored in these matrix
+	Mat hessian_eigenvalue1( src.rows, src.cols, CV_32F );
+	Mat hessian_eigenvalue2( src.rows, src.cols, CV_32F );
+	for( int y=0; y<src.rows; y++ ) for( int x=0; x<src.cols; x++ ){
+		// calculate the eigen values
+		hessian_eigenvalue1.at<float>(y, x) = eigenvalues.at<Vec2f>(y,x)[0];
+		hessian_eigenvalue2.at<float>(y, x) = eigenvalues.at<Vec2f>(y,x)[1];
+	}
+	// Draw a scan line on the original data
 	int row = src.rows*2/3;
 	line( src, Point(0, row), Point(src.cols-1, row), Scalar(255,0,0), 1, CV_AA, 0 );
 	imshow( "Image", src);
 	////////////////////////////////////////////////////////////////////////////////////////
 	// Visualization of Eigenvalues of Hessian Matrix
-	vector<Mat> eigenvalues;
-	eigenvalues.push_back( hessian_eigenvalue1.row( row ) );
-	eigenvalues.push_back( hessian_eigenvalue2.row( row ) );
+	vector<Mat> eigenvalues_plot;
+	eigenvalues_plot.push_back( hessian_eigenvalue1.row( row ) );
+	eigenvalues_plot.push_back( hessian_eigenvalue2.row( row ) );
 	Mat background = src_gray.row( row );
-	visualize_eigens( "Hessian Eigenvalue 1", background, eigenvalues, 200, 1.0f);
+	visualize_eigens( "Hessian Eigenvalue 1", background, eigenvalues_plot, 200, 1.0f);
 
 	waitKey(0);
 	return 0;

@@ -193,17 +193,19 @@ void save_graph( MST::Graph3D<Edge>& graph, const string& filename ) {
 
 int main(int argc, char* argv[])
 {
-	compute_rings_redection(); 
+	Validation::Hessian_2D();
+	//compute_rings_redection(); 
 	return 0; 
 
 	bool flag = false;
 	//Validation::box_func_and_2nd_gaussian::plot_different_size();
 	//Validation::box_func_and_2nd_gaussian::plot_different_pos();
+	Validation::box_func_and_2nd_gaussian::plot();
 	//Validation::Eigenvalues::plot_1d_box();
-	//Validation::Eigenvalues::plot_2d_tubes();
+	Validation::Eigenvalues::plot_2d_tubes();
 	//Validation::Eigenvalues::plot_2d_ball();
 	//Validation::Eigenvalues::plot_3d_tubes();
-	
+	return 0; 
 
 	// Vesselness for different sigmas
 	//Data3D<float> vn_float1, vn_float2, vn_float3, vn_float4;

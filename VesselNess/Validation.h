@@ -24,6 +24,7 @@ namespace Validation
 	namespace box_func_and_2nd_gaussian{
 		void plot_different_size(void);
 		void plot_different_pos(void);
+		void plot(void);
 	}
 
 	// explore the difference between 
