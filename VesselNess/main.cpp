@@ -242,7 +242,7 @@ int main(int argc, char* argv[])
 	//// Direction of Vesselness
 	Data3D<Vesselness_Sig> vn_sig;
 	vn_sig.load( "data/roi16.partial.sigma_to8.vn_sig" );
-	viwer.addObject( vn_sig, GLViewer::Volumn::MIP );
+	//viwer.addObject( vn_sig, GLViewer::Volumn::MIP );
 	viwer.addDiretionObject( vn_sig );
 	
 
@@ -297,8 +297,8 @@ int main(int argc, char* argv[])
 	//IP::edge_tracing( vn_sig_nms, vn_sig_et, 0.38f, 0.05f );
 	//viwer.addObject( vn_sig_et ); 
 
-	//viwer.go(2); 
-	viwer.saveVideo(2); 
+	viwer.go(4); 
+	//viwer.saveVideo(2); 
 
 	return 0;
 	

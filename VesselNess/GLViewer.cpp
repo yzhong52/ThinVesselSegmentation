@@ -15,7 +15,7 @@ namespace GLViewer
 {
 	// objects that need to be render
 	vector<Object*> obj;
-	const int maxNumViewports = 2; 
+	const int maxNumViewports = 4; 
 	int numViewports = 1;
 	vector<bool> isDisplayObject[maxNumViewports];
 	
@@ -49,15 +49,30 @@ namespace GLViewer
 		
 		cam.pushMatrix();
 		// rending viewports
-		for( int i=0; i<numViewports; i++ ) {
-			// For viewport i
-			glViewport (i*width/numViewports, 0, width/numViewports, height);
-			for( unsigned int j=0; j<obj.size(); j++ ) { 
-				if( isDisplayObject[i][j] ) obj[j]->render();
-			}
-			if( isAxis ) {
-				// draw rotation matrix
-				cam.draw_axis();
+		if( numViewports == 4 ) {
+			// viewport 1
+			glViewport (0, 0, width/2, height/2);
+			if( 0<obj.size() ) obj[0]->render();
+			// viewport 2
+			glViewport (width/2, 0, width/2, height/2);
+			if( 0<obj.size() ) obj[0]->render();
+			// viewport 3
+			glViewport (0, height/2, width/2, height/2);
+			if( 0<obj.size() ) obj[0]->render();
+			// viewport 4
+			glViewport (width/2, height/2, width/2, height/2);
+			if( 0<obj.size() ) obj[0]->render();
+		} else {
+			for( int i=0; i<numViewports; i++ ) {
+				// For viewport i
+				glViewport (i*width/numViewports, 0, width/numViewports, height);
+				for( unsigned int j=0; j<obj.size(); j++ ) { 
+					if( isDisplayObject[i][j] ) obj[j]->render();
+				}
+				if( isAxis ) {
+					// draw rotation matrix
+					cam.draw_axis();
+				}
 			}
 		}
 		cam.popMatrix(); 
@@ -142,8 +157,10 @@ namespace GLViewer
 		glLoadIdentity();									// Reset The Projection Matrix
 		GLfloat maxVal = max( sx, max(sy, sz) ) * 0.8f;
 		
-		GLfloat ratio = (GLfloat)width / (GLfloat)height / numViewports;
-		
+		GLfloat ratio = 1;
+		if ( numViewports==4 ) ratio = (GLfloat)width / (GLfloat)height; 
+		else                   ratio = (GLfloat)width / (GLfloat)height / numViewports;
+
 		glOrtho( -maxVal*ratio, maxVal*ratio, -maxVal, maxVal, -maxVal, maxVal);
 		glMatrixMode(GL_MODELVIEW);
 	}
@@ -203,7 +220,16 @@ namespace GLViewer
 
 	void go( vector<Object*> objects, VideoSaver* video )
 	{
-		width = 1280 / 2 * numViewports;
+		if( numViewports == 4 ) {
+			width = 1280;
+			height = 720; 
+		} else if ( numViewports == 2 ) {
+			width = 1280;
+			height = 720; 
+		} else if ( numViewports == 1 ) {
+			width = 1280 /2 ;
+			height = 720; 
+		}
 
 		if( objects.size()==0 ) {
 			std::cerr << "No Objects For Rendering... " << std::endl;
