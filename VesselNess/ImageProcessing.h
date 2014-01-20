@@ -166,43 +166,48 @@ bool ImageProcessing::GaussianBlur3D( const Data3D<T1>& src, Data3D<T2>& dst, in
 	epos = src.get_size();
 	
 	int x, y, z;
-	Data3D<T2> tmp1( src.get_size() );
-	Data3D<T2> tmp2( src.get_size() );
 	
-
 	// gaussian on x-direction
+	Data3D<T2> tmp1( src.get_size(), T2(0) ); // the data will be set to zero
 	for( z=spos[2]; z<epos[2]; z++ ) for( y=spos[1]; y<epos[1]; y++ ) for( x=spos[0]; x<epos[0]; x++ ){
 		float sum = 0.0;
 		for( int i=0; i<ksize; i++) {
 			int x2 = x+i-hsize;
-			if( x2<0 || x2>=epos[0] ) continue;
-			tmp1.at(x, y, z) += int( gk.at<double>(i) * src.at(x2, y, z) );
-			sum += (float) gk.at<double>(i);
+			if( x2>=0 && x2<epos[0] ){
+				tmp1.at(x, y, z) += int( gk.at<double>(i) * src.at(x2, y, z) );
+				sum += (float) gk.at<double>(i);
+			}
 		}
 		tmp1.at(x, y, z) /= sum;
 	}
+
 	// gaussian on y-direction
+	Data3D<T2> tmp2( src.get_size(), T2(0) ); // the data will be set to zero
 	for( z=spos[2]; z<epos[2]; z++ ) for( y=spos[1]; y<epos[1]; y++ ) for( x=spos[0]; x<epos[0]; x++ ){
 		float sum = 0.0f;
 		for( int i=0; i<ksize; i++) {
 			int y2 = y+i-hsize;
-			if( y2<0 || y2>=epos[1] ) continue;
-			tmp2.at(x, y, z) += int( gk.at<double>(i) * tmp1.at(x, y2, z) );
-			sum += (float) gk.at<double>(i);
+			if( y2>=0 && y2<epos[1] ) {
+				tmp2.at(x, y, z) += int( gk.at<double>(i) * tmp1.at(x, y2, z) );
+				sum += (float) gk.at<double>(i);
+			}
 		}
-		tmp1.at(x, y, z) /= sum;
+		tmp2.at(x, y, z) /= sum;
 	}
+	tmp1.reset(); // tmp1 is no long in use. release memory
+
 	// gaussian on z-direction
 	dst.reset( src.get_size() );
 	for( z=spos[2]; z<epos[2]; z++ ) for( y=spos[1]; y<epos[1]; y++ ) for( x=spos[0]; x<epos[0]; x++ ){
 		float sum = 0.0f;
 		for( int i=0; i<ksize; i++) {
 			int z2 = z+i-hsize;
-			if( z2<0 || z2>=epos[2] ) continue;
-			dst.at(x, y, z) += int( gk.at<double>(i) * tmp2.at(x, y, z2) );
-			sum += (float) gk.at<double>(i);
+			if( z2>=0 && z2<epos[2] ) {
+				dst.at(x, y, z) += int( gk.at<double>(i) * tmp2.at(x, y, z2) );
+				sum += (float) gk.at<double>(i);
+			}
 		}
-		tmp1.at(x, y, z) /= sum;
+		dst.at(x, y, z) /= sum;
 	}
 	return true;
 }
