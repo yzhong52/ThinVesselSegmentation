@@ -96,8 +96,12 @@ void compute_rings_redection(void){
 	bool falg = im_short.load( "data/vessel3d.data", Vec3i(585,525,100), true, true );
 	if(!falg) return;
 	
+	im_short.show( "temp.original.data", 50 );
+	return; 
 	RD::mm_filter( im_short, 19 );
-	im_short.save( "data/temp.data" );
+	im_short.save( "temp.rd.data" );
+	im_short.load( "temp.rd.data" );
+	im_short.show( "temp.rd.data",50 );
 }
 
 void compute_center_line( string dataname = "roi15" ){
@@ -203,8 +207,8 @@ void save_graph( MST::Graph3D<Edge>& graph, const string& filename ) {
 int main(int argc, char* argv[])
 {
 	//Validation::Hessian_2D();
-	//compute_rings_redection(); 
-	//return 0; 
+	compute_rings_redection(); 
+	return 0; 
 
 	bool flag = false;
 	//Validation::box_func_and_2nd_gaussian::plot_different_size();
@@ -297,8 +301,8 @@ int main(int argc, char* argv[])
 	//IP::edge_tracing( vn_sig_nms, vn_sig_et, 0.38f, 0.05f );
 	//viwer.addObject( vn_sig_et ); 
 
-	//viwer.go(4); 
-	viwer.saveVideo(4); 
+	viwer.go(4); 
+	//viwer.saveVideo(4); 
 
 	return 0;
 	

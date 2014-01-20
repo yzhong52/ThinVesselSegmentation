@@ -255,7 +255,7 @@ bool ImageProcessing::meanBlur3D( const Data3D<T1>& src, Data3D<T2>& dst, int ks
 		cout << "Failed." << endl << endl;
 		return false; 
 	}
-
+	
 	cout << "done." << endl << endl;
 	return true;
 }
@@ -267,17 +267,20 @@ bool ImageProcessing::filter3D_X( const Data3D<T1>& src, Data3D<T2>& dst, const 
 		"kernel size should be (X,1,1) where X > 0" );
 	
 	dst.reset( src.get_size() );
-
+	
 	int x, y, z;
 	const Vec3i& size = src.get_size();
 	int ksize = kx.get_size_x();
 	int hsize = kx.get_size_x()/2;
 	for( z=0; z<size[2]; z++ ) for( y=0; y<size[1]; y++ ) for( x=0; x<size[0]; x++ ){
+		T3 sum = 0.0;
 		for( int i=0; i<ksize; i++) {
 			int x2 = x+i-hsize;
 			if( x2<0 || x2>=size[0] ) continue;
-			dst.at(x, y, z) += int( kx.at(i,0,0) * src.at(x2, y, z) );
+			dst.at(x, y, z) += T2( kx.at(i,0,0) * src.at(x2, y, z) );
+			sum += kx.at(i,0,0); 
 		}
+		dst.at(x, y, z) = T2( dst.at(x, y, z)/sum );
 	}
 	return true;
 }
@@ -295,11 +298,14 @@ bool ImageProcessing::filter3D_Y( const Data3D<T1>& src, Data3D<T2>& dst, const 
 	int ksize = ky.get_size_y();
 	int hsize = ky.get_size_y()/2;
 	for( z=0; z<size[2]; z++ ) for( y=0; y<size[1]; y++ ) for( x=0; x<size[0]; x++ ){
+		T3 sum = 0.0;
 		for( int i=0; i<ksize; i++) {
 			int y2 = y+i-hsize;
 			if( y2<0 || y2>=size[1] ) continue;
-			dst.at(x, y, z) += int( ky.at(0,i,0) * src.at(x, y2, z) );
+			dst.at(x, y, z) += T2( ky.at(0,i,0) * src.at(x, y2, z) );
+			sum += ky.at(0,i,0); 
 		}
+		dst.at(x, y, z) = T2( dst.at(x, y, z)/sum );
 	}
 	return true;
 }
@@ -318,11 +324,14 @@ bool ImageProcessing::filter3D_Z( const Data3D<T1>& src, Data3D<T2>& dst, const 
 	int ksize = kz.get_size_z();
 	int hsize = kz.get_size_z()/2;
 	for( z=0; z<size[2]; z++ ) for( y=0; y<size[1]; y++ ) for( x=0; x<size[0]; x++ ){
+		double sum = 0.0;
 		for( int i=0; i<ksize; i++) {
 			int z2 = z+i-hsize;
 			if( z2<0 || z2>=size[2] ) continue;
-			dst.at(x, y, z) += int( kz.at(0,0,i) * src.at(x, y, z2) );
+			dst.at(x, y, z) += T2( kz.at(0,0,i) * src.at(x, y, z2) );
+			sum += kz.at(0,0,i); 
 		}
+		dst.at(x, y, z) = T2( dst.at(x, y, z)/sum );
 	}
 	return true;
 }

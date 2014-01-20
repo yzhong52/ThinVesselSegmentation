@@ -358,6 +358,7 @@ void Data3D<T>::show(const string& window_name, int current_slice, T min_value, 
 	cout << "Displaying data by slice. " << endl;
 	cout << instructions << endl;
 	cout << "Displaying Slice #" << current_slice;
+	if( current_slice > SZ() ) current_slice = SZ(); 
 	do {
 		Mat mat_temp = _mat.row(current_slice).reshape( 0, get_height() ).clone(); 
 		// change the data type from whatever dataype it is to float for computation

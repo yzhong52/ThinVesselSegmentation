@@ -37,20 +37,19 @@ short get_reduction( Diff_Var* diff_var, int count ){
 void RingsDeduction::mm_filter( Data3D<short>& im_src, const int& wsize, 
 	const int& center_x , const int& center_y )
 {
-
 	Data3D<short> mean( im_src.get_size() );
 	IP::meanBlur3D( im_src, mean, wsize );
-	
-	// TODO: I amy try Gaussian later
-	//Data3D<float> mean( im_src.get_size() );
-	//float sigma = 1.0f * wsize;
-	//int ksize = int( 6*sigma+1 );
-	//// make sure ksize is an odd number
-	//if ( ksize%2==0 ) ksize++;
-	//IP::GaussianBlur3D( im_src, mean, ksize, sigma); 
+	mean.save( "temp.mean.data" ); 
+	mean.load( "temp.mean.data" ); 
+	mean.show( "rd mean" );
 	
 	Data3D<int> diff( im_src.get_size() );
 	subtract3D(im_src, mean, diff);
+	diff.save( "temp.diff.data", "rings reduction intermedia result - \
+										Mean Blur with sigma = 19. Differnce between \
+										original data. " );
+	diff.load( "temp.diff.data" ); 
+	diff.show( "rd diff" ); 
 	
 	//// Uncomment the following code if you want to use variance
 	//Image3D<int> variance_sum( im.get_size() );
@@ -58,16 +57,17 @@ void RingsDeduction::mm_filter( Data3D<short>& im_src, const int& wsize,
 	//Image3D<int> variance( im.get_size() );
 	//IP::meanBlur3D( variance_sum, variance, wsize );
 	
-	// maximum possible radius of the data
-	int max_radius =  center_x*center_x+center_y*center_y;
-	Vec2i offsets[3] = {
+	// four relative corner with respect to the centre of rings
+	Vec2i offsets[4] = {
+		Vec2i(0                 -center_x, 0                 -center_y),
 		Vec2i(im_src.get_size(0)-center_x, im_src.get_size(1)-center_y),
-		Vec2i(center_x,                    im_src.get_size(1)-center_y),
-		Vec2i(im_src.get_size(0)-center_x, center_y)
+		Vec2i(0                 -center_x, im_src.get_size(1)-center_y),
+		Vec2i(im_src.get_size(0)-center_x, 0                 -center_y)
 	};
-	for( int i=0; i<3; i++ ){
-		max_radius = max( max_radius, 
-			offsets[i][0]*offsets[i][0] + offsets[i][1]*offsets[i][1]);
+	// maximum possible radius of the rings
+	int max_radius = 0;
+	for( int i=0; i<4; i++ ){
+		max_radius = max( max_radius, offsets[i][0]*offsets[i][0] + offsets[i][1]*offsets[i][1]);
 	}
 	max_radius = int( sqrt(1.0f*max_radius) );
 
@@ -210,50 +210,36 @@ void RingsDeduction::mm_filter( Data3D<short>& im_src, const int& wsize,
 void RingsDeduction::gm_filter( Data3D<short>& im_src, const int& wsize, 
 	const int& center_x , const int& center_y )
 {
-	Data3D<float> mean_float( im_src.get_size() );
-	cout << "Blurring Image With Gaussian Filter." << endl;
-	//IP::GaussianBlur3D( im_src, mean_float, wsize, (wsize-1)/6 );
 	
 	Data3D<short> mean( im_src.get_size() );
+	//Data3D<float> mean_float( im_src.get_size() );
+	//cout << "Blurring Image With Gaussian Filter." << endl;
+	//IP::GaussianBlur3D( im_src, mean_float, wsize, (wsize-1)/6 );
 	//mean_float.convertTo( mean ); 
 	//mean.save( "rd_gblur.21.data", "rings reduction intermedia result - Gaussian Blur with sigma = 21. " );
 	mean.load( "rd_gblur.21.data" ); 
-	mean.show( "rd_gblur.21.data" ); 
-	return; 
-
-	// TODO: I amy try Gaussian later
-	//Data3D<float> mean( im_src.get_size() );
-	//float sigma = 1.0f * wsize;
-	//int ksize = int( 6*sigma+1 );
-	//// make sure ksize is an odd number
-	//if ( ksize%2==0 ) ksize++;
-	//IP::GaussianBlur3D( im_src, mean, ksize, sigma); 
+	//mean.show( "rd_gblur.21.data", im_src.SZ()/2 ); 
 	
 	Data3D<int> diff( im_src.get_size() );
-	subtract3D(im_src, mean, diff);
-	diff.save( "rd_gblur.diff.21.data", "rings reduction intermedia result - \
-										Gaussian Blur with sigma = 21. Differnce between \
-										original data. " );
+	//subtract3D(im_src, mean, diff);
+	//diff.save( "rd_gblur.diff.21.data", "rings reduction intermedia result - \
+	//									Gaussian Blur with sigma = 21. Differnce between \
+	//									original data. " );
 	diff.load( "rd_gblur.diff.21.data" ); 
-	diff.show( "rd_gblur.diff.21.data" );
-	return; 
+	//diff.show( "rd_gblur.diff.21.data" );
+
 	
-	//// Uncomment the following code if you want to use variance
-	//Image3D<int> variance_sum( im.get_size() );
-	//multiply3D(diff, diff, variance_sum);
-	//Image3D<int> variance( im.get_size() );
-	//IP::meanBlur3D( variance_sum, variance, wsize );
-	
-	// maximum possible radius of the data
-	int max_radius =  center_x*center_x+center_y*center_y;
-	Vec2i offsets[3] = {
+	// four relative corner with respect to the centre of rings
+	Vec2i offsets[4] = {
+		Vec2i(0                 -center_x, 0                 -center_y),
 		Vec2i(im_src.get_size(0)-center_x, im_src.get_size(1)-center_y),
-		Vec2i(center_x,                    im_src.get_size(1)-center_y),
-		Vec2i(im_src.get_size(0)-center_x, center_y)
+		Vec2i(0                 -center_x, im_src.get_size(1)-center_y),
+		Vec2i(im_src.get_size(0)-center_x, 0                 -center_y)
 	};
-	for( int i=0; i<3; i++ ){
-		max_radius = max( max_radius, 
-			offsets[i][0]*offsets[i][0] + offsets[i][1]*offsets[i][1]);
+	// maximum possible radius of the rings
+	int max_radius = 0;
+	for( int i=0; i<4; i++ ){
+		max_radius = max( max_radius, offsets[i][0]*offsets[i][0] + offsets[i][1]*offsets[i][1]);
 	}
 	max_radius = int( sqrt(1.0f*max_radius) );
 
