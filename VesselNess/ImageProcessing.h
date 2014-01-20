@@ -178,7 +178,7 @@ bool ImageProcessing::GaussianBlur3D( const Data3D<T1>& src, Data3D<T2>& dst, in
 				sum += gk.at<double>(i);
 			}
 		}
-		tmp1.at(x, y, z) /= sum;
+		tmp1.at(x, y, z) = T2( tmp1.at(x, y, z)/sum );
 	}
 
 	// gaussian on y-direction
@@ -192,7 +192,7 @@ bool ImageProcessing::GaussianBlur3D( const Data3D<T1>& src, Data3D<T2>& dst, in
 				sum += gk.at<double>(i);
 			}
 		}
-		tmp2.at(x, y, z) /= sum;
+		tmp2.at(x, y, z) = T2( tmp2.at(x, y, z)/sum );
 	}
 	tmp1.reset(); // tmp1 is no long in use. release memory
 
@@ -207,7 +207,7 @@ bool ImageProcessing::GaussianBlur3D( const Data3D<T1>& src, Data3D<T2>& dst, in
 				sum += gk.at<double>(i);
 			}
 		}
-		dst.at(x, y, z) /= sum;
+		dst.at(x, y, z) = T2( dst.at(x, y, z)/sum );
 	}
 	return true;
 }

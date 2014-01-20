@@ -82,13 +82,22 @@ void compute_min_span_tree( string data_name = "roi16.partial" ) {
 	//GLViewer::go( objs/*, &videoSaver*/ );
 }
 
-void compute_rings_redection(void){
+void compute_rings_redection_gm(void){
 	Image3D<short> im_short;
-	bool falg = im_short.load( "data/vessel3d.data" );
+	bool falg = im_short.load( "data/vessel3d.data", Vec3i(585,525,100), true, true );
 	if(!falg) return;
 	
-	RD::gm_filter( im_short, 19 );
-	im_short.save( "data/vessel3d.rd.19.data" );
+	RD::gm_filter( im_short, 21 );
+	im_short.save( "data/vessel3d.rd.gm.19.data" );
+}
+
+void compute_rings_redection(void){
+	Image3D<short> im_short;
+	bool falg = im_short.load( "data/vessel3d.data", Vec3i(585,525,100), true, true );
+	if(!falg) return;
+	
+	RD::mm_filter( im_short, 19 );
+	im_short.save( "data/temp.data" );
 }
 
 void compute_center_line( string dataname = "roi15" ){
@@ -193,19 +202,19 @@ void save_graph( MST::Graph3D<Edge>& graph, const string& filename ) {
 
 int main(int argc, char* argv[])
 {
-	Validation::Hessian_2D();
+	//Validation::Hessian_2D();
 	//compute_rings_redection(); 
-	return 0; 
+	//return 0; 
 
 	bool flag = false;
 	//Validation::box_func_and_2nd_gaussian::plot_different_size();
 	//Validation::box_func_and_2nd_gaussian::plot_different_pos();
-	Validation::box_func_and_2nd_gaussian::plot();
+	//Validation::box_func_and_2nd_gaussian::plot();
 	//Validation::Eigenvalues::plot_1d_box();
-	Validation::Eigenvalues::plot_2d_tubes();
+	//Validation::Eigenvalues::plot_2d_tubes();
 	//Validation::Eigenvalues::plot_2d_ball();
 	//Validation::Eigenvalues::plot_3d_tubes();
-	return 0; 
+	//return 0; 
 
 	// Vesselness for different sigmas
 	//Data3D<float> vn_float1, vn_float2, vn_float3, vn_float4;
@@ -214,15 +223,15 @@ int main(int argc, char* argv[])
 	//vn_float3.load( "output/roi16.partial.sigma_to2.6.vn_float" );  viwer.addObject( vn_float3 ); 
 	//vn_float4.load( "output/roi16.partial.sigma_to5.1.vn_float" );  viwer.addObject( vn_float4 ); 
 
-	// Original Data (Before Rings Reduction) 
-	Data3D<short> im_short0;
-	im_short0.load( "data/roi16.partial.original.data" );
-	viwer.addObject( im_short0, GLViewer::Volumn::Surface  );
+	//// Original Data (Before Rings Reduction) 
+	//Data3D<short> im_short0;
+	//im_short0.load( "data/roi16.partial.original.data" );
+	//viwer.addObject( im_short0, GLViewer::Volumn::Surface  );
 
-	// Original Data (After Rings Reduction) 
-	Image3D<short> im_short;
-	im_short.load( "data/roi16.partial.data" );
-	viwer.addObject( im_short, GLViewer::Volumn::Surface );
+	//// Original Data (After Rings Reduction) 
+	//Image3D<short> im_short;
+	//im_short.load( "data/roi16.partial.data" );
+	//viwer.addObject( im_short, GLViewer::Volumn::Surface );
 
 	////// Vesselness
 	//Data3D<Vesselness_All> vn_all;
@@ -231,9 +240,11 @@ int main(int argc, char* argv[])
 	//viwer.addObject( vn_all, GLViewer::Volumn::MIP );
 	
 	//// Direction of Vesselness
-	//Data3D<Vesselness_Sig> vn_sig;
-	//vn_sig.load( "data/roi16.partial.sigma_to8.vn_sig" );
-	//viwer.addObject( vn_sig );
+	Data3D<Vesselness_Sig> vn_sig;
+	vn_sig.load( "data/roi16.partial.sigma_to8.vn_sig" );
+	viwer.addObject( vn_sig, GLViewer::Volumn::MIP );
+	viwer.addDiretionObject( vn_sig );
+	
 
 	// Ring reduction after model fitting
 	//Graph< MST::Edge_Ext, MST::LineSegment > rings;
@@ -286,8 +297,8 @@ int main(int argc, char* argv[])
 	//IP::edge_tracing( vn_sig_nms, vn_sig_et, 0.38f, 0.05f );
 	//viwer.addObject( vn_sig_et ); 
 
-	viwer.go(); 
-	// viwer.saveVideo(); 
+	//viwer.go(2); 
+	viwer.saveVideo(2); 
 
 	return 0;
 	

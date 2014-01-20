@@ -37,7 +37,7 @@ namespace GLViewer
 
 	// camera infos
 	extern GLCamera cam;
-
+	extern int numViewports; 
 	void go( std::vector<Object*> objects, VideoSaver* videoSaver = NULL ); 
 
 	// TODO: to visualized color texture

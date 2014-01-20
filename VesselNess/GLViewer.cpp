@@ -15,8 +15,8 @@ namespace GLViewer
 {
 	// objects that need to be render
 	vector<Object*> obj;
-	const int maxNumViewports = 1; 
-	int numViewports = maxNumViewports;
+	const int maxNumViewports = 2; 
+	int numViewports = 1;
 	vector<bool> isDisplayObject[maxNumViewports];
 	
 	// Size of the data
@@ -187,10 +187,10 @@ namespace GLViewer
 			// toggle on/off the axis
 			isAxis = !isAxis;
 			break;
-		case '\t':
-			numViewports = (numViewports+1)%maxNumViewports + 1; 
-			reset_projection();
-			break;
+		//case '\t': // Bug: Fix it before you uncommend this block of code
+		//	numViewports = (numViewports+1) % maxNumViewports; 
+		//	reset_projection();
+		//	break;
 		case 's': case 'S': 
 			isSaveFrame = true; 
 			break;
@@ -203,6 +203,8 @@ namespace GLViewer
 
 	void go( vector<Object*> objects, VideoSaver* video )
 	{
+		width = 1280 / 2 * numViewports;
+
 		if( objects.size()==0 ) {
 			std::cerr << "No Objects For Rendering... " << std::endl;
 			return;

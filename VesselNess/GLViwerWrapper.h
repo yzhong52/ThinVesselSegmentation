@@ -80,11 +80,13 @@ public:
 		objs.push_back( vDir );
 	}
 
-	void go() {
+	void go( int numViewports = 1 ) {
+		GLViewer::numViewports = numViewports; 
 		GLViewer::go( objs );
 	}
 	
-	void saveVideo() {
+	void saveVideo( int numViewports = 1) {
+		GLViewer::numViewports = numViewports; 
 		GLViewer::VideoSaver videoSaver( "output/video.avi" );
 		GLViewer::go( objs, &videoSaver );
 	}

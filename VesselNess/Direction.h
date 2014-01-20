@@ -28,20 +28,24 @@ namespace GLViewer
 			ptrVnSig = NULL;
 		}
 
+		void init() {
+			glDisable (GL_LINE_SMOOTH);
+			// glHint (GL_LINE_SMOOTH_HINT, GL_NICEST );
+		}
 		void render(void){
 			glBegin( GL_LINES );
 			int gap = 2;
 			for( int z=0; z<ptrVnSig->SZ(); z+=gap ) {
 				for( int y=0; y<ptrVnSig->SY(); y+=gap ) {
 					for( int x=0; x<ptrVnSig->SX(); x+=gap ) {
-						if( ptrVnSig->at(x, y, z).rsp > 0.2f ) { 
+						if( ptrVnSig->at(x, y, z).rsp > 0.4f ) { 
 							// select line color
 							glColor4f( 1.0, 0.0, 0.0, ptrVnSig->at(x,y,z).rsp); 
 							// draw line
 							glVertex3i( x, y, z );
-							glVertex3f( x + ptrVnSig->at(x,y,z).dir(0) * 5 * ptrVnSig->at(x, y, z).rsp, 
-								y + ptrVnSig->at(x,y,z).dir(1) * 5 * ptrVnSig->at(x, y, z).rsp, 
-								z + ptrVnSig->at(x,y,z).dir(2) * 5 * ptrVnSig->at(x, y, z).rsp );
+							glVertex3f( x + ptrVnSig->at(x,y,z).dir(0) * 5/* * ptrVnSig->at(x, y, z).rsp*/, 
+								        y + ptrVnSig->at(x,y,z).dir(1) * 5/* * ptrVnSig->at(x, y, z).rsp*/, 
+								        z + ptrVnSig->at(x,y,z).dir(2) * 5/* * ptrVnSig->at(x, y, z).rsp*/ );
 						}
 					}
 				}
