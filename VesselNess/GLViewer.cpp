@@ -15,7 +15,7 @@ namespace GLViewer
 {
 	// objects that need to be render
 	vector<Object*> obj;
-	const int maxNumViewports = 2; 
+	const int maxNumViewports = 1; 
 	int numViewports = maxNumViewports;
 	vector<bool> isDisplayObject[maxNumViewports];
 	
@@ -34,7 +34,7 @@ namespace GLViewer
 	/////////////////////////////////////////
 	// Initial Window Size
 	///////////////////////
-	int width = 1280 /2 * numViewports;
+	int width = 1280 / 2 * numViewports;
 	int height = 720;
 	
 	VideoSaver* videoSaver = NULL;
@@ -259,12 +259,13 @@ namespace GLViewer
 		reset_modelview();
 
 		// setting up for video captures if there is any
-		if( videoSaver ) {
-			// Initial Rotation (Do as you want ); Now it is faciton the x-y plane
-			cam.rotate_x(-90); // rotate around x-axis for 90 degrees
+		if( videoSaver ) {	
 			videoSaver->init(width, height);
 		}
 		
+		// Initial Rotation (Do as you want ); Now it is faciton the x-y plane
+		cam.rotate_x(-90); // rotate around x-axis for 90 degrees
+
 		cout << "Redenring Begin..." << endl;
 		cout << "======================= Instructions =======================" << endl;
 		cout << "   Mouse Controls: " << endl;
