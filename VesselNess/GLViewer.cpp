@@ -50,18 +50,13 @@ namespace GLViewer
 		cam.pushMatrix();
 		// rending viewports
 		if( numViewports == 4 ) {
-			// viewport 1
-			glViewport (0, 0, width/2, height/2);
-			if( 0<obj.size() ) obj[0]->render();
-			// viewport 2
-			glViewport (width/2, 0, width/2, height/2);
-			if( 0<obj.size() ) obj[0]->render();
-			// viewport 3
-			glViewport (0, height/2, width/2, height/2);
-			if( 0<obj.size() ) obj[0]->render();
-			// viewport 4
-			glViewport (width/2, height/2, width/2, height/2);
-			if( 0<obj.size() ) obj[0]->render();
+			for( int i=0; i<2; i++ ) for( int j=0; j<2; j++ ) 
+			{
+				glViewport (width/2*i, height/2*j, width/2, height/2);
+				int obj_index = i+2*(1-j); 
+				if( obj_index < obj.size() ) obj[obj_index]->render();
+				else                         obj[0]->render();
+			}
 		} else {
 			for( int i=0; i<numViewports; i++ ) {
 				// For viewport i

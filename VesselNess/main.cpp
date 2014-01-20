@@ -217,11 +217,11 @@ int main(int argc, char* argv[])
 	//return 0; 
 
 	// Vesselness for different sigmas
-	//Data3D<float> vn_float1, vn_float2, vn_float3, vn_float4;
-	//vn_float1.load( "output/roi16.partial.sigma_to0.8.vn_float" );  viwer.addObject( vn_float1 ); 
-	//vn_float2.load( "output/roi16.partial.sigma_to1.3.vn_float" );  viwer.addObject( vn_float2 ); 
-	//vn_float3.load( "output/roi16.partial.sigma_to2.6.vn_float" );  viwer.addObject( vn_float3 ); 
-	//vn_float4.load( "output/roi16.partial.sigma_to5.1.vn_float" );  viwer.addObject( vn_float4 ); 
+	Data3D<float> vn_float1, vn_float2, vn_float3, vn_float4;
+	vn_float1.load( "output/roi16.partial.sigma_to0.8.vn_float" );  viwer.addObject( vn_float1, GLViewer::Volumn::MIP ); 
+	vn_float2.load( "output/roi16.partial.sigma_to1.3.vn_float" );  viwer.addObject( vn_float2, GLViewer::Volumn::MIP ); 
+	vn_float3.load( "output/roi16.partial.sigma_to2.6.vn_float" );  viwer.addObject( vn_float3, GLViewer::Volumn::MIP ); 
+	vn_float4.load( "output/roi16.partial.sigma_to5.1.vn_float" );  viwer.addObject( vn_float4, GLViewer::Volumn::MIP ); 
 
 	//// Original Data (Before Rings Reduction) 
 	//Data3D<short> im_short0;
@@ -297,8 +297,8 @@ int main(int argc, char* argv[])
 	//IP::edge_tracing( vn_sig_nms, vn_sig_et, 0.38f, 0.05f );
 	//viwer.addObject( vn_sig_et ); 
 
-	viwer.go(4); 
-	//viwer.saveVideo(2); 
+	//viwer.go(4); 
+	viwer.saveVideo(4); 
 
 	return 0;
 	
