@@ -39,17 +39,17 @@ void RingsDeduction::mm_filter( Data3D<short>& im_src, const int& wsize,
 {
 	Data3D<short> mean( im_src.get_size() );
 	IP::meanBlur3D( im_src, mean, wsize );
-	mean.save( "temp.mean.data" ); 
-	mean.load( "temp.mean.data" ); 
-	mean.show( "rd mean" );
+	//mean.save( "temp.mean.data" ); 
+	//mean.load( "temp.mean.data" ); 
+	//mean.show( "rd mean" );
 	
 	Data3D<int> diff( im_src.get_size() );
 	subtract3D(im_src, mean, diff);
-	diff.save( "temp.diff.data", "rings reduction intermedia result - \
-										Mean Blur with sigma = 19. Differnce between \
-										original data. " );
-	diff.load( "temp.diff.data" ); 
-	diff.show( "rd diff" ); 
+	//diff.save( "temp.diff.data", "rings reduction intermedia result - \
+	//									Mean Blur with sigma = 19. Differnce between \
+	//									original data. " );
+	//diff.load( "temp.diff.data" ); 
+	//diff.show( "rd diff" ); 
 	
 	//// Uncomment the following code if you want to use variance
 	//Image3D<int> variance_sum( im.get_size() );
