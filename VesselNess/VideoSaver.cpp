@@ -26,7 +26,6 @@ namespace GLViewer
 	///////////////////////////////////////////////////
 
 	void VideoSaver::init(int w, int h ){
-		glRotatef( 1.0f, 0.0f, 0.0f, 1.0f );
 		// disable reshape function
 		// we are not alowed to reshape the window when rendering
 		glutReshapeFunc( NULL );
