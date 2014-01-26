@@ -206,9 +206,8 @@ void save_graph( MST::Graph3D<Edge>& graph, const string& filename ) {
 
 int main(int argc, char* argv[])
 {
-	//Validation::Hessian_2D();
-	compute_rings_redection(); 
-	return 0; 
+	// create folders if does not exist
+	CreateDirectory(L"./output", NULL);
 
 	bool flag = false;
 	//Validation::box_func_and_2nd_gaussian::plot_different_size();
@@ -221,11 +220,11 @@ int main(int argc, char* argv[])
 	//return 0; 
 
 	// Vesselness for different sigmas
-	Data3D<float> vn_float1, vn_float2, vn_float3, vn_float4;
-	vn_float1.load( "output/roi16.partial.sigma_to0.8.vn_float" );  viwer.addObject( vn_float1, GLViewer::Volumn::MIP ); 
-	vn_float2.load( "output/roi16.partial.sigma_to1.3.vn_float" );  viwer.addObject( vn_float2, GLViewer::Volumn::MIP ); 
-	vn_float3.load( "output/roi16.partial.sigma_to2.6.vn_float" );  viwer.addObject( vn_float3, GLViewer::Volumn::MIP ); 
-	vn_float4.load( "output/roi16.partial.sigma_to5.1.vn_float" );  viwer.addObject( vn_float4, GLViewer::Volumn::MIP ); 
+	//Data3D<float> vn_float1, vn_float2, vn_float3, vn_float4;
+	//vn_float1.load( "output/roi16.partial.sigma_to0.8.vn_float" );  viwer.addObject( vn_float1, GLViewer::Volumn::MIP ); 
+	//vn_float2.load( "output/roi16.partial.sigma_to1.3.vn_float" );  viwer.addObject( vn_float2, GLViewer::Volumn::MIP ); 
+	//vn_float3.load( "output/roi16.partial.sigma_to2.6.vn_float" );  viwer.addObject( vn_float3, GLViewer::Volumn::MIP ); 
+	//vn_float4.load( "output/roi16.partial.sigma_to5.1.vn_float" );  viwer.addObject( vn_float4, GLViewer::Volumn::MIP ); 
 
 	//// Original Data (Before Rings Reduction) 
 	//Data3D<short> im_short0;
@@ -246,8 +245,8 @@ int main(int argc, char* argv[])
 	//// Direction of Vesselness
 	Data3D<Vesselness_Sig> vn_sig;
 	vn_sig.load( "data/roi16.partial.sigma_to8.vn_sig" );
-	//viwer.addObject( vn_sig, GLViewer::Volumn::MIP );
-	viwer.addDiretionObject( vn_sig );
+	viwer.addObject( vn_sig, GLViewer::Volumn::MIP );
+	//viwer.addDiretionObject( vn_sig );
 	
 
 	// Ring reduction after model fitting
@@ -258,15 +257,15 @@ int main(int argc, char* argv[])
 	//cObj->setColor( 1.0f, 1.0f, 0.0f,/*Yellow*/ 1.0f, 1.0f, 0.0f/*Yellow*/ );
 	
 	//// Model Fitting 
-	//Graph< MST::Edge_Ext, MST::LineSegment > line_tree;
-	//MinSpanTree::build_tree_xuefeng( "data/roi16.partial.rd", line_tree, 250 );
+	Graph< MST::Edge_Ext, MST::LineSegment > line_tree;
+	MinSpanTree::build_tree_xuefeng( "data/roi16.partial.rd", line_tree, 250 );
 	//viwer.addObject( line_tree );
 
-	////// Model Fitting - without min span tree
-	//Graph< MST::Edge_Ext, MST::LineSegment > tree_without_mst;
-	//tree_without_mst.get_nodes() = line_tree.get_nodes();
-	//viwer.addObject( tree_without_mst );
-	//
+	//// Model Fitting - without min span tree
+	Graph< MST::Edge_Ext, MST::LineSegment > tree_without_mst;
+	tree_without_mst.get_nodes() = line_tree.get_nodes();
+	viwer.addObject( tree_without_mst );
+	
 
 	// Data Thining
 	//MST::Graph3D<Edge> thin_data_tree; 
@@ -301,8 +300,8 @@ int main(int argc, char* argv[])
 	//IP::edge_tracing( vn_sig_nms, vn_sig_et, 0.38f, 0.05f );
 	//viwer.addObject( vn_sig_et ); 
 
-	viwer.go(4); 
-	//viwer.saveVideo(4); 
+	//viwer.go(2); 
+	viwer.saveVideo(2); 
 
 	return 0;
 	
