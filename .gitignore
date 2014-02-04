@@ -2,6 +2,8 @@
 ## Ignored files added by Yuchen
 #################
 VesselNess/data
+VesselNess/temp
+VesselNess/output
 
 #################
 ## Eclipse
