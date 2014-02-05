@@ -5,11 +5,21 @@
 #include <opencv\cv.h>
 
 #include "Data3D.h"
-#include "Volumn.h"
-#include "Direction.h"
-#include "MinSpanTreeWrapper.h"
-#include "CenterLine.h"
+#include "GLVolumn.h"
+#include "GLDirection.h"
+#include "GLCenterLine.h"
 #include "GLViewer.h" 
+#include "MinSpanTreeWrapper.h"
+
+/* Example: Rendering a 3D volume using maximum intensity projection. *//*
+	// 
+	GLViewerExt ver;
+	Data3D<short> im_short;
+	im_short.load( "data/roi15.data" );
+	ver.addObject( im_short, GLViewer::Volumn::MIP ); 
+	// Start Rendering
+	ver.go(); 
+*/
 
 class GLViewerExt{
 public:

@@ -1,5 +1,5 @@
 #define _CRT_SECURE_NO_DEPRECATE
-#include "VideoSaver.h"
+#include "GLVideoSaver.h"
 
 // Using OpenCV ot Save the Scene to video
 #include <opencv\cv.h>

@@ -14,7 +14,7 @@
 
 
 
-#include "VideoSaver.h"
+#include "GLVideoSaver.h"
 #include <vector>
 
 class GLCamera; 

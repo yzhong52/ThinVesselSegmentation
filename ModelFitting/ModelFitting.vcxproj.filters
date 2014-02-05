@@ -13,15 +13,66 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="VesselNess">
+      <UniqueIdentifier>{822fd70a-6328-41ed-8e03-a7f71c636f47}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="VesselNess\Visualization">
+      <UniqueIdentifier>{a8919828-41dc-44fa-a4de-275f3ee6c11d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="nstdio.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\VesselNess\GLCamera.h">
+      <Filter>VesselNess\Visualization</Filter>
+    </ClInclude>
+    <ClInclude Include="..\VesselNess\GLViewer.h">
+      <Filter>VesselNess\Visualization</Filter>
+    </ClInclude>
+    <ClInclude Include="..\VesselNess\GLViwerWrapper.h">
+      <Filter>VesselNess\Visualization</Filter>
+    </ClInclude>
+    <ClInclude Include="..\VesselNess\GLCenterLine.h">
+      <Filter>VesselNess\Visualization</Filter>
+    </ClInclude>
+    <ClInclude Include="..\VesselNess\GLDirection.h">
+      <Filter>VesselNess\Visualization</Filter>
+    </ClInclude>
+    <ClInclude Include="..\VesselNess\GLVideoSaver.h">
+      <Filter>VesselNess\Visualization</Filter>
+    </ClInclude>
+    <ClInclude Include="..\VesselNess\GLVolumn.h">
+      <Filter>VesselNess\Visualization</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="nstdio.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\VesselNess\GLCamera.cpp">
+      <Filter>VesselNess\Visualization</Filter>
+    </ClCompile>
+    <ClCompile Include="..\VesselNess\GLViewer.cpp">
+      <Filter>VesselNess\Visualization</Filter>
+    </ClCompile>
+    <ClCompile Include="..\VesselNess\GLCenterLine.cpp">
+      <Filter>VesselNess\Visualization</Filter>
+    </ClCompile>
+    <ClCompile Include="..\VesselNess\GLVideoSaver.cpp">
+      <Filter>VesselNess\Visualization</Filter>
+    </ClCompile>
+    <ClCompile Include="..\VesselNess\GLVolumn.cpp">
+      <Filter>VesselNess\Visualization</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

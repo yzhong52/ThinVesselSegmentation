@@ -329,15 +329,15 @@
     <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CenterLine.h" />
+    <ClInclude Include="GLCenterLine.h" />
     <ClInclude Include="Data3D.h" />
     <ClInclude Include="DataTypes.h" />
-    <ClInclude Include="Direction.h" />
+    <ClInclude Include="GLDirection.h" />
     <ClInclude Include="DisjointSet.h" />
     <ClInclude Include="Edge.h" />
     <ClInclude Include="GLCamera.h" />
     <ClInclude Include="GLViewer.h" />
-    <ClInclude Include="VideoSaver.h" />
+    <ClInclude Include="GLVideoSaver.h" />
     <ClInclude Include="GLViwerWrapper.h" />
     <ClInclude Include="Graph.h" />
     <ClInclude Include="Image3D.h" />
@@ -353,7 +353,7 @@
     <ClInclude Include="Validation.h" />
     <ClInclude Include="VesselDetector.h" />
     <ClInclude Include="Vesselness.h" />
-    <ClInclude Include="Volumn.h" />
+    <ClInclude Include="GLVolumn.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DisjointSet.cpp" />
@@ -372,8 +372,9 @@
     <ClCompile Include="VesselDetector.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Vesselness.cpp" />
-    <ClCompile Include="VideoSaver.cpp" />
+    <ClCompile Include="GLVideoSaver.cpp" />
     <ClCompile Include="Viewer.cpp" />
+    <ClCompile Include="GLVolumn.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

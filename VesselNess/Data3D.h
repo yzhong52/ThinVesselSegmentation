@@ -1,6 +1,7 @@
 #pragma once
 
 #include "stdafx.h"
+#include <fstream> // For reading and saving files
 
 template<typename T>
 class Data3D {

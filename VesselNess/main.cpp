@@ -15,11 +15,11 @@
 
 // OpenGL Viewer With Maximum Intensity Projection
 #include "GLViewer.h"
-#include "VideoSaver.h"
+#include "GLVideoSaver.h"
 #include "GLViwerWrapper.h"
+#include "GLCenterLine.h"
+#include "GLVolumn.h"
 
-#include "CenterLine.h"
-#include "Volumn.h"
 #include "Validation.h" 
 
 GLViewerExt viwer;

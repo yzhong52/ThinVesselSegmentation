@@ -5,11 +5,15 @@
 
 #pragma once
 
-#include "targetver.h"
+#ifndef _CRT_SECURE_NO_DEPRECATE
+	#define _CRT_SECURE_NO_DEPRECATE
+#endif
 
-#include <stdio.h>
-#include <tchar.h>
+// For the use of OpenCV
+#include <opencv\cv.h>
+#include <opencv2\opencv.hpp>
 
+using namespace std;
+using namespace cv;
 
-
-// TODO: reference additional headers your program requires here
+#include "nstdio.h" 

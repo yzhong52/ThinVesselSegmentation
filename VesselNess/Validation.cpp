@@ -922,6 +922,7 @@ bool Validation::Hessian_2D(void)
 	for( float sigma = 1.2f; sigma<5.0f; sigma+=0.3f ) {
 		eigenvalues = Hessian_Eigens( src_gray, sigma );
 		// compute the vessel ness
+		// TODO: fix the warning here
 		for( int y=sigma; y<src.rows-sigma; y++ ) for( int x=sigma; x<src.cols-sigma; x++ ){
 			float vn = 0; // vesselness on this point 
 			// calculate the eigen values

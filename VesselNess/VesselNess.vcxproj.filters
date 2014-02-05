@@ -96,22 +96,22 @@
     <ClInclude Include="MinSpanTreeWrapper.h">
       <Filter>MinSpanTree</Filter>
     </ClInclude>
-    <ClInclude Include="CenterLine.h">
-      <Filter>Visualization</Filter>
-    </ClInclude>
-    <ClInclude Include="Volumn.h">
-      <Filter>Visualization</Filter>
-    </ClInclude>
-    <ClInclude Include="VideoSaver.h">
-      <Filter>Visualization</Filter>
-    </ClInclude>
     <ClInclude Include="DataTypes.h">
       <Filter>MinSpanTree</Filter>
     </ClInclude>
     <ClInclude Include="GLCamera.h">
       <Filter>Visualization</Filter>
     </ClInclude>
-    <ClInclude Include="Direction.h">
+    <ClInclude Include="GLVolumn.h">
+      <Filter>Visualization</Filter>
+    </ClInclude>
+    <ClInclude Include="GLDirection.h">
+      <Filter>Visualization</Filter>
+    </ClInclude>
+    <ClInclude Include="GLCenterLine.h">
+      <Filter>Visualization</Filter>
+    </ClInclude>
+    <ClInclude Include="GLVideoSaver.h">
       <Filter>Visualization</Filter>
     </ClInclude>
   </ItemGroup>
@@ -158,15 +158,18 @@
     <ClCompile Include="Vesselness.cpp">
       <Filter>Vesselness</Filter>
     </ClCompile>
-    <ClCompile Include="VideoSaver.cpp">
-      <Filter>Visualization</Filter>
-    </ClCompile>
     <ClCompile Include="GLCamera.cpp">
       <Filter>Visualization</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Viewer.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GLVolumn.cpp">
+      <Filter>Visualization</Filter>
+    </ClCompile>
+    <ClCompile Include="GLVideoSaver.cpp">
+      <Filter>Visualization</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
