@@ -5,6 +5,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VesselNess", "VesselNess\Ve
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "glWin", "Visualization\glWin.vcxproj", "{7576421F-07EA-4A04-BAE0-B11D3FE40D33}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ModelFitting", "ModelFitting\ModelFitting.vcxproj", "{BC8B11D4-A2AC-4DCA-BD34-12D599F0F3B1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -26,6 +28,12 @@ Global
 		{7576421F-07EA-4A04-BAE0-B11D3FE40D33}.Release|Win32.ActiveCfg = Release|Win32
 		{7576421F-07EA-4A04-BAE0-B11D3FE40D33}.Release|Win32.Build.0 = Release|Win32
 		{7576421F-07EA-4A04-BAE0-B11D3FE40D33}.Release|x64.ActiveCfg = Release|x64
+		{BC8B11D4-A2AC-4DCA-BD34-12D599F0F3B1}.Debug|Win32.ActiveCfg = Debug|Win32
+		{BC8B11D4-A2AC-4DCA-BD34-12D599F0F3B1}.Debug|Win32.Build.0 = Debug|Win32
+		{BC8B11D4-A2AC-4DCA-BD34-12D599F0F3B1}.Debug|x64.ActiveCfg = Debug|Win32
+		{BC8B11D4-A2AC-4DCA-BD34-12D599F0F3B1}.Release|Win32.ActiveCfg = Release|Win32
+		{BC8B11D4-A2AC-4DCA-BD34-12D599F0F3B1}.Release|Win32.Build.0 = Release|Win32
+		{BC8B11D4-A2AC-4DCA-BD34-12D599F0F3B1}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
