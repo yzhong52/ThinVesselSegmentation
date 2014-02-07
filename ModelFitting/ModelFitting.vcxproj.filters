@@ -19,6 +19,9 @@
     <Filter Include="VesselNess\Visualization">
       <UniqueIdentifier>{a8919828-41dc-44fa-a4de-275f3ee6c11d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="gco-v3.0">
+      <UniqueIdentifier>{e6a48cb3-0a13-4033-8168-4e36eded84f5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -48,6 +51,21 @@
     <ClInclude Include="..\VesselNess\GLVolumn.h">
       <Filter>VesselNess\Visualization</Filter>
     </ClInclude>
+    <ClInclude Include="gco-v3.0\block.h">
+      <Filter>gco-v3.0</Filter>
+    </ClInclude>
+    <ClInclude Include="gco-v3.0\energy.h">
+      <Filter>gco-v3.0</Filter>
+    </ClInclude>
+    <ClInclude Include="gco-v3.0\GCoptimization.h">
+      <Filter>gco-v3.0</Filter>
+    </ClInclude>
+    <ClInclude Include="gco-v3.0\graph.h">
+      <Filter>gco-v3.0</Filter>
+    </ClInclude>
+    <ClInclude Include="gco-v3.0\LinkedBlockList.h">
+      <Filter>gco-v3.0</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -74,5 +92,25 @@
     <ClCompile Include="..\VesselNess\GLVolumn.cpp">
       <Filter>VesselNess\Visualization</Filter>
     </ClCompile>
+    <ClCompile Include="gco-v3.0\example.cpp">
+      <Filter>gco-v3.0</Filter>
+    </ClCompile>
+    <ClCompile Include="gco-v3.0\GCoptimization.cpp">
+      <Filter>gco-v3.0</Filter>
+    </ClCompile>
+    <ClCompile Include="gco-v3.0\graph.cpp">
+      <Filter>gco-v3.0</Filter>
+    </ClCompile>
+    <ClCompile Include="gco-v3.0\LinkedBlockList.cpp">
+      <Filter>gco-v3.0</Filter>
+    </ClCompile>
+    <ClCompile Include="gco-v3.0\maxflow.cpp">
+      <Filter>gco-v3.0</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="gco-v3.0\GCO_README.TXT">
+      <Filter>gco-v3.0</Filter>
+    </None>
   </ItemGroup>
 </Project>

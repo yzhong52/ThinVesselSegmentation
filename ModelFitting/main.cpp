@@ -10,7 +10,6 @@
 #include "GLViwerWrapper.h"
 #include <Windows.h>
 
-
 GLViewerExt ver;
 
 int main(int argc, char* argv[])
@@ -20,8 +19,13 @@ int main(int argc, char* argv[])
 	// TODO: Fix this function.
 	Data3D<short> im_short;
 	im_short.load( "data/roi15.data" );
-	ver.addObject( im_short, GLViewer::Volumn::MIP ); 
-	ver.go();
+	//ver.addObject( im_short, GLViewer::Volumn::MIP ); 
+	//ver.go();
+
+	// Line Fitting
+
+
+
 
 	return 0;
 }

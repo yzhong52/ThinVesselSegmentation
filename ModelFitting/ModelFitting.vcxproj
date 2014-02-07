@@ -146,6 +146,11 @@
     <ClInclude Include="..\VesselNess\GLViewer.h" />
     <ClInclude Include="..\VesselNess\GLViwerWrapper.h" />
     <ClInclude Include="..\VesselNess\GLVolumn.h" />
+    <ClInclude Include="gco-v3.0\block.h" />
+    <ClInclude Include="gco-v3.0\energy.h" />
+    <ClInclude Include="gco-v3.0\GCoptimization.h" />
+    <ClInclude Include="gco-v3.0\graph.h" />
+    <ClInclude Include="gco-v3.0\LinkedBlockList.h" />
     <ClInclude Include="nstdio.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
@@ -155,9 +160,17 @@
     <ClCompile Include="..\VesselNess\GLVideoSaver.cpp" />
     <ClCompile Include="..\VesselNess\GLViewer.cpp" />
     <ClCompile Include="..\VesselNess\GLVolumn.cpp" />
+    <ClCompile Include="gco-v3.0\example.cpp" />
+    <ClCompile Include="gco-v3.0\GCoptimization.cpp" />
+    <ClCompile Include="gco-v3.0\graph.cpp" />
+    <ClCompile Include="gco-v3.0\LinkedBlockList.cpp" />
+    <ClCompile Include="gco-v3.0\maxflow.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="nstdio.cpp" />
     <ClCompile Include="stdafx.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="gco-v3.0\GCO_README.TXT" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
