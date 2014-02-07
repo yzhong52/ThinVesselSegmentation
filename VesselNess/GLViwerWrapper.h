@@ -70,7 +70,7 @@ public:
 	}
 	
 	template<class E, class N>
-	GLViewer::CenterLine<E, N>* addObject( Graph< E, N >& tree ) {
+	GLViewer::CenterLine<E, N>* addObject( MST::Graph< E, N >& tree ) {
 		GLViewer::CenterLine<E, N> *cObj = new GLViewer::CenterLine<E, N>( tree ); 
 		objs.push_back( cObj );
 		// return the pointer to the rendering object so that
@@ -90,14 +90,14 @@ public:
 		objs.push_back( vDir );
 	}
 
-	void go( int numViewports = 1 ) {
+	void go( int w = 1280, int h = 720, int numViewports = 1 ) {
 		GLViewer::numViewports = numViewports; 
-		GLViewer::go( objs );
+		GLViewer::go( objs, NULL, w, h );
 	}
 	
-	void saveVideo( int numViewports = 1) {
+	void saveVideo( int w = 1280, int h = 720, int numViewports = 1 ) {
 		GLViewer::numViewports = numViewports; 
 		GLViewer::VideoSaver videoSaver( "output/video.avi" );
-		GLViewer::go( objs, &videoSaver );
+		GLViewer::go( objs, &videoSaver, w, h );
 	}
 }; 

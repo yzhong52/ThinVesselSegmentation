@@ -95,7 +95,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)../VesselNess;$(ProjectDir)../dependencies/OpenCV 2.4.3/include;$(ProjectDir)../dependencies/freeglut 2.8.1/include;$(ProjectDir)../dependencies/glew-1.10.0/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../VesselNess;$(ProjectDir)../dependencies/OpenCV 2.4.3/include;$(ProjectDir)../dependencies/freeglut 2.8.1/include;$(ProjectDir)../dependencies/glew-1.10.0/include;$(ProjectDir)gco-v3.0</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

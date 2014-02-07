@@ -213,17 +213,17 @@ namespace GLViewer
 		}
 	}
 
-	void go( vector<Object*> objects, VideoSaver* video )
+	void go( vector<Object*> objects, VideoSaver* video, int w, int h )
 	{
 		if( numViewports == 4 ) {
-			width = 1280;
-			height = 720; 
+			width = w;
+			height = h; 
 		} else if ( numViewports == 2 ) {
-			width = 1280;
-			height = 720; 
+			width = w;
+			height = h; 
 		} else if ( numViewports == 1 ) {
-			width = 1280 /2 ;
-			height = 720; 
+			width = w /2;
+			height = h; 
 		}
 
 		if( objects.size()==0 ) {

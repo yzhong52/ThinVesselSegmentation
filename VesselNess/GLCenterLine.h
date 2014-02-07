@@ -107,12 +107,12 @@ namespace GLViewer{
 	class CenterLine<MST::Edge_Ext, MST::LineSegment> : public GLViewer::Object {
 		char mode; // display mode
 		GLUquadric* quadric;
-		Graph< MST::Edge_Ext, MST::LineSegment >* ptrTree;
+		MST::Graph< MST::Edge_Ext, MST::LineSegment >* ptrTree;
 		int sx, sy, sz;
 		GLfloat red, green, blue;
 		GLfloat red2, green2, blue2;
 	public:
-		CenterLine( Graph<MST::Edge_Ext, MST::LineSegment>& tree ) : ptrTree( &tree ) { 
+		CenterLine( MST::Graph<MST::Edge_Ext, MST::LineSegment>& tree ) : ptrTree( &tree ) { 
 			// get the size of the data
 			sx = sy = sz = 0;
 			for( unsigned int i=0; i<ptrTree->num_edges(); i++ ) {
