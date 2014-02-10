@@ -72,6 +72,12 @@
     <ClInclude Include="GLViwerModel.h">
       <Filter>Visualization</Filter>
     </ClInclude>
+    <ClInclude Include="GLLineModel.h">
+      <Filter>Visualization</Filter>
+    </ClInclude>
+    <ClInclude Include="Line3D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -115,6 +121,12 @@
     </ClCompile>
     <ClCompile Include="GLViwerModel.cpp">
       <Filter>Visualization</Filter>
+    </ClCompile>
+    <ClCompile Include="GLLineModel.cpp">
+      <Filter>Visualization</Filter>
+    </ClCompile>
+    <ClCompile Include="Line3D.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

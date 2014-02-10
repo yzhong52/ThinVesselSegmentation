@@ -1,4 +1,7 @@
 #pragma once
+#ifndef _CRT_SECURE_NO_DEPRECATE
+	#define _CRT_SECURE_NO_DEPRECATE
+#endif
 
 #include "Graph.h"
 #include "MinSpanTree.h"

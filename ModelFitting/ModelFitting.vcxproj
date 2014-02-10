@@ -154,7 +154,9 @@
     <ClInclude Include="gco-v3.0\GCoptimization.h" />
     <ClInclude Include="gco-v3.0\graph.h" />
     <ClInclude Include="gco-v3.0\LinkedBlockList.h" />
+    <ClInclude Include="GLLineModel.h" />
     <ClInclude Include="GLViwerModel.h" />
+    <ClInclude Include="Line3D.h" />
     <ClInclude Include="nstdio.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
@@ -169,7 +171,9 @@
     <ClCompile Include="gco-v3.0\graph.cpp" />
     <ClCompile Include="gco-v3.0\LinkedBlockList.cpp" />
     <ClCompile Include="gco-v3.0\maxflow.cpp" />
+    <ClCompile Include="GLLineModel.cpp" />
     <ClCompile Include="GLViwerModel.cpp" />
+    <ClCompile Include="Line3D.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="nstdio.cpp" />
     <ClCompile Include="stdafx.cpp" />
