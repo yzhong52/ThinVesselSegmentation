@@ -22,6 +22,9 @@
     <Filter Include="gco-v3.0">
       <UniqueIdentifier>{e6a48cb3-0a13-4033-8168-4e36eded84f5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Visualization">
+      <UniqueIdentifier>{1a341700-4ab3-431f-9ca5-776360ba7841}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -66,6 +69,9 @@
     <ClInclude Include="gco-v3.0\LinkedBlockList.h">
       <Filter>gco-v3.0</Filter>
     </ClInclude>
+    <ClInclude Include="GLViwerModel.h">
+      <Filter>Visualization</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -106,6 +112,9 @@
     </ClCompile>
     <ClCompile Include="gco-v3.0\maxflow.cpp">
       <Filter>gco-v3.0</Filter>
+    </ClCompile>
+    <ClCompile Include="GLViwerModel.cpp">
+      <Filter>Visualization</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

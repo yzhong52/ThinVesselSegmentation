@@ -257,12 +257,12 @@ int main(int argc, char* argv[])
 	//cObj->setColor( 1.0f, 1.0f, 0.0f,/*Yellow*/ 1.0f, 1.0f, 0.0f/*Yellow*/ );
 	
 	//// Model Fitting 
-	Graph< MST::Edge_Ext, MST::LineSegment > line_tree;
+	MST::Graph< MST::Edge_Ext, MST::LineSegment > line_tree;
 	MinSpanTree::build_tree_xuefeng( "data/roi16.partial.rd", line_tree, 250 );
 	//viwer.addObject( line_tree );
 
 	//// Model Fitting - without min span tree
-	Graph< MST::Edge_Ext, MST::LineSegment > tree_without_mst;
+	MST::Graph< MST::Edge_Ext, MST::LineSegment > tree_without_mst;
 	tree_without_mst.get_nodes() = line_tree.get_nodes();
 	viwer.addObject( tree_without_mst );
 	
