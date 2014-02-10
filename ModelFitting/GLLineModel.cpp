@@ -10,7 +10,7 @@ void GLLineModel::render(void){
 		if( pos[0]!=0.0f || pos[1]!=0.0f || pos[2]!=0.0f )
 		{ 
 			glColor3f(1.0f, 0.0f,0.0f); glVertex3f( pos[0], pos[1], pos[2] );
-			glColor3f(0.0f, 1.0f,0.0f); glVertex3f( 1.0f*x, 1.0f*y, 1.0f*z );
+			// glColor3f(0.3f, 0.3f,0.3f); glVertex3f( 1.0f*x, 1.0f*y, 1.0f*z );
 		}
 	}
 	glEnd();

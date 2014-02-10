@@ -13,5 +13,7 @@ public:
 	
 	// distance from a point to the line
 	float distanceToLine( const Vec3f& point ) const;
+	// projecting a point to the line
+	Vec3f projection( const Vec3f& point ) const;
 };
 

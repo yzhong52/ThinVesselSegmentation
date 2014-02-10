@@ -166,6 +166,7 @@
     <ClCompile Include="..\VesselNess\GLVideoSaver.cpp" />
     <ClCompile Include="..\VesselNess\GLViewer.cpp" />
     <ClCompile Include="..\VesselNess\GLVolumn.cpp" />
+    <ClCompile Include="..\VesselNess\MinSpanTree.cpp" />
     <ClCompile Include="gco-v3.0\example.cpp" />
     <ClCompile Include="gco-v3.0\GCoptimization.cpp" />
     <ClCompile Include="gco-v3.0\graph.cpp" />

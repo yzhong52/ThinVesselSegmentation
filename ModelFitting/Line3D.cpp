@@ -16,10 +16,12 @@ Line3D::~Line3D(void)
 
 float Line3D::distanceToLine( const Vec3f& point ) const {
 	// get the porjection point
-	Vec3f proj_point(0,0,0);
-	float t = ( point-pos ).dot( dir );
-	proj_point = pos + dir * t; 
-	
+	Vec3f proj_point = projection( point );
 	Vec3f v = proj_point - point;
 	return sqrt( v.dot(v) );
+}
+
+Vec3f Line3D::projection( const Vec3f& point ) const{
+	float t = ( point-pos ).dot( dir );
+	return pos + dir * t; 
 }

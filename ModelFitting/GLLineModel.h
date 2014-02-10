@@ -8,7 +8,7 @@ namespace GLViewer{
 	public:
 		Data3D<cv::Vec3f> data; 
 		GLLineModel( cv::Vec3i size ) {
-			data.resize( size ); 
+			data.reset( size, Vec3f(0,0,0) ); 
 		}
 		virtual ~GLLineModel(void){ }
 
