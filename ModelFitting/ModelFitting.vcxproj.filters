@@ -80,9 +80,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="nstdio.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -131,6 +128,7 @@
     <ClCompile Include="..\VesselNess\MinSpanTree.cpp">
       <Filter>VesselNess</Filter>
     </ClCompile>
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="gco-v3.0\GCO_README.TXT">

@@ -120,14 +120,15 @@ void visualize_ryen_model_fitting_result(void){
 	// visualizing the data
 	ver.addModel( lines, pointsSet, size );
 	
-	MST::Graph< MST::Edge_Ext, MST::LineSegment > line_tree;
-	MinSpanTree::build_tree_xuefeng( "data/ROI_15_Fast_search_1/", line_tree, 250 );
-	ver.addObject( line_tree );
-	/*Data3D<short> im_short;
-	im_short.load( "data/roi15.data" );
-	ver.addObject( im_short ); 
-*/
-	ver.go(400, 200, 1);
+	//MST::Graph< MST::Edge_Ext, MST::LineSegment > line_tree;
+	//MinSpanTree::build_tree_xuefeng( "data/ROI_15_Fast_search_1/", line_tree, 250 );
+	//ver.addObject( line_tree );
+
+	Data3D<short> im_short;
+	im_short.load( "../VesselNess/output/parts/vessel3d.rd.19.part7.data" );
+	ver.addObject( im_short, GLViewer::Volumn::MIP ); 
+
+	ver.go(400, 200, 2);
 }
 
 // TODO: Fix this function.

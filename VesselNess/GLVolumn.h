@@ -321,7 +321,7 @@ namespace GLViewer
 		}
 
 
-		void render_volumn( const float& x_increase = 0.27f, const float& y_increase = 0.27f, const float& z_increase = 0.27f ){
+		void render_volumn( const float& x_increase = 1.0f, const float& y_increase = 1.0f, const float& z_increase = 1.0f ){
 			glBindTexture(GL_TEXTURE_3D, texture);
 			glBegin(GL_QUADS);
 			for( float i=0.0f; i<=sx-1; i+=x_increase ) {
