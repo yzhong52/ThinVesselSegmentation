@@ -15,9 +15,14 @@ Requirements
 
 Before Compile
 ========================
+
 This project requires freeglut, glew and OpenCV. You do not have to install these packages because they are included in the project. But you do need to add the following to path: 
+
 %CD%\dependencies\freeglut 2.8.1\lib\x64;
+
 %CD%\dependencies\glew-1.10.0\bin\Release\x64;
+
 %CD%\dependencies\OpenCV 2.4.3\x64\vc10;
+
 Note: %CD% above means the location where you save the files. 
 
