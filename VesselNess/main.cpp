@@ -13,7 +13,7 @@ int main(int argc, char* argv[])
 	bool flag = false;
 
 	// Original data name
-	string dataname = "../data/data15";
+	string dataname = "data15";
 	// Parameters for Vesselness
 	float sigma_from = 0.5f;
 	float sigma_to = 8.0f;
@@ -25,7 +25,7 @@ int main(int argc, char* argv[])
 
 	// laoding data
 	Data3D<short> im_short;
-	bool falg = im_short.load( dataname+".data" );
+	bool falg = im_short.load( "../data/" + dataname+".data" );
 	if(!falg) return 0;
 	
 	// vesselness output file name
