@@ -50,10 +50,10 @@ namespace GLViewer
 		cam.pushMatrix();
 		// rending viewports
 		if( numViewports == 4 ) {
-			for( int i=0; i<2; i++ ) for( int j=0; j<2; j++ ) 
+			for( unsigned int i=0; i<2; i++ ) for( unsigned int j=0; j<2; j++ ) 
 			{
 				glViewport (width/2*i, height/2*j, width/2, height/2);
-				int obj_index = i+2*(1-j); 
+				unsigned int obj_index = i+2*(1-j); 
 				if( obj_index < obj.size() ) obj[obj_index]->render();
 				else                         obj[0]->render();
 			}

@@ -1,344 +1,72 @@
-// VesselNess.cpp : Defines the entry point for the console application.
-//
 #define _CRT_SECURE_NO_DEPRECATE
-
 #include "stdafx.h"
-#include "VesselDetector.h"
-#include "Viewer.h"
-#include "RingsDeduction.h"
-#include "Image3D.h"
-#include "ImageProcessing.h"
-#include "Vesselness.h"
+#include "VesselDetector.h" // For computing vesselness
+#include "GLViwerWrapper.h" // For visualization
 
-#include "MinSpanTree.h"
-#include "MinSpanTreeWrapper.h"
+GLViewerExt viewer;
 
-// OpenGL Viewer With Maximum Intensity Projection
-#include "GLViewer.h"
-#include "GLVideoSaver.h"
-#include "GLViwerWrapper.h"
-#include "GLCenterLine.h"
-#include "GLVolumn.h"
-
-#include "Validation.h" 
-
-GLViewerExt viwer;
-
-void compute_and_save_vesselness( string dataname = "vessel3d.rd.19",
-	float sigma_from = 0.5, float sigma_to = 45.0f, float sigma_step = 1.0 )
+int main(int argc, char* argv[])
 {
+	// create output folders if it does not exist
+	CreateDirectory(L"./output", NULL);
+
+	bool flag = false;
+
+	// Original data name
+	string dataname = "roi15";
+	// Parameters for Vesselness
+	float sigma_from = 0.5;
+	float sigma_to = 8.0f;
+	float sigma_step = 1.0;
+	// Parameters for vesselness
+	float alpha = 1.0e-1f;	
+	float beta  = 5.0e0f;
+	float gamma = 3.5e5;
+
 	// laoding data
 	Data3D<short> im_short;
 	bool falg = im_short.load( "data/"+dataname+".data" );
-	if(!falg) return;
+	if(!falg) return 0;
 	
+	// vesselness output file name
 	stringstream vesselness_name;
 	vesselness_name << "output/";
 	vesselness_name << dataname;
 	vesselness_name << ".sigma_to" << sigma_to;
 
+	// logging information
 	stringstream vesselness_log;
-	vesselness_log << "Vesselness is computed with sigmas: ";
+	vesselness_log << "alpha = " << alpha << endl;
+	vesselness_log << "beta = " << beta << endl;
+	vesselness_log << "gamma = " << gamma << endl;
+	vesselness_log << "Vesselness is computed with the following sigmas: ";
 	for( float sigma = sigma_from; sigma < sigma_to; sigma += sigma_step ) {
 		vesselness_log << sigma << ","; 
 	}
+	vesselness_log << '\b' << endl; // remove the last ','
 
+	clock_t start = clock();
 	// compute vesselness
 	Data3D<Vesselness_All> vn_all;
-	vn_all.resize( im_short.get_size() );
-	VD::compute_vesselness( im_short, vn_all, sigma_from, sigma_to, sigma_step);
-	vn_all.save( vesselness_name.str()+".vn_all", vesselness_log.str() );
+	VD::compute_vesselness( im_short, vn_all, sigma_from, sigma_to, sigma_step, alpha, beta, gamma);
+	clock_t end = clock();
+	cout << "Time lapse for computing Vesselness: ";
+	cout << (float)(end - start) / CLOCKS_PER_SEC << " seconds. " << endl << endl;
 
+	// Saving VesselNess float,11
+	vn_all.save( vesselness_name.str()+".vn_all", vesselness_log.str() );
+	// Saving VesselNess float,5
 	Data3D<Vesselness_Sig> vn_sig( vn_all );
 	vn_sig.save( vesselness_name.str()+".vn_sig", vesselness_log.str() );
-
+	// Saving VesselNess float,1
 	Data3D<float> vn_float; 
 	vn_sig.copyDimTo( vn_float, 0 );
 	vn_float.save( vesselness_name.str()+".vn_float", vesselness_log.str() );
-}
 
-void compute_min_span_tree( string data_name = "roi16.partial" ) {
-	//Data3D<short> im_short;
-
-	//im_short.load( "data/" +data_name+ ".data" );
-	//
-	//Image3D<unsigned char> im_uchar;
-	//IP::normalize( im_short, short(255) );
-	//im_short.convertTo( im_uchar );
-	//
-	//vector<GLViewer::Object*> objs;
-	//GLViewer::Volumn vObj( im_uchar.getMat().data, 
-	//	im_uchar.SX(), im_uchar.SY(), im_uchar.SZ() );
-	//objs.push_back( &vObj );
-
-	//// Computer Min Span Tree
-	//Graph< MST::Edge_Ext, MST::LineSegment > tree;
-	//MinSpanTree::build_tree_xuefeng( "data/" +data_name+ ".linedata.txt", tree, 150 );
-
-	//GLViewer::CenterLine<MST::Edge_Ext, MST::LineSegment> cObj( tree );
-	//objs.push_back( &cObj );
-
-	//GLViewer::VideoSaver videoSaver( "output/line fitting.avi" );
-	//GLViewer::go( objs/*, &videoSaver*/ );
-}
-
-void compute_rings_redection_gm(void){
-	Image3D<short> im_short;
-	bool falg = im_short.load( "data/vessel3d.data", Vec3i(585,525,100), true, true );
-	if(!falg) return;
-	
-	RD::gm_filter( im_short, 21 );
-	im_short.save( "data/vessel3d.rd.gm.19.data" );
-}
-
-void compute_rings_redection(void){
-	Image3D<short> im_short;
-	bool falg = im_short.load( "data/vessel3d.data", Vec3i(585,525,100), true, true );
-	if(!falg) return;
-	
-	im_short.show( "temp.original.data", 50 );
-	return; 
-	RD::mm_filter( im_short, 19 );
-	im_short.save( "temp.rd.data" );
-	im_short.load( "temp.rd.data" );
-	im_short.show( "temp.rd.data",50 );
-}
-
-void compute_center_line( string dataname = "roi15" ){
-	Data3D<short> im_short;
-	bool falg = im_short.load( "data/"+dataname+".data" );
-	if(!falg) return;
-
-	// vesselness
-	Data3D<Vesselness_All> vn_all; 
-	vn_all.load( "data/"+dataname+".vn_all" );
-
-	MST::Graph3D<Edge> tree; 
-	MST::edge_tracing( vn_all, tree, 0.55f, 0.055f );
-
-	Data3D<unsigned char> im_unchar;
-	IP::normalize( im_short, short(255) );
-	im_short.convertTo( im_unchar );
-	GLViewer::Volumn vObj( 
-		im_unchar.getMat().data, 
-		im_unchar.SX(), im_unchar.SY(), im_unchar.SZ() );
-
-	GLViewer::CenterLine<Edge> cObj( tree );
-
-	vector<GLViewer::Object*> objs;
-	objs.push_back( &vObj );
-	objs.push_back( &cObj ); 
-	GLViewer::go( objs );
-
-	return;
-}	
-
-void xuefeng_cut(void){	
-	Image3D<short> im_short;
-	im_short.load( "data/vessel3d.rd.19.data" );
-	Image3D<Vesselness_Sig> vn_sig; 
-	vn_sig.load( "data/vessel3d.rd.19.sigma45.vn_sig" );
-
-	Vec3i piece_size(585,525,100);
-	Vec3i pos(0,0,0);
-	for( pos[2]=0; pos[2]+piece_size[2] <= im_short.SZ(); pos[2]+=piece_size[2]*3/4 ) {
-		for( pos[1]=0; pos[1]+piece_size[1] <= im_short.SY(); pos[1]+=piece_size[1]*3/4 ) {
-			for( pos[0]=0; pos[0]+piece_size[0] <= im_short.SX(); pos[0]+=piece_size[0]*3/4 )
-			{
-				cout << "Saveing ROI from " << pos << " to " << pos+piece_size-Vec3i(1,1,1) << endl;
-				static int i = 0;
-				stringstream ss;
-				ss << "data/parts/vessel3d.rd.19.part" << i++;
-				im_short.setROI( pos, pos+piece_size-Vec3i(1,1,1) );
-				vn_sig.setROI(  pos, pos+piece_size-Vec3i(1,1,1) );
-				im_short.saveROI( ss.str()  + ".data");
-				vn_sig.saveROI(  ss.str() + ".vn_sig");
-			}
-		}
-	}
-}
-
-
-bool load_graph( MST::Graph3D<Edge>& graph, const string& filename ) {
-	ifstream fin;
-	fin.open( filename );
-	if( !fin.is_open() ){
-		cout << "File not found" << endl; 
-		return false;
-	}
-
-	int sx, sy, sz;
-	fin >> sx;
-	fin >> sy;
-	fin >> sz;
-
-	graph.sx = sx;
-	graph.sy = sy;
-	graph.sz = sz;
-	graph.reset( sx*sy*sz );
-
-	unsigned int num_edges;
-	fin >> num_edges; 
-	for( unsigned int i=0; i<num_edges; i++ ) {
-		Edge e;
-		fin >> e.node1;
-		fin >> e.node2;
-		fin >> e.weight;
-		graph.add_edge( e );
-	}
-	return true; 
-}
-
-
-void save_graph( MST::Graph3D<Edge>& graph, const string& filename ) {
-	ofstream fout;
-	fout.open( filename );
-	fout << graph.sx << " ";
-	fout << graph.sy << " ";
-	fout << graph.sz << endl;
-	fout << graph.num_edges() << endl;
-	for( unsigned int i=0; i<graph.num_edges(); i++ ) {
-		fout << graph.get_edge(i).node1 << " ";
-		fout << graph.get_edge(i).node2 << " ";
-		fout << graph.get_edge(i).weight << endl;
-	}
-}
-
-int main(int argc, char* argv[])
-{
-	// create folders if does not exist
-	CreateDirectory(L"./output", NULL);
-
-	bool flag = false;
-	//Validation::box_func_and_2nd_gaussian::plot_different_size();
-	//Validation::box_func_and_2nd_gaussian::plot_different_pos();
-	//Validation::box_func_and_2nd_gaussian::plot();
-	//Validation::Eigenvalues::plot_1d_box();
-	//Validation::Eigenvalues::plot_2d_tubes();
-	//Validation::Eigenvalues::plot_2d_ball();
-	//Validation::Eigenvalues::plot_3d_tubes();
-	//return 0; 
-
-	// Vesselness for different sigmas
-	//Data3D<float> vn_float1, vn_float2, vn_float3, vn_float4;
-	//vn_float1.load( "output/roi16.partial.sigma_to0.8.vn_float" );  viwer.addObject( vn_float1, GLViewer::Volumn::MIP ); 
-	//vn_float2.load( "output/roi16.partial.sigma_to1.3.vn_float" );  viwer.addObject( vn_float2, GLViewer::Volumn::MIP ); 
-	//vn_float3.load( "output/roi16.partial.sigma_to2.6.vn_float" );  viwer.addObject( vn_float3, GLViewer::Volumn::MIP ); 
-	//vn_float4.load( "output/roi16.partial.sigma_to5.1.vn_float" );  viwer.addObject( vn_float4, GLViewer::Volumn::MIP ); 
-
-	//// Original Data (Before Rings Reduction) 
-	//Data3D<short> im_short0;
-	//im_short0.load( "data/roi16.partial.original.data" );
-	//viwer.addObject( im_short0, GLViewer::Volumn::Surface  );
-
-	//// Original Data (After Rings Reduction) 
-	//Image3D<short> im_short;
-	//im_short.load( "data/roi16.partial.data" );
-	//viwer.addObject( im_short, GLViewer::Volumn::Surface );
-
-	////// Vesselness
-	//Data3D<Vesselness_All> vn_all;
-	//vn_all.load( "data/roi16.rd.19.sigma45.vn_all" );
-	//vn_all.load( "data/roi16.partial.sigma_to8.vn_all" );
-	//viwer.addObject( vn_all, GLViewer::Volumn::MIP );
-	
-	//// Direction of Vesselness
-	Data3D<Vesselness_Sig> vn_sig;
-	vn_sig.load( "data/roi16.partial.sigma_to8.vn_sig" );
-	viwer.addObject( vn_sig, GLViewer::Volumn::MIP );
-	//viwer.addDiretionObject( vn_sig );
-	
-
-	// Ring reduction after model fitting
-	//Graph< MST::Edge_Ext, MST::LineSegment > rings;
-	// pre_process_xuefeng( "data/roi16.partial", "data/roi16.partial.rd", rings, 
-	//	/*Center of Rings*/ MST::Vec3f(234-120, 270-89, 0) );
-	//GLViewer::CenterLine<MST::Edge_Ext, MST::LineSegment> *cObj = viwer.addObject( rings );
-	//cObj->setColor( 1.0f, 1.0f, 0.0f,/*Yellow*/ 1.0f, 1.0f, 0.0f/*Yellow*/ );
-	
-	//// Model Fitting 
-	MST::Graph< MST::Edge_Ext, MST::LineSegment > line_tree;
-	MinSpanTree::build_tree_xuefeng( "data/roi16.partial.rd", line_tree, 250 );
-	//viwer.addObject( line_tree );
-
-	//// Model Fitting - without min span tree
-	MST::Graph< MST::Edge_Ext, MST::LineSegment > tree_without_mst;
-	tree_without_mst.get_nodes() = line_tree.get_nodes();
-	viwer.addObject( tree_without_mst );
-	
-
-	// Data Thining
-	//MST::Graph3D<Edge> thin_data_tree; 
-	// MST::edge_tracing( vn_all, thin_data_tree, 0.55f, 0.015f ); 
-	// save_graph( thin_data_tree, "output/roi16.rd.19.sigma45.edge_tracing.min_span_tree.txt" );
-	//flag = load_graph( thin_data_tree, "output/roi16.rd.19.sigma45.edge_tracing.min_span_tree.txt" );
-	//if( !flag ) {
-	//	return 0; 
-	//}
-	//viwer.addObject( thin_data_tree ); 
-	//// Data Thining (Data Points)
-	//Data3D<float> tree2_nodes( vn_all.get_size() ); 
-	//for( unsigned int i=0; i< thin_data_tree.num_edges(); i++ ) {
-	//	Edge& e = thin_data_tree.get_edge(i);
-	//	tree2_nodes.at( thin_data_tree.get_pos(e.node1) ) = max(vn_all.at( thin_data_tree.get_pos(e.node1) ).rsp, 0.2f); 
-	//	tree2_nodes.at( thin_data_tree.get_pos(e.node2) ) = max(vn_all.at( thin_data_tree.get_pos(e.node2) ).rsp, 0.2f); 
-	//}
-	//viwer.addObject( tree2_nodes, GLViewer::Volumn::MIP ); 
-	//viwer.addObject( thin_data_tree ); 
-
-
-	// Data Thinning
-	//Data3D<Vesselness_Sig> vn_sig_nms; 
-	//IP::non_max_suppress( vn_all, vn_sig_nms ); 
-	//viwer.addObject( vn_sig_nms ); 
-	//// Data Thinning with One Threshold
-	//Data3D<Vesselness_Sig> vn_sig_et1; 
-	//IP::edge_tracing( vn_sig_nms, vn_sig_et1, 0.38f, 0.38f );
-	//viwer.addObject( vn_sig_et1 ); 
-	//// Data Thinning with Dual Threshold
-	//Data3D<Vesselness_Sig> vn_sig_et; 
-	//IP::edge_tracing( vn_sig_nms, vn_sig_et, 0.38f, 0.05f );
-	//viwer.addObject( vn_sig_et ); 
-
-	//viwer.go(2); 
-	viwer.saveVideo(2); 
-
-	return 0;
-	
-
-	/////////////////////////////////////////////////////////////////////////////////////
-	//// For tuning parameters
-	//flag = image_data.loadROI( ps.file );
-	//if( !flag ) return 0;
-	//static const int NUM_S = 4;
-	//float sigma[] = { 0.3f, 0.5f, 0.7f, 1.5f };
-	//// float sigma[] = { 0.5f, 1.5f, 2.5f };
-	//int margin = (int) sigma[NUM_S-1]*6 + 20;
-	//Vec3i size = image_data.getROI().get_size() - 2* Vec3i(margin, margin, margin);
-	//size[0] *= NUM_S;
-	//Data3D<Vesselness_All> vn_temp(size);
-	//for( int i=0; i<NUM_S; i++ ){ 
-	//	VD::compute_vesselness( image_data.getROI(), vn_all, sigma[i], 3.1f, 100.0f );
-	//	vn_all.remove_margin( Vec3i(margin+30,margin,margin), Vec3i(margin,margin,margin) );
-	//	int x,y,z;
-	//	for(z=0;z<vn_all.SZ();z++ ) for(y=0;y<vn_all.SY();y++ ) for(x=0;x<vn_all.SX();x++ ) {
-	//		vn_temp.at( x + i*vn_all.SX(), y, z ) = vn_all.at( x, y, z );
-	//	}
-	//}
-	//Viewer::MIP::Multi_Channels( vn_temp, data_name+".vesselness" );
-	//return 0;
-
-	////////////////////////////////////////////////////////////////
-	// Plotting About Eigenvalues (Plots being used in my thesis)
-	////////////////////////////////////////////////////////////////
-	//// Visualization of the Eigenvalues
-	// Validation::Eigenvalues::plot_1d_box();
-	// Validation::Eigenvalues::plot_2d_tubes();
-	// Validation::Eigenvalues::plot_2d_ball();
-	// Validation::Eigenvalues::plot_3d_tubes();
-	//// Draw Second Derivative of Gaussian on top of the Box function 
-	// Validation::box_func_and_2nd_gaussian::plot_different_size();
-	// Validation::box_func_and_2nd_gaussian::plot_different_pos();
+	// Visualize result with maximum intensity projection (MIP)
+	viewer.addObject( im_short, GLViewer::Volumn::MIP );
+	viewer.addObject( vn_float, GLViewer::Volumn::MIP );
+	viewer.go(400, 200, 2);
 
 	return 0;
 }

@@ -418,7 +418,7 @@ void Data3D<T>::show(const string& window_name, int current_slice ) const
 template<typename T>
 void Data3D<T>::save_info( const string& file_name, bool isBigEndian, const string& log  ) const {
 	string info_file = file_name + ".readme.txt";
-	cout << "Saving data information from '" << info_file << "' " << endl;
+	cout << "Saving data information to '" << info_file << "' " << endl;
 	ofstream fout( info_file.c_str() );
 	fout << _size[0] << " ";
 	fout << _size[1] << " ";

@@ -207,9 +207,10 @@ bool VesselDetector::hessien( const Data3D<short>& src, Data3D<Vec<float, 12>>& 
 
 
 int VesselDetector::compute_vesselness( 
-	const Data3D<short>& src, // INPUT
-	Data3D<Vesselness_All>& dst,  // OUTPUT
-	float sigma_from, float sigma_to, float sigma_step ) // INPUT
+	const Data3D<short>& src,							// INPUT
+	Data3D<Vesselness_All>& dst,						// OUTPUT
+	float sigma_from, float sigma_to, float sigma_step, // INPUT 
+	float alpha, float beta, float gamma )				// INPUT
 {
 	cout << "Computing Vesselness, it will take a while... " << endl;
 	cout << "Vesselness will be computed from sigma = " << sigma_from << " to sigma = " << sigma_to << endl;
@@ -217,24 +218,14 @@ int VesselDetector::compute_vesselness(
 	Data3D<Vesselness_Nor> vn;
 	dst.reset( src.get_size() ); // data will be clear to zero
 
-
 	smart_return_value( sigma_from < sigma_to, "sigma_from should be smaller than sigma_to ", 0 );
 	smart_return_value( sigma_step > 0, "sigma_step should be greater than 0 ", 0 );
 
-	
-	// The BIGGER the Value the less sensitive the term is
-	const float alpha = 1.0e-1f;     // A = lmd2 / lmd3;
-	// The SMALLER the Value the less sensitive the term is
-	const float beta  = 5.0e0f;     // B = lmb1 / sqrt( lmb2 * lmb3 );
-	// The BIGGER the Value the less sensitive the term is
-	const float gamma = 3.5e5;      // S = sqrt( lmd1*lmd1 + lmd2*lmd2 + lmd3*lmd3 );
-	// vn_Nor.rsp = ( 1.0f-exp(-A*A/alpha) )* exp( B*B/beta ) * ( 1-exp(-S*S/gamma) );
-	
 	int x,y,z;
 	float max_sigma = sigma_from;
 	float min_sigma = sigma_to;
 	for( float sigma = sigma_from; sigma < sigma_to; sigma += sigma_step ){
-		cout << '\r' << "Vesselness for sigma = " << sigma;
+		cout << '\r' << "Vesselness for sigma = " << sigma << "         ";
 		VesselDetector::hessien( src, vn, 0, sigma, alpha, beta, gamma );
 		// compare the response, if it is greater, copy it to our dst
 		int margin = int( ceil(3 * sigma) );
@@ -244,71 +235,6 @@ int VesselDetector::compute_vesselness(
 				for( x=margin; x<src.get_size_x()-margin; x++ ) {
 					if( dst.at(x, y, z).rsp < vn.at(x, y, z).rsp ) {
 						dst.at(x, y, z) = Vesselness_All( vn.at(x, y, z), sigma );
-						max_sigma = max( sigma, max_sigma );
-						min_sigma = min( sigma, min_sigma );
-					}
-				}
-			}
-		}
-	}
-
-	cout << endl << "The minimum and maximum sigmas used for vesselness: " << min_sigma << ", " << max_sigma << endl;
-	cout << "done. " << endl << endl;
-
-	return 0;
-}
-
-
-
-int VesselDetector::compute_bifurcationess( 
-		const Data3D<short>& src, // INPUT
-		Data3D<float>& dst,  // OUTPUT
-		float sigma_from, float sigma_to, float sigma_step ) // INPUT 
-{
-	cout << "Computing Vesselness, it will take a while... " << endl;
-	cout << "Vesselness will be computed from sigma = " << sigma_from << " to sigma = " << sigma_to << endl;
-	
-	// reset data
-	dst.reset( src.get_size() ); // data will be clear to zero
-
-	
-	
-	smart_return_value( sigma_from < sigma_to, "sigma_from should be smaller than sigma_to ", 0 );
-	smart_return_value( sigma_step > 0, "sigma_step should be greater than 0 ", 0 );
-
-	
-	// The BIGGER the Value the less sensitive the term is
-	const float alpha = 1.0e-1f;     // A = lmd2 / lmd3;
-	// The SMALLER the Value the less sensitive the term is
-	const float beta  = 5.0e0f;     // B = lmb1 / sqrt( lmb2 * lmb3 );
-	// The BIGGER the Value the less sensitive the term is
-	const float gamma = 3.5e5;      // S = sqrt( lmd1*lmd1 + lmd2*lmd2 + lmd3*lmd3 );
-	// vn_Nor.rsp = ( 1.0f-exp(-A*A/alpha) )* exp( B*B/beta ) * ( 1-exp(-S*S/gamma) );
-	
-	int x,y,z;
-	float max_sigma = sigma_from;
-	float min_sigma = sigma_to;
-	Data3D< Vec<float,12> > eigens;
-	for( float sigma = sigma_from; sigma < sigma_to; sigma += sigma_step ){
-		cout << '\r' << "Vesselness for sigma = " << sigma;
-		VesselDetector::hessien( src, eigens, 0, sigma, alpha, beta, gamma );
-		// compare the response, if it is greater, copy it to our dst
-		int margin = int( ceil(3 * sigma) );
-		//if( margin % 2 == 0 )  margin++;
-		for( z=margin; z<src.get_size_z()-margin; z++ ) {
-			for( y=margin; y<src.get_size_y()-margin; y++ ) {
-				for( x=margin; x<src.get_size_x()-margin; x++ ) {
-					float lmd1 = eigens.at(x,y,z)[0];
-					float lmd2 = eigens.at(x,y,z)[1];
-					float lmd3 = eigens.at(x,y,z)[2];
-					// det(A) is the product of the eigenvalues of A
-					float det_A = abs(lmd1*lmd2*lmd3); 
-					// The trace of a matrix is the sum of the (complex) eigenvalues
-					float tr_A = abs(lmd1+lmd2+lmd3) + 1.0e-5f;  
-					float byness = 1-exp( -det_A / tr_A / 1.0e5f); 
-					byness = det_A / tr_A;
-					if( dst.at(x, y, z) < byness ) {
-						dst.at(x, y, z) = byness; 
 						max_sigma = max( sigma, max_sigma );
 						min_sigma = min( sigma, min_sigma );
 					}

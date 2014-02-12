@@ -16,9 +16,6 @@
     <Filter Include="others">
       <UniqueIdentifier>{5bf8842c-8925-4cf9-9ddd-5f4545cbc0a6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Validation">
-      <UniqueIdentifier>{7d3d3e7c-4617-4175-9925-e4b46ed68694}</UniqueIdentifier>
-    </Filter>
     <Filter Include="MinSpanTree">
       <UniqueIdentifier>{d1375b18-f7e8-4bb0-9160-e1579fef86ca}</UniqueIdentifier>
     </Filter>
@@ -59,9 +56,6 @@
     </ClInclude>
     <ClInclude Include="ImageProcessing.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Validation.h">
-      <Filter>Validation</Filter>
     </ClInclude>
     <ClInclude Include="Neigbour3D.h">
       <Filter>Header Files</Filter>
@@ -124,15 +118,6 @@
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>others</Filter>
-    </ClCompile>
-    <ClCompile Include="Validation_Rings_Reduction.cpp">
-      <Filter>Validation</Filter>
-    </ClCompile>
-    <ClCompile Include="Validation_Hessian_3D.cpp">
-      <Filter>Validation</Filter>
-    </ClCompile>
-    <ClCompile Include="Validation.cpp">
-      <Filter>Validation</Filter>
     </ClCompile>
     <ClCompile Include="Neigbour3D.cpp">
       <Filter>Source Files</Filter>

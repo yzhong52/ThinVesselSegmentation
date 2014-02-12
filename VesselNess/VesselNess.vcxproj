@@ -350,7 +350,6 @@
     <ClInclude Include="smart_assert.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="Validation.h" />
     <ClInclude Include="VesselDetector.h" />
     <ClInclude Include="Vesselness.h" />
     <ClInclude Include="GLVolumn.h" />
@@ -366,9 +365,6 @@
     <ClCompile Include="Neigbour3D.cpp" />
     <ClCompile Include="RingsDeduction.cpp" />
     <ClCompile Include="stdafx.cpp" />
-    <ClCompile Include="Validation.cpp" />
-    <ClCompile Include="Validation_Hessian_3D.cpp" />
-    <ClCompile Include="Validation_Rings_Reduction.cpp" />
     <ClCompile Include="VesselDetector.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Vesselness.cpp" />
