@@ -33,7 +33,7 @@ namespace VesselDetector
 		float sigma_from, float sigma_to, float sigma_step, // INPUT 
 		float alpha = 1.0e-1f,	// INPUT 
 		float beta  = 5.0e0f,	// INPUT 
-		float gamma = 3.5e5 ); // INPUT 
+		float gamma = 3.5e5f ); // INPUT 
 };
 
 namespace VD = VesselDetector;

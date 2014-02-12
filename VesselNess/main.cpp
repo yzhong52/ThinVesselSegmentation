@@ -13,19 +13,19 @@ int main(int argc, char* argv[])
 	bool flag = false;
 
 	// Original data name
-	string dataname = "roi15";
+	string dataname = "data15";
 	// Parameters for Vesselness
-	float sigma_from = 0.5;
-	float sigma_to = 8.0f;
-	float sigma_step = 1.0;
+	float sigma_from = 0.5f;
+	float sigma_to = 1.0f;
+	float sigma_step = 1.0f;
 	// Parameters for vesselness
 	float alpha = 1.0e-1f;	
 	float beta  = 5.0e0f;
-	float gamma = 3.5e5;
+	float gamma = 3.5e5f;
 
 	// laoding data
 	Data3D<short> im_short;
-	bool falg = im_short.load( "data/"+dataname+".data" );
+	bool falg = im_short.load( dataname+".data" );
 	if(!falg) return 0;
 	
 	// vesselness output file name
