@@ -13,10 +13,10 @@ int main(int argc, char* argv[])
 	bool flag = false;
 
 	// Original data name
-	string dataname = "data15";
+	string dataname = "../data/data15";
 	// Parameters for Vesselness
 	float sigma_from = 0.5f;
-	float sigma_to = 1.0f;
+	float sigma_to = 8.0f;
 	float sigma_step = 1.0f;
 	// Parameters for vesselness
 	float alpha = 1.0e-1f;	

@@ -2,8 +2,8 @@
 ## Yuchen
 #################
 
-data/
-output/
+/VesselNess/data/
+/VesselNess/output/
 temp.*
 
 # User-specific files
