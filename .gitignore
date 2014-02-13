@@ -2,6 +2,8 @@
 ## Yuchen
 #################
 
+/Vesselness-cuda/Release/
+/Vesselness-cuda/x64/
 /VesselNess/data/
 /ModelFitting/data/
 /VesselNess/output/
@@ -35,3 +37,4 @@ ipch/
 *.opensdf
 *.sdf
 *.cachefile
+*.pdb
