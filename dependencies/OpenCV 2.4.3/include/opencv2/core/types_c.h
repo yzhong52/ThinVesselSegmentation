@@ -308,7 +308,7 @@ CV_INLINE  int  cvRound( double value )
     __m128d t = _mm_set_sd( value );
     return _mm_cvtsd_si32(t);
 #elif defined _MSC_VER && defined _M_IX86
-    int t;
+    int t = 0;
     __asm
     {
         fld value;

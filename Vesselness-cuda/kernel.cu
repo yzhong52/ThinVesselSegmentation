@@ -1,3 +1,99 @@
+// Header files for opencv
+#include <iostream> 
+using namespace std;
+#include "opencv2/core/core.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
+#include "opencv2/video/video.hpp"
+#include "opencv2/highgui/highgui.hpp"
+using namespace cv; 
+
+#include "VesselDetector.h"
+#include "Data3D.h"
+#include "nstdio.h"
+#include "VesselNess.h"
+
+int CV_TYPE(const type_info& type){
+	if( type==typeid(short) ) {
+		return CV_16S;
+	} 
+	else if ( type==typeid(int) ){
+		return CV_32S;
+	} 
+	else if ( type==typeid(float) ) {
+		return CV_32F;
+	} 
+	else if ( type==typeid(double) ) {
+		return CV_64F;
+	} 
+	else if ( type==typeid(Vesselness) ) {
+		return CV_32FC( Vesselness::_size );
+	} 
+	else if ( type==typeid(Vesselness_Sig) ) {
+		return CV_32FC( Vesselness_Sig::_size );
+	}
+	else if ( type==typeid(Vesselness_Nor) ) {
+		return CV_32FC( Vesselness_Nor::_size );
+	} 
+	else if ( type==typeid(Vesselness_All) ) {
+		return CV_32FC( Vesselness_All::_size );
+	}
+	else if ( type==typeid(unsigned char) ) {
+		return CV_8U;
+	}
+	else if ( type==typeid(unsigned short) ){
+		return CV_16U;
+	}
+	else {
+		cout << "Datatype is not supported." << endl;
+		return -1;
+	}
+}
+
+
+string STR_TYPE(const type_info& type){
+	if( type==typeid(short) ) {
+		return "short";
+	} 
+	else if ( type==typeid(int) ){
+		return "int";
+	} 
+	else if ( type==typeid(float) ) {
+		return "float";
+	} 
+	else if ( type==typeid(double) ) {
+		return "double";
+	} 
+	else if( type==typeid(Vesselness) ) {
+		stringstream ss;
+		ss << "float," << Vesselness::_size;
+		return ss.str();
+	}
+	else if( type==typeid(Vesselness_Sig) ) {
+		stringstream ss;
+		ss << "float," << Vesselness_Sig::_size;
+		return ss.str();
+	}
+	else if( type==typeid(Vesselness_Nor) ) {
+		stringstream ss;
+		ss << "float," << Vesselness_Nor::_size;
+		return ss.str();
+	}
+	else if( type==typeid(Vesselness_All) ) {
+		stringstream ss;
+		ss << "float," << Vesselness_All::_size;
+		return ss.str();
+	}
+	else if( type==typeid(unsigned char) ) {
+		return "unsigned_char";
+	} 
+	else if( type==typeid(unsigned short) ){
+		return "unsigned_short";
+	}
+	else {
+		smart_return_value( 0, "Datatype is not supported.", "(*^__^*)Error!");
+	}
+}
+
 
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
@@ -36,6 +132,10 @@ int main()
         fprintf(stderr, "cudaDeviceReset failed!");
         return 1;
     }
+
+	Data3D<short> im_short;
+	im_short.load( "../data/data15.data" );
+	im_short.show(); 
 
     return 0;
 }
@@ -88,7 +188,7 @@ cudaError_t addWithCuda(int *c, const int *a, const int *b, size_t size)
     }
 
     // Launch a kernel on the GPU with one thread for each element.
-    addKernel<<<1, size>>>(dev_c, dev_a, dev_b);
+    addKernel<<<1, (unsigned int)size>>>(dev_c, dev_a, dev_b);
 
     // cudaDeviceSynchronize waits for the kernel to finish, and returns
     // any errors encountered during the launch.

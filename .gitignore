@@ -27,8 +27,9 @@ temp.*
 /Visualization/[Dd]ebug/
 /Visualization/[Rr]elease/
 /Visualization/log.txt
-/Vesselness-cuda/Release/
-/Vesselness-cuda/x64/
+/VesselNess-cuda/Release/
+/VesselNess-cuda/Debug/
+/VesselNess-cuda/x64/
 
 
 
@@ -40,4 +41,3 @@ ipch/
 *.sdf
 *.cachefile
 *.pdb
-

@@ -54,7 +54,7 @@ public:
 	// 11 for Vesselness_All;
 	// This virtual function here will take 2*4 = 8 bytes of data
 	static const int _size = sizeof(Vesselness_Data)/sizeof(float);
-	const int size(void) const { return _size; }
+	int size(void) const { return _size; }
 
 	const float& operator[]( const int& i ) const {
 		smart_return_value( i>=0&&i<_size, "index invalid", *(float*)(this) );

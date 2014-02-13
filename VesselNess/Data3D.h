@@ -22,8 +22,8 @@ public:
 		// resize 
 		this->resize( src.get_size() );
 		// copy the data over
-		cv::Mat_<T>::iterator        this_it;
-		cv::Mat_<T2>::const_iterator src_it;
+		MatIterator_<T>       this_it;
+		MatConstIterator_<T2> src_it;
 		for( this_it = this->getMat().begin(), src_it = src.getMat().begin(); 
 			 this_it < this->getMat().end(),   src_it < src.getMat().end();
 			 this_it++, src_it++ )
@@ -40,7 +40,7 @@ public:
 	virtual void reset( const Vec3i& n_size, const T& value )
 	{
 		resize( n_size );
-		for( Mat_<T>::iterator it=_mat.begin(); it<_mat.end(); it++ ) {
+		for( MatIterator_<T> it=_mat.begin(); it<_mat.end(); it++ ) {
 			(*it) = value;
 		}
 	}
@@ -81,16 +81,16 @@ public:
 	
 	// getters about values of the data
 	virtual const inline T& at( const int& i ) const {
-		return _mat.at<T>( i ); 
+		return _mat( i ); 
 	}
 	virtual inline T& at( const int& i ) {
-		return _mat.at<T>( i ); 
+		return _mat( i ); 
 	}
 	virtual const inline T& at( const int& x, const int& y, const int& z ) const { 
-		return _mat.at<T>( z, y * _size[0] + x ); 
+		return _mat( z, y * _size[0] + x ); 
 	}
 	virtual inline T& at( const int& x, const int& y, const int& z ) { 
-		return _mat.at<T>( z, y * _size[0] + x ); 
+		return _mat( z, y * _size[0] + x ); 
 	}
 	virtual const inline T& at( const Vec3i& pos ) const {
 		return at( pos[0], pos[1], pos[2] );
@@ -131,8 +131,8 @@ public:
 		Vec<T, 2> min_max;
 		Point minLoc, maxLoc;
 		cv::minMaxLoc( _mat, NULL, NULL, &minLoc, &maxLoc);
-		min_max[0] = _mat.at<T>( minLoc );
-		min_max[1] = _mat.at<T>( maxLoc );
+		min_max[0] = _mat.at( minLoc );
+		min_max[1] = _mat.at( maxLoc );
 		return min_max;
 	}
 
@@ -161,13 +161,13 @@ public:
 		return remove_margin( margin, margin );
 	}
 	// remove some margin of the data
-	void remove_margin( const Vec3i& margin1, const Vec3i& margin2 ) {
+	bool remove_margin( const Vec3i& margin1, const Vec3i& margin2 ) {
 		Vec3i n_size;
 		for( int i=0; i<3; i++ ){
 			n_size[i] = _size[i] - margin1[i] - margin2[i];
 			if( n_size[i] <= 0 ) {
 				cout << "Margin is too big. Remove margin failed. " << endl;
-				return;
+				return false;
 			}
 		}
 		int n_size_slice = n_size[0] * n_size[1];
@@ -189,7 +189,7 @@ public:
 		for( int z=spos[2]; z<epos[2]; z++ ){
 			for( int y=spos[1]; y<epos[1]; y++ ){
 				for( int x=spos[0]; x<epos[0]; x++ ){
-					n_mat.at<T>( z-margin1[2], (y-margin1[1])*n_size[0] + (x-margin1[0]) ) = _mat.at<T>( z, y*_size[0] + x );
+					n_mat.at( z-margin1[2], (y-margin1[1])*n_size[0] + (x-margin1[0]) ) = _mat.at( z, y*_size[0] + x );
 				}
 			}
 		}
@@ -199,6 +199,7 @@ public:
 		_size = n_size;
 		_size_slice = n_size_slice;
 		_size_total = n_size_total;
+		return true; 
 	}
 
 	// Resize the data by cropping or padding
@@ -408,8 +409,8 @@ void Data3D<T>::show(const string& window_name, int current_slice ) const
 	// find the maximum and minimum value (method3)
 	Point minLoc, maxLoc;
 	minMaxLoc( _mat, NULL, NULL, &minLoc, &maxLoc);
-	T max_value = _mat.at<T>( maxLoc );
-	T min_value = _mat.at<T>( minLoc );
+	T max_value = _mat( maxLoc );
+	T min_value = _mat( minLoc );
 
 	this->show( window_name, current_slice, min_value, max_value );
 }

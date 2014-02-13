@@ -9,12 +9,15 @@
 	#define _CRT_SECURE_NO_DEPRECATE
 #endif
 
-#include <iostream>
-#include <vector>
 
-#include <opencv\cv.h>
-#include <opencv2\opencv.hpp>
-//#include <opencv2\contrib\contrib.hpp>
+#include <vector>
+#include <iostream> 
+using namespace std;
+#include "opencv2/core/core.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
+#include "opencv2/video/video.hpp"
+#include "opencv2/highgui/highgui.hpp"
+using namespace cv; 
 
 #include "smart_assert.h"
 
