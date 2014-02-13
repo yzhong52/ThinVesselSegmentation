@@ -3,6 +3,7 @@
 #################
 
 /VesselNess/data/
+/ModelFitting/data/
 /VesselNess/output/
 temp.*
 
