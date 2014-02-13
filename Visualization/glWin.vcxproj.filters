@@ -1,0 +1,161 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="Controller">
+      <UniqueIdentifier>{0434a7e0-c1c7-4db2-b6a6-07480e62441d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Model">
+      <UniqueIdentifier>{32bbd031-62d5-49b5-a8b1-235725c9053c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="View">
+      <UniqueIdentifier>{7fc834f0-2227-4cfb-be1a-5b947b8c2ffc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Model\Vesselness">
+      <UniqueIdentifier>{36c8ef5a-a472-437c-b5d2-1a044334ba34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Log">
+      <UniqueIdentifier>{bc8ea8de-483e-43d5-bfb1-ee9e304c3873}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="DialogWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="procedure.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wcharUtil.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Window.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Controller.cpp">
+      <Filter>Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="ControllerMain.cpp">
+      <Filter>Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="ControllerFormGL.cpp">
+      <Filter>Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="ControllerGL.cpp">
+      <Filter>Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="ViewGL.cpp">
+      <Filter>View</Filter>
+    </ClCompile>
+    <ClCompile Include="ViewFormGL.cpp">
+      <Filter>View</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelGL.cpp">
+      <Filter>Model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\VesselNess\Data3D.cpp">
+      <Filter>Model\Vesselness</Filter>
+    </ClCompile>
+    <ClCompile Include="..\VesselNess\ImageProcessor.cpp">
+      <Filter>Model\Vesselness</Filter>
+    </ClCompile>
+    <ClCompile Include="..\VesselNess\stdafx.cpp">
+      <Filter>Model\Vesselness</Filter>
+    </ClCompile>
+    <ClCompile Include="..\VesselNess\Volumn.cpp">
+      <Filter>Model\Vesselness</Filter>
+    </ClCompile>
+    <ClCompile Include="..\VesselNess\GLCamera.cpp">
+      <Filter>Model\Vesselness</Filter>
+    </ClCompile>
+    <ClCompile Include="Log.cpp">
+      <Filter>Log</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="DialogWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="procedure.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wcharUtil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Window.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ViewGL.h">
+      <Filter>View</Filter>
+    </ClInclude>
+    <ClInclude Include="ViewFormGL.h">
+      <Filter>View</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelGL.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Controls.h">
+      <Filter>Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="ControllerMain.h">
+      <Filter>Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="ControllerGL.h">
+      <Filter>Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="ControllerFormGL.h">
+      <Filter>Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="Controller.h">
+      <Filter>Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\VesselNess\Data3D.h">
+      <Filter>Model\Vesselness</Filter>
+    </ClInclude>
+    <ClInclude Include="..\VesselNess\ImageProcessing.h">
+      <Filter>Model\Vesselness</Filter>
+    </ClInclude>
+    <ClInclude Include="..\VesselNess\Volumn.h">
+      <Filter>Model\Vesselness</Filter>
+    </ClInclude>
+    <ClInclude Include="..\VesselNess\GLCamera.h">
+      <Filter>Model\Vesselness</Filter>
+    </ClInclude>
+    <ClInclude Include="logResource.h">
+      <Filter>Log</Filter>
+    </ClInclude>
+    <ClInclude Include="Log.h">
+      <Filter>Log</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="glWin.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+    <ResourceCompile Include="log.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="glWin.exe.manifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="log.txt">
+      <Filter>Log</Filter>
+    </None>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,138 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="VesselNess">
+      <UniqueIdentifier>{822fd70a-6328-41ed-8e03-a7f71c636f47}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="VesselNess\Visualization">
+      <UniqueIdentifier>{a8919828-41dc-44fa-a4de-275f3ee6c11d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gco-v3.0">
+      <UniqueIdentifier>{e6a48cb3-0a13-4033-8168-4e36eded84f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Visualization">
+      <UniqueIdentifier>{1a341700-4ab3-431f-9ca5-776360ba7841}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="nstdio.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\VesselNess\GLCamera.h">
+      <Filter>VesselNess\Visualization</Filter>
+    </ClInclude>
+    <ClInclude Include="..\VesselNess\GLViewer.h">
+      <Filter>VesselNess\Visualization</Filter>
+    </ClInclude>
+    <ClInclude Include="..\VesselNess\GLViwerWrapper.h">
+      <Filter>VesselNess\Visualization</Filter>
+    </ClInclude>
+    <ClInclude Include="..\VesselNess\GLCenterLine.h">
+      <Filter>VesselNess\Visualization</Filter>
+    </ClInclude>
+    <ClInclude Include="..\VesselNess\GLDirection.h">
+      <Filter>VesselNess\Visualization</Filter>
+    </ClInclude>
+    <ClInclude Include="..\VesselNess\GLVideoSaver.h">
+      <Filter>VesselNess\Visualization</Filter>
+    </ClInclude>
+    <ClInclude Include="..\VesselNess\GLVolumn.h">
+      <Filter>VesselNess\Visualization</Filter>
+    </ClInclude>
+    <ClInclude Include="gco-v3.0\block.h">
+      <Filter>gco-v3.0</Filter>
+    </ClInclude>
+    <ClInclude Include="gco-v3.0\energy.h">
+      <Filter>gco-v3.0</Filter>
+    </ClInclude>
+    <ClInclude Include="gco-v3.0\GCoptimization.h">
+      <Filter>gco-v3.0</Filter>
+    </ClInclude>
+    <ClInclude Include="gco-v3.0\graph.h">
+      <Filter>gco-v3.0</Filter>
+    </ClInclude>
+    <ClInclude Include="gco-v3.0\LinkedBlockList.h">
+      <Filter>gco-v3.0</Filter>
+    </ClInclude>
+    <ClInclude Include="GLViwerModel.h">
+      <Filter>Visualization</Filter>
+    </ClInclude>
+    <ClInclude Include="GLLineModel.h">
+      <Filter>Visualization</Filter>
+    </ClInclude>
+    <ClInclude Include="Line3D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="nstdio.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\VesselNess\GLCamera.cpp">
+      <Filter>VesselNess\Visualization</Filter>
+    </ClCompile>
+    <ClCompile Include="..\VesselNess\GLViewer.cpp">
+      <Filter>VesselNess\Visualization</Filter>
+    </ClCompile>
+    <ClCompile Include="..\VesselNess\GLCenterLine.cpp">
+      <Filter>VesselNess\Visualization</Filter>
+    </ClCompile>
+    <ClCompile Include="..\VesselNess\GLVideoSaver.cpp">
+      <Filter>VesselNess\Visualization</Filter>
+    </ClCompile>
+    <ClCompile Include="..\VesselNess\GLVolumn.cpp">
+      <Filter>VesselNess\Visualization</Filter>
+    </ClCompile>
+    <ClCompile Include="gco-v3.0\example.cpp">
+      <Filter>gco-v3.0</Filter>
+    </ClCompile>
+    <ClCompile Include="gco-v3.0\GCoptimization.cpp">
+      <Filter>gco-v3.0</Filter>
+    </ClCompile>
+    <ClCompile Include="gco-v3.0\graph.cpp">
+      <Filter>gco-v3.0</Filter>
+    </ClCompile>
+    <ClCompile Include="gco-v3.0\LinkedBlockList.cpp">
+      <Filter>gco-v3.0</Filter>
+    </ClCompile>
+    <ClCompile Include="gco-v3.0\maxflow.cpp">
+      <Filter>gco-v3.0</Filter>
+    </ClCompile>
+    <ClCompile Include="GLViwerModel.cpp">
+      <Filter>Visualization</Filter>
+    </ClCompile>
+    <ClCompile Include="GLLineModel.cpp">
+      <Filter>Visualization</Filter>
+    </ClCompile>
+    <ClCompile Include="Line3D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\VesselNess\MinSpanTree.cpp">
+      <Filter>VesselNess</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="gco-v3.0\GCO_README.TXT">
+      <Filter>gco-v3.0</Filter>
+    </None>
+  </ItemGroup>
+</Project>
