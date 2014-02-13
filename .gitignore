@@ -2,11 +2,7 @@
 ## Yuchen
 #################
 
-/Vesselness-cuda/Release/
-/Vesselness-cuda/x64/
-/VesselNess/data/
-/ModelFitting/data/
-/VesselNess/output/
+
 temp.*
 
 # User-specific files
@@ -20,6 +16,10 @@ temp.*
 /ModelFitting/[Dd]ebug/
 /ModelFitting/[Rr]elease/
 /ModelFitting/x64/
+/ModelFitting/data/
+/VesselNess/output/
+/VesselNess/dependencies/*
+/VesselNess/data/
 /Vesselness/[Dd]ebug/
 /Vesselness/[Rr]elease/
 /Vesselness/x64/
@@ -27,6 +27,8 @@ temp.*
 /Visualization/[Dd]ebug/
 /Visualization/[Rr]elease/
 /Visualization/log.txt
+/Vesselness-cuda/Release/
+/Vesselness-cuda/x64/
 
 
 
@@ -38,3 +40,4 @@ ipch/
 *.sdf
 *.cachefile
 *.pdb
+
