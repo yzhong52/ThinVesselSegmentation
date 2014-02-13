@@ -48,25 +48,26 @@ int main(int argc, char* argv[])
 	clock_t start = clock();
 	// compute vesselness
 	Data3D<Vesselness_All> vn_all;
-	VD::compute_vesselness( im_short, vn_all, sigma_from, sigma_to, sigma_step, alpha, beta, gamma);
+	for(int i=0; i<10; i++) VD::compute_vesselness( im_short, vn_all, sigma_from, sigma_to, sigma_step, alpha, beta, gamma);
 	clock_t end = clock();
 	cout << "Time lapse for computing Vesselness: ";
-	cout << (float)(end - start) / CLOCKS_PER_SEC << " seconds. " << endl << endl;
+	cout << (float)(end - start) / CLOCKS_PER_SEC / 10 << " seconds. " << endl << endl;
+	system("pause");
 
-	// Saving VesselNess float,11
-	vn_all.save( vesselness_name.str()+".vn_all", vesselness_log.str() );
-	// Saving VesselNess float,5
-	Data3D<Vesselness_Sig> vn_sig( vn_all );
-	vn_sig.save( vesselness_name.str()+".vn_sig", vesselness_log.str() );
-	// Saving VesselNess float,1
-	Data3D<float> vn_float; 
-	vn_sig.copyDimTo( vn_float, 0 );
-	vn_float.save( vesselness_name.str()+".vn_float", vesselness_log.str() );
+	//// Saving VesselNess float,11
+	//vn_all.save( vesselness_name.str()+".vn_all", vesselness_log.str() );
+	//// Saving VesselNess float,5
+	//Data3D<Vesselness_Sig> vn_sig( vn_all );
+	//vn_sig.save( vesselness_name.str()+".vn_sig", vesselness_log.str() );
+	//// Saving VesselNess float,1
+	//Data3D<float> vn_float; 
+	//vn_sig.copyDimTo( vn_float, 0 );
+	//vn_float.save( vesselness_name.str()+".vn_float", vesselness_log.str() );
 
-	// Visualize result with maximum intensity projection (MIP)
-	viewer.addObject( im_short, GLViewer::Volumn::MIP );
-	viewer.addObject( vn_float, GLViewer::Volumn::MIP );
-	viewer.go(400, 200, 2);
+	//// Visualize result with maximum intensity projection (MIP)
+	//viewer.addObject( im_short, GLViewer::Volumn::MIP );
+	//viewer.addObject( vn_float, GLViewer::Volumn::MIP );
+	//viewer.go(400, 200, 2);
 
 	return 0;
 }
