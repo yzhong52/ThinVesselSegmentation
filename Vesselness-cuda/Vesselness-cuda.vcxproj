@@ -161,7 +161,6 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="..\VesselNess\GLViewerExt.h" />
     <ClInclude Include="..\VesselNess\GLViwerWrapper.h" />
     <ClInclude Include="..\VesselNess\GLVolumn.h" />
-    <ClInclude Include="TypeInfo.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\VesselNess\GLCamera.cpp" />
@@ -169,6 +168,9 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClCompile Include="..\VesselNess\GLVideoSaver.cpp" />
     <ClCompile Include="..\VesselNess\GLViewer.cpp" />
     <ClCompile Include="..\VesselNess\GLVolumn.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ImageProcessing.cuh" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
