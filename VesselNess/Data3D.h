@@ -131,8 +131,8 @@ public:
 		Vec<T, 2> min_max;
 		Point minLoc, maxLoc;
 		cv::minMaxLoc( _mat, NULL, NULL, &minLoc, &maxLoc);
-		min_max[0] = _mat.at( minLoc );
-		min_max[1] = _mat.at( maxLoc );
+		min_max[0] = _mat( minLoc );
+		min_max[1] = _mat( maxLoc );
 		return min_max;
 	}
 
