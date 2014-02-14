@@ -24,7 +24,7 @@
 		std::wcout << "Assertion failed: " << _CRT_WIDE(#condition) << std::endl; \
 		std::wcout << "  Messages: " << message << endl; \
 		std::wcout << "  Location: file "<< _CRT_WIDE(__FILE__) << ", line " << __LINE__ << std::endl; \
-		assert( condition && message ); \
+		assert( condition ); \
 		system("pause"); \
 		exit(0); \
 	}

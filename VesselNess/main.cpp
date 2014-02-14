@@ -1,5 +1,6 @@
 #define _CRT_SECURE_NO_DEPRECATE
 #include "stdafx.h"
+#include <time.h>
 #include "VesselDetector.h" // For computing vesselness
 #include "GLViwerWrapper.h" // For visualization
 
@@ -12,7 +13,7 @@ namespace sample_code{
 int main(int argc, char* argv[])
 {
 
-
+	sample_code::vesselness();
 	return 0;
 }
 
@@ -80,5 +81,6 @@ namespace sample_code{
 		viewer.addObject( im_short, GLViewer::Volumn::MIP );
 		viewer.addObject( vn_float, GLViewer::Volumn::MIP );
 		viewer.go(400, 200, 2);
+		return 0;
 	}
 }

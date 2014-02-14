@@ -26,7 +26,7 @@ public:
 	}
 
 	// setters
-	virtual void reset( const Vec3i& n_size, Scalar scalar = Scalar(0));
+	void reset( const Vec3i& n_size, Scalar scalar = Scalar(0));
 private:
 	// minimun and maximum possition
 	Vec3i min_p, max_p, center;

@@ -38,7 +38,7 @@ public:
 
 	//////////////////////////////////////////////////////////////////////
 	// reset the data
-	virtual void reset( const Vec3i& n_size, const T& value )
+	void reset( const Vec3i& n_size, const T& value )
 	{
 		resize( n_size );
 		for( MatIterator_<T> it=_mat.begin(); it<_mat.end(); it++ ) {
@@ -46,18 +46,18 @@ public:
 		}
 	}
 	
-	virtual void reset( const Vec3i& n_size ){
+	void reset( const Vec3i& n_size ){
 		_size = n_size;
 		_size_slice = _size[0] * _size[1];
 		_size_total = _size_slice * _size[2];
 		_mat = Mat_<T>( _size[2], _size_slice );
 		memset( _mat.data, 0, _size_total * sizeof(T) ); 
 	}
-	virtual void reset( void ) {
+	void reset( void ) {
 		memset( _mat.data, 0, _size_total * sizeof(T) );
 	}
 
-	virtual void resize( const Vec3i& n_size )
+	void resize( const Vec3i& n_size )
 	{
 		_size = n_size;
 		_size_slice = _size[0] * _size[1];
@@ -425,7 +425,7 @@ void Data3D<T>::save_info( const string& file_name, bool isBigEndian, const stri
 	fout << _size[0] << " ";
 	fout << _size[1] << " ";
 	fout << _size[2] << " - data size" << endl;
-	fout << STR_TYPE( typeid(T) ) << " - data type" << endl;
+	fout << TypeInfo<T>::str() << " - data type" << endl;
 	fout << isBigEndian << " - Big Endian (1 for yes, 0 for no)" << endl;
 	fout << "Log: " <<  log << endl;
 	fout.close();

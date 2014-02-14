@@ -56,7 +56,8 @@ int main()
 
 	Data3D<short> im_short;
 	im_short.load( "../data/data15.data" );
-	im_short.show(); 
+	
+
 	// Visualize result with maximum intensity projection (MIP)
 	viewer.addObject( im_short, GLViewer::Volumn::MIP );
 	viewer.go(400, 200, 1);
