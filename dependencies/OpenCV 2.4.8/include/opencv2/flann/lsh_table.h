@@ -212,12 +212,12 @@ public:
         case kArray:
             // That means we get the buckets from an array
             return &buckets_speed_[key];
-            break;
+            //break;
         case kBitsetHash:
             // That means we can check the bitset for the presence of a key
             if (key_bitset_.test(key)) return &buckets_space_.find(key)->second;
             else return 0;
-            break;
+            //break;
         case kHash:
         {
             // That means we have to check for the hash table for the presence of a key
@@ -226,7 +226,7 @@ public:
             // Stop here if that bucket does not exist
             if (bucket_it == bucket_end) return 0;
             else return &bucket_it->second;
-            break;
+            //break;
         }
         }
         return 0;

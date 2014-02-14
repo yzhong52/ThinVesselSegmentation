@@ -2,7 +2,7 @@
 
 // Using OpenCV ot Save the Scene to video
 #define _CRT_SECURE_NO_DEPRECATE
-#include <opencv\cv.h>
+#include <opencv2\opencv.hpp>
 
 #include "Data3D.h"
 #include "GLVolumn.h"

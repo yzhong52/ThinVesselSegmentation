@@ -53,8 +53,8 @@ namespace MinSpanTree{
 		inline       std::vector<Node_Type>& get_nodes( void )       { return nodes; }
 		inline Node_Type& get_node(const int& i){ return nodes[i]; }
 		inline Edge_Type& get_edge(const int& i){ return *(&edges.top()+i); }
-		const unsigned int num_edges(void) const { return (unsigned int) edges.size(); }
-		const unsigned int num_nodes(void) const { return (unsigned int) nodes.size(); }
+		unsigned int num_edges(void) const { return (unsigned int) edges.size(); }
+		unsigned int num_nodes(void) const { return (unsigned int) nodes.size(); }
 
 		// get a minimum spaning tree of the current graph
 		void get_min_span_tree( Graph<Edge_Type, Node_Type>& dst ) const;

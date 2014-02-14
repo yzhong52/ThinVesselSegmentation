@@ -24,14 +24,14 @@ using namespace cv;
 using namespace std;
 using namespace cv;
 
-// Get OpenCV type from type_info
-// Example: 
-//     CV_TYPE(typeid(short)) returns CV_16S
-//     CV_TYPE(typeid(int))   returns CV_32S
-int CV_TYPE(const type_info& type);
-
-// Get String Descriptor from type_info
-string STR_TYPE(const type_info& type);
+//// Get OpenCV type from type_info
+//// Example: 
+////     CV_TYPE(typeid(short)) returns CV_16S
+////     CV_TYPE(typeid(int))   returns CV_32S
+//int CV_TYPE(const type_info& type);
+//
+//// Get String Descriptor from type_info
+//string STR_TYPE(const type_info& type);
 
 static const short MAX_SHORT = unsigned short(1<<15)-1;
 static const short MIN_SHORT = short(1<<15);

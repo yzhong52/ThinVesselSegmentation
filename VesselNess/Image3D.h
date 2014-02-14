@@ -11,10 +11,10 @@ class Image3D : public Data3D<T>
 {
 public:
 	// constructors and destructors
-	Image3D( const Vec3i& n_size=Vec3i(0,0,0) ) : Data3D(n_size), is_roi_set(false)  { }
+	Image3D( const Vec3i& n_size=Vec3i(0,0,0) ) : Data3D<T>(n_size), is_roi_set(false)  { }
 	virtual ~Image3D(void){}
 private:
-	Image3D( const Image3D<T>& src ) { smart_assert(0, "Not Implemented."); }
+	Image3D( const Image3D<T>& src ) { /*smart_assert(0, "Not Implemented."); */}
 
 public:
 	// read/write data from file
@@ -227,8 +227,8 @@ void Image3D<T>::setROI(void){
 	// find the maximum and minimum value (method3)
 	Point minLoc, maxLoc;
 	minMaxLoc( _mat, NULL, NULL, &minLoc, &maxLoc);
-	T max_value = _mat.at<T>( maxLoc );
-	T min_value = _mat.at<T>( minLoc );
+	T max_value = _mat( maxLoc );
+	T min_value = _mat( minLoc );
 
 	// displaying data
 	do {	
@@ -388,7 +388,7 @@ bool Image3D<T>::loadROI( const string& roi_file_name )
 }
 
 template<typename T>
-void Image3D<T>::showSlice(int i, const string& name = "Image Data" ){
+void Image3D<T>::showSlice(int i, const string& name ){
 	Mat mat_temp = _mat.row(i).reshape( 0, get_height() ); 
 	cv::imshow( name.c_str(), mat_temp );
 	waitKey(0);
@@ -408,10 +408,10 @@ void Image3D<T>::shrink_by_half(void){
 	int i, j, k;
 	for( i=0; i<n_size[0]; i++ ) for( j=0; j<n_size[1]; j++ ) for( k=0; k<n_size[2]; k++ )
 	{
-		n_mat.at<T>(k, j*n_size[0]+i)  = T( 0.25 * _mat.at<T>(2*k,     2*j*_size[0] + 2*i) );
-		n_mat.at<T>(k, j*n_size[0]+i) += T( 0.25 * _mat.at<T>(2*k,     2*j*_size[0] + 2*i + 1) );
-		n_mat.at<T>(k, j*n_size[0]+i) += T( 0.25 * _mat.at<T>(2*k + 1, 2*j*_size[0] + 2*i) );
-		n_mat.at<T>(k, j*n_size[0]+i) += T( 0.25 * _mat.at<T>(2*k + 1, 2*j*_size[0] + 2*i + 1) );
+		n_mat.at<T>(k, j*n_size[0]+i)  = T( 0.25 * _mat(2*k,     2*j*_size[0] + 2*i) );
+		n_mat.at<T>(k, j*n_size[0]+i) += T( 0.25 * _mat(2*k,     2*j*_size[0] + 2*i + 1) );
+		n_mat.at<T>(k, j*n_size[0]+i) += T( 0.25 * _mat(2*k + 1, 2*j*_size[0] + 2*i) );
+		n_mat.at<T>(k, j*n_size[0]+i) += T( 0.25 * _mat(2*k + 1, 2*j*_size[0] + 2*i + 1) );
 	}
 	_mat = n_mat;
 

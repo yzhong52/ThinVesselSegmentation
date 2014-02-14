@@ -20,7 +20,7 @@ public:
 		delete[] data;
 	}
 
-	const int operator[]( const int& i ) const { return data[i]; }
+	int operator[]( const int& i ) const { return data[i]; }
 
 	// Find: Determine which subset a particular element is in. This can be used for determining 
 	// if two elements are in the same subset.

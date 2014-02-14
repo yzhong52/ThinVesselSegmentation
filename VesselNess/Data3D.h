@@ -1,6 +1,7 @@
 #pragma once
 
 #include "stdafx.h"
+#include "TypeInfo.h" 
 #include <fstream> // For reading and saving files
 
 template<typename T>
@@ -123,7 +124,7 @@ public:
 	template< typename DT >
 	void convertTo( Data3D<DT>& dst ) const {
 		dst.reset( this->get_size() );
-		this->getMat().convertTo( dst.getMat(), CV_TYPE( typeid(DT) ) );
+		this->getMat().convertTo( dst.getMat(), TypeInfo<DT>::CV_TYPE() );
 	}
 
 	// get minimum and maximum value of the data
@@ -452,9 +453,9 @@ bool Data3D<T>::load_info( const string& file_name, Vec3i& size, bool& isBigEndi
 	string str_type;
 	fin >> str_type;
 	fin.ignore(255, '\n');
-	if( STR_TYPE(typeid(T)).compare( str_type ) != 0 ){
+	if( TypeInfo<T>::str().compare( str_type ) != 0 ){
 		cout << "Loading information error: "; 
-		cout << "Data3D<" << STR_TYPE(typeid(T)) << "> cannot load Data3D<" << str_type << ">. "<< endl;
+		cout << "Data3D<" << TypeInfo<T>::str() << "> cannot load Data3D<" << str_type << ">. "<< endl;
 		return false;
 	}
 	// endian of the data

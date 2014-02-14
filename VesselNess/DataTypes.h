@@ -15,7 +15,7 @@ namespace MinSpanTree {
 		Vec3f( float x=0, float y=0, float z=0 ) : x(x), y(y), z(z) { }
 		
 		// operator
-		const float dot( const Vec3f& v ) const { return x * v.x + y * v.y + z * v.z; } 
+		float dot( const Vec3f& v ) const { return x * v.x + y * v.y + z * v.z; } 
 		inline Vec3f operator-( const Vec3f& v) const { return Vec3f( x-v.x, y-v.y, z-v.z); }
 		inline Vec3f operator+( const Vec3f& v) const { return Vec3f( x+v.x, y+v.y, z+v.z); }
 		inline Vec3f operator*( const float& v) const { return Vec3f( v*x, v*y, v*z );      }

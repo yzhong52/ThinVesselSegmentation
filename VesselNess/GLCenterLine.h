@@ -120,21 +120,21 @@ namespace GLViewer{
 			sx = sy = sz = 0;
 			for( unsigned int i=0; i<ptrTree->num_edges(); i++ ) {
 				MST::Edge_Ext& e = ptrTree->get_edge(i);
-				sx = (int) max( sx, e.line.p1.x );
-				sx = (int) max( sx, e.line.p2.x );
-				sy = (int) max( sy, e.line.p1.y );
-				sy = (int) max( sy, e.line.p2.y );
-				sz = (int) max( sz, e.line.p1.z );
-				sz = (int) max( sz, e.line.p2.z );
+				sx = (int) max( sx, (int) e.line.p1.x );
+				sx = (int) max( sx, (int) e.line.p2.x );
+				sy = (int) max( sy, (int) e.line.p1.y );
+				sy = (int) max( sy, (int) e.line.p2.y );
+				sz = (int) max( sz, (int) e.line.p1.z );
+				sz = (int) max( sz, (int) e.line.p2.z );
 			}
 			for( unsigned int i=0; i< ptrTree->num_nodes(); i++ ) {
 				MST::LineSegment& line = ptrTree->get_node( i );
-				sx = (int) max( sx, line.p1.x );
-				sx = (int) max( sx, line.p2.x );
-				sy = (int) max( sy, line.p1.y );
-				sy = (int) max( sy, line.p2.y );
-				sz = (int) max( sz, line.p1.z );
-				sz = (int) max( sz, line.p2.z );
+				sx = (int) max( sx, (int) line.p1.x );
+				sx = (int) max( sx, (int) line.p2.x );
+				sy = (int) max( sy, (int) line.p1.y );
+				sy = (int) max( sy, (int) line.p2.y );
+				sz = (int) max( sz, (int) line.p1.z );
+				sz = (int) max( sz, (int) line.p2.z );
 			}
 			// initialized the default color of the lines
 			red =  1.0f; green = 0.0f;  blue = 0.0f;

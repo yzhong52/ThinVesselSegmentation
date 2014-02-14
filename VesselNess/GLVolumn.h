@@ -82,7 +82,7 @@ namespace GLViewer
 				return false; 
 			}
 			// update data for texture
-			int texture_size = texture_sx * texture_sy * texture_sz; 
+			// int texture_size = texture_sx * texture_sy * texture_sz; 
 			for( int z=0;z<sz;z++ ) for( int y=0;y<sy;y++ ) { 
 				memcpy( data + z*texture_sy*texture_sx + y*texture_sx, im_data + z*sy*sx + y*sx, sx );
 			} 
@@ -377,10 +377,6 @@ namespace GLViewer
 		}
 
 		void render(void){
-			static char ONE = 0x1;
-			static char TWO = 0x2;
-			static char THREE = 0x4;
-
 			if( render_mode == MIP ) {
 				// visualizing the data with maximum intensity projection
 				glColor3f( 1.0f, 1.0f, 1.0f ); render_volumn();

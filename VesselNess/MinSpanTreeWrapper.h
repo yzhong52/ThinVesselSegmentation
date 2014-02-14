@@ -15,11 +15,11 @@ namespace MinSpanTree {
 		int sy;
 		int sz;
 	
-		Graph3D() : Graph( 0 ), sx( 0 ) , sy( 0 ) , sz( 0 ) {  }
+		Graph3D() : Graph<EdgeType, NodeType>( 0 ), sx( 0 ) , sy( 0 ) , sz( 0 ) {  }
 		Graph3D( unsigned int x, unsigned int y, unsigned int z ) 
-			: Graph( x*y*z ), sx( x ) , sy( y ) , sz( z ) {  }
+			: Graph<EdgeType, NodeType>( x*y*z ), sx( x ) , sy( y ) , sz( z ) {  }
 		Graph3D( Graph3D& g ) 
-			: Graph( g ), sx( g.sx ) , sy( g.sy ) , sz( g.sz ) {  }
+			: Graph<EdgeType, NodeType>( g ), sx( g.sx ) , sy( g.sy ) , sz( g.sz ) {  }
 
 		// get node id from position
 		inline int nodeid(const Vec3i& pos ) {
@@ -207,7 +207,7 @@ namespace MinSpanTree {
 
 		std::priority_queue< Dis_Pos_Pos > min_dis_queue; 
 		const unsigned char VISITED_YES = 255;
-		const unsigned char VISITED_N0  = 0;
+		// const unsigned char VISITED_N0  = 0;
 		vector<Vec3i>::iterator it;
 		for( it=endpoints.begin(); it<endpoints.end(); it++ ) {
 			const Vec3i& from_pos = *it;
@@ -263,7 +263,7 @@ namespace MinSpanTree {
 			e.node1 = graph.nodeid(to_pos);
 			e.node2 = graph.nodeid(from_pos);
 			Vec3i diff_pos = from_pos - to_pos;
-			e.weight = sqrt( 1.0f * diff_pos.dot(diff_pos) );//  I will take care of this later
+			e.weight = sqrt( 1.0f * diff_pos.dot(diff_pos) );// TODO I will take care of this later
 			graph.add_edge( e );
 		}
 
