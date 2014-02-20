@@ -26,17 +26,19 @@ GLViewerExt viewer;
 // files created for this project
 #include "ImageProcessing.cuh" 
 
+
 int main()
 {
-    const int arraySize = 5;
-    const int a[arraySize] = { 1, 2, 3, 4, 5 };
-    const int b[arraySize] = { 10, 20, 30, 40, 50 };
-    int c[arraySize] = { 0 };
-	
-	IPG::addWithCuda( c, a, b, 5 ); 
+	//const int arraySize = 5;
+	//const int a[arraySize] = { 1, 2, 3, 4, 5 };
+	//const int b[arraySize] = { 10, 20, 30, 40, 50 };
+	//int c[arraySize] = { 0 };
+	//
+	//IPG::addWithCuda( c, a, b, 5 ); 
 
-	printf("{1,2,3,4,5} + {10,20,30,40,50} = {%d,%d,%d,%d,%d}\n",
-        c[0], c[1], c[2], c[3], c[4]);
+	//printf("{1,2,3,4,5} + {10,20,30,40,50} = {%d,%d,%d,%d,%d}\n",
+	//	c[0], c[1], c[2], c[3], c[4]);
+
 
 	Data3D<short> im_short;
 	im_short.load( "../data/data15.data" );
@@ -48,7 +50,8 @@ int main()
 
 	//// Visualize result with maximum intensity projection (MIP)
 	viewer.addObject( im_blurred, GLViewer::Volumn::MIP );
-	viewer.go(400, 200, 1);
+	viewer.addObject( im_short, GLViewer::Volumn::MIP );
+	viewer.go(400, 200, 2);
 
     return 0;
 }
