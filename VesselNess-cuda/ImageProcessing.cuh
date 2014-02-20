@@ -97,9 +97,6 @@ cudaError_t ImageProcessingGPU::GaussianBlur3D( const Data3D<ST>& src, Data3D<DT
 		cudaStatus = cudaMemcpy(dst.getMat().data, dev_dst, im_size*sizeof(DT), cudaMemcpyDeviceToHost );
 		if (cudaStatus != cudaSuccess) throw cudaStatus; 
 
-		for( int i=0; i<5; i++ ) cout << dst.at(i,0,0) << " ";
-		cout << endl;
-
 	} catch( cudaError_t e ) {
 		cout << " CUDA Error captured: " << e << ": "; 
 		if( e == 11 ) cout << "cudaErrorInvalidValue" << endl; 

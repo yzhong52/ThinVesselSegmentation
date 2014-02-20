@@ -15,41 +15,33 @@ using namespace cv;
 #include "GLViwerWrapper.h" // For visualization
 
 
-
 GLViewerExt viewer;
 
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 
-#include <stdio.h>
-
 // files created for this project
 #include "ImageProcessing.cuh" 
+#include "VesselnessFilter.cuh"
+
 
 
 int main()
 {
-	//const int arraySize = 5;
-	//const int a[arraySize] = { 1, 2, 3, 4, 5 };
-	//const int b[arraySize] = { 10, 20, 30, 40, 50 };
-	//int c[arraySize] = { 0 };
-	//
-	//IPG::addWithCuda( c, a, b, 5 ); 
-
-	//printf("{1,2,3,4,5} + {10,20,30,40,50} = {%d,%d,%d,%d,%d}\n",
-	//	c[0], c[1], c[2], c[3], c[4]);
-
-
-
 	Data3D<short> im_short;
 	im_short.load( "../data/data15.data" );
 	
 	Data3D<int> im_blurred;
 	IPG::GaussianBlur3D( im_short, im_blurred, 5, 1.0 );
 
-	//// Visualize result with maximum intensity projection (MIP)
+	// Computer Vesselness Measure
+	Data3D<float> im_float;
+	VFG::compute_vesselness( im_short, im_float, 1.0f, 2.0f, 0.5f );
+	
+
+	// Visualize result with maximum intensity projection (MIP)
 	viewer.addObject( im_blurred, GLViewer::Volumn::MIP );
-	viewer.addObject( im_short, GLViewer::Volumn::MIP );
+	viewer.addObject( im_float, GLViewer::Volumn::MIP );
 	viewer.go(400, 200, 2);
 
     return 0;
