@@ -43,11 +43,9 @@ int main()
 
 	Data3D<short> im_short;
 	im_short.load( "../data/data15.data" );
-	Data3D<float> im_int;
-	im_short.convertTo( im_int ); 
 	
 	Data3D<int> im_blurred;
-	IPG::GaussianBlur3D( im_int, im_blurred, 5, 1.0 );
+	IPG::GaussianBlur3D( im_short, im_blurred, 5, 1.0 );
 
 	//// Visualize result with maximum intensity projection (MIP)
 	viewer.addObject( im_blurred, GLViewer::Volumn::MIP );

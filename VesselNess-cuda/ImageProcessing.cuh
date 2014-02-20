@@ -12,69 +12,6 @@ namespace ImageProcessingGPU{
 	__global__ void cov3( ST* src, DT* dst, KT* kernel, 
 		int sx, int sy, int sz, 
 		int kx, int ky, int kz); 
-
-
-	//template<typename ST, typename DT, typename KT>
-	//__global__ void addKernel(ST *c, const DT *a, const KT *b)
-	//{
-	//	int i = threadIdx.x;
-	//	c[i] = a[i] + b[i];
-	//}
-
-	//// Helper function for using CUDA to add vectors in parallel.
-	//template<typename ST, typename DT>
-	//cudaError_t addWithCuda(DT *dst, const ST *src1, const ST *src2, size_t size)
-	//{
-	//	DT *dev_dst = 0;
-	//	ST *dev_src1 = 0;
-	//	ST *dev_src2 = 0;
-	//	cudaError_t cudaStatus;
-
-	//	try{
-	//		// Choose which GPU to run on, change this on a multi-GPU system.
-	//		cudaStatus = cudaSetDevice(0);
-	//		if (cudaStatus != cudaSuccess) throw cudaStatus;
-
-	//		// Allocate GPU buffers for three vectors (two input, one output)    .
-	//		cudaStatus = cudaMalloc((void**)&dev_dst, size * sizeof(DT));
-	//		if (cudaStatus != cudaSuccess) throw cudaStatus;
-
-	//		cudaStatus = cudaMalloc((void**)&dev_src1, size * sizeof(ST));
-	//		if (cudaStatus != cudaSuccess) throw cudaStatus;
-
-	//		cudaStatus = cudaMalloc((void**)&dev_src2, size * sizeof(ST));
-	//		if (cudaStatus != cudaSuccess) throw cudaStatus;
-
-	//		// Copy input vectors from host memory to GPU buffers.
-	//		cudaStatus = cudaMemcpy(dev_src1, src1, size * sizeof(int), cudaMemcpyHostToDevice);
-	//		if (cudaStatus != cudaSuccess) throw cudaStatus;
-
-	//		cudaStatus = cudaMemcpy(dev_src2, src2, size * sizeof(int), cudaMemcpyHostToDevice);
-	//		if (cudaStatus != cudaSuccess) throw cudaStatus;
-
-	//		// Launch a kernel on the GPU with one thread for each element.
-	//		addKernel<<<1, (unsigned int)size>>>(dev_dst, dev_src1, dev_src2);
-
-	//		// cudaDeviceSynchronize waits for the kernel to finish, and returns
-	//		// any errors encountered during the launch.
-	//		cudaStatus = cudaDeviceSynchronize();
-	//		if (cudaStatus != cudaSuccess) throw cudaStatus;
-
-	//		// Copy output vector from GPU buffer to host memory.
-	//		cudaStatus = cudaMemcpy(dst, dev_dst, size * sizeof(int), cudaMemcpyDeviceToHost);
-	//		if (cudaStatus != cudaSuccess) throw cudaStatus;
-	//	}
-	//	catch( ... ) {
-
-	//	}
-
-	//	cudaFree(dev_dst);
-	//	cudaFree(dev_src1);
-	//	cudaFree(dev_src2);
-
-	//	return cudaStatus;
-	//}
-
 }
 
 namespace IPG = ImageProcessingGPU; 
@@ -157,7 +94,7 @@ cudaError_t ImageProcessingGPU::GaussianBlur3D( const Data3D<ST>& src, Data3D<DT
 
 		// copy memory from GPU to main memory
 		dst.reset( src.get_size() ); 
-		cudaStatus = cudaMemcpy(dst.getMat().data, dev_dst, im_size*sizeof(int), cudaMemcpyDeviceToHost );
+		cudaStatus = cudaMemcpy(dst.getMat().data, dev_dst, im_size*sizeof(DT), cudaMemcpyDeviceToHost );
 		if (cudaStatus != cudaSuccess) throw cudaStatus; 
 
 		for( int i=0; i<5; i++ ) cout << dst.at(i,0,0) << " ";
