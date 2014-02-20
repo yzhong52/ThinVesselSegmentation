@@ -40,6 +40,7 @@ int main()
 	//	c[0], c[1], c[2], c[3], c[4]);
 
 
+
 	Data3D<short> im_short;
 	im_short.load( "../data/data15.data" );
 	Data3D<float> im_int;

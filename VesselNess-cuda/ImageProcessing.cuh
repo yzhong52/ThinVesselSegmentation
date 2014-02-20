@@ -107,7 +107,7 @@ cudaError_t ImageProcessingGPU::GaussianBlur3D( const Data3D<ST>& src, Data3D<DT
 
 	ST* dev_src = NULL; 
 	DT* dev_dst = NULL; 
-	double* dev_kernel = NULL; 
+	float* dev_kernel = NULL; 
 
 	try{ 
 		const int im_size = src.get_size_total();
@@ -133,16 +133,20 @@ cudaError_t ImageProcessingGPU::GaussianBlur3D( const Data3D<ST>& src, Data3D<DT
 		cudaStatus = cudaMemcpy(dev_kernel, kernel.data, ksize*sizeof(float), cudaMemcpyHostToDevice);
 		if (cudaStatus != cudaSuccess) throw cudaStatus; 
 
-		// This number vary from computer to computer. Some better graphic cards support 1024. 
+		// This following magic number varies from computer to computer, 
+		// Some better graphic cards support 1024. 
 		const int nTPB = 512; 
+		// blur image along x direction
 		ImageProcessingGPU::cov3<<<(im_size + nTPB - 1)/nTPB, nTPB>>>(
 			dev_src, dev_dst, dev_kernel, 
 			src.SX(), src.SY(), src.SZ(), 
 			ksize, 1, 1 );
+		// blur image along y direction
 		ImageProcessingGPU::cov3<<<(im_size + nTPB - 1)/nTPB, nTPB>>>(
 			dev_dst, dev_src, dev_kernel, 
 			src.SX(), src.SY(), src.SZ(), 
 			1, ksize, 1 );
+		// blur image along z direction
 		ImageProcessingGPU::cov3<<<(im_size + nTPB - 1)/nTPB, nTPB>>>(
 			dev_src, dev_dst, dev_kernel, 
 			src.SX(), src.SY(), src.SZ(), 
@@ -181,19 +185,31 @@ __global__ void ImageProcessingGPU::cov3(
 {
 	int i = blockIdx.x * blockDim.x + threadIdx.x;
 	if (i < sx*sy*sz ){
+		// the image position (ix, iy, iz)
+		int ix = i % (sx * sy) % sx; 
+		int iy = i % (sx * sy) / sx;
+		int iz = i / (sx * sy); 
 		// now blur the image
 		dst[i] = 0; 
+		float sum = 0; 
+		// relative position of the kernel (x, y, z)
 		for( int x=-kx/2; x<=kx/2; x++ ) {
 			for( int y=-ky/2; y<=ky/2; y++ ){
 				for( int z=-kz/2; z<=kz/2; z++ ) {
+					// if the image position is out of range, continue
+					if( ix+x<0 || ix+x>=sx ) continue; 
+					if( iy+y<0 || iy+y>=sy ) continue; 
+					if( iz+z<0 || iz+z>=sz ) continue; 
 					// get the index of the image
 					int index = i + x + y*sx + z*sx*sy; 
 					// get the index of the kernel
-					int index2 = 0; // (x+kx/2) + (y+ky/2)*kx + (z+kz/2)*kx*ky; 
+					int index2 = (x+kx/2) + (y+ky/2)*kx + (z+kz/2)*kx*ky; 
 					// convolution
 					dst[i] += src[index] * kernel[index2];
+					sum += kernel[index2]; 
 				}
 			}
 		}
+		dst[i] /= sum;
 	}
 } 

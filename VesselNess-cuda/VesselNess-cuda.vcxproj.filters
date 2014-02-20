@@ -28,7 +28,6 @@
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="kernel.cu" />
-    <CudaCompile Include="ImageProcessing.cu" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Vesselness">
