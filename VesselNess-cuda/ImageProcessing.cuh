@@ -12,6 +12,9 @@ namespace ImageProcessingGPU{
 	__global__ void cov3( ST* src, DT* dst, KT* kernel, 
 		int sx, int sy, int sz, 
 		int kx, int ky, int kz); 
+
+	template<typename ST, typename DT>
+	__global__ void multiply( ST* src, DT* dst, int size, float scale ); 
 }
 
 namespace IPG = ImageProcessingGPU; 
@@ -147,3 +150,11 @@ __global__ void ImageProcessingGPU::cov3(
 		dst[i] /= sum;
 	}
 } 
+
+template<typename ST, typename DT>
+__global__ void ImageProcessingGPU::multiply( ST* src, DT* dst, int size, float scale ){
+	int i = blockIdx.x * blockDim.x + threadIdx.x;
+	if (i < size ){
+		dst[i] = src[i] * scale;
+	}
+}

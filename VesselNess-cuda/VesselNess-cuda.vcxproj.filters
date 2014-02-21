@@ -1,28 +1,31 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <ClInclude Include="..\VesselNess\GLVolumn.h">
+      <Filter>Vesselness\Visualization</Filter>
+    </ClInclude>
     <ClInclude Include="..\VesselNess\GLCamera.h">
-      <Filter>Vesselness</Filter>
+      <Filter>Vesselness\Visualization</Filter>
     </ClInclude>
     <ClInclude Include="..\VesselNess\GLCenterLine.h">
-      <Filter>Vesselness</Filter>
+      <Filter>Vesselness\Visualization</Filter>
     </ClInclude>
     <ClInclude Include="..\VesselNess\GLDirection.h">
-      <Filter>Vesselness</Filter>
+      <Filter>Vesselness\Visualization</Filter>
     </ClInclude>
     <ClInclude Include="..\VesselNess\GLVideoSaver.h">
-      <Filter>Vesselness</Filter>
+      <Filter>Vesselness\Visualization</Filter>
     </ClInclude>
     <ClInclude Include="..\VesselNess\GLViewer.h">
-      <Filter>Vesselness</Filter>
+      <Filter>Vesselness\Visualization</Filter>
     </ClInclude>
     <ClInclude Include="..\VesselNess\GLViewerExt.h">
-      <Filter>Vesselness</Filter>
+      <Filter>Vesselness\Visualization</Filter>
     </ClInclude>
     <ClInclude Include="..\VesselNess\GLViwerWrapper.h">
-      <Filter>Vesselness</Filter>
+      <Filter>Vesselness\Visualization</Filter>
     </ClInclude>
-    <ClInclude Include="..\VesselNess\GLVolumn.h">
+    <ClInclude Include="..\VesselNess\VesselDetector.h">
       <Filter>Vesselness</Filter>
     </ClInclude>
   </ItemGroup>
@@ -33,21 +36,27 @@
     <Filter Include="Vesselness">
       <UniqueIdentifier>{8f8a34b5-fcff-4d22-b48d-2444a7f92e3e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Vesselness\Visualization">
+      <UniqueIdentifier>{a240800c-3470-4491-ba76-41fb1841d7e3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\VesselNess\GLCamera.cpp">
-      <Filter>Vesselness</Filter>
+      <Filter>Vesselness\Visualization</Filter>
     </ClCompile>
     <ClCompile Include="..\VesselNess\GLCenterLine.cpp">
-      <Filter>Vesselness</Filter>
+      <Filter>Vesselness\Visualization</Filter>
     </ClCompile>
     <ClCompile Include="..\VesselNess\GLVideoSaver.cpp">
-      <Filter>Vesselness</Filter>
+      <Filter>Vesselness\Visualization</Filter>
     </ClCompile>
     <ClCompile Include="..\VesselNess\GLViewer.cpp">
-      <Filter>Vesselness</Filter>
+      <Filter>Vesselness\Visualization</Filter>
     </ClCompile>
     <ClCompile Include="..\VesselNess\GLVolumn.cpp">
+      <Filter>Vesselness\Visualization</Filter>
+    </ClCompile>
+    <ClCompile Include="..\VesselNess\VesselDetector.cpp">
       <Filter>Vesselness</Filter>
     </ClCompile>
   </ItemGroup>

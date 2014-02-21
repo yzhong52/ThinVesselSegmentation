@@ -218,11 +218,8 @@ namespace GLViewer
 		if( numViewports == 4 ) {
 			width = w;
 			height = h; 
-		} else if ( numViewports == 2 ) {
+		} else {
 			width = w;
-			height = h; 
-		} else if ( numViewports == 1 ) {
-			width = w /2;
 			height = h; 
 		}
 

@@ -206,6 +206,160 @@ bool VesselDetector::hessien( const Data3D<short>& src, Data3D<Vec<float, 12>>& 
 }
 
 
+bool VesselDetector::hessien2( const Data3D<short>& src, Data3D<Vesselness_Nor>& dst, 
+	int ksize, float sigma, 
+	float alpha, float beta, float gamma )
+{
+	if( ksize!=0 && sigma<1e-3 ) {
+		// sigma is unset
+		sigma = 0.15f * ksize + 0.35f;
+	} else if ( ksize==0 && sigma>1e-3 ) {
+		// size is unset
+		ksize = int( 6*sigma+1 );
+		// make sure ksize is an odd number
+		if ( ksize%2==0 ) ksize++;
+	} else {
+		cerr << "At lease ksize or sigma has to be set." << endl;
+		return false;
+	}
+
+	Image3D<float> im_blur;
+	bool flag = ImageProcessing::GaussianBlur3D( src, im_blur, ksize, sigma );
+	smart_return_value( flag, "Gaussian Blur Failed.", false );
+
+	int x, y, z; 
+	for( z=1; z<src.get_size_z()-1; z++ ) {
+		for( y=1; y<src.get_size_y()-1; y++ ) {
+			for( x=1; x<src.get_size_x()-1; x++ ) {
+				// The following are being computed in this function
+				// 1) derivative of images; 
+				// 2) Hessian matrix; 
+				// 3) eigenvalue decomposition; 
+				// 4) vesselness measure. 
+
+				// 1) derivative of the image		
+				float im_dx2 = 2 * src.at(x,y,z) - src.at(x-1,y,z) - src.at(x+1,y,z);
+				float im_dy2 = 2 * src.at(x,y,z) - src.at(x,y-1,z) - src.at(x,y+1,z);
+				float im_dz2 = 2 * src.at(x,y,z) - src.at(x,y,z+1) - src.at(x,y,z+1);
+				float im_dxdy = ( 
+					+ src.at(x-1,y-1,z)
+					+ src.at(x+1,y+1,z) 
+					- src.at(x-1,y+1,z) 
+					- src.at(x+1,y-1,z) ) * 0.25f; 
+				float im_dxdz =  ( 
+					+ src.at(x-1,y,z-1)
+					+ src.at(x+1,y,z+1)
+					- src.at(x+1,y,z-1)
+					- src.at(x-1,y,z+1) ) * 0.25f; 
+				float im_dydz =  ( 
+					+ src.at(x,y-1,z-1)
+					+ src.at(x,y+1,z+1)
+					- src.at(x,y+1,z-1)
+					- src.at(x,y-1,z+1) ) * 0.25f; 
+
+				// 3) eigenvalue decomposition
+				// http://en.wikipedia.org/wiki/Eigenvalue_algorithm#3.C3.973_matrices
+
+				// Given a real symmetric 3x3 matrix A, compute the eigenvalues
+				const float& A11 = im_dx2;
+				const float& A22 = im_dy2;
+				const float& A33 = im_dz2;
+				const float& A12 = im_dxdy;
+				const float& A13 = im_dxdz;
+				const float& A23 = im_dydz;
+
+				float eig1, eig2, eig3;
+				float p1 = A12*A12 + A13*A13 + A23*A23;
+				if( p1 < 1e-6 ) {
+					// A is diagonal.
+					eig1 = A11;
+					eig2 = A22;
+					eig3 = A33;
+				}
+				else{
+					float q = (A11+A22+A33)/3; // trace(A)/3
+					float p2 = (A11-q)*(A11-q) + (A22-q)*(A22-q) + (A33-q)*(A33-q) + 2 * p1; 
+					float p = sqrt(p2 / 6);
+
+					// B = (1 / p) * (A - q * I), where I is the identity matrix
+					float B11 = (1 / p) * (A11-q); 
+					float B12 = (1 / p) * (A12-q); float& B21 = B12;
+					float B13 = (1 / p) * (A13-q); float& B31 = B13;
+					float B22 = (1 / p) * (A22-q); 
+					float B23 = (1 / p) * (A23-q); float& B32 = B23;
+					float B33 = (1 / p) * (A33-q); 
+					// Determinant of a 3 by 3 matrix
+					// http://www.mathworks.com/help/aeroblks/determinantof3x3matrix.html
+					float detB = B11*(B22*B33-B23*B32) - B12*(B21*B33-B23*B31) + B13*(B21*B32-B22*B31); 
+
+					// In exact arithmetic for a symmetric matrix  -1 <= r <= 1
+					// but computation error can leave it slightly outside this range.
+					float r = detB/2;
+					float phi; 
+					const float M_PI3 = 3.14159265f / 3;
+					if( r <= -1 - 1e-10 ) {
+						phi = M_PI3; 
+					} else if (r >= 1)
+						phi = 0; 
+					else {
+						phi = acos(r) / 3; 
+					}
+
+					// the eigenvalues satisfy eig3 <= eig2 <= eig1
+					eig1 = q + 2 * p * cos(phi);
+					eig3 = q + 2 * p * cos(phi + 2 * M_PI3);
+					eig2 = 3 * q - eig1 - eig3; // % since trace(A) = eig1 + eig2 + eig3
+				}
+			}
+		}
+	}
+	return true;
+}
+
+
+int VesselDetector::compute_vesselness2( 
+	const Data3D<short>& src,							// INPUT
+	Data3D<Vesselness_All>& dst,						// OUTPUT
+	float sigma_from, float sigma_to, float sigma_step, // INPUT 
+	float alpha, float beta, float gamma )				// INPUT
+{
+	cout << "Computing Vesselness, it will take a while... " << endl;
+	cout << "Vesselness will be computed from sigma = " << sigma_from << " to sigma = " << sigma_to << endl;
+	
+	Data3D<Vesselness_Nor> vn;
+	dst.reset( src.get_size() ); // data will be clear to zero
+
+	smart_return_value( sigma_from < sigma_to, "sigma_from should be smaller than sigma_to ", 0 );
+	smart_return_value( sigma_step > 0, "sigma_step should be greater than 0 ", 0 );
+
+	int x,y,z;
+	float max_sigma = sigma_from;
+	float min_sigma = sigma_to;
+	for( float sigma = sigma_from; sigma < sigma_to; sigma += sigma_step ){
+		cout << '\r' << "Vesselness for sigma = " << sigma << "         ";
+		VesselDetector::hessien2( src, vn, 0, sigma, alpha, beta, gamma );
+		// compare the response, if it is greater, copy it to our dst
+		int margin = int( ceil(3 * sigma) );
+		//if( margin % 2 == 0 )  margin++;
+		for( z=margin; z<src.get_size_z()-margin; z++ ) {
+			for( y=margin; y<src.get_size_y()-margin; y++ ) {
+				for( x=margin; x<src.get_size_x()-margin; x++ ) {
+					if( dst.at(x, y, z).rsp < vn.at(x, y, z).rsp ) {
+						dst.at(x, y, z) = Vesselness_All( vn.at(x, y, z), sigma );
+						max_sigma = max( sigma, max_sigma );
+						min_sigma = min( sigma, min_sigma );
+					}
+				}
+			}
+		}
+	}
+
+	cout << endl << "The minimum and maximum sigmas used for vesselness: " << min_sigma << ", " << max_sigma << endl;
+	cout << "done. " << endl << endl;
+
+	return 0;
+}
+
 int VesselDetector::compute_vesselness( 
 	const Data3D<short>& src,							// INPUT
 	Data3D<Vesselness_All>& dst,						// OUTPUT
