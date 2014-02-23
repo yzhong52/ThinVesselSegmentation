@@ -53,13 +53,6 @@ int VesselnessFilterGPU::compute_vesselness(
 	// cuda error message
 	cudaError_t cudaStatus;
 
-	// current sigma
-	float sigma = sigma_from; 
-
-	int ksize = int(6 * sigma + 1); 
-	if( ksize%2==0 ) ksize++; // make sure this is a odd number
-	Mat kernel = cv::getGaussianKernel( ksize, sigma, CV_32F );
-
 	const int im_size = src.get_size_total();
 	try{ 
 		// Choose which GPU to run on, change this on a multi-GPU system.
@@ -85,55 +78,63 @@ int VesselnessFilterGPU::compute_vesselness(
 		// allocate memory for dev_blurred
 		cudaStatus = cudaMalloc((void**)&dev_temp, im_size*sizeof(DT));
 		if (cudaStatus != cudaSuccess) throw ooops( "Fail to alloc memory for temp image. " );
-		// allocate memory for kernel
-		cudaStatus = cudaMalloc((void**)&dev_kernel, ksize*sizeof(float));
+		// allocate memory for Gaussian kernel
+		int max_ksize = int(6 * sigma_to + 1); // maximum kernel size
+		if( max_ksize%2==0 ) max_ksize++; // make sure this is a odd number
+		cudaStatus = cudaMalloc((void**)&dev_kernel, max_ksize*sizeof(float));
 		if (cudaStatus != cudaSuccess) throw ooops( "Fail to alloc memory for Gaussian blur kernel. " );
 
+		for( float sigma = sigma_from; sigma < sigma_to; sigma += sigma_step ){
+			int ksize = int( 6*sigma + 1 ); 
+			if( ksize%2==0 ) ksize++; 
+			Mat kernel = cv::getGaussianKernel( ksize, sigma, CV_32F );
 
-		////////////////////////////////////////////////
-		// Phrase 1 - Blur the image
-		////////////////////////////////////////////////
-		// Copy Gaussian kernel to GPU
-		cudaStatus = cudaMemcpy(dev_kernel, kernel.data, ksize*sizeof(float), cudaMemcpyHostToDevice);
-		if (cudaStatus != cudaSuccess) throw cudaStatus; 
-		// Blur the image
-		// This following magic number varies from computer to computer, 
-		// Some better graphic cards support 1024. 
-		const int nTPB = 512; 
-		// blur image along x direction
-		ImageProcessingGPU::cov3<<<(im_size + nTPB - 1)/nTPB, nTPB>>>(
-			dev_src, dev_blurred, dev_kernel, 
-			src.SX(), src.SY(), src.SZ(), 
-			ksize, 1, 1 );
-		// blur image along y direction
-		ImageProcessingGPU::cov3<<<(im_size + nTPB - 1)/nTPB, nTPB>>>(
-			dev_blurred, dev_temp, dev_kernel, 
-			src.SX(), src.SY(), src.SZ(), 
-			1, ksize, 1 );
-		// blur image along z direction
-		ImageProcessingGPU::cov3<<<(im_size + nTPB - 1)/nTPB, nTPB>>>(
-			dev_temp, dev_blurred, dev_kernel, 
-			src.SX(), src.SY(), src.SZ(), 
-			1, 1, ksize );
+			////////////////////////////////////////////////
+			// Phrase 1 - Blur the image
+			////////////////////////////////////////////////
+			// Copy Gaussian kernel to GPU
+			cudaStatus = cudaMemcpy(dev_kernel, kernel.data, ksize*sizeof(float), cudaMemcpyHostToDevice);
+			if (cudaStatus != cudaSuccess) throw cudaStatus; 
+			// Blur the image
+			// This following magic number varies from computer to computer, 
+			// Some better graphic cards support 1024. 
+			const int nTPB = 512; 
+			// blur image along x direction
+			ImageProcessingGPU::cov3<<<(im_size + nTPB - 1)/nTPB, nTPB>>>(
+				dev_src, dev_blurred, dev_kernel, 
+				src.SX(), src.SY(), src.SZ(), 
+				ksize, 1, 1 );
+			// blur image along y direction
+			ImageProcessingGPU::cov3<<<(im_size + nTPB - 1)/nTPB, nTPB>>>(
+				dev_blurred, dev_temp, dev_kernel, 
+				src.SX(), src.SY(), src.SZ(), 
+				1, ksize, 1 );
+			// blur image along z direction
+			ImageProcessingGPU::cov3<<<(im_size + nTPB - 1)/nTPB, nTPB>>>(
+				dev_temp, dev_blurred, dev_kernel, 
+				src.SX(), src.SY(), src.SZ(), 
+				1, 1, ksize );
 
-		ImageProcessingGPU::multiply<<<(im_size + nTPB - 1)/nTPB, nTPB>>>(
-			dev_blurred, dev_blurred, src.get_size_total(), sigma ); 
+			ImageProcessingGPU::multiply<<<(im_size + nTPB - 1)/nTPB, nTPB>>>(
+				dev_blurred, dev_blurred, src.get_size_total(), sigma ); 
 
-		////////////////////////////////////////////////
-		// Phrase 2 - compute the following 
-		////////////////////////////////////////////////
-		// 1) derivative of the image
-		// 2) hessian matrix
-		// 3) eigenvalue decomposition of the hessian matrix
-		// 4) vesselness measure
-		VFG::vesselness<<<(im_size + nTPB - 1)/nTPB, nTPB>>>( 
-			dev_blurred, dev_dst, 
-			src.SX(), src.SY(), src.SZ(), 
-			alpha, beta, gamma );
 
-		cudaStatus = cudaDeviceSynchronize();
-		if (cudaStatus != cudaSuccess) throw cudaStatus; 
+			////////////////////////////////////////////////
+			// Phrase 2 - compute the following 
+			////////////////////////////////////////////////
+			// 1) derivative of the image
+			// 2) hessian matrix
+			// 3) eigenvalue decomposition of the hessian matrix
+			// 4) vesselness measure
+			VFG::vesselness<<<(im_size + nTPB - 1)/nTPB, nTPB>>>( 
+				dev_blurred, dev_dst, 
+				src.SX(), src.SY(), src.SZ(), 
+				alpha, beta, gamma );
 
+			cudaStatus = cudaDeviceSynchronize();
+			if (cudaStatus != cudaSuccess) throw cudaStatus; 
+		}
+		
 		// copy memory from GPU to main memory
 		dst.reset( src.get_size() ); 
 		cudaStatus = cudaMemcpy(dst.getMat().data, dev_dst, im_size*sizeof(DT), cudaMemcpyDeviceToHost );
@@ -177,9 +178,9 @@ __global__ void VesselnessFilterGPU::vesselness(
 		int iz = i / (sx * sy); 
 		
 		// we don't compute the vesselness measure for the boarder pixel
-		if( ix<=1 || ix>=sx-1 ) return; 
-		if( iy<=1 || iy>=sy-1 ) return;
-		if( iz<=1 || iz>=sz-1 ) return;
+		if( ix<=0 || ix>=sx-1 ) return; 
+		if( iy<=0 || iy>=sy-1 ) return;
+		if( iz<=0 || iz>=sz-1 ) return;
 
 		// The following are being computed in this function
 		// 1) derivative of images; 
@@ -290,6 +291,7 @@ __global__ void VesselnessFilterGPU::vesselness(
 			float S = sqrt( lmd1*lmd1 + lmd2*lmd2 + lmd3*lmd3 );
 			vn = ( 1.0f-exp(-A*A/alpha) )* exp( B*B/beta ) * ( 1-exp(-S*S/gamma) );
 		}
-		dst[i] = max(dst[i], vn); 
+		
+		if(vn > dst[i]) dst[i] = vn; 
 	}
 } 

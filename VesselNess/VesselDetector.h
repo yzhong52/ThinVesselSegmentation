@@ -50,3 +50,4 @@ namespace VesselDetector
 };
 
 namespace VD = VesselDetector;
+namespace VF = VesselDetector;

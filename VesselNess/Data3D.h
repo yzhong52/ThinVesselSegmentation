@@ -190,7 +190,7 @@ public:
 		for( int z=spos[2]; z<epos[2]; z++ ){
 			for( int y=spos[1]; y<epos[1]; y++ ){
 				for( int x=spos[0]; x<epos[0]; x++ ){
-					n_mat.at( z-margin1[2], (y-margin1[1])*n_size[0] + (x-margin1[0]) ) = _mat.at( z, y*_size[0] + x );
+					n_mat( z-margin1[2], (y-margin1[1])*n_size[0] + (x-margin1[0]) ) = _mat( z, y*_size[0] + x );
 				}
 			}
 		}
