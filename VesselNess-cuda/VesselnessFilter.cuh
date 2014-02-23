@@ -41,15 +41,14 @@ int VesselnessFilterGPU::compute_vesselness(
 #define ST short
 #define DT float
 
-	int im_size = dst.get_size_total();
-
 	// allucate memory for the final result
 	dst.reset( src.get_size(), 0.0f ); 
 	// pointers to temporary memory in the GPU
 	short* dev_src = NULL; 
-	float* dev_dst = NULL; 
 	float* dev_blurred = NULL; 
 	float* dev_kernel = NULL; 
+	short* dev_temp = NULL; 
+	float* dev_dst = NULL; 
 
 	// cuda error message
 	cudaError_t cudaStatus;
@@ -61,43 +60,43 @@ int VesselnessFilterGPU::compute_vesselness(
 	if( ksize%2==0 ) ksize++; // make sure this is a odd number
 	Mat kernel = cv::getGaussianKernel( ksize, sigma, CV_32F );
 
-
+	const int im_size = src.get_size_total();
 	try{ 
-		const int im_size = src.get_size_total();
-
 		// Choose which GPU to run on, change this on a multi-GPU system.
 		cudaStatus = cudaSetDevice(0);
 		if (cudaStatus != cudaSuccess) throw ooops( "Fail to get GPU. " ); 
+		
 
+		////////////////////////////////////////////////
+		// Allocating memory in GPU
+		////////////////////////////////////////////////
 		// allocate memory for src image
 		cudaStatus = cudaMalloc((void**)&dev_src, im_size*sizeof(ST));
 		if (cudaStatus != cudaSuccess) throw ooops( "Fail to alloc memory for src image. " ); 
 		// copy src image to GPU
 		cudaStatus = cudaMemcpy(dev_src, src.getMat().data, im_size*sizeof(ST), cudaMemcpyHostToDevice);
 		if (cudaStatus != cudaSuccess) throw ooops( "Fail copy src image to GPU. " ); 
+		// allocate memory for dst
+		cudaStatus = cudaMalloc((void**)&dev_dst, im_size*sizeof(DT));
+		if (cudaStatus != cudaSuccess) throw ooops( "Fail to alloc memory for dst image. " );
+		// allocate memory for dev_blurred
+		cudaStatus = cudaMalloc((void**)&dev_blurred, im_size*sizeof(DT));
+		if (cudaStatus != cudaSuccess) throw ooops( "Fail to alloc memory for blurred image. " );
+		// allocate memory for dev_blurred
+		cudaStatus = cudaMalloc((void**)&dev_temp, im_size*sizeof(DT));
+		if (cudaStatus != cudaSuccess) throw ooops( "Fail to alloc memory for temp image. " );
+		// allocate memory for kernel
+		cudaStatus = cudaMalloc((void**)&dev_kernel, ksize*sizeof(float));
+		if (cudaStatus != cudaSuccess) throw ooops( "Fail to alloc memory for Gaussian blur kernel. " );
 
 
 		////////////////////////////////////////////////
 		// Phrase 1 - Blur the image
 		////////////////////////////////////////////////
-
-		// allocate memory for dst
-		cudaStatus = cudaMalloc((void**)&dev_dst, im_size*sizeof(DT));
-		if (cudaStatus != cudaSuccess) throw ooops( "Fail to alloc memory for dst image. This is also used \
-													as a temporary memory when computing Gaussian blur. " );
-
-		// allocate memory for dev_blurred
-		cudaStatus = cudaMalloc((void**)&dev_blurred, im_size*sizeof(DT));
-		if (cudaStatus != cudaSuccess) throw cudaStatus; 
-		
-		// allocate memory for kernel
-		cudaStatus = cudaMalloc((void**)&dev_kernel, ksize*sizeof(float));
-		if (cudaStatus != cudaSuccess) throw cudaStatus; 
-		// Copy kernel to GPU
+		// Copy Gaussian kernel to GPU
 		cudaStatus = cudaMemcpy(dev_kernel, kernel.data, ksize*sizeof(float), cudaMemcpyHostToDevice);
 		if (cudaStatus != cudaSuccess) throw cudaStatus; 
-
-		// now blur the image
+		// Blur the image
 		// This following magic number varies from computer to computer, 
 		// Some better graphic cards support 1024. 
 		const int nTPB = 512; 
@@ -108,18 +107,17 @@ int VesselnessFilterGPU::compute_vesselness(
 			ksize, 1, 1 );
 		// blur image along y direction
 		ImageProcessingGPU::cov3<<<(im_size + nTPB - 1)/nTPB, nTPB>>>(
-			dev_blurred, dev_dst, dev_kernel, 
+			dev_blurred, dev_temp, dev_kernel, 
 			src.SX(), src.SY(), src.SZ(), 
 			1, ksize, 1 );
 		// blur image along z direction
 		ImageProcessingGPU::cov3<<<(im_size + nTPB - 1)/nTPB, nTPB>>>(
-			dev_dst, dev_blurred, dev_kernel, 
+			dev_temp, dev_blurred, dev_kernel, 
 			src.SX(), src.SY(), src.SZ(), 
 			1, 1, ksize );
 
 		ImageProcessingGPU::multiply<<<(im_size + nTPB - 1)/nTPB, nTPB>>>(
 			dev_blurred, dev_blurred, src.get_size_total(), sigma ); 
-
 
 		////////////////////////////////////////////////
 		// Phrase 2 - compute the following 
@@ -132,7 +130,6 @@ int VesselnessFilterGPU::compute_vesselness(
 			dev_blurred, dev_dst, 
 			src.SX(), src.SY(), src.SZ(), 
 			alpha, beta, gamma );
-
 
 		cudaStatus = cudaDeviceSynchronize();
 		if (cudaStatus != cudaSuccess) throw cudaStatus; 
@@ -149,9 +146,10 @@ int VesselnessFilterGPU::compute_vesselness(
 		std::cout << "Exception captured: " << ex.what();
 	}
 
-	cudaFree(dev_src);
-	cudaFree(dev_dst); 
-	cudaFree(dev_kernel);
+	cudaFree( dev_src );
+	cudaFree( dev_dst ); 
+	cudaFree( dev_kernel );
+	cudaFree( dev_temp );
 	cudaFree( dev_blurred );
 
 	return 0; 
@@ -161,11 +159,13 @@ int VesselnessFilterGPU::compute_vesselness(
 #define get(im, current_index, sisze_x, size_y, size_z, offset_x, offset_y, offset_z) \
 	im[(current_index) + (offset_x) + (offset_y)*(sx) + (offset_z)*(sx)*(sy)]
 
+
+// GPU version of vesselness filter
 __global__ void VesselnessFilterGPU::vesselness(
 	float* src, // Input Src image
 	float* dst, // Output Dst image
-	int sx, int sy, int sz,
-	float alpha, float beta, float gamma ) // size of the image 
+	int sx, int sy, int sz, // size of the image
+	float alpha, float beta, float gamma ) // parameters for vesselness
 {
 	int i = blockIdx.x * blockDim.x + threadIdx.x;
 	if (i < sx*sy*sz ){
@@ -177,52 +177,40 @@ __global__ void VesselnessFilterGPU::vesselness(
 		int iz = i / (sx * sy); 
 		
 		// we don't compute the vesselness measure for the boarder pixel
-		if( ix<=0 || ix>=sx-1 ) return; 
-		if( iy<=0 || iy>=sy-1 ) return;
-		if( iz<=0 || iz>=sz-1 ) return;
+		if( ix<=1 || ix>=sx-1 ) return; 
+		if( iy<=1 || iy>=sy-1 ) return;
+		if( iz<=1 || iz>=sz-1 ) return;
 
 		// The following are being computed in this function
 		// 1) derivative of images; 
-		// 2) Hessian matrix; 
-		// 3) eigenvalue decomposition; 
-		// 4) vesselness measure. 
+		// 2) eigenvalue decomposition of Hessian matrix; 
+		// 3) vesselness measure. 
 
 		// 1) derivative of the image		
-		// im_dx2 = 2 * src.at(ix,iy,iz) - src.at(ix-1,iy,iz) - src.at(ix+1,iy,iz)
-		float im_dx2 = 2 * get( src,i,sx,sy,sz, 0, 0, 0 )
-			             - get( src,i,sx,sy,sz,-1, 0, 0 )
-						 - get( src,i,sx,sy,sz,+1, 0, 0 ); 
-		// im_dx2 = 2 * src.at(ix,iy,iz) - src.at(ix,iy-1,iz) - src.at(ix,iy+1,iz)
-		float im_dy2 = 2 * get( src,i,sx,sy,sz, 0, 0, 0 )
-			             - get( src,i,sx,sy,sz, 0,-1, 0 )
-						 - get( src,i,sx,sy,sz, 0,+1, 0 ); 
-		// im_dz2 = 2 * src.at(ix,iy,iz) - src.at(ix,iy,iz-1) - src.at(ix,iy,iz+1)
-		float im_dz2 = 2 * get( src,i,sx,sy,sz, 0, 0, 0 )
-			             - get( src,i,sx,sy,sz, 0, 0,-1 )
-						 - get( src,i,sx,sy,sz, 0, 0,+1 ); 
-		// im_dxdy = src.at(ix+1,iy+1,iz) + src.at(ix-1,iy-1,iz)
-		//         - src.at(ix+1,iy-1,iz) - src.at(ix-1,iy+1,iz)
+		float im_dx2 = -2.0f * get( src,i,sx,sy,sz, 0, 0, 0 )
+			                 + get( src,i,sx,sy,sz,-1, 0, 0 )
+						     + get( src,i,sx,sy,sz,+1, 0, 0 ); 
+		float im_dy2 = -2.0f * get( src,i,sx,sy,sz, 0, 0, 0 )
+			                 + get( src,i,sx,sy,sz, 0,-1, 0 )
+						     + get( src,i,sx,sy,sz, 0,+1, 0 ); 
+		float im_dz2 = -2.0f * get( src,i,sx,sy,sz, 0, 0, 0 )
+			                 + get( src,i,sx,sy,sz, 0, 0,-1 )
+						     + get( src,i,sx,sy,sz, 0, 0,+1 ); 
 		float im_dxdy =  ( get( src,i,sx,sy,sz,-1,-1, 0 )
 			             + get( src,i,sx,sy,sz, 1, 1, 0 )
 			             - get( src,i,sx,sy,sz,-1, 1, 0 )
 						 - get( src,i,sx,sy,sz, 1,-1, 0 )) * 0.25f; 
-		// im_dxdy = src.at(ix+1,iy,iz+1) + src.at(ix-1,iy,iz-1)
-		//         - src.at(ix+1,iy,iz+1) - src.at(ix-1,iy,iz+1)
 		float im_dxdz =  ( get( src,i,sx,sy,sz,-1, 0,-1 )
 			             + get( src,i,sx,sy,sz, 1, 0, 1 )
 			             - get( src,i,sx,sy,sz,-1, 0, 1 )
 						 - get( src,i,sx,sy,sz, 1, 0,-1 )) * 0.25f; 
-		// im_dxdy = src.at(ix,iy-1,iz-1) + src.at(ix,iy-1,iz+1)
-		//         - src.at(ix,iy+1,iz) - src.at(ix-1,iy+1,iz)
 		float im_dydz =  ( get( src,i,sx,sy,sz, 0,-1,-1 )
 			             + get( src,i,sx,sy,sz, 0, 1, 1 )
 			             - get( src,i,sx,sy,sz, 0, 1,-1 )
 						 - get( src,i,sx,sy,sz, 0,-1, 1 )) * 0.25f;
 
-		// 3) eigenvalue decomposition
+		// 2) eigenvalue decomposition of Hessian matrix (a real symmetric 3x3 matrix A)
 		// http://en.wikipedia.org/wiki/Eigenvalue_algorithm#3.C3.973_matrices
-		
-		// Given a real symmetric 3x3 matrix A, compute the eigenvalues
 		const float& A11 = im_dx2;
 		const float& A22 = im_dy2;
 		const float& A33 = im_dz2;
@@ -250,7 +238,7 @@ __global__ void VesselnessFilterGPU::vesselness(
 			float B22 = (1 / p) * (A22-q); 
 			float B23 = (1 / p) * (A23-q); float& B32 = B23;
 			float B33 = (1 / p) * (A33-q); 
-			// Determinant of a 3 by 3 matrix
+			// Determinant of a 3 by 3 matrix B
 			// http://www.mathworks.com/help/aeroblks/determinantof3x3matrix.html
 			float detB = B11*(B22*B33-B23*B32) - B12*(B21*B33-B23*B31) + B13*(B21*B32-B22*B31); 
 
@@ -273,8 +261,7 @@ __global__ void VesselnessFilterGPU::vesselness(
 			eig2 = 3 * q - eig1 - eig3; // % since trace(A) = eig1 + eig2 + eig3
 		}
 
-		// 4) vesselness measure
-		
+		// so that abs(eig1) < abs(eig2) < abs(eig3)
 		if( abs(eig1) > abs(eig2) ) {
 			float temp = eig2;
 			eig2 = eig1; 
@@ -287,12 +274,12 @@ __global__ void VesselnessFilterGPU::vesselness(
 		}
 		if( abs(eig1) > abs(eig2) ) {
 			float temp = eig2;
-			eig2 = eig1; 
+			eig2 = eig1;
 			eig1 = temp;
 		}
-		
-		float vn = 0.0f; 
 
+		// 4) vesselness measure
+		float vn = 0.0f; 
 		// vesselness value
 		if( eig2 < 0 && eig3 < 0 ) {
 			float lmd1 = abs( eig1 );
@@ -303,8 +290,6 @@ __global__ void VesselnessFilterGPU::vesselness(
 			float S = sqrt( lmd1*lmd1 + lmd2*lmd2 + lmd3*lmd3 );
 			vn = ( 1.0f-exp(-A*A/alpha) )* exp( B*B/beta ) * ( 1-exp(-S*S/gamma) );
 		}
-		
-		dst[i] = src[i];// max(abs(eig2), abs(eig3)); 
-		// dst[i] = abs(eig3); 
+		dst[i] = max(dst[i], vn); 
 	}
 } 

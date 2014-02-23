@@ -60,8 +60,6 @@ bool VesselDetector::hessien( const Data3D<short>& src, Data3D<Vesselness_Nor>& 
 	for( z=0; z<src.get_size_z(); z++ ) {
 		for( y=0; y<src.get_size_y(); y++ ) {
 			for( x=0; x<src.get_size_x(); x++ ) {
-				
-				
 				// construct the harris matrix
 				Mat hessian( 3, 3, CV_32F );
 				hessian.at<float>(0, 0) = im_dx2.at(x,y,z);
@@ -70,7 +68,6 @@ bool VesselDetector::hessien( const Data3D<short>& src, Data3D<Vesselness_Nor>& 
 				hessian.at<float>(1, 0) = hessian.at<float>(0, 1) = im_dxdy.at(x,y,z);
 				hessian.at<float>(2, 0) = hessian.at<float>(0, 2) = im_dxdz.at(x,y,z);
 				hessian.at<float>(2, 1) = hessian.at<float>(1, 2) = im_dydz.at(x,y,z);
-				
 				
 				// calculate the eigen values
 				Mat eigenvalues, eigenvectors;
@@ -81,11 +78,6 @@ bool VesselDetector::hessien( const Data3D<short>& src, Data3D<Vesselness_Nor>& 
 				if( abs(eigenvalues.at<float>(i)) > abs(eigenvalues.at<float>(k)) ) std::swap( i, k );
 				if( abs(eigenvalues.at<float>(j)) > abs(eigenvalues.at<float>(k)) ) std::swap( j, k );
 				
-				if( x==2 && y==2 && z==11 ){
-					cout << "middle" << endl;
-					cout << hessian  << endl;
-					cout << eigenvalues << endl;
-				} 
 
 				// vesselness value
 				if( eigenvalues.at<float>(j) > 0 || eigenvalues.at<float>(k) > 0 ) {
@@ -99,14 +91,6 @@ bool VesselDetector::hessien( const Data3D<short>& src, Data3D<Vesselness_Nor>& 
 					float B = (lmd2*lmd3>1e-5) ? lmd1 / sqrt( lmd2*lmd3 ) : 0;
 					float S = sqrt( lmd1*lmd1 + lmd2*lmd2 + lmd3*lmd3 );
 					vn_Nor.rsp = ( 1.0f-exp(-A*A/alpha) )* exp( B*B/beta ) * ( 1-exp(-S*S/gamma) );
-					
-					if( x==2 && y==2 && z==11 ){
-						cout << endl;
-						cout << ( 1.0f-exp(-A*A/alpha) ) << " "; 
-						cout << exp( B*B/beta ) << " ";
-						cout << ( 1-exp(-S*S/gamma) ) << endl;
-						cout << vn_Nor.rsp << endl;
-					} 
 				}
 				
 				// orientation of vesselness
@@ -118,7 +102,6 @@ bool VesselDetector::hessien( const Data3D<short>& src, Data3D<Vesselness_Nor>& 
 				
 				// copy the value to our dst matrix
 				dst.at(x, y, z) = vn_Nor; 
-				// dst.at(x,y,z).rsp = abs( eigenvalues.at<float>(i) ); 
 			}
 		}
 	}
@@ -148,9 +131,7 @@ bool VesselDetector::hessien( const Data3D<short>& src, Data3D<Vec<float, 12>>& 
 	smart_return_value( flag, "Gaussian Blur Failed.", false );
 
 	//Normalizing for different scale
-	
-	/*if( sigma<0.5 ) {  im_blur *= 0.25 + sigma/2; }
-	else */im_blur *= sigma;
+	im_blur *= sigma;
 	
 	Kernel3D<float> dx = Kernel3D<float>::dx();
 	Kernel3D<float> dy = Kernel3D<float>::dy();
@@ -259,15 +240,12 @@ bool VesselDetector::hessien2( const Data3D<short>& src, Data3D<Vesselness_Nor>&
 				// 4) vesselness measure. 
 				
 				// 1) derivative of the image		
-				//float im_dx2 = -src.at(x,y,z) + 0.5f * src.at(x-1,y,z) + 0.5f * src.at(x+1,y,z);
-				//float im_dy2 = -src.at(x,y,z) + 0.5f * src.at(x,y-1,z) + 0.5f * src.at(x,y+1,z);
-				//float im_dz2 = -src.at(x,y,z) + 0.5f * src.at(x,y,z+1) + 0.5f * src.at(x,y,z+1);
-				//float im_dx2 = -2.0f * src.at(x,y,z) + src.at(x-1,y,z) + src.at(x+1,y,z);
-				//float im_dy2 = -2.0f * src.at(x,y,z) + src.at(x,y-1,z) + src.at(x,y+1,z);
-				//float im_dz2 = -2.0f * src.at(x,y,z) + src.at(x,y,z+1) + src.at(x,y,z+1);
-				float im_dx2 = -0.5f * src.at(x,y,z) + 0.25f * src.at(x-2,y,z) + 0.25f * src.at(x+2,y,z);
-				float im_dy2 = -0.5f * src.at(x,y,z) + 0.25f * src.at(x,y-2,z) + 0.25f * src.at(x,y+2,z);
-				float im_dz2 = -0.5f * src.at(x,y,z) + 0.25f * src.at(x,y,z-2) + 0.25f * src.at(x,y,z+2);
+				float im_dx2 = -2.0f * src.at(x,y,z) + src.at(x-1,y,z) + src.at(x+1,y,z);
+				float im_dy2 = -2.0f * src.at(x,y,z) + src.at(x,y-1,z) + src.at(x,y+1,z);
+				float im_dz2 = -2.0f * src.at(x,y,z) + src.at(x,y,z-1) + src.at(x,y,z+1);
+				//float im_dx2 = -0.5f * src.at(x,y,z) + 0.25f * src.at(x-2,y,z) + 0.25f * src.at(x+2,y,z);
+				//float im_dy2 = -0.5f * src.at(x,y,z) + 0.25f * src.at(x,y-2,z) + 0.25f * src.at(x,y+2,z);
+				//float im_dz2 = -0.5f * src.at(x,y,z) + 0.25f * src.at(x,y,z-2) + 0.25f * src.at(x,y,z+2);
 				float im_dxdy = ( 
 					+ src.at(x-1,y-1,z)
 					+ src.at(x+1,y+1,z) 
@@ -385,7 +363,7 @@ int VesselDetector::compute_vesselness2(
 		cout << '\r' << "Vesselness for sigma = " << sigma << "         ";
 		VesselDetector::hessien2( src, vn, 0, sigma, alpha, beta, gamma );
 		// compare the response, if it is greater, copy it to our dst
-		int margin = int( ceil(3 * sigma) );
+		int margin = 1; // int( ceil(3 * sigma) );
 		//if( margin % 2 == 0 )  margin++;
 		for( z=margin; z<src.get_size_z()-margin; z++ ) {
 			for( y=margin; y<src.get_size_y()-margin; y++ ) {
