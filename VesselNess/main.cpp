@@ -36,51 +36,38 @@ namespace sample_code{
 		float beta  = 5.0e0f;
 		float gamma = 3.5e5f;
 
+		
 		// laoding data
 		Data3D<short> im_short;
 		bool falg = im_short.load( "../data/" + dataname+".data" );
 		if(!falg) return 0;
+		//im_short.reset( Vec3i(30, 30, 30) );
+		//for( int i=0; i<30; i++ ) im_short.at( i, i, 15 ) = 1000; 
 	
-		// vesselness output file name
-		stringstream vesselness_name;
-		vesselness_name << "output/";
-		vesselness_name << dataname;
-		vesselness_name << ".sigma_to" << sigma_to;
+		Data3D<Vesselness_Nor> vn_nor, vn_nor2;
+		VesselDetector::hessien( im_short, vn_nor, 0, 1.0f, alpha, beta, gamma );
+		VesselDetector::hessien2( im_short, vn_nor2, 0, 1.0f, alpha, beta, gamma );
 
-		// logging information
-		stringstream vesselness_log;
-		vesselness_log << "alpha = " << alpha << endl;
-		vesselness_log << "beta = " << beta << endl;
-		vesselness_log << "gamma = " << gamma << endl;
-		vesselness_log << "Vesselness is computed with the following sigmas: ";
-		for( float sigma = sigma_from; sigma < sigma_to; sigma += sigma_step ) {
-			vesselness_log << sigma << ","; 
-		}
-		vesselness_log << '\b' << endl; // remove the last ','
+		//for( int z=2; z<vn_nor2.get_size_z()-2; z++ ) {
+		//	for( int y=2; y<vn_nor2.get_size_y()-2; y++ ) {
+		//		for( int x=2; x<vn_nor2.get_size_x()-2; x++ ) {
+		//			
+		//			if( abs(vn_nor.at(x,y,z).rsp - vn_nor2.at(x,y,z).rsp) > 1e-5 ) {
+		//				cout << x << ", " << y << "," << z << ": "; 
+		//				cout << vn_nor.at(x,y,z).rsp - vn_nor2.at(x,y,z).rsp; 
+		//				cout << endl;
+		//			}
+		//			
+		//		}
+		//	}
+		//}
 
-		clock_t start = clock();
-		// compute vesselness
-		Data3D<Vesselness_All> vn_all;
-		VD::compute_vesselness( im_short, vn_all, sigma_from, sigma_to, sigma_step, alpha, beta, gamma);
-		clock_t end = clock();
-		cout << "Time lapse for computing Vesselness: ";
-		cout << (float)(end - start) / CLOCKS_PER_SEC << " seconds. " << endl << endl;
-		system("pause");
-
-		// Saving VesselNess float,11
-		vn_all.save( vesselness_name.str()+".vn_all", vesselness_log.str() );
-		// Saving VesselNess float,5
-		Data3D<Vesselness_Sig> vn_sig( vn_all );
-		vn_sig.save( vesselness_name.str()+".vn_sig", vesselness_log.str() );
-		// Saving VesselNess float,1
-		Data3D<float> vn_float; 
-		vn_sig.copyDimTo( vn_float, 0 );
-		vn_float.save( vesselness_name.str()+".vn_float", vesselness_log.str() );
 
 		// Visualize result with maximum intensity projection (MIP)
 		viewer.addObject( im_short, GLViewer::Volumn::MIP );
-		viewer.addObject( vn_float, GLViewer::Volumn::MIP );
-		viewer.go(400, 200, 2);
+		viewer.addObject( vn_nor,   GLViewer::Volumn::MIP );
+		viewer.addObject( vn_nor2,  GLViewer::Volumn::MIP );
+		viewer.go(600, 200, 3);
 		return 0;
 	}
 }

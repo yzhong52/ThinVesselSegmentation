@@ -69,6 +69,13 @@ public:
 		this->addObject( vn_float, mode );
 	}
 	
+	template<>
+	void addObject( Data3D<Vesselness_Nor>& vn_nor, GLViewer::Volumn::RenderMode mode ) {
+		Data3D<float> vn_float;
+		vn_nor.copyDimTo( vn_float, 0 ); 
+		this->addObject( vn_float, mode );
+	}
+
 	template<class E, class N>
 	GLViewer::CenterLine<E, N>* addObject( MST::Graph< E, N >& tree ) {
 		GLViewer::CenterLine<E, N> *cObj = new GLViewer::CenterLine<E, N>( tree ); 
