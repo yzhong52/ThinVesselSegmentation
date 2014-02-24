@@ -32,7 +32,8 @@ int main()
 	clock_t t;
 
 	Data3D<short> im_short;
-	bool flag = im_short.load( "../temp/parts/vessel3d.rd.19.part8.data" );
+	//bool flag = im_short.load( "../temp/vessel3d.rd.19.data" );
+	bool flag = im_short.load( "../temp/parts/vessel3d.rd.19.part0.data" ); 
 	if(!flag) return 0; 
 	
 	Data3D<int> im_blurred;
@@ -41,10 +42,14 @@ int main()
 	// Computer Vesselness Measure
 	Data3D<float> im_float;
 	t = clock();
-	VFG::compute_vesselness( im_short, im_float, 1.3f, 1.6f, 0.2f );
+	VFG::compute_vesselness( im_short, im_float, 2.3f, 3.6f, 0.2f );
 	t = clock() - t;
 	cout << "It took me " << t << " clicks (" << float(t)/CLOCKS_PER_SEC << " seconds). " << endl; 
 	
+
+	//Data3D<short> im_float;
+	//IPG::GaussianBlur3D( im_short, im_float, 9, 1.5f );
+
 	//Data3D<Vesselness_All> im_float2;
 	//t = clock(); 
 	//VF::compute_vesselness( im_short, im_float2, 0.7f, 1.6f, 0.2f );

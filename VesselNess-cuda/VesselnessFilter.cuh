@@ -219,7 +219,7 @@ __global__ void VesselnessFilterGPU::vesselness(
 
 		float eig1, eig2, eig3;
 		float p1 = A12*A12 + A13*A13 + A23*A23;
-		if( p1 < 1e-6 ) {
+		if( p1 < 1e-7f ) {
 			// A is diagonal.
 			eig1 = A11;
 			eig2 = A22;
@@ -246,9 +246,9 @@ __global__ void VesselnessFilterGPU::vesselness(
 			float r = detB/2;
 			float phi; 
 			const float M_PI3 = 3.14159265f / 3;
-			if( r <= -1 - 1e-10 ) {
+			if( r <= -1.0f ) {
 				phi = M_PI3; 
-			} else if (r >= 1)
+			} else if (r >= 1.0f )
 				phi = 0; 
 			else {
 				phi = acos(r) / 3; 
