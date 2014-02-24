@@ -47,7 +47,7 @@ int main()
 	
 	Data3D<Vesselness_All> im_float2;
 	t = clock(); 
-	VF::compute_vesselness2( im_short, im_float2, 0.7f, 1.6f, 0.2f );
+	VF::compute_vesselness( im_short, im_float2, 0.7f, 1.6f, 0.2f );
 	t = clock() - t; 
 	printf ("It took me %d clicks (%f seconds).\n",t,((float)t)/CLOCKS_PER_SEC);
 	
@@ -59,6 +59,7 @@ int main()
 	viewer.addObject( im_float, GLViewer::Volumn::MIP );
 	viewer.addObject( im_float2, GLViewer::Volumn::MIP );
 	viewer.go(600, 200, 3);
+
 
 
 

@@ -170,8 +170,6 @@ __global__ void VesselnessFilterGPU::vesselness(
 {
 	int i = blockIdx.x * blockDim.x + threadIdx.x;
 	if (i < sx*sy*sz ){
-		dst[i] = 0.0f; 
-
 		// the image position (ix, iy, iz)
 		int ix = i % (sx * sy) % sx; 
 		int iy = i % (sx * sy) / sx;
