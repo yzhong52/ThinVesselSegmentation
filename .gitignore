@@ -2,7 +2,8 @@
 ## Yuchen
 #################
 
-
+# temporary datas
+/temp/*
 temp.*
 
 # User-specific files
