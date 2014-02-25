@@ -174,6 +174,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
   <ItemGroup>
     <None Include="ImageProcessing.cuh" />
     <None Include="VesselnessFilter.cuh" />
+    <None Include="VesselnessFilterPartial.cuh" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

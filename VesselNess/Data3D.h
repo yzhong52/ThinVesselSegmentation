@@ -230,6 +230,14 @@ public:
 		return isValid( v[0], v[1], v[2] );
 	}
 
+	const T* getData(void) const {
+		return (T*) getMat().data; 
+	}
+	
+	T* getData(void) {
+		return (T*) getMat().data; 
+	}
+
 protected:
 	// Maximum size of the x, y and z direction respetively. 
 	Vec3i _size;

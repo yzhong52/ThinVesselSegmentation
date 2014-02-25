@@ -4,22 +4,17 @@
 #include "device_launch_parameters.h"
 #include "Data3D.h"
 #include "ImageProcessing.h"
-#include <exception>
+#include "Ooops.h"
 
-struct ooops : std::exception {
-	string msg;
-	ooops(const string& str = "ooops") : msg(str) {}
-	const char* what() const { return msg.c_str(); }
-};
 
 namespace VesselnessFilterGPU{
 	int compute_vesselness( 
 		const Data3D<short>& src, // INPUT
-		Data3D<float>& dst,  // OUTPUT
+		Data3D<float>& dst,       // OUTPUT
 		float sigma_from, float sigma_to, float sigma_step, // INPUT 
-		float alpha = 1.0e-1f,	// INPUT 
-		float beta  = 5.0e0f,	// INPUT 
-		float gamma = 3.5e5f ); // INPUT 
+		float alpha = 1.0e-1f,	  // INPUT - parameters
+		float beta  = 5.0e0f,	  // INPUT - parameters 
+		float gamma = 3.5e5f );   // INPUT - parameters 
 
 
 	__global__ void vesselness( float* src, float* dst, 
@@ -57,7 +52,7 @@ int VesselnessFilterGPU::compute_vesselness(
 	try{ 
 		// Choose which GPU to run on, change this on a multi-GPU system.
 		cudaStatus = cudaSetDevice(0);
-		if (cudaStatus != cudaSuccess) throw ooops( "Fail to get GPU. " ); 
+		if (cudaStatus != cudaSuccess) throw Ooops( "Fail to get GPU. " ); 
 		
 
 		////////////////////////////////////////////////
@@ -65,24 +60,24 @@ int VesselnessFilterGPU::compute_vesselness(
 		////////////////////////////////////////////////
 		// allocate memory for src image
 		cudaStatus = cudaMalloc((void**)&dev_src, im_size*sizeof(ST));
-		if (cudaStatus != cudaSuccess) throw ooops( "Fail to alloc memory for src image. " ); 
+		if (cudaStatus != cudaSuccess) throw Ooops( "Fail to alloc memory for src image. " ); 
 		// copy src image to GPU
 		cudaStatus = cudaMemcpy(dev_src, src.getMat().data, im_size*sizeof(ST), cudaMemcpyHostToDevice);
-		if (cudaStatus != cudaSuccess) throw ooops( "Fail copy src image to GPU. " ); 
+		if (cudaStatus != cudaSuccess) throw Ooops( "Fail copy src image to GPU. " ); 
 		// allocate memory for dst
 		cudaStatus = cudaMalloc((void**)&dev_dst, im_size*sizeof(DT));
-		if (cudaStatus != cudaSuccess) throw ooops( "Fail to alloc memory for dst image. " );
+		if (cudaStatus != cudaSuccess) throw Ooops( "Fail to alloc memory for dst image. " );
 		// allocate memory for dev_blurred
 		cudaStatus = cudaMalloc((void**)&dev_blurred, im_size*sizeof(DT));
-		if (cudaStatus != cudaSuccess) throw ooops( "Fail to alloc memory for blurred image. " );
+		if (cudaStatus != cudaSuccess) throw Ooops( "Fail to alloc memory for blurred image. " );
 		// allocate memory for dev_blurred
 		cudaStatus = cudaMalloc((void**)&dev_temp, im_size*sizeof(DT));
-		if (cudaStatus != cudaSuccess) throw ooops( "Fail to alloc memory for temp image. " );
+		if (cudaStatus != cudaSuccess) throw Ooops( "Fail to alloc memory for temp image. " );
 		// allocate memory for Gaussian kernel
 		int max_ksize = int(6 * sigma_to + 1); // maximum kernel size
 		if( max_ksize%2==0 ) max_ksize++; // make sure this is a odd number
 		cudaStatus = cudaMalloc((void**)&dev_kernel, max_ksize*sizeof(float));
-		if (cudaStatus != cudaSuccess) throw ooops( "Fail to alloc memory for Gaussian blur kernel. " );
+		if (cudaStatus != cudaSuccess) throw Ooops( "Fail to alloc memory for Gaussian blur kernel. " );
 
 		for( float sigma = sigma_from; sigma < sigma_to; sigma += sigma_step ){
 			int ksize = int( 6*sigma + 1 ); 

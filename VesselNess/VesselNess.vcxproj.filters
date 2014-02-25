@@ -108,6 +108,9 @@
     <ClInclude Include="GLVideoSaver.h">
       <Filter>Visualization</Filter>
     </ClInclude>
+    <ClInclude Include="Ooops.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ImageProcessor.cpp">

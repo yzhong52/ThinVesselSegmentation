@@ -63,5 +63,6 @@
   <ItemGroup>
     <None Include="ImageProcessing.cuh" />
     <None Include="VesselnessFilter.cuh" />
+    <None Include="VesselnessFilterPartial.cuh" />
   </ItemGroup>
 </Project>

@@ -346,6 +346,7 @@
     <ClInclude Include="MinSpanTree.h" />
     <ClInclude Include="MinSpanTreeWrapper.h" />
     <ClInclude Include="Neigbour3D.h" />
+    <ClInclude Include="Ooops.h" />
     <ClInclude Include="RingsDeduction.h" />
     <ClInclude Include="smart_assert.h" />
     <ClInclude Include="stdafx.h" />

@@ -36,6 +36,7 @@ public:
 	template<class T>
 	void addObject( Data3D<T>& im_data, GLViewer::Volumn::RenderMode mode = GLViewer::Volumn::Surface )
 	{
+		if( im_data.get_size_total()==0 ) return; 
 		// change the data formate to unsigend char
 		Data3D<unsigned char> im_uchar;
 		IP::normalize( im_data, T(255) );
