@@ -9,7 +9,10 @@ namespace ImageProcessingGPU{
 	cudaError_t GaussianBlur3D( const Data3D<ST>& src, Data3D<DT>& dst, int ksize, double sigma ); 
 
 	template<typename ST, typename DT, typename KT>
-	__global__ void cov3( ST* src, DT* dst, KT* kernel, 
+	__global__ void cov3( 
+		const ST* src, 
+		DT* dst, 
+		const KT* kernel, 
 		int sx, int sy, int sz, 
 		int kx, int ky, int kz); 
 
@@ -114,9 +117,9 @@ cudaError_t ImageProcessingGPU::GaussianBlur3D( const Data3D<ST>& src, Data3D<DT
 
 template<typename ST, typename DT, typename KT>
 __global__ void ImageProcessingGPU::cov3(
-	ST* src, // Input Src image
+	const ST* src, // Input Src image
 	DT* dst, // Output Dst image
-	KT* kernel, // convolution kerkel
+	const KT* kernel, // convolution kerkel
 	int sx, int sy, int sz, // size of the image 
 	int kx, int ky, int kz) // size of the convolution kernel
 {

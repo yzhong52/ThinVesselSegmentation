@@ -20,7 +20,7 @@ namespace VesselnessFilterGPU{
 		float alpha = 1.0e-1f,	  // INPUT - parameters
 		float beta  = 5.0e0f,	  // INPUT - parameters 
 		float gamma = 3.5e5f,     // INPUT - parameters 
-		int maxX = 50, int maxY=50, int maxZ=50 );
+		int maxX = 200, int maxY=200, int maxZ=200 );
 
 	__global__ void vesselness_partial( float* src, float* dst, 
 		int sx, int sy, int sz,               // Size of the 3D volume
@@ -188,7 +188,7 @@ int VesselnessFilterGPU::compute_vesselness_partial(
 			} else {
 				pDZ = hksize; 
 			}
-			if( pSZ+dz >= src.SZ() ){
+			if( pSZ+vz >= src.SZ() ){
 				cz += hksize; 
 			}
 			
@@ -201,12 +201,13 @@ int VesselnessFilterGPU::compute_vesselness_partial(
 				} else {
 					pDY += hksize; 
 				}
-				if( pSY+dy >= src.SY() ){
+				if( pSY+vy >= src.SY() ){
 					cy += hksize;
 				}
 				
 				for( int pSX = 0; pSX < src.SX(); ) {
-				
+					cout << '\r' << "Computing Vesselness Measure (GPU): ";
+					cout << 100.0f * ( pSZ*src.SY()*src.SX()+pSY*src.SX()+pSX )/( src.SX()*src.SY()*src.SZ() ) << "%"; 
 					int cx = vx; 
 					int pDX = 0; 
 					if( pSX == 0 ){
@@ -214,7 +215,7 @@ int VesselnessFilterGPU::compute_vesselness_partial(
 					} else {
 						pDX += hksize; 
 					}
-					if( pSX+dx >= src.SX() ){
+					if( pSX+vx >= src.SX() ){
 						cx += hksize;
 					}
 
@@ -226,6 +227,8 @@ int VesselnessFilterGPU::compute_vesselness_partial(
 						0, 0, 0, 
 						dx, dy, dz);
 					if (cudaStatus != cudaSuccess) throw Ooops( "Fail copy src image to GPU. " ); 
+
+					cudaMemset( dev_dst, 0, dev_im_size*sizeof(DT) );
 
 					// iterate all potential sigmas
 					for( float sigma = sigma_from; sigma < sigma_to; sigma += sigma_step ){
@@ -244,24 +247,24 @@ int VesselnessFilterGPU::compute_vesselness_partial(
 						// This following magic number varies from computer to computer, 
 						// Some better graphic cards support 1024. 
 
-						//// blur image along x direction
-						//ImageProcessingGPU::cov3<<<(dev_im_size + nTPB - 1)/nTPB, nTPB>>>(
-						//	dev_src, dev_blurred, dev_kernel, 
-						//	dx, dy, dz, 
-						//	ksize, 1, 1 );
-						//// blur image along y direction
-						//ImageProcessingGPU::cov3<<<(dev_im_size + nTPB - 1)/nTPB, nTPB>>>(
-						//	dev_blurred, dev_temp, dev_kernel, 
-						//	dx, dy, dz, 
-						//	1, ksize, 1 );
-						//// blur image along z direction
-						//ImageProcessingGPU::cov3<<<(dev_im_size + nTPB - 1)/nTPB, nTPB>>>(
-						//	dev_temp, dev_blurred, dev_kernel, 
-						//	dx, dy, dz, 
-						//	1, 1, ksize );
+						// blur image along x direction
+						ImageProcessingGPU::cov3<<<(dev_im_size + nTPB - 1)/nTPB, nTPB>>>(
+							dev_src, dev_blurred, dev_kernel, 
+							dx, dy, dz, 
+							ksize, 1, 1 );
+						// blur image along y direction
+						ImageProcessingGPU::cov3<<<(dev_im_size + nTPB - 1)/nTPB, nTPB>>>(
+							dev_blurred, dev_temp, dev_kernel, 
+							dx, dy, dz, 
+							1, ksize, 1 );
+						// blur image along z direction
+						ImageProcessingGPU::cov3<<<(dev_im_size + nTPB - 1)/nTPB, nTPB>>>(
+							dev_temp, dev_blurred, dev_kernel, 
+							dx, dy, dz, 
+							1, 1, ksize );
 
 						ImageProcessingGPU::multiply<<<(dev_im_size + nTPB - 1)/nTPB, nTPB>>>(
-							dev_src, dev_blurred, dev_im_size, sigma ); 
+							dev_blurred, dev_blurred, dev_im_size, sigma ); 
 
 
 						////////////////////////////////////////////////
@@ -316,6 +319,7 @@ int VesselnessFilterGPU::compute_vesselness_partial(
 	cudaFree( dev_temp );
 	cudaFree( dev_blurred );
 
+	cout << endl << "done" << endl; 
 	return 0; 
 }
 
@@ -335,129 +339,127 @@ __global__ void VesselnessFilterGPU::vesselness_partial(
 {
 	int i = blockIdx.x * blockDim.x + threadIdx.x;
 	if (i < sx*sy*sz ){
-		dst[i] = src[i]; 
-		return; 
+		
+		// the image position (ix, iy, iz)
+		int ix = i % (sx * sy) % sx; 
+		int iy = i % (sx * sy) / sx;
+		int iz = i / (sx * sy); 
+		
+		// we don't compute the vesselness measure for the boarder pixel
+		if( ix<=0 || ix>=sx-1 ) return; 
+		if( iy<=0 || iy>=sy-1 ) return;
+		if( iz<=0 || iz>=sz-1 ) return;
 
-		//// the image position (ix, iy, iz)
-		//int ix = i % (sx * sy) % sx; 
-		//int iy = i % (sx * sy) / sx;
-		//int iz = i / (sx * sy); 
-		//
-		//// we don't compute the vesselness measure for the boarder pixel
-		//if( ix<=0 || ix>=sx-1 ) return; 
-		//if( iy<=0 || iy>=sy-1 ) return;
-		//if( iz<=0 || iz>=sz-1 ) return;
+		// The following are being computed in this function
+		// 1) derivative of images; 
+		// 2) eigenvalue decomposition of Hessian matrix; 
+		// 3) vesselness measure. 
 
-		//// The following are being computed in this function
-		//// 1) derivative of images; 
-		//// 2) eigenvalue decomposition of Hessian matrix; 
-		//// 3) vesselness measure. 
+		// 1) derivative of the image		
+		float im_dx2 = -2.0f * get( src,i,sx,sy,sz, 0, 0, 0 )
+			                 + get( src,i,sx,sy,sz,-1, 0, 0 )
+						     + get( src,i,sx,sy,sz,+1, 0, 0 ); 
+		float im_dy2 = -2.0f * get( src,i,sx,sy,sz, 0, 0, 0 )
+			                 + get( src,i,sx,sy,sz, 0,-1, 0 )
+						     + get( src,i,sx,sy,sz, 0,+1, 0 ); 
+		float im_dz2 = -2.0f * get( src,i,sx,sy,sz, 0, 0, 0 )
+			                 + get( src,i,sx,sy,sz, 0, 0,-1 )
+						     + get( src,i,sx,sy,sz, 0, 0,+1 ); 
+		float im_dxdy =  ( get( src,i,sx,sy,sz,-1,-1, 0 )
+			             + get( src,i,sx,sy,sz, 1, 1, 0 )
+			             - get( src,i,sx,sy,sz,-1, 1, 0 )
+						 - get( src,i,sx,sy,sz, 1,-1, 0 )) * 0.25f; 
+		float im_dxdz =  ( get( src,i,sx,sy,sz,-1, 0,-1 )
+			             + get( src,i,sx,sy,sz, 1, 0, 1 )
+			             - get( src,i,sx,sy,sz,-1, 0, 1 )
+						 - get( src,i,sx,sy,sz, 1, 0,-1 )) * 0.25f; 
+		float im_dydz =  ( get( src,i,sx,sy,sz, 0,-1,-1 )
+			             + get( src,i,sx,sy,sz, 0, 1, 1 )
+			             - get( src,i,sx,sy,sz, 0, 1,-1 )
+						 - get( src,i,sx,sy,sz, 0,-1, 1 )) * 0.25f;
 
-		//// 1) derivative of the image		
-		//float im_dx2 = -2.0f * get( src,i,sx,sy,sz, 0, 0, 0 )
-		//	                 + get( src,i,sx,sy,sz,-1, 0, 0 )
-		//				     + get( src,i,sx,sy,sz,+1, 0, 0 ); 
-		//float im_dy2 = -2.0f * get( src,i,sx,sy,sz, 0, 0, 0 )
-		//	                 + get( src,i,sx,sy,sz, 0,-1, 0 )
-		//				     + get( src,i,sx,sy,sz, 0,+1, 0 ); 
-		//float im_dz2 = -2.0f * get( src,i,sx,sy,sz, 0, 0, 0 )
-		//	                 + get( src,i,sx,sy,sz, 0, 0,-1 )
-		//				     + get( src,i,sx,sy,sz, 0, 0,+1 ); 
-		//float im_dxdy =  ( get( src,i,sx,sy,sz,-1,-1, 0 )
-		//	             + get( src,i,sx,sy,sz, 1, 1, 0 )
-		//	             - get( src,i,sx,sy,sz,-1, 1, 0 )
-		//				 - get( src,i,sx,sy,sz, 1,-1, 0 )) * 0.25f; 
-		//float im_dxdz =  ( get( src,i,sx,sy,sz,-1, 0,-1 )
-		//	             + get( src,i,sx,sy,sz, 1, 0, 1 )
-		//	             - get( src,i,sx,sy,sz,-1, 0, 1 )
-		//				 - get( src,i,sx,sy,sz, 1, 0,-1 )) * 0.25f; 
-		//float im_dydz =  ( get( src,i,sx,sy,sz, 0,-1,-1 )
-		//	             + get( src,i,sx,sy,sz, 0, 1, 1 )
-		//	             - get( src,i,sx,sy,sz, 0, 1,-1 )
-		//				 - get( src,i,sx,sy,sz, 0,-1, 1 )) * 0.25f;
+		// 2) eigenvalue decomposition of Hessian matrix (a real symmetric 3x3 matrix A)
+		// http://en.wikipedia.org/wiki/Eigenvalue_algorithm#3.C3.973_matrices
+		const float& A11 = im_dx2;
+		const float& A22 = im_dy2;
+		const float& A33 = im_dz2;
+		const float& A12 = im_dxdy;
+		const float& A13 = im_dxdz;
+		const float& A23 = im_dydz;
 
-		//// 2) eigenvalue decomposition of Hessian matrix (a real symmetric 3x3 matrix A)
-		//// http://en.wikipedia.org/wiki/Eigenvalue_algorithm#3.C3.973_matrices
-		//const float& A11 = im_dx2;
-		//const float& A22 = im_dy2;
-		//const float& A33 = im_dz2;
-		//const float& A12 = im_dxdy;
-		//const float& A13 = im_dxdz;
-		//const float& A23 = im_dydz;
+		float eig1, eig2, eig3;
+		float p1 = A12*A12 + A13*A13 + A23*A23;
+		if( p1 < 1e-7f ) {
+			// A is diagonal.
+			eig1 = A11;
+			eig2 = A22;
+			eig3 = A33;
+		}
+		else{
+			float q = (A11+A22+A33)/3; // trace(A)/3
+			float p2 = (A11-q)*(A11-q) + (A22-q)*(A22-q) + (A33-q)*(A33-q) + 2 * p1; 
+			float p = sqrt(p2 / 6);
 
-		//float eig1, eig2, eig3;
-		//float p1 = A12*A12 + A13*A13 + A23*A23;
-		//if( p1 < 1e-7f ) {
-		//	// A is diagonal.
-		//	eig1 = A11;
-		//	eig2 = A22;
-		//	eig3 = A33;
-		//}
-		//else{
-		//	float q = (A11+A22+A33)/3; // trace(A)/3
-		//	float p2 = (A11-q)*(A11-q) + (A22-q)*(A22-q) + (A33-q)*(A33-q) + 2 * p1; 
-		//	float p = sqrt(p2 / 6);
+			// B = (1 / p) * (A - q * I), where I is the identity matrix
+			float B11 = (1 / p) * (A11-q); 
+			float B12 = (1 / p) * (A12-q); float& B21 = B12;
+			float B13 = (1 / p) * (A13-q); float& B31 = B13;
+			float B22 = (1 / p) * (A22-q); 
+			float B23 = (1 / p) * (A23-q); float& B32 = B23;
+			float B33 = (1 / p) * (A33-q); 
+			// Determinant of a 3 by 3 matrix B
+			// http://www.mathworks.com/help/aeroblks/determinantof3x3matrix.html
+			float detB = B11*(B22*B33-B23*B32) - B12*(B21*B33-B23*B31) + B13*(B21*B32-B22*B31); 
 
-		//	// B = (1 / p) * (A - q * I), where I is the identity matrix
-		//	float B11 = (1 / p) * (A11-q); 
-		//	float B12 = (1 / p) * (A12-q); float& B21 = B12;
-		//	float B13 = (1 / p) * (A13-q); float& B31 = B13;
-		//	float B22 = (1 / p) * (A22-q); 
-		//	float B23 = (1 / p) * (A23-q); float& B32 = B23;
-		//	float B33 = (1 / p) * (A33-q); 
-		//	// Determinant of a 3 by 3 matrix B
-		//	// http://www.mathworks.com/help/aeroblks/determinantof3x3matrix.html
-		//	float detB = B11*(B22*B33-B23*B32) - B12*(B21*B33-B23*B31) + B13*(B21*B32-B22*B31); 
+			// In exact arithmetic for a symmetric matrix  -1 <= r <= 1
+			// but computation error can leave it slightly outside this range.
+			float r = detB/2;
+			float phi; 
+			const float M_PI3 = 3.14159265f / 3;
+			if( r <= -1.0f ) {
+				phi = M_PI3; 
+			} else if (r >= 1.0f )
+				phi = 0; 
+			else {
+				phi = acos(r) / 3; 
+			}
 
-		//	// In exact arithmetic for a symmetric matrix  -1 <= r <= 1
-		//	// but computation error can leave it slightly outside this range.
-		//	float r = detB/2;
-		//	float phi; 
-		//	const float M_PI3 = 3.14159265f / 3;
-		//	if( r <= -1.0f ) {
-		//		phi = M_PI3; 
-		//	} else if (r >= 1.0f )
-		//		phi = 0; 
-		//	else {
-		//		phi = acos(r) / 3; 
-		//	}
+			// the eigenvalues satisfy eig3 <= eig2 <= eig1
+			eig1 = q + 2 * p * cos(phi);
+			eig3 = q + 2 * p * cos(phi + 2 * M_PI3);
+			eig2 = 3 * q - eig1 - eig3; // % since trace(A) = eig1 + eig2 + eig3
+		}
 
-		//	// the eigenvalues satisfy eig3 <= eig2 <= eig1
-		//	eig1 = q + 2 * p * cos(phi);
-		//	eig3 = q + 2 * p * cos(phi + 2 * M_PI3);
-		//	eig2 = 3 * q - eig1 - eig3; // % since trace(A) = eig1 + eig2 + eig3
-		//}
+		// so that abs(eig1) < abs(eig2) < abs(eig3)
+		if( abs(eig1) > abs(eig2) ) {
+			float temp = eig2;
+			eig2 = eig1; 
+			eig1 = temp;
+		}
+		if( abs(eig2) > abs(eig3) ) {
+			float temp = eig2;
+			eig2 = eig3; 
+			eig3 = temp;
+		}
+		if( abs(eig1) > abs(eig2) ) {
+			float temp = eig2;
+			eig2 = eig1;
+			eig1 = temp;
+		}
 
-		//// so that abs(eig1) < abs(eig2) < abs(eig3)
-		//if( abs(eig1) > abs(eig2) ) {
-		//	float temp = eig2;
-		//	eig2 = eig1; 
-		//	eig1 = temp;
-		//}
-		//if( abs(eig2) > abs(eig3) ) {
-		//	float temp = eig2;
-		//	eig2 = eig3; 
-		//	eig3 = temp;
-		//}
-		//if( abs(eig1) > abs(eig2) ) {
-		//	float temp = eig2;
-		//	eig2 = eig1;
-		//	eig1 = temp;
-		//}
-
-		//// 4) vesselness measure
-		//float vn = 0.0f; 
-		//// vesselness value
-		//if( eig2 < 0 && eig3 < 0 ) {
-		//	float lmd1 = abs( eig1 );
-		//	float lmd2 = abs( eig2 );
-		//	float lmd3 = abs( eig3 );
-		//	float A = lmd2 / lmd3;
-		//	float B = lmd1 / sqrt( lmd2*lmd3 );
-		//	float S = sqrt( lmd1*lmd1 + lmd2*lmd2 + lmd3*lmd3 );
-		//	vn = ( 1.0f-exp(-A*A/alpha) )* exp( B*B/beta ) * ( 1-exp(-S*S/gamma) );
-		//}
-		//
-		//if(vn > dst[i]) dst[i] = vn; 
+		// 4) vesselness measure
+		float vn = 0.0f; 
+		// vesselness value
+		if( eig2 < 0 && eig3 < 0 ) {
+			float lmd1 = abs( eig1 );
+			float lmd2 = abs( eig2 );
+			float lmd3 = abs( eig3 );
+			float A = lmd2 / lmd3;
+			float B = lmd1 / sqrt( lmd2*lmd3 );
+			float S = sqrt( lmd1*lmd1 + lmd2*lmd2 + lmd3*lmd3 );
+			vn = ( 1.0f-exp(-A*A/alpha) )* exp( B*B/beta ) * ( 1-exp(-S*S/gamma) );
+		}
+		
+		if(vn > dst[i]) dst[i] = vn; 
 	}
 } 

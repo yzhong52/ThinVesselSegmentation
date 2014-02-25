@@ -171,21 +171,23 @@ public:
 				return false;
 			}
 		}
+
+		// allocate memory for new data
 		int n_size_slice = n_size[0] * n_size[1];
 		int n_size_total = n_size[2] * n_size_slice;
 		Mat_<T> n_mat = Mat_<T>( n_size[2], n_size_slice );
 
-		// Remove a negetive margin is equivalent to padding zeros around 
-		// the data
+		// Remove a negetive margin is equivalent to 
+		// padding zeros around the data
 		Vec3i spos = Vec3i(
 			max( margin1[0], 0), 
-			max( margin1[0], 0), 
+			max( margin1[1], 0), 
 			max( margin1[2], 0)
 		); 
 		Vec3i epos = Vec3i(
-			min( _size[0]-margin1[0], _size[0] ), 
-			min( _size[1]-margin1[0], _size[1] ), 
-			min( _size[2]-margin1[2], _size[2] )
+			min( _size[0]-margin2[0], _size[0] ), 
+			min( _size[1]-margin2[1], _size[1] ), 
+			min( _size[2]-margin2[2], _size[2] )
 		); 
 		for( int z=spos[2]; z<epos[2]; z++ ){
 			for( int y=spos[1]; y<epos[1]; y++ ){
@@ -195,8 +197,9 @@ public:
 			}
 		}
 		// update the data
-		_mat = n_mat.clone();
-		// data the size
+		// just passing the reference here is good
+		_mat = n_mat; 
+		// updata the size
 		_size = n_size;
 		_size_slice = n_size_slice;
 		_size_total = n_size_total;
