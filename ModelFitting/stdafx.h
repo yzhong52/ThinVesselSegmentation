@@ -9,11 +9,14 @@
 	#define _CRT_SECURE_NO_DEPRECATE
 #endif
 
-// For the use of OpenCV
-#include <opencv\cv.h>
-#include <opencv2\opencv.hpp>
 
+#include <vector>
+#include <iostream> 
 using namespace std;
-using namespace cv;
+#include "opencv2/core/core.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
+#include "opencv2/video/video.hpp"
+#include "opencv2/highgui/highgui.hpp"
+using namespace cv; 
 
-#include "nstdio.h" 
+#include "nstdio.h" // non-standard input and output

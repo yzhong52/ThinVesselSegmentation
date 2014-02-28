@@ -18,7 +18,9 @@ void GLViwerModel::addModel( GCoptimization* ptrGC, vector<Line3D> lines, Vec3i 
 		int lid = ptrGC->whatLabel( x + y*size[0] + z*size[0]*size[1] );
 		Vec3f projection_point(0,0,0);
 		if( lid!=lines.size() ) {
-			projection_point = lines[lid].projection( Vec3f(1.0f*x,1.0f*y,1.0f*z) ); 
+			Vec3f temp = Vec3f(1.0f*x,1.0f*y,1.0f*z); 
+			lines[lid].projection( temp ); 
+			projection_point = lines[lid].projection( temp ); 
 		}
 		lineModel->data.at(x,y,z) = projection_point;
 	}

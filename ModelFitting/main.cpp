@@ -20,132 +20,34 @@ typedef GCoptimization GC;
 GLViwerModel ver;
 
 
-bool load_graph( vector<Line3D>& lines, vector<vector<Vec3i> >& pointsSet, cv::Vec3i& size, const std::string& file_name ) {
-	size = cv::Vec3i(0,0,0);
-
-	/////////////////////////////////////////////////////////////
-	// Loading Data
-	/////////////////////////////////////////////////////////////
-	// Yuchen: I am working with my collegue Xuefeng. 
-	// The data are supposed to be a bunch of line segments in 3D
-	// Open File
-	std::ifstream fin1, fin2;
-	string filename1 = file_name;
-	string filename2 = file_name;
-	if( file_name.back()!='/' ) {
-		filename1 += ".";
-		filename2 += ".";
-	}
-	filename1 += "linedata.txt";
-	filename2 += "models.txt";
-	
-	
-	fin1.open( filename1 );
-	fin2.open( filename2 );
-	if( !fin1.is_open() ){
-		std::cerr << "File cannot be open" << endl;
-		return 0;
-	}
-	if( !fin2.is_open() ){
-		std::cerr << "File cannot be open" << endl;
-		return 0;
-	}
-
-	int num_line1, num_line2;
-	// Reading Data from file
-	fin1 >> num_line1;
-	fin2 >> num_line2;
-	if( num_line1 != num_line2 ){
-		cout << "Data Does not match" << endl;
-		return 0;
-	}
-	int& num_line = num_line1;
-	
-	for( int i=0; i<num_line1; i++ ) {
-		Line3D line;
-		// each line segments are defined as two end points in 3d
-		fin1 >> line.pos[0]; 
-		fin1 >> line.pos[1]; 
-		fin1 >> line.pos[2]; 
-		fin1 >> line.dir[0]; 
-		fin1 >> line.dir[1]; 
-		fin1 >> line.dir[2]; 
-		line.dir[0] -= line.pos[0]; 
-		line.dir[1] -= line.pos[1]; 
-		line.dir[2] -= line.pos[2]; 
-		float len = sqrt( line.dir.dot( line.dir ) );
-		line.dir[0] /= len;
-		line.dir[1] /= len;
-		line.dir[2] /= len;
-
-		float temp;
-		fin2 >> temp; if( temp!= line.pos[0] ) { cout << "Error: Data does not match" << endl; return 0; };
-		fin2 >> temp;
-		fin2 >> temp;
-		fin2 >> temp;
-		fin2 >> temp;
-		fin2 >> temp;
-		fin2 >> line.sigma;
-
-		// There are cooresponding points that are assigned to this label (or line)
-		vector<Vec3i> points;
-		int num_points;
-		fin1 >> num_points;
-		for( int j=0; j<num_points; j++ ) {
-			Vec3i p;
-			fin1 >> p[0];
-			fin1 >> p[1];
-			fin1 >> p[2];
-			size[0] = max( p[0], size[0] );
-			size[1] = max( p[1], size[1] );
-			size[2] = max( p[2], size[2] );
-			points.push_back( p );
-		}
-		pointsSet.push_back( points );
-		lines.push_back( line );
-	}
-	fin1.close();
-	fin2.close();
-	size[0]++; size[1]++; size[2]++; 
-	return true; 
-}
-
-
-void visualize_ryen_model_fitting_result(void){
-	// loading the data
-	vector<Line3D> lines;
-	vector<vector<Vec3i> > pointsSet;
-	cv::Vec3i size;
-	load_graph( lines, pointsSet, size, "data/ROI19/" );
-	// visualizing the data
-	ver.addModel( lines, pointsSet, size );
-	
-	//MST::Graph< MST::Edge_Ext, MST::LineSegment > line_tree;
-	//MinSpanTree::build_tree_xuefeng( "data/ROI_15_Fast_search_1/", line_tree, 250 );
-	//ver.addObject( line_tree );
-
-	Data3D<short> im_short;
-	im_short.load( "../VesselNess/output/parts/vessel3d.rd.19.part7.data" );
-	ver.addObject( im_short, GLViewer::Volumn::MIP ); 
-
-	ver.go(400, 200, 2);
-}
 
 // TODO: Fix this function.
 int main(int argc, char* argv[])
 {
-	visualize_ryen_model_fitting_result();
-	return 0; 
+	//vector<Vec3i> points; 
+	//points.push_back( Vec3i(0,0,0) );
+	//points.push_back( Vec3i(1,2,3) );
 
+	//Vec6f line; 
+	//cv::fitLine( points, line, CV_DIST_L2, 0, 0.01, 0.01 ); 
+	//Vec3f line1( line[0], line[1], line[2] );
+	//cout << line << endl; 
+	//cout << line1 << endl; 
+	//float len = sqrt( line1.dot( line1 ) );
+	//cout << len << endl; 
+	//cout << line1/len << endl; 
 
+	//Vec3f line2( 1, 2, 3 );
+	//float len2 = sqrt( line2.dot( line2 ) );
+	//cout << len2 << endl;
+	//cout << line2/len2 << endl; 
 
-
-
+	//return 0; 
 
 	CreateDirectory(L"./output", NULL);
 	
 	Data3D<short> im_short;
-	im_short.load( "data/roi15.data" );
+	im_short.load( "../data/data15.data" );
 	//im_short.reset();
 	//for(int i=0; i<im_short.SX(); i++ ) im_short.at(i, 50, 50) = 5000;
 
@@ -160,65 +62,70 @@ int main(int argc, char* argv[])
 	for( int i=0; i<num_init_labels; i++ ){
 		Line3D line;
 		// position of the line
-		line.pos[0] = float( rand() % im_short.SX() ); 
-		line.pos[1] = float( rand() % im_short.SY() ); 
-		line.pos[2] = float( rand() % im_short.SZ() ); 
-		//line.pos[0] = 0; 
-		//line.pos[1] = 0; 
-		//line.pos[2] = 0; 
+		line.setPos( Vec3f(
+			float( rand() % im_short.SX() ), 
+			float( rand() % im_short.SY() ),
+			float( rand() % im_short.SZ() ) )); 
 		// direction of the line 
-		line.dir[0] = float( rand()+1 );
-		line.dir[1] = float( rand()+1 );
-		line.dir[2] = float( rand()+1 );
-		//line.dir[0] = 1.0f * im_short.SX(); 
-		//line.dir[1] = 1.0f * im_short.SY(); 
-		//line.dir[2] = 1.0f * im_short.SZ(); 
-		// normalize the direction
-		float length = sqrt( line.dir.dot( line.dir ) ); 
-		line.dir /= length; 
+		line.setDir( Vec3f(
+			(float) rand()+1, 
+			(float) rand()+1, 
+			(float) rand()+1 )); 
 		lines.push_back( line );
 	}
 	
-	// set up label cost
-	// int* label_costs = new int[_num_labels+1];/*Add 1 for BG label*/
+
 	try{
 		GC::EnergyType energy_before = -1;
 
 		for( int i=0; i<150; i++ ) { 
 			GCoptimizationGeneralGraph gc( im_short.SX()*im_short.SY()*im_short.SZ(), (int)lines.size()+1 );
-			
-			// data costs
+
+			////////////////////////////////////////////////
+			// Data Costs
+			////////////////////////////////////////////////
 			for( int z=0; z<im_short.SZ(); z++ ) {
 				for( int y=0; y<im_short.SY(); y++ ) {
 					for( int x=0; x<im_short.SX(); x++ ) {		
 						GC::SiteID site = x + y * im_short.SX() + z * im_short.SY() * im_short.SX();
-						GC::SiteID label;
-						GC::EnergyTermType datacost = 3500-im_short.at(x,y,z); // TODO make this a parameter to tune
+						
+						// Data Cost (Part I) - Color Conssitancy
+						// TODO make this a parameter to tune
+						GC::EnergyTermType datacost = 3500-im_short.at(x,y,z); 
+
 						// data cost to general label
+						GC::SiteID label;
 						for( label = 0; label < lines.size(); label++ ){
 							const Line3D& line = lines[label];
+							// Data Cost (Part II) - Position Conssitancy
 							// distance from a point to a line
 							float dist = line.distanceToLine( Vec3f(1.0f*x,1.0f*y,1.0f*z) );
+							// log likelihood based on the distance
 							GC::EnergyTermType loglikelihood = dist*dist/( 2*line.sigma*line.sigma );
 							loglikelihood += log( line.sigma ); 
-							static float C = 0.5f * (float) log( 2*M_PI );
+							static double C = 0.5 * log( 2*M_PI );
 							loglikelihood += C; 
-							loglikelihood *= 100; // TODO make this a parameter to tune
-							gc.setDataCost( site, label, datacost + loglikelihood );
+							// TODO make 100 a parameter to tune
+							gc.setDataCost( site, label, datacost + loglikelihood * 100 );
 						}
+
 						// data cost to background/outlier label
 						gc.setDataCost( site, label, -datacost );
 					}
 				}
 			}
-			
+
+			////////////////////////////////////////////////
+			// Smooth Cost
+			////////////////////////////////////////////////
+			// ... 
+
 			cout << "Iteration: " << i << ". Fitting Begin. Please Wait..."; 
 			gc.expansion(1); // run expansion for 1 iterations. For swap use gc->swap(num_iterations);
 			GC::EnergyType cur_energy = gc.compute_energy();
 			if ( energy_before==cur_energy ) { 
-				cout << endl << "Energy not changing. " << endl; break; 
-			}
-			else {
+				cout << endl << "Energy is not changing. " << endl; break; 
+			} else {
 				energy_before = cur_energy; 
 			}
 			cout << "Done. " << endl;
@@ -237,8 +144,49 @@ int main(int argc, char* argv[])
 			cout << "count1 = " << count1 << endl;
 			cout << "count2 = " << count2 << endl;
 
+			////////////////////////////////////////////////
+			// Re-estimation
+			////////////////////////////////////////////////
+			// gether the points
+			vector<vector<Vec3i> > points_set = vector<vector<Vec3i> >( lines.size() ); 
+			for( int x=0; x<im_short.SX(); x++ ) {
+				for( int y=0; y<im_short.SY(); y++ ) {
+					for( int z=0; z<im_short.SZ(); z++ ) {
+						GC::SiteID site = x + y * im_short.SX() + z * im_short.SY() * im_short.SX();
+						GC::SiteID label = gc.whatLabel( site );
+						if( label<lines.size() ){
+							points_set[ label ].push_back( Vec3i(x,y,z) );
+						}
+					}
+				}
+			}
+			// Line Fitting With Least Square 
+			vector<vector<Vec3i> >::iterator psit = points_set.begin();
+			vector<Line3D>::iterator lit  = lines.begin();
+			while( psit<points_set.end() ) { 
+				if( psit->size() ) { 
+					Vec6f line; 
+					cv::fitLine( *psit, line, CV_DIST_L2, 0, 0.01, 0.01);
+					// update the 
+					lit->setPos( Vec3f(&line[0]) );
+					lit->setDir( Vec3f(&line[3]) );
+					// we also need to update sigma though
+					lit->sigma = 1.0f; 
+				} 
+				psit++; lit++; 
+			}
+
 			ver.addModel( &gc, lines, im_short.get_size() );
-			break; 
+
+			// Remove unused models 
+			vector<Line3D> newLines; 
+			for( int i=0; i<points_set.size(); i++ ) { 
+				if( points_set[i].size() ) { 
+					newLines.push_back( lines[i] ); 
+				}
+			}
+			newLines.push_back( lines.back() ); 
+			lines = newLines; 
 		}
 	}
 	catch (GCException e){
