@@ -187,6 +187,7 @@ int main(int argc, char* argv[])
 			}
 			newLines.push_back( lines.back() ); 
 			lines = newLines; 
+			break; 
 		}
 	}
 	catch (GCException e){
