@@ -12,6 +12,17 @@ namespace sample_code{
 
 int main(int argc, char* argv[])
 {
+	bool flag; 
+	Image3D<short> im_short;
+	flag = im_short.load( "../temp/vessel3d.mmrd.17.data" ); 
+	if(!flag) return 0; 
+	im_short.setROI();
+	for( int i=0; i<im_short.SX(); i++ )
+		cout << im_short.at(i,0,0) << endl;
+
+	// im_short.saveROI(  "../temp/roi21.data", "roi at the boundary of the heart" );
+	return 0; 
+
 	sample_code::vesselness();
 	return 0;
 }

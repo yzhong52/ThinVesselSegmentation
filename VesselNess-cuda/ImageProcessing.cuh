@@ -8,6 +8,9 @@ namespace ImageProcessingGPU{
 	template<typename ST, typename DT> 
 	cudaError_t GaussianBlur3D( const Data3D<ST>& src, Data3D<DT>& dst, int ksize, double sigma ); 
 
+	template<typename ST, typename DT> 
+	cudaError_t Threshold3D( const Data3D<ST>& src, Data3D<DT>& dst, DT thres ); 
+
 	template<typename ST, typename DT, typename KT>
 	__global__ void cov3( 
 		const ST* src, 
@@ -18,6 +21,9 @@ namespace ImageProcessingGPU{
 
 	template<typename ST, typename DT>
 	__global__ void multiply( ST* src, DT* dst, int size, float scale ); 
+
+	template<typename ST, typename DT>
+	__global__ void threshold( ST* src, DT* dst, int size, DT thres ); 
 }
 
 namespace IPG = ImageProcessingGPU; 
@@ -115,6 +121,59 @@ cudaError_t ImageProcessingGPU::GaussianBlur3D( const Data3D<ST>& src, Data3D<DT
 	return cudaStatus;
 }
 
+
+template<typename ST, typename DT> 
+cudaError_t ImageProcessingGPU::Threshold3D( const Data3D<ST>& src, Data3D<DT>& dst, DT thres ){
+	// cuda error message
+	cudaError_t cudaStatus;
+
+	ST* dev_src = NULL; 
+	DT* dev_dst = NULL; 
+	
+	try{ 
+		const int im_size = src.get_size_total();
+
+		// Choose which GPU to run on, change this on a multi-GPU system.
+		cudaStatus = cudaSetDevice(0);
+		if (cudaStatus != cudaSuccess) throw cudaStatus; 
+
+		// allocate memory for src image
+		cudaStatus = cudaMalloc((void**)&dev_src, im_size*sizeof(ST));
+		if (cudaStatus != cudaSuccess) throw cudaStatus; 
+		// copy src image to GPU
+		cudaStatus = cudaMemcpy(dev_src, src.getMat().data, im_size*sizeof(ST), cudaMemcpyHostToDevice);
+		if (cudaStatus != cudaSuccess) throw cudaStatus; 
+
+		// allocate memory for dst
+		cudaStatus = cudaMalloc((void**)&dev_dst, im_size*sizeof(DT));
+		if (cudaStatus != cudaSuccess) throw cudaStatus; 
+		
+		// This following magic number varies from computer to computer, 
+		// Some better graphic cards support 1024. 
+		const int nTPB = 512; 
+		ImageProcessingGPU::threshold<<<(im_size + nTPB - 1)/nTPB, nTPB>>>(
+			dev_src, dev_dst, im_size, thres );
+		
+		cudaStatus = cudaDeviceSynchronize();
+		if (cudaStatus != cudaSuccess) throw cudaStatus; 
+
+		// copy memory from GPU to main memory
+		dst.reset( src.get_size() ); 
+		cudaStatus = cudaMemcpy(dst.getMat().data, dev_dst, im_size*sizeof(DT), cudaMemcpyDeviceToHost );
+		if (cudaStatus != cudaSuccess) throw cudaStatus; 
+
+	} catch( cudaError_t e ) {
+		cout << " CUDA Error captured: " << e << ": "; 
+		if( e == 11 ) cout << "cudaErrorInvalidValue" << endl; 
+	}
+
+	cudaFree(dev_src);
+	cudaFree(dev_dst);
+
+	return cudaStatus;
+}
+
+
 template<typename ST, typename DT, typename KT>
 __global__ void ImageProcessingGPU::cov3(
 	const ST* src, // Input Src image
@@ -159,5 +218,15 @@ __global__ void ImageProcessingGPU::multiply( ST* src, DT* dst, int size, float 
 	int i = blockIdx.x * blockDim.x + threadIdx.x;
 	if (i < size ){
 		dst[i] = src[i] * scale;
+	}
+}
+
+
+template<typename ST, typename DT>
+__global__ void ImageProcessingGPU::threshold( ST* src, DT* dst, int size, DT thres ) {
+	int i = blockIdx.x * blockDim.x + threadIdx.x;
+	if (i < size ){
+		if( src[i] > thres ) dst[i] = src[i];
+		else dst[i] = thres;
 	}
 }

@@ -290,7 +290,7 @@ int VesselnessFilterGPU::compute_vesselness_partial(
 
 						
 						
-						break; // TODO - remove
+						// break; // TODO - remove
 					} // end of loop - sigma
 
 					// copy memory from GPU to main memory

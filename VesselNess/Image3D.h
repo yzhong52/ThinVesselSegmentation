@@ -398,7 +398,7 @@ template<typename T>
 void Image3D<T>::shrink_by_half(void){	
 	smart_return( this->_size_total, "Image data is not set. ");
 
-	Vec3i n_size = _size / 2;
+	Vec3i n_size = (_size - Vec3i(1,1,1)) / 2; // TODO: why do I have to minute Vec3i(1,1,1) here? 
 	int n_size_slice = n_size[0] * n_size[1];
 	int n_size_total = n_size_slice * n_size[2];
 
