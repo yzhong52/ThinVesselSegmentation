@@ -111,6 +111,9 @@
     <ClInclude Include="Ooops.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="nstdio.h">
+      <Filter>others</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ImageProcessor.cpp">

@@ -206,8 +206,12 @@ int VesselnessFilterGPU::compute_vesselness_partial(
 				}
 				
 				for( int pSX = 0; pSX < src.SX(); ) {
+					
+					float rate = 100.0f * ( pSZ*src.SY()*src.SX()+pSY*src.SX()+pSX );
+					rate = rate / (src.SX()*src.SY()*src.SZ()); 
 					cout << '\r' << "Computing Vesselness Measure (GPU): ";
-					cout << 100.0f * ( pSZ*src.SY()*src.SX()+pSY*src.SX()+pSX )/( src.SX()*src.SY()*src.SZ() ) << "%"; 
+					cout << rate << "% \t"; 
+
 					int cx = vx; 
 					int pDX = 0; 
 					if( pSX == 0 ){

@@ -313,7 +313,7 @@ bool Image3D<T>::saveROI( const string& roi_file_name, const string& log, bool i
 	fout << " - size of data" << endl;
 	
 	// data type
-	fout << STR_TYPE(typeid(T)) << " - data type" << endl;
+	fout << TypeInfo<T>::str() << " - data type" << endl;
 
 	// is the data bigendian: 1 for yes, 0 for no
 	fout << isBigEndian << " - Big Endian (1 for yes, 0 for no)" << endl;
@@ -352,9 +352,9 @@ bool Image3D<T>::loadROI( const string& roi_file_name )
 	string datatype;
 	fin >> datatype;
 	fin.ignore(255, '\n');
-	if( STR_TYPE(typeid(T)).compare( datatype ) != 0 ){
+	if( TypeInfo<T>::str().compare( datatype ) != 0 ){
 		cout << "Loading information error: "; 
-		cout << "Data3D<" << STR_TYPE(typeid(T)) << "> cannot load Data3D<" << datatype << ">. "<< endl;
+		cout << "Data3D<" << TypeInfo<T>::str() << "> cannot load Data3D<" << datatype << ">. "<< endl;
 		return false;
 	}
 	
