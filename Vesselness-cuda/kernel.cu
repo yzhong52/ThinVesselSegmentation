@@ -35,36 +35,40 @@ int main()
 
 	bool flag; 
 	Image3D<short> im_short;
-	//flag = im_short.load( "../temp/vessel3d.rd.19.442.data" );
 	flag = im_short.load( "../temp/vessel3d.mmrd.17.data" ); 
 	//flag = im_short.load( "../temp/roi20.data" ); 
 	//flag = im_short.load( "../temp/roi21.data" ); 
 	//flag = im_short.load( "../temp/data/roi16.partial.data" ); 
 	if(!flag) return 0; 
 
-	// Threshold Data
-	Image3D<short> im_short2;
-	im_short.convertTo( im_short2 );
-	IPG::Threshold3D( im_short, im_short, short(1450) );
+
 	
+
+	// Threshold Data
+	//Image3D<short> im_short2;
+	//im_short.convertTo( im_short2 );
+	IPG::Threshold3D( im_short, im_short, short(2250) );//(1850, 2450)
+	
+
+
 	// Compute Vesselness Measure
 	Image3D<float> im_float;
 	t = clock();
 	VFG::compute_vesselness_partial( im_short, im_float, 
-		1.0f, 4.1f, 0.5f,
+		1.0f, 2.1f, 0.5f,
 		1.0e-1f, 5.0f, 3.5e5f,
 		300,300,300);
 	t = clock() - t;
 	cout << "It took me " << t << " clicks (" << float(t)/CLOCKS_PER_SEC << " seconds). " << endl; 
 	
+
 	// Visualize result with maximum intensity projection (MIP)
-	//im_short2.shrink_by_half();
-	//viewer.addObject( im_short2, GLViewer::Volumn::MIP );
 	im_short.shrink_by_half();
-	viewer.addObject( im_short, GLViewer::Volumn::MIP );
-	im_float.save( "../temp/vessel3d.mmrd.17.vn_float" );
 	im_float.shrink_by_half();
+	im_float.save( "../temp/vessel3d.mmrd.17.vn_float" );
 	viewer.addObject( im_float, GLViewer::Volumn::MIP );
+	viewer.addObject( im_short, GLViewer::Volumn::MIP );
+	
 	
 	viewer.go(600, 300, 2);
 

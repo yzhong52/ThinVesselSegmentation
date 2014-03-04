@@ -130,8 +130,12 @@ cudaError_t ImageProcessingGPU::Threshold3D( const Data3D<ST>& src, Data3D<DT>& 
 	ST* dev_src = NULL; 
 	DT* dev_dst = NULL; 
 	
+	if( &src != &dst ) {
+		dst.reset( src.get_size_total() ); 
+	}
+
 	try{ 
-		const int im_size = src.get_size_total();
+		const int im_size = min( src.get_size_total(), 2700000 );
 
 		// Choose which GPU to run on, change this on a multi-GPU system.
 		cudaStatus = cudaSetDevice(0);
@@ -140,28 +144,32 @@ cudaError_t ImageProcessingGPU::Threshold3D( const Data3D<ST>& src, Data3D<DT>& 
 		// allocate memory for src image
 		cudaStatus = cudaMalloc((void**)&dev_src, im_size*sizeof(ST));
 		if (cudaStatus != cudaSuccess) throw cudaStatus; 
-		// copy src image to GPU
-		cudaStatus = cudaMemcpy(dev_src, src.getMat().data, im_size*sizeof(ST), cudaMemcpyHostToDevice);
-		if (cudaStatus != cudaSuccess) throw cudaStatus; 
-
+		
 		// allocate memory for dst
 		cudaStatus = cudaMalloc((void**)&dev_dst, im_size*sizeof(DT));
 		if (cudaStatus != cudaSuccess) throw cudaStatus; 
 		
-		// This following magic number varies from computer to computer, 
-		// Some better graphic cards support 1024. 
-		const int nTPB = 512; 
-		ImageProcessingGPU::threshold<<<(im_size + nTPB - 1)/nTPB, nTPB>>>(
-			dev_src, dev_dst, im_size, thres );
-		
-		cudaStatus = cudaDeviceSynchronize();
-		if (cudaStatus != cudaSuccess) throw cudaStatus; 
+		for( int i=0; i<src.get_size_total(); i+=im_size ) {
+			
+			int im_size_p = min( im_size, src.get_size_total() - i );
 
-		// copy memory from GPU to main memory
-		dst.reset( src.get_size() ); 
-		cudaStatus = cudaMemcpy(dst.getMat().data, dev_dst, im_size*sizeof(DT), cudaMemcpyDeviceToHost );
-		if (cudaStatus != cudaSuccess) throw cudaStatus; 
+			// copy src image to GPU
+			cudaStatus = cudaMemcpy(dev_src, src.getMat().data + i*sizeof(ST), im_size_p*sizeof(ST), cudaMemcpyHostToDevice);
+			if (cudaStatus != cudaSuccess) throw cudaStatus; 
 
+			// This following magic number varies from computer to computer, 
+			// Some better graphic cards support 1024. 
+			const int nTPB = 512; 
+			ImageProcessingGPU::threshold<<<(im_size_p + nTPB - 1)/nTPB, nTPB>>>(
+				dev_src, dev_dst, im_size_p, thres );
+
+			cudaStatus = cudaDeviceSynchronize();
+			if (cudaStatus != cudaSuccess) throw cudaStatus; 
+
+			// copy memory from GPU to main memory
+			cudaStatus = cudaMemcpy( dst.getMat().data + i*sizeof(DT), dev_dst, im_size_p*sizeof(DT), cudaMemcpyDeviceToHost );
+			if (cudaStatus != cudaSuccess) throw cudaStatus; 
+		}
 	} catch( cudaError_t e ) {
 		cout << " CUDA Error captured: " << e << ": "; 
 		if( e == 11 ) cout << "cudaErrorInvalidValue" << endl; 
