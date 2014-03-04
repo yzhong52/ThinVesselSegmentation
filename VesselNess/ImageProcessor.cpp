@@ -122,20 +122,6 @@ void ImageProcessing::histogram_for_slice( Image3D<short>& data ){
 	waitKey(0);
 }
 
-void ImageProcessing::imNormShow( const string& window_name, const Mat& im ){
-	// find the maximum and minimum value of im
-	double minVal, maxVal;
-	minMaxLoc(im, &minVal, &maxVal);
-	Mat dst;
-	im.convertTo( dst, CV_32F );
-	// Normailize data to [0, 255];
-	dst = 255 * ( dst - minVal ) / ( maxVal - minVal );
-	dst.convertTo( dst, CV_8U );
-	// showing and saving image
-	imshow( window_name, dst );
-	imwrite( window_name+".bmp", dst );
-	cout << "Image is normalized from [" << minVal << ", " << maxVal << "] to [0, 255]" << endl;
-}
 
 
 

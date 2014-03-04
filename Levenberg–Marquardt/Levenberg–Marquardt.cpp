@@ -4,8 +4,9 @@
 // This project is build after VesselNess. 
 // Some of the building blocks (Data3D, Visualization) are borrowed from VesselNess. 
 
-#include "Data3D.h"
+#include "Data3D.h"         // For data manipulation
 #include "GLViwerWrapper.h" // For visualization
+#include "ImageProcessing.h"// For image processing
 
 #include <iostream>
 using namespace std;
@@ -18,6 +19,10 @@ int main(int argc, char* argv[])
 
 
 	im_short.load( "../data/data15.data" );
+
+	
+
+
 	ver.addObject( im_short ); 
 	ver.go();
 

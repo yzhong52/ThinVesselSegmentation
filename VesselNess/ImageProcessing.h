@@ -39,19 +39,13 @@ namespace ImageProcessing
 	bool meanBlur3D( const Data3D<T1>& src, Data3D<T2>& dst, int ksize);
 
 	///////////////////////////////////////////////////////////////////////////
-	// Convolution in 3 phrase
-	//template<typename T1, typename T2 >
-	//bool filter3D( const Data3D<T1>& src, Data3D<T2>& dst, const Kernel3D<T3>& k );
+	// Convolution in 3 phrases (along direction orientation)	
 	template<typename T1, typename T2, typename T3 >
 	bool filter3D_X( const Data3D<T1>& src, Data3D<T2>& dst, const Kernel3D<T3>& kx );
 	template<typename T1, typename T2, typename T3 >
 	bool filter3D_Y( const Data3D<T1>& src, Data3D<T2>& dst, const Kernel3D<T3>& ky );
 	template<typename T1, typename T2, typename T3 >
 	bool filter3D_Z( const Data3D<T1>& src, Data3D<T2>& dst, const Kernel3D<T3>& kz );
-
-	///////////////////////////////////////////////////////////////////////////
-	// show image with normalization
-	void imNormShow( const string& window_name, const Mat& im );
 
 	///////////////////////////////////////////////////////////////////////////
 	// normalize the data
@@ -64,6 +58,7 @@ namespace ImageProcessing
 
 	///////////////////////////////////////////////////////////////////////////
 	// threshold the data
+	// threshold the data and return a binary mask
 	template<typename T>
 	void threshold( const Data3D<T>& src, Data3D<unsigned char>& dst, T thresh ){
 		int x,y,z;
@@ -72,31 +67,41 @@ namespace ImageProcessing
 			dst.at(x,y,z) = src.at(x,y,z) > thresh ? 255 : 0;
 		}
 	}
+	// threshold the data and return a binary mask and of a set of locations
+	template<typename T>
+	void threshold( const Data3D<T>& src, Data3D<unsigned char>& dst, vector<Vec3i>& pos, T thresh ){
+		int x,y,z;
+		dst.reset( src.get_size() );
+		for(z=0;z<src.SZ();z++) for (y=0;y<src.SY();y++) for(x=0;x<src.SX();x++) {
+			if( dst.at(x,y,z) = src.at(x,y,z) ) > thresh ? 255 : 0;
+		}
+	}
+	// threshold the data and suppress the point to zero if it is below threshold
 	template<typename T>
 	void threshold( const Data3D<T>& src, Data3D<T>& dst, T thresh ){
 		int x,y,z;
-		dst.reset( src.get_size() );
+		if( &sec!=&dst ) dst.reset( src.get_size() );
 		for(z=0;z<src.SZ();z++) for (y=0;y<src.SY();y++) for(x=0;x<src.SX();x++) {
 			dst.at(x,y,z) = src.at(x,y,z) > thresh ? src.at(x,y,z) : 0;
 		}
 	}
+	// threshold the data and suppress the point to zero if it is below threshold
 	template<typename T>
 	void threshold( Data3D<T>& src, T thresh ){
 		int x,y,z;
 		for(z=0;z<src.SZ();z++) for (y=0;y<src.SY();y++) for(x=0;x<src.SX();x++) {
-			if( src.at(x,y,z) < thresh ) 
-				memset( &src.at(x,y,z), 0, sizeof(T) );
+			if( src.at(x,y,z) < thresh ) memset( &src.at(x,y,z), 0, sizeof(T) );
 		}
 	}
 
+	///////////////////////////////////////////////////////////////////////////
 	// Non-maximum suppression
-	//void non_max_suppress( const Data3D<Vesselness_Sig>& src, Data3D<Vesselness_Sig>& dst );
-	//void non_max_suppress( const Data3D<Vesselness_Nor>& src, Data3D<Vesselness_Sig>& dst );
 	void non_max_suppress( const Data3D<Vesselness_All>& src, Data3D<Vesselness_Sig>& dst );
 	void edge_tracing( Data3D<Vesselness_Sig>& src, Data3D<Vesselness_Sig>& dst, const float& thres1 = 0.85f, const float& thres2 = 0.10f );
 	void dir_tracing( Data3D<Vesselness_All>& src, Data3D<Vesselness_Sig>& res_dt );
 	void edge_tracing_mst( Data3D<Vesselness_All>& src, Data3D<Vesselness_Sig>& dst, const float& thres1 = 0.85f, const float& thres2 = 0.10f );
 	
+	///////////////////////////////////////////////////////////////////////////
 	// Morphological Operations
 	// dilation, erosion, closing
 	void dilation(Data3D<unsigned char>& src, const int& k); 
@@ -353,11 +358,9 @@ void ImageProcessing::quad_normalize( Data3D<T>& data, T norm_max ){
 	for( int z=0; z<data.get_size_z(); z++ ) {
 		for( int y=0; y<data.get_size_y(); y++ ) {
 			for( int x=0; x<data.get_size_x(); x++ ) {
-				data.at(x, y, z) = sqrt( data.at(x, y, z) );
+				data.at(x, y, z) = sqrt( data.at(x, y, z) ) * norm_max;
 			}
 		}
 	}
-
-	data.getMat() *= norm_max; 
 }
 
