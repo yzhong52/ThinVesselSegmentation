@@ -36,6 +36,3 @@ using namespace cv;
 static const short MAX_SHORT = unsigned short(1<<15)-1;
 static const short MIN_SHORT = short(1<<15);
 
-
-long long fwrite_big( const void* _Str, size_t _Size, long long _Count, FILE* _File );
-long long fread_big( void* _DstBuf, size_t _ElementSize, long long _Count, FILE* _File ); 

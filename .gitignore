@@ -31,6 +31,10 @@ temp.*
 /VesselNess-cuda/Release/
 /VesselNess-cuda/Debug/
 /VesselNess-cuda/x64/
+Levenberg–Marquardt/x64/
+Levenberg–Marquardt/[Dd]ebug/
+Levenberg–Marquardt/[Rr]elease/
+
 
 
 

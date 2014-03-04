@@ -2,6 +2,7 @@
 
 #include "stdafx.h"
 #include "TypeInfo.h" 
+#include "nstdio.h"
 #include <fstream> // For reading and saving files
 
 template<typename T>
