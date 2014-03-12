@@ -73,7 +73,10 @@ namespace ImageProcessing
 		int x,y,z;
 		dst.reset( src.get_size() );
 		for(z=0;z<src.SZ();z++) for (y=0;y<src.SY();y++) for(x=0;x<src.SX();x++) {
-			if( dst.at(x,y,z) = src.at(x,y,z) ) > thresh ? 255 : 0;
+			if( src.at(x,y,z) > thresh ) {
+				dst.at(x,y,z) = 255; 
+				pos.push_back( Vec3i(x,y,z) ); 
+			}
 		}
 	}
 	// threshold the data and suppress the point to zero if it is below threshold
