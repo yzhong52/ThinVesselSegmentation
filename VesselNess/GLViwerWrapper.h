@@ -34,7 +34,7 @@ public:
 	}
 
 	template<class T>
-	void addObject( Data3D<T>& im_data, GLViewer::Volumn::RenderMode mode = GLViewer::Volumn::Surface )
+	void addObject( Data3D<T>& im_data, GLViewer::Volumn::RenderMode mode = GLViewer::Volumn::MIP )
 	{
 		if( im_data.get_size_total()==0 ) return; 
 		// change the data formate to unsigend char
