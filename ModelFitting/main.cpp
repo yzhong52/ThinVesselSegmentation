@@ -52,11 +52,28 @@ int main(int argc, char* argv[])
 	IP::threshold( im_short, im_uchar, dataPoints, short(50) );
 
 
+	
+	
+	GLViewer::GLLineModel *model = new GLViewer::GLLineModel( im_short.get_size() );
+	ver.objs.push_back( model );
+
+	//////////////////////////////////////////////////
+	// create a thread for rendering
+	//////////////////////////////////////////////////
+	HANDLE thread_render = (HANDLE) _beginthread( visualization_func, 0, (void*)&ver ); 
+	
+	for( int i=0; i<3; i++ ) {
+		Sleep(1000); 
+		cout << " Hi... " << endl;
+	}
+	model->updatePoints( dataPoints ); 
+
+	
 	//////////////////////////////////////////////////
 	// Line Fitting
 	//////////////////////////////////////////////////
 	// Initial Sampling - random
-	const int num_init_labels = 10; 
+	const int num_init_labels = 20; 
 	vector<Line3D> lines; // three float of geometric locations and three for directions
 	for( int i=0; i<num_init_labels; i++ ){
 		Line3D line;
@@ -72,31 +89,14 @@ int main(int argc, char* argv[])
 			(float) rand()+1 )); 
 		lines.push_back( line );
 	}
-	
-	Data3D<unsigned char> im_labeling;
-	im_labeling.reset( im_uchar.get_size() );
 
-	GLViewer::GLLineModel *model = new GLViewer::GLLineModel( im_short.get_size() );
-	
-	ver.objs.push_back( model );
+	model->updateLines( lines ); 
 
-	// create a thread for rendering
-	HANDLE thandle = (HANDLE) _beginthread( visualization_func, 0, (void*)&ver ); 
-	
-	for( int i=0; i<10; i++ ) {
-		Sleep(1000); 
-		cout << " Hi... " << endl;
-	}
-	model->updatePoints( dataPoints ); 
 
+	
 	cout << "Main Thread is Done. " << endl; 
-	WaitForSingleObject( thandle, INFINITE);
-
+	WaitForSingleObject( thread_render, INFINITE);
 	return 0; 
-
-
-
-
 
 
 
@@ -155,15 +155,15 @@ int main(int argc, char* argv[])
 				const int& y = dataPoints[site][1];
 				const int& z = dataPoints[site][2];
 				cout << gc.whatLabel( site ) << endl;
-				im_labeling.at(x,y,z) = gc.whatLabel( site ); 
+				//im_labeling.at(x,y,z) = gc.whatLabel( site ); 
 			}
 
 			////////////////////////////////////////////////
 			// Re-estimation
 			////////////////////////////////////////////////
 			// gether the points
-			IP::normalize( im_labeling, unsigned char(255) );
-			ver.addObject( im_labeling, GLViewer::Volumn::MIP ); 
+			/*IP::normalize( im_labeling, unsigned char(255) );
+			ver.addObject( im_labeling, GLViewer::Volumn::MIP ); */
 		}
 	}
 	catch (GCException e){

@@ -13,8 +13,11 @@ using namespace std;
 #include "Line3D.h"
 
 namespace GLViewer{ 
-	
-	// This Class is Thread safe
+	// This class is thread safe
+	// This class is thread safe
+	// This class is thread safe
+	// This class is thread safe
+	// This class is thread safe
 	class GLLineModel : public GLViewer::Object {	
 		HANDLE hMutex; 
 		cv::Vec3i size; 
@@ -29,7 +32,7 @@ namespace GLViewer{
 		virtual void render( void ); 
 
 		void updatePoints( const vector<Vec3i>& pts ); 
-		void updateLines( const vector<Vec3i>& lns ); 
+		void updateLines( const vector<Line3D>& lns ); 
 		void updatelabelings( const vector<int>& lbls ); 
 
 		// size of the object
