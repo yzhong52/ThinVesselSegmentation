@@ -32,9 +32,7 @@ namespace GLViewer{
 		virtual void render( void ); 
 
 		void updatePoints( const vector<Vec3i>& pts ); 
-		void updateLines( const vector<Line3D>& lns ); 
-		void updatelabelings( const vector<int>& lbls ); 
-
+		void updateModel( const vector<Line3D>& lns, const vector<int>& lbls ); 
 		// size of the object
 		virtual unsigned int size_x(void) const { return size[0]; }
 		virtual unsigned int size_y(void) const { return size[1]; }

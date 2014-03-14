@@ -19,24 +19,30 @@ void GLLineModel::render(void){
 	// in case there is any previously bind texture, you need to unbind them
 	glBindTexture( GL_TEXTURE_3D, NULL );
 
-	glColor3f( 1.0f, 1.0f, 1.0f ); 
-	glColor3f( 1.0f, 0.0f, 0.0f ); 
-	
+
 	WaitForSingleObject( hMutex, INFINITE );
-	glBegin( GL_POINTS );
+	//glBegin( GL_POINTS );
+	//for( int i=0; i < (int) dataPoints.size(); i++ ) {
+	//	int lineID = labelings[i]; 
+	//	Vec3f prj = lines[lineID].projection( dataPoints[i] ); 
+	//	glColor3f( 1.0f, 0.0f, 0.0f ); 
+	//	glVertex3fv( &prj[0] ); 
+	//	glColor3f( 1.0f, 1.0f, 1.0f ); 
+	//	glVertex3iv( &dataPoints[i][0] ); 
+	//} 
+	//glEnd();
+
+	glBegin( GL_LINES );
 	for( int i=0; i < (int) dataPoints.size(); i++ ) {
+		int lineID = labelings[i]; 
+		Vec3f prj = lines[lineID].projection( dataPoints[i] ); 
+		glColor3f( 1.0f, 0.0f, 0.0f ); 
+		glVertex3fv( &prj[0] ); 
+		glColor3f( 1.0f, 1.0f, 1.0f ); 
 		glVertex3iv( &dataPoints[i][0] ); 
 	} 
 	glEnd();
-	glBegin( GL_LINES );
-	for( int i=0; i< (int) lines.size(); i++ ) {
-		Vec3f pos1 = lines[i].getPos(); 
-		Vec3f pos2 = lines[i].getDir() + lines[i].getPos(); 
-		glVertex3fv( &pos1[0] ); 
-		glVertex3fv( &pos2[0] ); 
-		cv::Vec3f dir; 
-	}
-	glEnd();
+
 	ReleaseMutex( hMutex );
 	
 }
@@ -48,14 +54,18 @@ void GLLineModel::updatePoints( const vector<Vec3i>& pts ){
 	ReleaseMutex( hMutex );
 }
 
-void GLLineModel::updateLines( const vector<Line3D>& lns ){
+void GLLineModel::updateModel( const vector<Line3D>& lns, const vector<int>& lbls )
+{
 	WaitForSingleObject( hMutex, INFINITE );
-	lines = lns; 
+	if( lbls.size()==dataPoints.size() ) {
+		lines = lns; 
+		labelings = lbls; 
+	} else {
+		cout << "Error: Update model fail." << endl; 
+		std::wcout << "  Location: file "<< _CRT_WIDE(__FILE__) << ", line " << __LINE__ << std::endl; 
+		system( "pause" );
+	}
 	ReleaseMutex( hMutex );
-}
-
-void GLLineModel::updatelabelings( const vector<int>& lbls ){
-
 }
 
 void GLLineModel::init(void){
@@ -66,8 +76,8 @@ void GLLineModel::init(void){
 	//cout << "Volumn Rendeing Mode is set to MIP" << endl;
 
 	//// Antialiasing
-	//glEnable (GL_LINE_SMOOTH);
-	//glHint (GL_LINE_SMOOTH_HINT, GL_NICEST );
+	glDisable(GL_LINE_SMOOTH);
+	glHint (GL_LINE_SMOOTH_HINT, GL_FASTEST );
 
 	//glEnable( GL_POLYGON_SMOOTH_HINT );
 	//glHint (GL_POLYGON_SMOOTH_HINT, GL_NICEST);

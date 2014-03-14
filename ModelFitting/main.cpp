@@ -66,6 +66,7 @@ int main(int argc, char* argv[])
 		Sleep(1000); 
 		cout << " Hi... " << endl;
 	}
+	
 	model->updatePoints( dataPoints ); 
 
 	
@@ -90,10 +91,9 @@ int main(int argc, char* argv[])
 		lines.push_back( line );
 	}
 
-	model->updateLines( lines ); 
+	vector<int> labelings = vector<int>( dataPoints.size(), 0 );
+	model->updateModel( lines, labelings ); 
 
-
-	
 	cout << "Main Thread is Done. " << endl; 
 	WaitForSingleObject( thread_render, INFINITE);
 	return 0; 
@@ -134,7 +134,8 @@ int main(int argc, char* argv[])
 			// Smooth Cost
 			////////////////////////////////////////////////
 			// ... TODO: Setting Smooth Cost
-
+			// im_uchar
+			
 
 			////////////////////////////////////////////////
 			// Graph-Cut Begin
