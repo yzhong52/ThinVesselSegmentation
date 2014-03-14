@@ -34,7 +34,7 @@ namespace GLViewer
 		virtual ~Object(void){ }
 
 		// init function for OpenGL
-		virtual void init(void) { };
+		virtual void init(void) { }
 		// render function for OpenGL
 		// keyboard function for OpenGL
 		virtual void keyboard( unsigned char key ) { }

@@ -2,21 +2,41 @@
 #include "GLViewer.h"
 #include "Data3D.h"
 
+
+// For multithreading
+#include <Windows.h>
+#include <process.h>
+
+#include <vector>
+using namespace std;
+
+#include "Line3D.h"
+
 namespace GLViewer{ 
 	
-	class GLLineModel : public GLViewer::Object {
+	// This Class is Thread safe
+	class GLLineModel : public GLViewer::Object {	
+		HANDLE hMutex; 
+		cv::Vec3i size; 
+		vector<cv::Vec3i> dataPoints; 
+		vector<Line3D> lines; 
+		vector<int> labelings;
 	public:
-		Data3D<cv::Vec3f> data; 
-		GLLineModel( cv::Vec3i size ) {
-			data.reset( size, Vec3f(-1,-1,-1) ); 
-		}
-		virtual ~GLLineModel(void){ }
+		GLLineModel( cv::Vec3i size ); 
 
-		virtual void render(void); 
+		virtual ~GLLineModel( void ); 
+
+		virtual void render( void ); 
+
+		void updatePoints( const vector<Vec3i>& pts ); 
+		void updateLines( const vector<Vec3i>& lns ); 
+		void updatelabelings( const vector<int>& lbls ); 
 
 		// size of the object
-		virtual unsigned int size_x(void) const { return data.SX(); }
-		virtual unsigned int size_y(void) const { return data.SY(); }
-		virtual unsigned int size_z(void) const { return data.SZ(); }
+		virtual unsigned int size_x(void) const { return size[0]; }
+		virtual unsigned int size_y(void) const { return size[1]; }
+		virtual unsigned int size_z(void) const { return size[2]; }
+
+		void init(void);
 	};
 }

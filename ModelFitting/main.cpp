@@ -29,6 +29,7 @@ void visualization_func( void* data ) {
 	ver.go();
 }
 
+
 // TODO: Fix this function.
 int main(int argc, char* argv[])
 {
@@ -37,8 +38,8 @@ int main(int argc, char* argv[])
 	Data3D<short> im_short;
 	//im_short.load( "../data/data15.data" );
 	//Synthesic Data
-	im_short.reset( Vec3i(100,100,100) ); 
-	for( int i=10; i<90; i++ ) {
+	im_short.reset( Vec3i(50,50,50) ); 
+	for( int i=10; i<40; i++ ) {
 		im_short.at(i,  i,  i)   = 100; 
 		im_short.at(i,  i,  i+1) = 100; 
 		im_short.at(i,  i+1,i)   = 100; 
@@ -75,20 +76,29 @@ int main(int argc, char* argv[])
 	Data3D<unsigned char> im_labeling;
 	im_labeling.reset( im_uchar.get_size() );
 
-	ver.addObject( im_uchar );
+	GLViewer::GLLineModel *model = new GLViewer::GLLineModel( im_short.get_size() );
+	
+	ver.objs.push_back( model );
 
+	// create a thread for rendering
 	HANDLE thandle = (HANDLE) _beginthread( visualization_func, 0, (void*)&ver ); 
 	
 	for( int i=0; i<10; i++ ) {
 		Sleep(1000); 
 		cout << " Hi... " << endl;
-		
 	}
+	model->updatePoints( dataPoints ); 
 
 	cout << "Main Thread is Done. " << endl; 
 	WaitForSingleObject( thandle, INFINITE);
 
 	return 0; 
+
+
+
+
+
+
 
 	try{
 		// keep track of energy in previous iteration
@@ -310,8 +320,6 @@ void model_fitting_least_squre(void){
 				} 
 				psit++; lit++; 
 			}
-
-			ver.addModel( &gc, lines, im_short.get_size() );
 
 			// Remove unused models 
 			vector<Line3D> newLines; 
