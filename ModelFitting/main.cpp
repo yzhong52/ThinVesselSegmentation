@@ -10,6 +10,7 @@
 // For multithreading
 #include <Windows.h>
 #include <process.h>
+#include <iomanip>
 
 // This project is build after VesselNess. 
 // Some of the building blocks (Data3D, Visualization) are borrowed from VesselNess. 
@@ -29,31 +30,93 @@ void visualization_func( void* data ) {
 	ver.go();
 }
 
+const GC::EnergyType LOGLIKELIHOOD = 100; 
+
+
+GC::EnergyType computeEnergy( 
+	const vector<Vec3i>& dataPoints,
+	const vector<int>& labelings, 
+	const vector<Line3D>& lines )
+{
+	GC::EnergyType energy = 0; 
+
+	for( GC::SiteID site = 0; site < (GC::SiteID) dataPoints.size(); site++ ) {
+		GC::LabelID label = labelings[site];
+		
+		const Line3D& line = lines[label];
+		// distance from a point to a line
+		const int& x = dataPoints[site][0];
+		const int& y = dataPoints[site][1];
+		const int& z = dataPoints[site][2];
+		float dist = line.distanceToLine( Vec3f(1.0f * x,1.0f * y,1.0f * z) );
+		// log likelihood based on the distance
+		GC::EnergyTermType loglikelihood = dist * dist / ( 2 * line.sigma * line.sigma );
+
+		energy += LOGLIKELIHOOD * loglikelihood; 
+	}
+	return energy; 
+}
+
+
+Mat computeEnergyMatrix( 
+	const vector<Vec3i>& dataPoints,
+	const vector<int>& labelings, 
+	const vector<Line3D>& lines )
+{
+	Mat eng( (int) dataPoints.size(), 1, CV_64F ); 
+
+	for( GC::SiteID site = 0; site < (GC::SiteID) dataPoints.size(); site++ ) {
+		GC::LabelID label = labelings[site];
+		
+		const Line3D& line = lines[label];
+		// distance from a point to a line
+		const int& x = dataPoints[site][0];
+		const int& y = dataPoints[site][1];
+		const int& z = dataPoints[site][2];
+		float dist = line.distanceToLine( Vec3f(1.0f * x,1.0f * y,1.0f * z) );
+		// log likelihood based on the distance
+		GC::EnergyTermType loglikelihood = dist * dist / ( 2 * line.sigma * line.sigma );
+
+		eng.at<double>( site, 0 ) = sqrt( LOGLIKELIHOOD * loglikelihood ); 
+	}
+	return eng; 
+}
 
 // TODO: Fix this function.
 int main(int argc, char* argv[])
 {
+
+	//std::cout.width(1);
+	//for( int i=0; i<10; i++ ){
+	//	cout.width( 2 ); 
+	//	std::cout << std::setw(14) << std::scientific << 1.343434343435e3 << "  ";
+	//	std::cout << std::setw(14) << std::scientific << -1.343434343435e3 << "  ";
+	//}
+	////Mat Jacobian = Mat::ones( 3, 4, CV_32F ); 
+	////cout << Jacobian << endl;
+	////Jacobian.at<float>(2,3) = 2; 
+	////cout << Jacobian << endl;
+	//return 0; 
+
 	CreateDirectory(L"./output", NULL);
 	
 	Data3D<short> im_short;
-	//im_short.load( "../data/data15.data" );
 	//Synthesic Data
-	im_short.reset( Vec3i(50,50,50) ); 
-	for( int i=10; i<40; i++ ) {
+	im_short.reset( Vec3i(20,20,20) ); 
+	for( int i=5; i<15; i++ ) {
 		im_short.at(i,  i,  i)   = 100; 
 		im_short.at(i,  i,  i+1) = 100; 
 		im_short.at(i,  i+1,i)   = 100; 
 		im_short.at(i+1,i,  i)   = 100; 
 	}
+	// OR real data
+	//im_short.load( "../data/data15.data" );
 
 	// threshold the data and put the data points into a vector
 	Data3D<unsigned char> im_uchar;
 	vector<cv::Vec3i> dataPoints;
 	IP::threshold( im_short, im_uchar, dataPoints, short(50) );
 
-
-	
-	
 	GLViewer::GLLineModel *model = new GLViewer::GLLineModel( im_short.get_size() );
 	ver.objs.push_back( model );
 
@@ -62,27 +125,19 @@ int main(int argc, char* argv[])
 	//////////////////////////////////////////////////
 	HANDLE thread_render = (HANDLE) _beginthread( visualization_func, 0, (void*)&ver ); 
 	
-	for( int i=0; i<3; i++ ) {
-		Sleep(1000); 
-		cout << " Hi... " << endl;
-	}
-	
 	model->updatePoints( dataPoints ); 
 
-	
 	//////////////////////////////////////////////////
 	// Line Fitting
 	//////////////////////////////////////////////////
 	// Initial Sampling - random
-	const int num_init_labels = 20; 
+	const int num_init_labels = 2; 
 	vector<Line3D> lines; // three float of geometric locations and three for directions
 	for( int i=0; i<num_init_labels; i++ ){
 		Line3D line;
 		// position of the line
-		line.setPos( Vec3f(
-			float( rand() % im_short.SX() ), 
-			float( rand() % im_short.SY() ),
-			float( rand() % im_short.SZ() ) )); 
+		int pointID = rand() % dataPoints.size(); 
+		line.setPos( dataPoints[pointID] ); 
 		// direction of the line 
 		line.setDir( Vec3f(
 			(float) rand()+1, 
@@ -91,15 +146,11 @@ int main(int argc, char* argv[])
 		lines.push_back( line );
 	}
 
-	vector<int> labelings = vector<int>( dataPoints.size(), 0 );
+	vector<int> labelings = vector<int>( dataPoints.size(), 0 ); 
+
 	model->updateModel( lines, labelings ); 
 
-	cout << "Main Thread is Done. " << endl; 
-	WaitForSingleObject( thread_render, INFINITE);
-	return 0; 
-
-
-
+	cout << "Graph Cut Begin" << endl; 
 	try{
 		// keep track of energy in previous iteration
 		GC::EnergyType energy_before = -1;
@@ -112,7 +163,7 @@ int main(int argc, char* argv[])
 			// Data Costs
 			////////////////////////////////////////////////
 			for( GC::SiteID site = 0; site < (GC::SiteID) dataPoints.size(); site++ ) {
-				GC::SiteID label;
+				GC::LabelID label;
 				for( label = 0; label < lines.size(); label++ ){
 					const Line3D& line = lines[label];
 					// distance from a point to a line
@@ -125,8 +176,7 @@ int main(int argc, char* argv[])
 					// loglikelihood += log( line.sigma ); 
 					// static double C = 0.5 * log( 2*M_PI );
 					// loglikelihood += C; 
-					// TODO make 100 a parameter to tune
-					gc.setDataCost( site, label, loglikelihood * 100 );
+					gc.setDataCost( site, label, LOGLIKELIHOOD * loglikelihood );
 				}
 			}
 
@@ -155,193 +205,102 @@ int main(int argc, char* argv[])
 				const int& x = dataPoints[site][0];
 				const int& y = dataPoints[site][1];
 				const int& z = dataPoints[site][2];
-				cout << gc.whatLabel( site ) << endl;
-				//im_labeling.at(x,y,z) = gc.whatLabel( site ); 
+				labelings[site] = gc.whatLabel( site ); 
 			}
-
-			////////////////////////////////////////////////
-			// Re-estimation
-			////////////////////////////////////////////////
-			// gether the points
-			/*IP::normalize( im_labeling, unsigned char(255) );
-			ver.addObject( im_labeling, GLViewer::Volumn::MIP ); */
-		}
-	}
-	catch (GCException e){
-		e.Report();
-	}
-	
-	// Visualize the data
-	//IP::normalize( im_char, short(255) );
-	//ver.addObject( im_char,  GLViewer::Volumn::MIP ); 
-	//ver.addObject( im_short, GLViewer::Volumn::MIP ); 
-	ver.go(400, 200, 2);
-
-	return 0;
-}
-
-void model_fitting_least_squre(void){
-	
-	CreateDirectory(L"./output", NULL);
-	
-	Data3D<short> im_short;
-	im_short.load( "../data/data15.data" );
-	//im_short.reset();
-	//for(int i=0; i<im_short.SX(); i++ ) im_short.at(i, 50, 50) = 5000;
-
-	Data3D<short> im_char( im_short.get_size() );
-
-	//////////////////////////////////////////////////
-	// Line Fitting
-	//////////////////////////////////////////////////
-	// Initial Sampling
-	const int num_init_labels = 10; 
-	vector<Line3D> lines; // three float of geometric locations and three for directions
-	for( int i=0; i<num_init_labels; i++ ){
-		Line3D line;
-		// position of the line
-		line.setPos( Vec3f(
-			float( rand() % im_short.SX() ), 
-			float( rand() % im_short.SY() ),
-			float( rand() % im_short.SZ() ) )); 
-		// direction of the line 
-		line.setDir( Vec3f(
-			(float) rand()+1, 
-			(float) rand()+1, 
-			(float) rand()+1 )); 
-		lines.push_back( line );
-	}
-	
-
-	try{
-		// keep track of energy in previous iteration
-		GC::EnergyType energy_before = -1;
-
-		for( int i=0; i<150; i++ ) { 
-
-			GCoptimizationGeneralGraph gc( im_short.SX()*im_short.SY()*im_short.SZ(), (int) lines.size() + 1 );
-
-			////////////////////////////////////////////////
-			// Data Costs
-			////////////////////////////////////////////////
-			for( int z=0; z<im_short.SZ(); z++ ) {
-				for( int y=0; y<im_short.SY(); y++ ) {
-					for( int x=0; x<im_short.SX(); x++ ) {		
-						GC::SiteID site = x + y * im_short.SX() + z * im_short.SY() * im_short.SX();
-						
-						// Data Cost (Part I) - Color Conssitancy
-						// TODO make this a parameter to tune
-						GC::EnergyTermType datacost = 3500-im_short.at(x,y,z); 
-
-						// data cost to general label
-						GC::SiteID label;
-						for( label = 0; label < lines.size(); label++ ){
-							const Line3D& line = lines[label];
-							// Data Cost (Part II) - Position Conssitancy
-							// distance from a point to a line
-							float dist = line.distanceToLine( Vec3f(1.0f*x,1.0f*y,1.0f*z) );
-							// log likelihood based on the distance
-							GC::EnergyTermType loglikelihood = dist*dist/( 2*line.sigma*line.sigma );
-							loglikelihood += log( line.sigma ); 
-							static double C = 0.5 * log( 2*M_PI );
-							loglikelihood += C; 
-							// TODO make 100 a parameter to tune
-							gc.setDataCost( site, label, datacost + loglikelihood * 100 );
-						}
-
-						// data cost to background/outlier label
-						gc.setDataCost( site, label, -datacost );
-					}
-				}
-			}
-
-			////////////////////////////////////////////////
-			// Smooth Cost
-			////////////////////////////////////////////////
-			// ... TODO: Setting Smooth Cost
-
-
-			////////////////////////////////////////////////
-			// Graph-Cut Begin
-			////////////////////////////////////////////////
-			cout << "Iteration: " << i << ". Fitting Begin. Please Wait..."; 
-			gc.expansion(1); // run expansion for 1 iterations. For swap use gc->swap(num_iterations);
-			GC::EnergyType cur_energy = gc.compute_energy();
-			if ( energy_before==cur_energy ) { 
-				cout << endl << "Energy is not changing. " << endl; break; 
-			} else {
-				energy_before = cur_energy; 
-			}
-			cout << "Done. " << endl;
 			
-			// Counting the number of labels in forground and background 
-			int count1 = 0, count2 = 0; 
-			for( int x=0; x<im_short.SX(); x++ ) {
-				for( int y=0; y<im_short.SY(); y++ ) {
-					for( int z=0; z<im_short.SZ(); z++ ) {						
-						GC::SiteID site = x + y * im_short.SX() + z * im_short.SY() * im_short.SX();
-						im_char.at(x,y,z) = 1 - gc.whatLabel( site );
-						if( im_char.at(x,y,z)==0 ) count1++;
-						else				       count2++;
-					}
-				}
-			}
-			cout << "count1 = " << count1 << endl;
-			cout << "count2 = " << count2 << endl;
+			model->updateModel( lines, labelings ); 
 
 			////////////////////////////////////////////////
 			// Re-estimation
 			////////////////////////////////////////////////
-			// gether the points
-			vector<vector<Vec3i> > points_set = vector<vector<Vec3i> >( lines.size() ); 
-			for( int x=0; x<im_short.SX(); x++ ) {
-				for( int y=0; y<im_short.SY(); y++ ) {
-					for( int z=0; z<im_short.SZ(); z++ ) {
-						GC::SiteID site = x + y * im_short.SX() + z * im_short.SY() * im_short.SX();
-						GC::SiteID label = gc.whatLabel( site );
-						if( label<lines.size() ){
-							points_set[ label ].push_back( Vec3i(x,y,z) );
+			// Levenburg Maquart
+			double lambda = 1e2; 
+			for( int lmiter = 0; lambda < 10e10; lmiter++ ) { 
+				cout << "Levenburg Maquart: " << lmiter << " Lambda: " << lambda << endl; 
+
+				// there are six parameters
+				// Jacobian Matrix ( # of cols: number of data points; # of rows: number of parameters of each line models)? 
+				Mat Jacobian = Mat::zeros(
+					(int) dataPoints.size(), 
+					(int) lines.size() * 6,
+					CV_64F ); 
+				
+				// Contruct Jacobian matrix
+				for( int label=0; label < lines.size(); label++ ) {
+					for( int site=0; site < dataPoints.size(); site++ ) {
+						if( labelings[site] != label ) {
+							Jacobian.at<double>( site, 6*label ) = 0; 
+							Jacobian.at<double>( site, 6*label+1 ) = 0; 
+							Jacobian.at<double>( site, 6*label+2 ) = 0; 
+							Jacobian.at<double>( site, 6*label+3 ) = 0; 
+							Jacobian.at<double>( site, 6*label+4 ) = 0; 
+							Jacobian.at<double>( site, 6*label+5 ) = 0; 
+						} else {
+							static const float delta = 0.01f; 
+							for( int i=0; i<3; i++ ) {
+								lines[label].pos[i] += delta; 
+								Jacobian.at<double>( site, 6*label+i ) = 
+									1.0 / delta * ( computeEnergy( dataPoints, labelings, lines ) - energy_before ); 
+								lines[label].pos[i] -= delta; 
+							}
+							for( int i=0; i<3; i++ ) {
+								lines[label].dir[i] += delta; 
+								Jacobian.at<double>( site, 6*label+i+3 ) = 
+									1.0f / delta * ( computeEnergy( dataPoints, labelings, lines ) - energy_before ); 
+								lines[label].dir[i] -= delta; 
+							}
 						}
 					}
 				}
-			}
+				// end of contruction of Jacobian Matrix
+				Mat A = Jacobian.t() * Jacobian; 
+				
+				A = A + Mat::diag( lambda * Mat::ones(A.cols, 1, CV_64F) ); 
+			
+				Mat B = Jacobian.t() * computeEnergyMatrix( dataPoints, labelings, lines ); 
+			
+				Mat X; 
+				cv::solve( A, -B, X ); 
+			
+				
+				for( int i=0; i<X.rows; i++ ) {
+					std::cout << std::setw(14) << std::scientific << X.at<double>( i ) << "  ";
+				}
+				cout << endl;
+				
+				for( int i=0; i<lines.size(); i++ ) {
+					lines[i].pos[0] += (float) X.at<double>( 6*i ); 
+					lines[i].pos[1] += (float) X.at<double>( 6*i+1 ); 
+					lines[i].pos[2] += (float) X.at<double>( 6*i+2 ); 
 
-			// Line Fitting With Least Square 
-			vector<vector<Vec3i> >::iterator psit = points_set.begin();
-			vector<Line3D>::iterator lit  = lines.begin();
-			while( psit<points_set.end() ) { 
-				if( psit->size() ) { 
-					Vec6f line; 
-					cv::fitLine( *psit, line, CV_DIST_L2, 0, 0.01, 0.01);
-					// update the 
-					lit->setPos( Vec3f(&line[0]) );
-					lit->setDir( Vec3f(&line[3]) );
-					// we also need to update sigma though
-					lit->sigma = 1.0f; 
-				} 
-				psit++; lit++; 
-			}
+					lines[i].dir[0] += (float) X.at<double>( 6*i+3 ); 
+					lines[i].dir[1] += (float) X.at<double>( 6*i+4 ); 
+					lines[i].dir[2] += (float) X.at<double>( 6*i+5 ); 
+				}
+				double energyDiff = computeEnergy( dataPoints, labelings, lines ) - energy_before;
+				if( energyDiff < 0 ) { // if energy is decreasing 
+					model->updateModel( lines, labelings ); 
+					lambda *= 2; 
+				} else {
+					for( int i=0; i<lines.size(); i++ ) {
+						lines[i].pos[0] -= (float) X.at<double>( 6*i ); 
+						lines[i].pos[1] -= (float) X.at<double>( 6*i+1 ); 
+						lines[i].pos[2] -= (float) X.at<double>( 6*i+2 ); 
 
-			// Remove unused models 
-			vector<Line3D> newLines; 
-			for( int i=0; i<points_set.size(); i++ ) { 
-				if( points_set[i].size() ) { 
-					newLines.push_back( lines[i] ); 
+						lines[i].dir[0] -= (float) X.at<double>( 6*i+3 ); 
+						lines[i].dir[1] -= (float) X.at<double>( 6*i+4 ); 
+						lines[i].dir[2] -= (float) X.at<double>( 6*i+5 ); 
+					}
+					lambda /= 2; 
 				}
 			}
-			newLines.push_back( lines.back() ); 
-			lines = newLines; 
-			break; 
 		}
 	}
 	catch (GCException e){
 		e.Report();
 	}
 	
-	
-	// Visualize the data
-	//IP::normalize( im_char, short(255) );
-	//ver.addObject( im_char, GLViewer::Volumn::MIP ); 
-	//ver.addObject( im_short, GLViewer::Volumn::MIP ); 
-	ver.go(400, 200, 2);
+	cout << "Main Thread is Done. " << endl; 
+	WaitForSingleObject( thread_render, INFINITE);
+	return 0; 
 }

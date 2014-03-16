@@ -21,27 +21,44 @@ void GLLineModel::render(void){
 
 
 	WaitForSingleObject( hMutex, INFINITE );
-	//glBegin( GL_POINTS );
-	//for( int i=0; i < (int) dataPoints.size(); i++ ) {
-	//	int lineID = labelings[i]; 
-	//	Vec3f prj = lines[lineID].projection( dataPoints[i] ); 
-	//	glColor3f( 1.0f, 0.0f, 0.0f ); 
-	//	glVertex3fv( &prj[0] ); 
-	//	glColor3f( 1.0f, 1.0f, 1.0f ); 
-	//	glVertex3iv( &dataPoints[i][0] ); 
-	//} 
-	//glEnd();
+
+	// draw the data points 
+	glBegin( GL_POINTS );
+	for( int i=0; i < (int) dataPoints.size(); i++ ) {
+		int lineID = labelings[i]; 
+		// actual position
+		Vec3f prj = lines[lineID].projection( dataPoints[i] ); 
+		glColor3fv( &lineColors[lineID][0] ); 
+		glVertex3fv( &prj[0] ); 
+		// data points
+		glColor3f( 0.1f, 0.1f, 0.1f ); 
+		glVertex3iv( &dataPoints[i][0] ); 
+	} 
+	glEnd();
 
 	glBegin( GL_LINES );
 	for( int i=0; i < (int) dataPoints.size(); i++ ) {
 		int lineID = labelings[i]; 
+		// actual position
 		Vec3f prj = lines[lineID].projection( dataPoints[i] ); 
-		glColor3f( 1.0f, 0.0f, 0.0f ); 
+		glColor3fv( &lineColors[lineID][0] ); 
 		glVertex3fv( &prj[0] ); 
-		glColor3f( 1.0f, 1.0f, 1.0f ); 
+		// data points
+		glColor3f( 0.1f, 0.1f, 0.1f ); 
 		glVertex3iv( &dataPoints[i][0] ); 
 	} 
 	glEnd();
+
+	// draw the models
+	//glBegin( GL_LINES );
+	//for( int i=0; i < (int) lines.size(); i++ ) {
+	//	glColor3fv( &lineColors[i][0] ); 
+	//	Vec3i p1 = lines[i].getPos(); 
+	//	Vec3i p2 = 2 * lines[i].getDir() + lines[i].getPos(); 
+	//	glVertex3iv( &p1[0] ); 
+	//	glVertex3iv( &p2[0] ); 
+	//} 
+	//glEnd();
 
 	ReleaseMutex( hMutex );
 	
@@ -60,6 +77,14 @@ void GLLineModel::updateModel( const vector<Line3D>& lns, const vector<int>& lbl
 	if( lbls.size()==dataPoints.size() ) {
 		lines = lns; 
 		labelings = lbls; 
+		int num = (int) dataPoints.size() - (int) lineColors.size();
+		for( int i=0; i<num; i++ ) {
+			Vec3f c( 
+				(rand()%128 ) / 255.0f,
+				(rand()%128 ) / 255.0f,
+				(rand()%128 ) / 255.0f ); 
+			lineColors.push_back( c ); 
+		}
 	} else {
 		cout << "Error: Update model fail." << endl; 
 		std::wcout << "  Location: file "<< _CRT_WIDE(__FILE__) << ", line " << __LINE__ << std::endl; 

@@ -2,6 +2,7 @@
 #include "stdafx.h" 
 class Line3D
 {
+public:
 	// line data (vx, vy, vz, x0, y0, z0),
 	// where (vx, vy, vz) is a normalized vector collinear to the line 
 	// and (x0, y0, z0) is a point on the line

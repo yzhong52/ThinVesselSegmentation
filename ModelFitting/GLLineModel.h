@@ -24,6 +24,7 @@ namespace GLViewer{
 		vector<cv::Vec3i> dataPoints; 
 		vector<Line3D> lines; 
 		vector<int> labelings;
+		vector<Vec3f> lineColors; 
 	public:
 		GLLineModel( cv::Vec3i size ); 
 
