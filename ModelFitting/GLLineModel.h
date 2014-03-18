@@ -21,10 +21,17 @@ namespace GLViewer{
 	class GLLineModel : public GLViewer::Object {	
 		HANDLE hMutex; 
 		cv::Vec3i size; 
-		vector<cv::Vec3i> dataPoints; 
-		vector<Line3D> lines; 
-		vector<int> labelings;
+		
+		// The following two vectors have same sizes
+		// A vector of the points to lines
+		vector<Line3D*> lines; 
+		// a vector of the colors for the lines
 		vector<Vec3f> lineColors; 
+
+		// The following two vectors have same sizes
+		vector<cv::Vec3i> dataPoints; 
+		vector<int> labelings;
+		
 	public:
 		GLLineModel( cv::Vec3i size ); 
 
@@ -33,7 +40,7 @@ namespace GLViewer{
 		virtual void render( void ); 
 
 		void updatePoints( const vector<Vec3i>& pts ); 
-		void updateModel( const vector<Line3D>& lns, const vector<int>& lbls ); 
+		void updateModel( const vector<Line3D*>& lns, const vector<int>& lbls ); 
 		// size of the object
 		virtual unsigned int size_x(void) const { return size[0]; }
 		virtual unsigned int size_y(void) const { return size[1]; }

@@ -25,6 +25,9 @@
     <Filter Include="Visualization">
       <UniqueIdentifier>{1a341700-4ab3-431f-9ca5-776360ba7841}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Line3D">
+      <UniqueIdentifier>{9a771b09-0252-43e5-92d2-cd3a616e0901}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -75,8 +78,14 @@
     <ClInclude Include="GLLineModel.h">
       <Filter>Visualization</Filter>
     </ClInclude>
+    <ClInclude Include="Line3DTwoPoint.h">
+      <Filter>Line3D</Filter>
+    </ClInclude>
     <ClInclude Include="Line3D.h">
-      <Filter>Header Files</Filter>
+      <Filter>Line3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Line3DPointDir.h">
+      <Filter>Line3D</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -119,13 +128,19 @@
     <ClCompile Include="GLLineModel.cpp">
       <Filter>Visualization</Filter>
     </ClCompile>
-    <ClCompile Include="Line3D.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\VesselNess\MinSpanTree.cpp">
       <Filter>VesselNess</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Line3DTwoPoint.cpp">
+      <Filter>Line3D</Filter>
+    </ClCompile>
+    <ClCompile Include="Line3DPointDir.cpp">
+      <Filter>Line3D</Filter>
+    </ClCompile>
+    <ClCompile Include="Line3D.cpp">
+      <Filter>Line3D</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="gco-v3.0\GCO_README.TXT">

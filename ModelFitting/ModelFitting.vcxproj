@@ -157,6 +157,8 @@
     <ClInclude Include="GLLineModel.h" />
     <ClInclude Include="GLViwerModel.h" />
     <ClInclude Include="Line3D.h" />
+    <ClInclude Include="Line3DPointDir.h" />
+    <ClInclude Include="Line3DTwoPoint.h" />
     <ClInclude Include="nstdio.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
@@ -175,6 +177,8 @@
     <ClCompile Include="GLLineModel.cpp" />
     <ClCompile Include="GLViwerModel.cpp" />
     <ClCompile Include="Line3D.cpp" />
+    <ClCompile Include="Line3DPointDir.cpp" />
+    <ClCompile Include="Line3DTwoPoint.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="stdafx.cpp" />
   </ItemGroup>
