@@ -254,7 +254,7 @@ int main(int argc, char* argv[])
 
 				Mat A = Jacobian.t() * Jacobian; 
 				
-				A = /*A +*/ Mat::diag( lambda * Mat::ones(A.cols, 1, CV_64F) ); 
+				A = A + Mat::diag( lambda * Mat::ones(A.cols, 1, CV_64F) ); 
 				
 
 				Mat B = Jacobian.t() * computeEnergyMatrix( dataPoints, labelings, lines ); 
@@ -275,7 +275,8 @@ int main(int argc, char* argv[])
 				double energyDiff = computeEnergy( dataPoints, labelings, lines ) - energy_before;
 				if( energyDiff < 0 ) { // if energy is decreasing 
 					model->updateModel( lines, labelings ); 
-					//lambda *= 2; 
+					// the smaller lambda is, the faster it converges
+					lambda /= 2; 
 				} else {
 					for( int label=0; label < lines.size(); label++ ) {
 						for( int i=0; i < lines[label]->getNumOfParameters(); i++ ) {
@@ -283,10 +284,11 @@ int main(int argc, char* argv[])
 							lines[label]->updateParameterWithDelta( i, -delta ); 
 						}
 					}
-					// lambda /= 2; 
+					// the bigger lambda is, the slower it converges
+					lambda *= 2; 
 				}
 
-				Sleep(300);  // TODO: this is only for debuging 
+				Sleep(3000);  // TODO: this is only for debuging 
 			}
 		}
 	}
