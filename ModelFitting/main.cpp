@@ -83,7 +83,6 @@ Mat computeEnergyMatrix(
 	return eng; 
 }
 
-// TODO: Fix this function.
 int main(int argc, char* argv[])
 {
 
@@ -148,8 +147,6 @@ int main(int argc, char* argv[])
 
 	model->updateModel( lines, labelings ); 
 
-	WaitForSingleObject( thread_render, INFINITE);
-	return 0; 
 
 	cout << "Graph Cut Begin" << endl; 
 	try{
@@ -215,7 +212,7 @@ int main(int argc, char* argv[])
 			// Re-estimation
 			////////////////////////////////////////////////
 			// Levenburg Maquart
-			double lambda = 1e5; 
+			double lambda = 1e4; 
 			for( int lmiter = 0; lambda < 10e10; lmiter++ ) { 
 				cout << "Levenburg Maquart: " << lmiter << " Lambda: " << lambda << endl; 
 
@@ -239,16 +236,17 @@ int main(int argc, char* argv[])
 						} 
 						else 
 						{
+							static const float delta = 0.001f; 
+
+							// TODO: this line is not necessary if we have run graph cut
 							energy_before = computeEnergy( dataPoints, labelings, lines ); 
 
-							static const float delta = 0.001f; 
-							
 							// compute the derivatives and construct Jacobian matrix
-							for( int i=0; i < lines[site]->getNumOfParameters(); i++ ) {
-								lines[site]->updateParameterWithDelta( i, delta ); 
+							for( int i=0; i < lines[label]->getNumOfParameters(); i++ ) {
+								lines[label]->updateParameterWithDelta( i, delta ); 
 								Jacobian.at<double>( site, 6*label+i ) = 
 									1.0 / delta * ( computeEnergy( dataPoints, labelings, lines ) - energy_before ); 
-								lines[site]->updateParameterWithDelta( i, -delta ); 
+								lines[label]->updateParameterWithDelta( i, -delta ); 
 							}
 						}
 					}
@@ -264,44 +262,31 @@ int main(int argc, char* argv[])
 				Mat X; 
 				cv::solve( A, -B, X, DECOMP_QR  ); 
 				for( int i=0; i<X.rows; i++ ) {
-					std::cout << std::setw(14) << std::scientific << X.at<double>( i ) << "  ";
+					std::cout << std::setw(14) << std::scientific << X.at<double>(i) << "  ";
 				}
 				cout << endl;
 
-
-				cout << Jacobian << endl; 
-				
-				Sleep(300); 
-
-				for( int i=0; i<lines.size(); i++ ) {
-					//Vec3f dpos( X.at<double>( 6*i ), X.at<double>( 6*i+1), X.at<double>( 6*i+2 ) );
-					//dpos /= dpos.dot( dpos ); 
-					//dpos *= 0.001; 
-/*
-					lines[i].pos[0] += dpos[0]; 
-					lines[i].pos[1] += dpos[1]; 
-					lines[i].pos[2] += dpos[2]; 
-*/
-					//lines[i].pos[0] += (float) X.at<double>( 6*i ); 
-					//lines[i].pos[1] += (float) X.at<double>( 6*i+1 ); 
-					//lines[i].pos[2] += (float) X.at<double>( 6*i+2 ); 
-
-					//lines[i].dir[0] += (float) X.at<double>( 6*i+3 ); 
-					//lines[i].dir[1] += (float) X.at<double>( 6*i+4 ); 
-					//lines[i].dir[2] += (float) X.at<double>( 6*i+5 ); 
-
-					//// make sure the direction vector is normalized
-					//float len2 = lines[i].dir.dot( lines[i].dir ); 
-					//if( abs(len2)>1.0e-10 ) lines[i].dir /= sqrt( len2 ); 
+				for( int label=0; label < lines.size(); label++ ) {
+					for( int i=0; i < lines[label]->getNumOfParameters(); i++ ) {
+						const double& delta = X.at<double>( label * (int) lines.size() + i ); 
+						lines[label]->updateParameterWithDelta( i, delta ); 
+					}
 				}
 				double energyDiff = computeEnergy( dataPoints, labelings, lines ) - energy_before;
 				if( energyDiff < 0 ) { // if energy is decreasing 
 					model->updateModel( lines, labelings ); 
-					lambda *= 2; 
+					//lambda *= 2; 
 				} else {
-					// this is important 
-					lambda /= 2; 
+					for( int label=0; label < lines.size(); label++ ) {
+						for( int i=0; i < lines[label]->getNumOfParameters(); i++ ) {
+							const double& delta = X.at<double>( label * (int) lines.size() + i ); 
+							lines[label]->updateParameterWithDelta( i, -delta ); 
+						}
+					}
+					// lambda /= 2; 
 				}
+
+				Sleep(300);  // TODO: this is only for debuging 
 			}
 		}
 	}

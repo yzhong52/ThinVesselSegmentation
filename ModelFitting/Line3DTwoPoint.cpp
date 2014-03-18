@@ -36,5 +36,5 @@ float Line3DTwoPoint::loglikelihood( const Vec3f& point ) const {
 
 
 void Line3DTwoPoint::updateParameterWithDelta( int i, double delta ) {
-	// TODO: 
+	data[i] += (float) delta; 
 }
