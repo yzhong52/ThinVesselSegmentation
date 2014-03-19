@@ -19,9 +19,7 @@ void GLLineModel::render(void){
 	// in case there is any previously bind texture, you need to unbind them
 	glBindTexture( GL_TEXTURE_3D, NULL );
 
-
 	// Also draw the axis
-
 	glBegin( GL_LINES );
 	// x-axis
 	glColor3f(  1.0f, 0.0f, 0.0f ); 
@@ -45,7 +43,7 @@ void GLLineModel::render(void){
 		int lineID = labelings[i]; 
 		// actual position
 		Vec3f prj = lines[lineID]->projection( dataPoints[i] ); 
-		glColor3fv( &lineColors[lineID][0] ); 
+		glColor3ubv( &lineColors[lineID][0] ); 
 		glVertex3fv( &prj[0] ); 
 		// data points
 		glColor3f( 0.1f, 0.1f, 0.1f ); 
@@ -58,7 +56,7 @@ void GLLineModel::render(void){
 		int lineID = labelings[i]; 
 		// actual position
 		Vec3f prj = lines[lineID]->projection( dataPoints[i] ); 
-		glColor3fv( &lineColors[lineID][0] ); 
+		glColor3ubv( &lineColors[lineID][0] ); 
 		glVertex3fv( &prj[0] ); 
 		// data points
 		glColor3f( 0.1f, 0.1f, 0.1f ); 
@@ -94,12 +92,12 @@ void GLLineModel::updateModel( const vector<Line3D*>& lns, const vector<int>& lb
 	if( lbls.size()==dataPoints.size() ) {
 		lines = lns; 
 		labelings = lbls; 
-		int num = (int) dataPoints.size() - (int) lineColors.size();
+		int num = (int) lns.size() - (int) lineColors.size();
 		for( int i=0; i<num; i++ ) {
-			Vec3f c( 
-				(rand()%128 ) + 128.0f,
-				(rand()%128 ) + 128.0f,
-				(rand()%128 ) + 128.0f ); 
+			Vec3b c( 
+				(rand()%228 ) + 28,
+				(rand()%228 ) + 28,
+				(rand()%228 ) + 28 ); 
 			lineColors.push_back( c ); 
 		}
 	} else {

@@ -26,7 +26,7 @@ namespace GLViewer{
 		// A vector of the points to lines
 		vector<Line3D*> lines; 
 		// a vector of the colors for the lines
-		vector<Vec3f> lineColors; 
+		vector<Vec3b> lineColors; // 3 unsigned char
 
 		// The following two vectors have same sizes
 		vector<cv::Vec3i> dataPoints; 

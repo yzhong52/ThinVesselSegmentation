@@ -109,8 +109,11 @@ int main(int argc, char* argv[])
 		im_short.at(i,  i+1,i)   = 100; 
 		im_short.at(i+1,i,  i)   = 100; 
 	}*/
-	im_short.at(5, 5, 5) = 100; 
-	im_short.at(5, 5, 15) = 100; 
+	//im_short.at(5, 5, 5) = 100; 
+	//im_short.at(5, 5, 10) = 100; 
+	//im_short.at(5, 5, 13) = 100; 
+	im_short.at(10, 10, 10) = 100; 
+	im_short.at(15, 15, 15) = 100; 
 
 	// OR real data
 	//im_short.load( "../data/data15.data" );
@@ -119,7 +122,8 @@ int main(int argc, char* argv[])
 	Data3D<unsigned char> im_uchar;
 	vector<cv::Vec3i> dataPoints;
 	IP::threshold( im_short, im_uchar, dataPoints, short(50) );
-
+	
+	// this is for visualization
 	GLViewer::GLLineModel *model = new GLViewer::GLLineModel( im_short.get_size() );
 	ver.objs.push_back( model );
 
@@ -137,77 +141,77 @@ int main(int argc, char* argv[])
 	// Initial Sampling - random
 	const int num_init_labels = 1; 
 	vector<Line3D*> lines; 
-	for( int i=0; i<num_init_labels; i++ ){
-		Line3DTwoPoint* line = new Line3DTwoPoint();
-		line->setPositions( Vec3f(7,7,5), Vec3f( 3,3,15) ); 
-		lines.push_back( line ); 
-	}
+
+	//Line3DTwoPoint* line = new Line3DTwoPoint();
+	//line->setPositions( Vec3f(7,7,5), Vec3f(3,3,15) ); 
+	//lines.push_back( line ); 
+
+	Line3DTwoPoint* line2 = new Line3DTwoPoint();
+	line2->setPositions( Vec3f(0,0,1), Vec3f(15,15,14) ); 
+	lines.push_back( line2 ); 
 
 	vector<int> labelings = vector<int>( dataPoints.size(), 0 ); 
-
 	model->updateModel( lines, labelings ); 
-
 
 	cout << "Graph Cut Begin" << endl; 
 	try{
 		// keep track of energy in previous iteration
 		GC::EnergyType energy_before = -1;
 
-		for( int i=0; i<1; i++ ) { // TODO: let's run the algorithm for only one iteration for now
-			//// TODO: let's not have background model for now. We will add background model later
-			//GCoptimizationGeneralGraph gc( (int) dataPoints.size(), (int) lines.size() ); 
+		for( int gciter=0; gciter<1; gciter++ ) { // TODO: let's run the algorithm for only one iteration for now
+		//	// TODO: let's not have background model for now. We will add background model later
+		//	GCoptimizationGeneralGraph gc( (int) dataPoints.size(), (int) lines.size() ); 
 
-			//////////////////////////////////////////////////
-			//// Data Costs
-			//////////////////////////////////////////////////
-			//for( GC::SiteID site = 0; site < (GC::SiteID) dataPoints.size(); site++ ) {
-			//	GC::LabelID label;
-			//	for( label = 0; label < lines.size(); label++ ){
-			//		const Line3D& line = lines[label];
-			//		// distance from a point to a line
-			//		const int& x = dataPoints[site][0];
-			//		const int& y = dataPoints[site][1];
-			//		const int& z = dataPoints[site][2];
-			//		float dist = line.distanceToLine( Vec3f(1.0f * x,1.0f * y,1.0f * z) );
-			//		// log likelihood based on the distance
-			//		GC::EnergyTermType loglikelihood = dist * dist / ( 2 * line.sigma * line.sigma );
-			//		// loglikelihood += log( line.sigma ); 
-			//		// static double C = 0.5 * log( 2*M_PI );
-			//		// loglikelihood += C; 
-			//		gc.setDataCost( site, label, LOGLIKELIHOOD * loglikelihood );
-			//	}
-			//}
+		//	////////////////////////////////////////////////
+		//	// Data Costs
+		//	////////////////////////////////////////////////
+		//	for( GC::SiteID site = 0; site < (GC::SiteID) dataPoints.size(); site++ ) {
+		//		GC::LabelID label;
+		//		for( label = 0; label < lines.size(); label++ ){
+		//			const Line3D* line = lines[label];
+		//			// distance from a point to a line
+		//			const int& x = dataPoints[site][0];
+		//			const int& y = dataPoints[site][1];
+		//			const int& z = dataPoints[site][2];
+		//			// log likelihood based on the distance
+		//			GC::EnergyTermType loglikelihood = line->loglikelihood( Vec3f(1.0f * x,1.0f * y,1.0f * z) );
+		//			// loglikelihood += log( line.sigma ); 
+		//			// static double C = 0.5 * log( 2*M_PI ); 
+		//			// loglikelihood += C; 
+		//			gc.setDataCost( site, label, LOGLIKELIHOOD * loglikelihood );
+		//		}
+		//	}
 
-			//////////////////////////////////////////////////
-			//// Smooth Cost
-			//////////////////////////////////////////////////
-			//// ... TODO: Setting Smooth Cost
-			//// im_uchar
-			//
+		//	////////////////////////////////////////////////
+		//	// Smooth Cost
+		//	////////////////////////////////////////////////
+		//	// ... TODO: Setting Smooth Cost
+		//	// im_uchar
+		//	
 
-			//////////////////////////////////////////////////
-			//// Graph-Cut Begin
-			//////////////////////////////////////////////////
-			//cout << "Iteration: " << i << ". Fitting Begin. Please Wait..."; 
-			//gc.expansion(1); // run expansion for 1 iterations. For swap use gc->swap(num_iterations);
-			//GC::EnergyType cur_energy = gc.compute_energy();
-			//if ( energy_before==cur_energy ) { 
-			//	cout << endl << "Energy is not changing. " << endl; break; 
-			//} else {
-			//	energy_before = cur_energy; 
-			//}
-			//cout << "Done. " << endl;
-			//
-			//// Counting the number of labels in forground and background 
-			//for( GC::SiteID site = 0; site < (GC::SiteID) dataPoints.size(); site++ ) {
-			//	const int& x = dataPoints[site][0];
-			//	const int& y = dataPoints[site][1];
-			//	const int& z = dataPoints[site][2];
-			//	labelings[site] = gc.whatLabel( site ); 
-			//}
+		//	////////////////////////////////////////////////
+		//	// Graph-Cut Begin
+		//	////////////////////////////////////////////////
+		//	cout << "Iteration: " << i << ". Fitting Begin. Please Wait..."; 
+		//	gc.expansion(1); // run expansion for 1 iterations. For swap use gc->swap(num_iterations);
+		//	GC::EnergyType cur_energy = gc.compute_energy();
+		//	if ( energy_before==cur_energy ) { 
+		//		cout << endl << "Energy is not changing. " << endl; break; 
+		//	} else {
+		//		energy_before = cur_energy; 
+		//	}
+		//	cout << "Done. " << endl;
+		//	
+		//	// Counting the number of labels in forground and background 
+		//	for( GC::SiteID site = 0; site < (GC::SiteID) dataPoints.size(); site++ ) {
+		//		const int& x = dataPoints[site][0];
+		//		const int& y = dataPoints[site][1];
+		//		const int& z = dataPoints[site][2];
+		//		labelings[site] = gc.whatLabel( site ); 
+		//	}
+		//	
+		//	model->updateModel( lines, labelings ); 
 			
-			model->updateModel( lines, labelings ); 
-
 			////////////////////////////////////////////////
 			// Re-estimation
 			////////////////////////////////////////////////
@@ -244,8 +248,7 @@ int main(int argc, char* argv[])
 							// compute the derivatives and construct Jacobian matrix
 							for( int i=0; i < lines[label]->getNumOfParameters(); i++ ) {
 								lines[label]->updateParameterWithDelta( i, delta ); 
-								Jacobian.at<double>( site, 6*label+i ) = 
-									1.0 / delta * ( computeEnergy( dataPoints, labelings, lines ) - energy_before ); 
+								Jacobian.at<double>( site, 6*label+i ) = 1.0 / delta * ( computeEnergy( dataPoints, labelings, lines ) - energy_before ); 
 								lines[label]->updateParameterWithDelta( i, -delta ); 
 							}
 						}
@@ -256,15 +259,14 @@ int main(int argc, char* argv[])
 				
 				A = A + Mat::diag( lambda * Mat::ones(A.cols, 1, CV_64F) ); 
 				
-
 				Mat B = Jacobian.t() * computeEnergyMatrix( dataPoints, labelings, lines ); 
 			
 				Mat X; 
 				cv::solve( A, -B, X, DECOMP_QR  ); 
-				for( int i=0; i<X.rows; i++ ) {
-					std::cout << std::setw(14) << std::scientific << X.at<double>(i) << "  ";
-				}
-				cout << endl;
+				//for( int i=0; i<X.rows; i++ ) {
+				//	std::cout << std::setw(14) << std::scientific << X.at<double>(i) << "  ";
+				//}
+				//cout << endl;
 
 				for( int label=0; label < lines.size(); label++ ) {
 					for( int i=0; i < lines[label]->getNumOfParameters(); i++ ) {
@@ -274,10 +276,12 @@ int main(int argc, char* argv[])
 				}
 				double energyDiff = computeEnergy( dataPoints, labelings, lines ) - energy_before;
 				if( energyDiff < 0 ) { // if energy is decreasing 
+					cout << "-" << endl; 
 					model->updateModel( lines, labelings ); 
 					// the smaller lambda is, the faster it converges
-					lambda /= 2; 
+					lambda *= 0.25; 
 				} else {
+					cout << "+" << endl; 
 					for( int label=0; label < lines.size(); label++ ) {
 						for( int i=0; i < lines[label]->getNumOfParameters(); i++ ) {
 							const double& delta = X.at<double>( label * (int) lines.size() + i ); 
@@ -285,10 +289,10 @@ int main(int argc, char* argv[])
 						}
 					}
 					// the bigger lambda is, the slower it converges
-					lambda *= 2; 
+					lambda *= 2.0; 
 				}
 
-				Sleep(3000);  // TODO: this is only for debuging 
+				Sleep(200);  // TODO: this is only for debuging 
 			}
 		}
 	}
