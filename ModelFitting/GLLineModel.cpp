@@ -19,21 +19,21 @@ void GLLineModel::render(void){
 	// in case there is any previously bind texture, you need to unbind them
 	glBindTexture( GL_TEXTURE_3D, NULL );
 
-	// Also draw the axis
-	glBegin( GL_LINES );
-	// x-axis
-	glColor3f(  1.0f, 0.0f, 0.0f ); 
-	glVertex3i( 0, 0, 0 ); 
-	glVertex3i( size[0], 0, 0 ); 
-	// y-axis
-	glColor3f(  0.0f, 1.0f, 0.0f ); 
-	glVertex3i( 0, 0, 0 ); 
-	glVertex3i( 0, size[1], 0 ); 
-	// z-axis
-	glColor3f(  0.0f, 0.0f, 1.0f ); 
-	glVertex3i( 0, 0, 0 ); 
-	glVertex3i( 0, 0, size[2] ); 
-	glEnd();
+	//// Also draw the axis
+	//glBegin( GL_LINES );
+	//// x-axis
+	//glColor3f(  1.0f, 0.0f, 0.0f ); 
+	//glVertex3i( 0, 0, 0 ); 
+	//glVertex3i( size[0], 0, 0 ); 
+	//// y-axis
+	//glColor3f(  0.0f, 1.0f, 0.0f ); 
+	//glVertex3i( 0, 0, 0 ); 
+	//glVertex3i( 0, size[1], 0 ); 
+	//// z-axis
+	//glColor3f(  0.0f, 0.0f, 1.0f ); 
+	//glVertex3i( 0, 0, 0 ); 
+	//glVertex3i( 0, 0, size[2] ); 
+	//glEnd();
 
 	WaitForSingleObject( hMutex, INFINITE );
 

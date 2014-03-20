@@ -10,37 +10,44 @@ namespace GLViewer
 		// frame rate
 		static int const fps = 20;
 		// name of the video
-		std::string video_name;
-		// dufation of saving
-		double duration;
+		std::string video_file_name;
 		// currently saving frame
 		int current_frame;
 		// total number of frames to be saved
 		int total_frames;
+
 		// initialized in void init(int, int)
-		bool isInit;
 		int width;
 		int height;
+
+		enum State{
+			Rendering,
+			isAboutToStop, 
+			isStopped
+		} state; 
+
+		bool autoRotate; 
 	public:
-		VideoSaver( std::string video_name, double duration = 18 ) 
-			: isInit( false )
-			, video_name( video_name )
-			, duration( duration )
-		{
-			total_frames = int( fps * duration ); 
-		}
+		VideoSaver( ) : state( isStopped ), autoRotate( false ) { }
 
 		unsigned int size_x(void) const { return 0; }
 		unsigned int size_y(void) const { return 0; }
 		unsigned int size_z(void) const { return 0; }
 
-		void init(int weight, int height);
+		// initialize video saver
+		void init(int w, int h, std::string filename, int maxNumFrames );
+		inline void stop( void ) { state = isAboutToStop; }
+		inline bool isDone( void ) const { return state==isStopped; } 
+		inline bool isRendering( void ) const { return (state==Rendering); } 
 
 		// saving video
 		void saveBuffer(void);
 
 		// take screen shot
 		void takeScreenShot( int w, int h); 
+
+		inline const bool& isAutoRotate( void ) const { return autoRotate; } 
+		inline const void setAutoRotate( bool flag ) { autoRotate = flag; } 
 	};
 }
 

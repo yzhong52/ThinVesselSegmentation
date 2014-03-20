@@ -2,6 +2,7 @@
 #include "GLCamera.h"
 
 #include <iostream>
+#include <sstream> 
 using namespace std;
 
 #include <time.h>
@@ -75,13 +76,15 @@ namespace GLViewer
 		
 		// saving frame buffer as video
 		if( videoSaver ) {
-			static bool autoRotate = true;
-			if( autoRotate ) {
-				cam.rotate_y(1); // rotate the camera for 1 degree 
+			if( videoSaver->isAutoRotate() ) {
+				// rotate the camera for 1 degree 
+				cam.rotate_y(1); 
 			}
 			videoSaver->saveBuffer();
 		}
-		if( isSaveFrame ) {
+
+		// take a screen shot
+		if( isSaveFrame && videoSaver ) {
 			videoSaver->takeScreenShot( width, height );
 			isSaveFrame = false; 
 		}
@@ -206,6 +209,23 @@ namespace GLViewer
 		case 's': case 'S': 
 			isSaveFrame = true; 
 			break;
+
+		/////////////////////////////
+		// saving video
+		/////////////////////////////
+		case 'v': case 'V':
+			if( !videoSaver || videoSaver->isDone() ) {
+				static int index = 0; 
+				stringstream videoName; 
+				videoName << "output/video" << ++index << ".avi";
+				cout << "Begin to create video '" << videoName.str() << "'" << endl; 
+				if( !videoSaver ) videoSaver = new VideoSaver();
+				videoSaver->init(width, height, videoName.str(), 300 );
+			} else if( videoSaver->isRendering() ) {
+				cout << "Video render complete. " << endl; 
+				videoSaver->stop();
+			} 
+			break;
 		case 27:
 			cout << "Rednering done. Thanks you for using GLViewer. " << endl;
 			exit(0);
@@ -213,7 +233,7 @@ namespace GLViewer
 		}
 	}
 
-	void go( vector<Object*> objects, VideoSaver* video, int w, int h )
+	void go( vector<Object*> objects, int w, int h )
 	{
 		if( numViewports == 4 ) {
 			width = w;
@@ -229,10 +249,10 @@ namespace GLViewer
 		}
 
 		obj = objects; 
-		videoSaver = video;
+		
 		for( unsigned int i=0; i<maxNumViewports; i++ ){ 
 			isDisplayObject[i].resize( objects.size(), false );
-			if(i<objects.size()) { // put the i-th object in the i-th viewport
+			if( i < objects.size() ) { // put the i-th object in the i-th viewport
 				isDisplayObject[i][i] = true;
 			} else {
 				isDisplayObject[i][0] = true;
@@ -278,11 +298,6 @@ namespace GLViewer
 		reset_projection();
 		reset_modelview();
 
-		// setting up for video captures if there is any
-		if( videoSaver ) {	
-			videoSaver->init(width, height);
-		}
-		
 		// Initial Rotation (Do as you want ); Now it is faciton the x-y plane
 		cam.rotate_x(-90); // rotate around x-axis for 90 degrees
 
@@ -293,11 +308,12 @@ namespace GLViewer
 		cout << "       RIGHT Button      - Translation (aside) " << endl;
 		cout << "       Middle Button     - Translation (forward/backward) " << endl;
 		cout << "   Keyboard Controls: " << endl;
-		cout << "       TAB               - Toggle on/off The Second Viewport" << endl;
+		//cout << "       TAB               - Toggle on/off The Second Viewport" << endl;
 		cout << "       a                 - Toggle on/off Rotation Center " << endl;
 		cout << "       SPACE             - Reset Projection Matrix " << endl;
 		cout << "       1,2,3...          - Toggle on/off objects " << endl;
 		cout << "       ALT + 1,2,3...  - Change Rendering Mode for a object " << endl;
+		cout << "       v/V               - toggle start/stop saving video" << endl;  
 		cout << "       ESC               - Exit " << endl;
 
 		glutMainLoop(); // No Code Will Be Executed After This Line

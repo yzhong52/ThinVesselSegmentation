@@ -100,12 +100,6 @@ public:
 
 	void go( int w = 1280, int h = 720, int numViewports = 1 ) {
 		GLViewer::numViewports = numViewports; 
-		GLViewer::go( objs, NULL, w, h );
-	}
-	
-	void saveVideo( int w = 1280, int h = 720, int numViewports = 1 ) {
-		GLViewer::numViewports = numViewports; 
-		GLViewer::VideoSaver videoSaver( "output/video.avi" );
-		GLViewer::go( objs, &videoSaver, w, h );
+		GLViewer::go( objs, w, h );
 	}
 }; 
