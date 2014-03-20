@@ -127,4 +127,14 @@ void GLLineModel::init(void){
 	//glEnable(GL_BLEND);
 	//glBlendFunc(GL_ONE, GL_ONE);
 	//glBlendEquation( GL_MAX_EXT ); 
+
+	
+	
+	glEnable( GL_POINT_SPRITE ); // GL_POINT_SPRITE_ARB if you're
+                                 // using the functionality as an extension.
+
+    glEnable( GL_POINT_SMOOTH );
+    glEnable( GL_BLEND );
+    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+    glPointSize( 3.0 );
 }

@@ -159,6 +159,7 @@
     <ClInclude Include="Line3D.h" />
     <ClInclude Include="Line3DPointDir.h" />
     <ClInclude Include="Line3DTwoPoint.h" />
+    <ClInclude Include="Neighbour26.h" />
     <ClInclude Include="nstdio.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>

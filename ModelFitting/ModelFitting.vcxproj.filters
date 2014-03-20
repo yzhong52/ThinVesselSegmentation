@@ -87,6 +87,9 @@
     <ClInclude Include="Line3DPointDir.h">
       <Filter>Line3D</Filter>
     </ClInclude>
+    <ClInclude Include="Neighbour26.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

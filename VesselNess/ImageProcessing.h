@@ -79,6 +79,20 @@ namespace ImageProcessing
 			}
 		}
 	}
+	// threshold the data and return a index map (dst) and of a set of locations
+	template<typename T>
+	void threshold( const Data3D<T>& src, Data3D<int>& indeces, vector<Vec3i>& pos, T thresh ){
+		int x,y,z;
+		indeces.reset( src.get_size() );
+		for(z=0;z<src.SZ();z++) for (y=0;y<src.SY();y++) for(x=0;x<src.SX();x++) {
+			if( src.at(x,y,z) > thresh ) {
+				indeces.at(x,y,z) = (int) pos.size(); 
+				pos.push_back( Vec3i(x,y,z) ); 
+			} else {
+				indeces.at(x,y,z) = -1; 
+			}
+		}
+	}
 	// threshold the data and suppress the point to zero if it is below threshold
 	template<typename T>
 	void threshold( const Data3D<T>& src, Data3D<T>& dst, T thresh ){

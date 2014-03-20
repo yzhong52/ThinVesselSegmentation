@@ -24,6 +24,8 @@ typedef GCoptimization GC;
 
 #include "Line3DTwoPoint.h" 
 
+#include "Neighbour26.h"
+
 // for visualization
 GLViwerModel ver;
 
@@ -80,8 +82,59 @@ Mat computeEnergyMatrix(
 	return eng; 
 }
 
+
+struct SmoothCostData {
+	vector<cv::Vec3i>* dataPoints;
+	vector<Line3D*>* lines; 
+}; 
+
+// Smooth Cost function - used in graph cut
+GC::EnergyType smoothCostFnExtra( GC::SiteID s1, GC::SiteID s2, GC::LabelID l1, GC::LabelID l2, void *data ) {
+	vector<cv::Vec3i>& dataPoints = *(((SmoothCostData*)data)->dataPoints);
+	vector<Line3D*>& lines = *(((SmoothCostData*)data)->lines);
+
+	GC::EnergyType eng = 0;
+	if( s1==s2 || l1==l2 ) {
+		cout<< "Holly crap. This is not good." << endl; 
+		cout<< "A site should not have smooth cost to it self" << endl; 
+		system( "pause" );
+		return eng; 
+	}
+
+	const int& x1 = dataPoints[s1][0];
+	const int& y1 = dataPoints[s1][1];
+	const int& z1 = dataPoints[s1][2];
+	const int& x2 = dataPoints[s2][0];
+	const int& y2 = dataPoints[s2][1];
+	const int& z2 = dataPoints[s2][2];
+
+	if( abs(x1-x2)<=1 && abs(y1-y2)<=1 && abs(x1-x2)<=1 ) {
+		// These two points are neighbours: (x1, y1, z1) and (x2, y2, z2)
+		Vec3f pi = lines[l1]->projection( dataPoints[s1] ); 
+		Vec3f pj = lines[l2]->projection( dataPoints[s2] ); 
+		Vec3f pi1 = lines[l2]->projection( pi ); 
+		Vec3f pj1 = lines[l1]->projection( pj ); 
+		
+		Vec3f pipj  = pi - pj; 
+		Vec3f pjpj1 = pj - pj1;
+		Vec3f pipi1 = pi - pi1; 
+
+		float dist_pipj = pipj.dot(pipj); 
+		float dist_pjpj1 = pipj.dot(pjpj1); 
+		float dist_pipi1 = pipj.dot(pipi1); 
+
+		if( dist_pipj > 1e-10 ) {
+			eng = ( dist_pjpj1 + dist_pipi1 ) / dist_pipj; 
+		}
+	}
+
+	return eng; 
+}
+
+
 int main(int argc, char* argv[])
 {
+
 	CreateDirectory(L"./output", NULL);
 	
 	Data3D<short> im_short;
@@ -120,9 +173,9 @@ int main(int argc, char* argv[])
 
 
 	// threshold the data and put the data points into a vector
-	Data3D<unsigned char> im_uchar;
+	Data3D<int> indeces;
 	vector<cv::Vec3i> dataPoints;
-	IP::threshold( im_short, im_uchar, dataPoints, short(50) );
+	IP::threshold( im_short, indeces, dataPoints, short(50) );
 	
 	// this is for visualization
 	GLViewer::GLLineModel *model = new GLViewer::GLLineModel( im_short.get_size() );
@@ -172,10 +225,33 @@ int main(int argc, char* argv[])
 			////////////////////////////////////////////////
 			// Smooth Cost
 			////////////////////////////////////////////////
-			// ... TODO: Setting Smooth Cost
-			// im_uchar
+			//for( GC::SiteID site = 0; site < dataPoints.size(); site++ ) {
+			//	for( int nei=0; nei<13; nei++ ) {
+			//		static int offx, offy, offz;
+			//		Neighbour26::at( nei, offx, offy, offz ); 
+			//		const int& x = dataPoints[site][0] + offx;
+			//		const int& y = dataPoints[site][1] + offy;
+			//		const int& z = dataPoints[site][2] + offz;
+			//		if( indeces.isValid(x,y,z) ) {
+			//			GC::SiteID site2 = indeces.at(x,y,z); 
+			//			if( site2>=0 ) {
+			//				// set neighbour
+			//				gc.setNeighbors( site, site2 );
+			//			}
+			//		}
+			//	}
+			//}
+			for( GC::SiteID site = 0; site < dataPoints.size(); site++ ) {
+				for( GC::SiteID site2 = site+1; site2 < dataPoints.size(); site2++ ) {
+					gc.setNeighbors( site, site2 );
+				}
+			}
 			
-
+			SmoothCostData smoothCostData; 
+			smoothCostData.dataPoints = &dataPoints;
+			smoothCostData.lines = &lines; 
+			gc.setSmoothCost( smoothCostFnExtra, &smoothCostData ); 
+			
 			////////////////////////////////////////////////
 			// Graph-Cut Begin
 			////////////////////////////////////////////////
@@ -286,7 +362,7 @@ int main(int argc, char* argv[])
 					lambda *= lambdaMultiplier; 
 				}
 
-				// Sleep(20);  // TODO: this is only for debuging 
+				// Sleep(200);  // TODO: this is only for debuging 
 			}
 		}
 	}
