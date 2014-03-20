@@ -126,12 +126,15 @@ GC::EnergyType smoothCostFnExtra( GC::SiteID s1, GC::SiteID s2, GC::LabelID l1, 
 	return eng; 
 }
 
-GC::EnergyType smoothCostFnPotts( GC::SiteID s1, GC::SiteID s2, GC::LabelID l1, GC::LabelID l2 ) {
-	return l1 != l2 ? 1 : 0;
-}
 
 int main(int argc, char* argv[])
 {
+	//Mat matrix( 0, 3, CV_32F ); 
+	//matrix.push_back( Mat::zeros( 2, 3, CV_32F ) ); 
+	//matrix.push_back( Mat::ones( 2, 3, CV_32F ) ); 
+	//cout << matrix << endl; 
+
+	//return 0; 
 
 	CreateDirectory(L"./output", NULL);
 	
@@ -195,7 +198,7 @@ int main(int argc, char* argv[])
 		// keep track of energy in previous iteration
 		GC::EnergyType energy_before = -1;
 
-		for( int gciter=0; gciter<2; gciter++ ) { // TODO: let's run the algorithm for only one iteration for now
+		for( int gciter=0; gciter<10; gciter++ ) { // TODO: let's run the algorithm for only one iteration for now
 			// TODO: let's not have background model for now. We will add background model later
 			GCoptimizationGeneralGraph gc( (int) dataPoints.size(), (int) lines.size() ); 
 
@@ -268,96 +271,182 @@ int main(int argc, char* argv[])
 			}
 			
 			model->updateModel( lines, labelings ); 
-			//
-			//////////////////////////////////////////////////
-			//// Re-estimation
-			//////////////////////////////////////////////////
-			//// Levenburg Maquart
-			//double lambda = 1e4; 
-			//double lambdaMultiplier = 1.0; 
-			//for( int lmiter = 0; lambda < 10e100; lmiter++ ) { 
-			//	cout << "Levenburg Maquart: " << lmiter << " Lambda: " << lambda << endl; 
+			
 
-			//	// there are six parameters
-			//	// Jacobian Matrix ( # of cols: number of data points; # of rows: number of parameters of each line models)? 
-			//	Mat Jacobian = Mat::zeros(
-			//		(int) dataPoints.size(), 
-			//		(int) lines.size() * lines[0]->getNumOfParameters(),
-			//		CV_64F ); 
-			//	
-			//	// Contruct Jacobian matrix
-			//	for( int label=0; label < lines.size(); label++ ) {
-			//		for( int site=0; site < dataPoints.size(); site++ ) {
-			//			if( labelings[site] != label ) {
-			//				for( int i=0; i < lines[label]->getNumOfParameters(); i++ ) {
-			//					Jacobian.at<double>( site, 6*label+i ) = 0; 
-			//				}
-			//			} 
-			//			else 
-			//			{
-			//				static const float delta = 0.001f; 
 
-			//				// TODO: this line is not necessary if we have run graph cut
-			//				energy_before = computeEnergy( dataPoints, labelings, lines ); 
 
-			//				// compute the derivatives and construct Jacobian matrix
-			//				for( int i=0; i < lines[label]->getNumOfParameters(); i++ ) {
-			//					lines[label]->updateParameterWithDelta( i, delta ); 
-			//					Jacobian.at<double>( site, 6*label+i ) = 1.0 / delta * ( computeEnergy( dataPoints, labelings, lines ) - energy_before ); 
-			//					lines[label]->updateParameterWithDelta( i, -delta ); 
-			//				}
-			//			}
-			//		}
-			//	} // end of contruction of Jacobian Matrix
 
-			//	Mat A = Jacobian.t() * Jacobian; 
-			//	
-			//	A = A + Mat::diag( lambda * Mat::ones(A.cols, 1, CV_64F) ); 
-			//	
-			//	Mat B = Jacobian.t() * computeEnergyMatrix( dataPoints, labelings, lines ); 
-			//	
-			//	Mat X; 
-			//	cv::solve( A, -B, X, DECOMP_QR  ); 
-			//	// Output for debug only 
-			//	//for( int i=0; i<X.rows; i++ ) {
-			//	//	std::cout << std::setw(14) << std::scientific << X.at<double>(i) << "  ";
-			//	//}
-			//	//cout << endl;
+			////////////////////////////////////////////////
+			// Re-estimation
+			////////////////////////////////////////////////
+			// Levenburg Maquart
+			double lambda = 1e4; 
+			double lambdaMultiplier = 1.0; 
+			const int numOfParameters = (int) lines.size() * lines[0]->getNumOfParameters(); 
+			for( int lmiter = 0; lambda < 10e50 && lambda > 10e-50 && lmiter<100; lmiter++ ) { 
+				cout << "Levenburg Maquart: " << lmiter << " Lambda: " << lambda << endl; 
+	
+				Mat energyMatrix = computeEnergyMatrix( dataPoints, labelings, lines ); 
 
-			//	for( int label=0; label < lines.size(); label++ ) {
-			//		for( int i=0; i < lines[label]->getNumOfParameters(); i++ ) {
-			//			const double& delta = X.at<double>( label * lines[label]->getNumOfParameters() + i ); 
-			//			lines[label]->updateParameterWithDelta( i, delta ); 
-			//		}
-			//	}
+				// there are six parameters
+				// Jacobian Matrix ( # of cols: number of data points; # of rows: number of parameters of each line models)? 
+				Mat Jacobian = Mat::zeros( (int) dataPoints.size(), numOfParameters, CV_64F ); 
+				
+				// Contruct Jacobian matrix
+				for( int label=0; label < lines.size(); label++ ) {
+					for( int site=0; site < dataPoints.size(); site++ ) {
+						if( labelings[site] != label ) {
+							for( int i=0; i < lines[label]->getNumOfParameters(); i++ ) {
+								Jacobian.at<double>( site, lines[label]->getNumOfParameters() * label + i ) = 0; 
+							}
+						} 
+						else 
+						{
+							static const float delta = 0.001f; 
 
-			//	double energyDiff = computeEnergy( dataPoints, labelings, lines ) - energy_before;
-			//	if( energyDiff < 0 ) { // if energy is decreasing 
-			//		cout << "-" << endl; 
-			//		model->updateModel( lines, labelings ); 
-			//		// the smaller lambda is, the faster it converges
-			//		if( lambdaMultiplier<1.0 ) lambdaMultiplier *= 0.9; 
-			//		else lambdaMultiplier = 0.9; 
-			//		lambda *= lambdaMultiplier; 
-			//	} else {
-			//		// If an iteration gives insufficient reduction in the residual, lamda can be increased, 
-			//		// giving a step closer to the gradient descent direction 
-			//		cout << "+" << endl; 
-			//		for( int label=0; label < lines.size(); label++ ) {
-			//			for( int i=0; i < lines[label]->getNumOfParameters(); i++ ) {
-			//				const double& delta = X.at<double>( label * lines[label]->getNumOfParameters() + i ); 
-			//				lines[label]->updateParameterWithDelta( i, -delta ); 
-			//			}
-			//		}
+							// TODO: move this out of the loop
+							double energy_before_for_distance = computeEnergy( dataPoints, labelings, lines ); 
 
-			//		// the bigger lambda is, the slower it converges
-			//		if( lambdaMultiplier>1.0 ) lambdaMultiplier *= 1.1; 
-			//		else lambdaMultiplier = 1.1; 
-			//		lambda *= lambdaMultiplier; 
-			//	}
+							// compute the derivatives and construct Jacobian matrix
+							for( int i=0; i < lines[label]->getNumOfParameters(); i++ ) {
+								lines[label]->updateParameterWithDelta( i, delta ); 
+								Jacobian.at<double>( site, 6*label+i ) = 1.0 / delta * ( computeEnergy( dataPoints, labelings, lines ) - energy_before_for_distance ); 
+								lines[label]->updateParameterWithDelta( i, -delta ); 
+							}
+						}
+					}
+				} // Contruct Jacobian matrix (2B Continue)
 
-			//	// Sleep(200);  // TODO: this is only for debuging 
-			//}
+				// Contruct Jacobian matrix (Continue) - for smooth cost
+				for( GC::SiteID site = 0; site < dataPoints.size(); site++ ) {
+					for( int nei=0; nei<13; nei++ ) {
+						static int offx, offy, offz;
+						Neighbour26::at( nei, offx, offy, offz ); 
+						const int& x = dataPoints[site][0] + offx;
+						const int& y = dataPoints[site][1] + offy;
+						const int& z = dataPoints[site][2] + offz;
+						if( !indeces.isValid(x,y,z) ) continue; 
+						
+						GC::SiteID site2 = indeces.at(x,y,z); 
+						if( site2==-1 )  continue ; // not a neighbour
+
+						// found a neighbour
+						Mat J1 = Mat::zeros( 1, numOfParameters, CV_64F ); 
+						Mat J2 = Mat::zeros( 1, numOfParameters, CV_64F ); 
+
+						GC::LabelID l1 = labelings[site];
+						GC::LabelID l2 = labelings[site2];
+						
+						Vec3f pi = lines[l1]->projection( dataPoints[site] ); 
+						Vec3f pj = lines[l2]->projection( dataPoints[site2] ); 
+						Vec3f pi1 = lines[l2]->projection( pi ); 
+						Vec3f pj1 = lines[l1]->projection( pj ); 
+
+						Vec3f pipj  = pi - pj; 
+						Vec3f pjpj1 = pj - pj1;
+						Vec3f pipi1 = pi - pi1; 
+
+						float dist_pipj = pipj.dot(pipj); 
+						float dist_pipi1 = pipi1.dot(pipi1); 
+						float dist_pjpj1 = pjpj1.dot(pjpj1); 
+
+						// compute derivatives
+						double energy_before_for_smoothness = dist_pipi1 / dist_pipj; 
+						double energy_before_for_smoothness2 = dist_pjpj1 / dist_pipj; 
+
+						// Setting up J
+						for( GC::LabelID label = 0; label < lines.size(); label++ ) {
+							if( (l1==label) || (l2==label) ) {
+
+								for( int i=0; i < lines[label]->getNumOfParameters(); i++ ) {
+									static const float delta = 0.001f; 
+
+									lines[label]->updateParameterWithDelta( i, delta ); 
+
+									Vec3f pi = lines[l1]->projection( dataPoints[site] ); 
+									Vec3f pj = lines[l2]->projection( dataPoints[site2] ); 
+									Vec3f pi1 = lines[l2]->projection( pi ); 
+									Vec3f pj1 = lines[l1]->projection( pj ); 
+
+									Vec3f pipj  = pi - pj; 
+									Vec3f pipi1 = pi - pi1; 
+									Vec3f pjpj1 = pj - pj1;
+
+									float dist_pipj = pipj.dot(pipj); 
+									float dist_pipi1 = pipi1.dot(pipi1); 
+									float dist_pjpj1 = pjpj1.dot(pjpj1); 
+
+									// compute derivatives
+									J1.at<double>( 0, lines[label]->getNumOfParameters() * label + i ) = 
+										dist_pipi1 / dist_pipj - energy_before_for_smoothness; 
+									J2.at<double>( 0, lines[label]->getNumOfParameters() * label + i ) = 
+										dist_pjpj1 / dist_pipj - energy_before_for_smoothness2; 
+
+									lines[label]->updateParameterWithDelta( i, -delta ); 
+								}
+								// add more rows to energyMatrix according to smooth cost 
+								energyMatrix.push_back( sqrt( energy_before_for_smoothness ) ); 
+								energyMatrix.push_back( sqrt( energy_before_for_smoothness2 ) ); 
+							} else {
+								const Mat twoZeros = Mat::zeros(2, 1, CV_64F); 
+								energyMatrix.push_back( twoZeros ); 
+							}
+							// Add J1 and J2 to Jacobian matrix as an additional row
+							Jacobian.push_back( J1 ); 
+							Jacobian.push_back( J2 ); 
+						}
+					}
+				} // end of contruction of Jacobian Matrix
+
+				Mat A = Jacobian.t() * Jacobian; 
+				
+				A = A + Mat::diag( lambda * Mat::ones(A.cols, 1, CV_64F) ); 
+				
+				// TODO: add smooth ness to this
+				Mat B = Jacobian.t() * energyMatrix; 
+				
+				Mat X; 
+				cv::solve( A, -B, X, DECOMP_QR  ); 
+				// Output for debug only 
+				//for( int i=0; i<X.rows; i++ ) {
+				//	std::cout << std::setw(14) << std::scientific << X.at<double>(i) << "  ";
+				//}
+				//cout << endl;
+
+				for( int label=0; label < lines.size(); label++ ) {
+					for( int i=0; i < lines[label]->getNumOfParameters(); i++ ) {
+						const double& delta = X.at<double>( label * lines[label]->getNumOfParameters() + i ); 
+						lines[label]->updateParameterWithDelta( i, delta ); 
+					}
+				}
+
+				double energyDiff = computeEnergy( dataPoints, labelings, lines ) - energy_before;
+				if( energyDiff < 0 ) { // if energy is decreasing 
+					cout << "-" << endl; 
+					model->updateModel( lines, labelings ); 
+					// the smaller lambda is, the faster it converges
+					if( lambdaMultiplier<1.0 ) lambdaMultiplier *= 0.9; 
+					else lambdaMultiplier = 0.9; 
+					lambda *= lambdaMultiplier; 
+				} else {
+					// If an iteration gives insufficient reduction in the residual, lamda can be increased, 
+					// giving a step closer to the gradient descent direction 
+					cout << "+" << endl; 
+					for( int label=0; label < lines.size(); label++ ) {
+						for( int i=0; i < lines[label]->getNumOfParameters(); i++ ) {
+							const double& delta = X.at<double>( label * lines[label]->getNumOfParameters() + i ); 
+							lines[label]->updateParameterWithDelta( i, -delta ); 
+						}
+					}
+
+					// the bigger lambda is, the slower it converges
+					if( lambdaMultiplier>1.0 ) lambdaMultiplier *= 1.1; 
+					else lambdaMultiplier = 1.1; 
+					lambda *= lambdaMultiplier; 
+				}
+
+				// Sleep(200);  // TODO: this is only for debuging 
+			}
 		}
 	}
 	catch (GCException e){

@@ -5,8 +5,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VesselNess", "VesselNess\Ve
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ModelFitting", "ModelFitting\ModelFitting.vcxproj", "{BC8B11D4-A2AC-4DCA-BD34-12D599F0F3B1}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Levenberg–Marquardt", "Levenberg–Marquardt\Levenberg–Marquardt.vcxproj", "{521E4A5F-9209-4D24-992E-E47D7560ED1A}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -30,13 +28,6 @@ Global
 		{BC8B11D4-A2AC-4DCA-BD34-12D599F0F3B1}.Release|Win32.Build.0 = Release|Win32
 		{BC8B11D4-A2AC-4DCA-BD34-12D599F0F3B1}.Release|x64.ActiveCfg = Release|x64
 		{BC8B11D4-A2AC-4DCA-BD34-12D599F0F3B1}.Release|x64.Build.0 = Release|x64
-		{521E4A5F-9209-4D24-992E-E47D7560ED1A}.Debug|Win32.ActiveCfg = Debug|Win32
-		{521E4A5F-9209-4D24-992E-E47D7560ED1A}.Debug|Win32.Build.0 = Debug|Win32
-		{521E4A5F-9209-4D24-992E-E47D7560ED1A}.Debug|x64.ActiveCfg = Debug|x64
-		{521E4A5F-9209-4D24-992E-E47D7560ED1A}.Release|Win32.ActiveCfg = Release|Win32
-		{521E4A5F-9209-4D24-992E-E47D7560ED1A}.Release|Win32.Build.0 = Release|Win32
-		{521E4A5F-9209-4D24-992E-E47D7560ED1A}.Release|x64.ActiveCfg = Release|x64
-		{521E4A5F-9209-4D24-992E-E47D7560ED1A}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
