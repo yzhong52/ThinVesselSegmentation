@@ -27,9 +27,11 @@ typedef GCoptimization GC;
 // for visualization
 GLViwerModel ver;
 
+
+// thead function for visualization 
 void visualization_func( void* data ) {
 	GLViwerModel& ver = *(GLViwerModel*) data; 
-	ver.go();
+	ver.go(512, 300, 1);
 }
 
 const GC::EnergyType LOGLIKELIHOOD = 100; 
@@ -109,9 +111,9 @@ int main(int argc, char* argv[])
 		im_short.at(i,  i+1,i)   = 100; 
 		im_short.at(i+1,i,  i)   = 100; 
 	}*/
-	//im_short.at(5, 5, 5) = 100; 
-	//im_short.at(5, 5, 10) = 100; 
-	//im_short.at(5, 5, 13) = 100; 
+	im_short.at(5, 5, 5) = 100; 
+	im_short.at(5, 5, 10) = 100; 
+	im_short.at(5, 5, 13) = 100; 
 	im_short.at(10, 10, 10) = 100; 
 	im_short.at(15, 15, 15) = 100; 
 
@@ -139,18 +141,20 @@ int main(int argc, char* argv[])
 	// Line Fitting
 	//////////////////////////////////////////////////
 	// Initial Sampling - random
-	const int num_init_labels = 1; 
+	const int num_init_labels = 2; 
 	vector<Line3D*> lines; 
 
-	//Line3DTwoPoint* line = new Line3DTwoPoint();
-	//line->setPositions( Vec3f(7,7,5), Vec3f(3,3,15) ); 
-	//lines.push_back( line ); 
+	Line3DTwoPoint* line = new Line3DTwoPoint();
+	line->setPositions( Vec3f(7,7,5), Vec3f(3,3,15) ); 
+	lines.push_back( line ); 
 
 	Line3DTwoPoint* line2 = new Line3DTwoPoint();
-	line2->setPositions( Vec3f(0,0,1), Vec3f(15,15,14) ); 
+	line2->setPositions( Vec3f(10,10,10), Vec3f(13,13,17) ); 
 	lines.push_back( line2 ); 
 
-	vector<int> labelings = vector<int>( dataPoints.size(), 0 ); 
+
+	// Initial labelings
+	vector<int> labelings = vector<int>( dataPoints.size(), 1 ); 
 	model->updateModel( lines, labelings ); 
 
 	cout << "Graph Cut Begin" << endl; 
@@ -159,65 +163,65 @@ int main(int argc, char* argv[])
 		GC::EnergyType energy_before = -1;
 
 		for( int gciter=0; gciter<1; gciter++ ) { // TODO: let's run the algorithm for only one iteration for now
-		//	// TODO: let's not have background model for now. We will add background model later
-		//	GCoptimizationGeneralGraph gc( (int) dataPoints.size(), (int) lines.size() ); 
+			// TODO: let's not have background model for now. We will add background model later
+			GCoptimizationGeneralGraph gc( (int) dataPoints.size(), (int) lines.size() ); 
 
-		//	////////////////////////////////////////////////
-		//	// Data Costs
-		//	////////////////////////////////////////////////
-		//	for( GC::SiteID site = 0; site < (GC::SiteID) dataPoints.size(); site++ ) {
-		//		GC::LabelID label;
-		//		for( label = 0; label < lines.size(); label++ ){
-		//			const Line3D* line = lines[label];
-		//			// distance from a point to a line
-		//			const int& x = dataPoints[site][0];
-		//			const int& y = dataPoints[site][1];
-		//			const int& z = dataPoints[site][2];
-		//			// log likelihood based on the distance
-		//			GC::EnergyTermType loglikelihood = line->loglikelihood( Vec3f(1.0f * x,1.0f * y,1.0f * z) );
-		//			// loglikelihood += log( line.sigma ); 
-		//			// static double C = 0.5 * log( 2*M_PI ); 
-		//			// loglikelihood += C; 
-		//			gc.setDataCost( site, label, LOGLIKELIHOOD * loglikelihood );
-		//		}
-		//	}
+			////////////////////////////////////////////////
+			// Data Costs
+			////////////////////////////////////////////////
+			for( GC::SiteID site = 0; site < (GC::SiteID) dataPoints.size(); site++ ) {
+				GC::LabelID label;
+				for( label = 0; label < lines.size(); label++ ){
+					const Line3D* line = lines[label];
+					// distance from a point to a line
+					const int& x = dataPoints[site][0];
+					const int& y = dataPoints[site][1];
+					const int& z = dataPoints[site][2];
+					// log likelihood based on the distance
+					GC::EnergyTermType loglikelihood = line->loglikelihood( Vec3f(1.0f * x,1.0f * y,1.0f * z) );
+					// loglikelihood += log( line.sigma ); 
+					// static double C = 0.5 * log( 2*M_PI ); 
+					// loglikelihood += C; 
+					gc.setDataCost( site, label, LOGLIKELIHOOD * loglikelihood );
+				}
+			}
 
-		//	////////////////////////////////////////////////
-		//	// Smooth Cost
-		//	////////////////////////////////////////////////
-		//	// ... TODO: Setting Smooth Cost
-		//	// im_uchar
-		//	
+			////////////////////////////////////////////////
+			// Smooth Cost
+			////////////////////////////////////////////////
+			// ... TODO: Setting Smooth Cost
+			// im_uchar
+			
 
-		//	////////////////////////////////////////////////
-		//	// Graph-Cut Begin
-		//	////////////////////////////////////////////////
-		//	cout << "Iteration: " << i << ". Fitting Begin. Please Wait..."; 
-		//	gc.expansion(1); // run expansion for 1 iterations. For swap use gc->swap(num_iterations);
-		//	GC::EnergyType cur_energy = gc.compute_energy();
-		//	if ( energy_before==cur_energy ) { 
-		//		cout << endl << "Energy is not changing. " << endl; break; 
-		//	} else {
-		//		energy_before = cur_energy; 
-		//	}
-		//	cout << "Done. " << endl;
-		//	
-		//	// Counting the number of labels in forground and background 
-		//	for( GC::SiteID site = 0; site < (GC::SiteID) dataPoints.size(); site++ ) {
-		//		const int& x = dataPoints[site][0];
-		//		const int& y = dataPoints[site][1];
-		//		const int& z = dataPoints[site][2];
-		//		labelings[site] = gc.whatLabel( site ); 
-		//	}
-		//	
-		//	model->updateModel( lines, labelings ); 
+			////////////////////////////////////////////////
+			// Graph-Cut Begin
+			////////////////////////////////////////////////
+			cout << "Iteration: " << gciter << ". Fitting Begin. Please Wait..."; 
+			gc.expansion(1); // run expansion for 1 iterations. For swap use gc->swap(num_iterations);
+			GC::EnergyType cur_energy = gc.compute_energy();
+			if ( energy_before==cur_energy ) { 
+				cout << endl << "Energy is not changing. " << endl; break; 
+			} else {
+				energy_before = cur_energy; 
+			}
+			cout << "Done. " << endl;
+			
+			// Counting the number of labels in forground and background 
+			for( GC::SiteID site = 0; site < (GC::SiteID) dataPoints.size(); site++ ) {
+				const int& x = dataPoints[site][0];
+				const int& y = dataPoints[site][1];
+				const int& z = dataPoints[site][2];
+				labelings[site] = gc.whatLabel( site ); 
+			}
+			
+			model->updateModel( lines, labelings ); 
 			
 			////////////////////////////////////////////////
 			// Re-estimation
 			////////////////////////////////////////////////
 			// Levenburg Maquart
 			double lambda = 1e4; 
-			for( int lmiter = 0; lambda < 10e10; lmiter++ ) { 
+			for( int lmiter = 0; lambda < 10e100; lmiter++ ) { 
 				cout << "Levenburg Maquart: " << lmiter << " Lambda: " << lambda << endl; 
 
 				// there are six parameters
@@ -231,12 +235,9 @@ int main(int argc, char* argv[])
 				for( int label=0; label < lines.size(); label++ ) {
 					for( int site=0; site < dataPoints.size(); site++ ) {
 						if( labelings[site] != label ) {
-							Jacobian.at<double>( site, 6*label ) = 0; 
-							Jacobian.at<double>( site, 6*label+1 ) = 0; 
-							Jacobian.at<double>( site, 6*label+2 ) = 0; 
-							Jacobian.at<double>( site, 6*label+3 ) = 0; 
-							Jacobian.at<double>( site, 6*label+4 ) = 0; 
-							Jacobian.at<double>( site, 6*label+5 ) = 0; 
+							for( int i=0; i < lines[label]->getNumOfParameters(); i++ ) {
+								Jacobian.at<double>( site, 6*label+i ) = 0; 
+							}
 						} 
 						else 
 						{
@@ -260,20 +261,21 @@ int main(int argc, char* argv[])
 				A = A + Mat::diag( lambda * Mat::ones(A.cols, 1, CV_64F) ); 
 				
 				Mat B = Jacobian.t() * computeEnergyMatrix( dataPoints, labelings, lines ); 
-			
+				
 				Mat X; 
 				cv::solve( A, -B, X, DECOMP_QR  ); 
-				//for( int i=0; i<X.rows; i++ ) {
-				//	std::cout << std::setw(14) << std::scientific << X.at<double>(i) << "  ";
-				//}
-				//cout << endl;
+				for( int i=0; i<X.rows; i++ ) {
+					std::cout << std::setw(14) << std::scientific << X.at<double>(i) << "  ";
+				}
+				cout << endl;
 
 				for( int label=0; label < lines.size(); label++ ) {
 					for( int i=0; i < lines[label]->getNumOfParameters(); i++ ) {
-						const double& delta = X.at<double>( label * (int) lines.size() + i ); 
+						const double& delta = X.at<double>( label * lines[label]->getNumOfParameters() + i ); 
 						lines[label]->updateParameterWithDelta( i, delta ); 
 					}
 				}
+
 				double energyDiff = computeEnergy( dataPoints, labelings, lines ) - energy_before;
 				if( energyDiff < 0 ) { // if energy is decreasing 
 					cout << "-" << endl; 
@@ -281,18 +283,22 @@ int main(int argc, char* argv[])
 					// the smaller lambda is, the faster it converges
 					lambda *= 0.25; 
 				} else {
+					// If an iteration gives insufficient reduction in the residual, lamda can be increased, 
+					// giving a step closer to the gradient descent direction 
 					cout << "+" << endl; 
 					for( int label=0; label < lines.size(); label++ ) {
 						for( int i=0; i < lines[label]->getNumOfParameters(); i++ ) {
-							const double& delta = X.at<double>( label * (int) lines.size() + i ); 
+							const double& delta = X.at<double>( label * lines[label]->getNumOfParameters() + i ); 
 							lines[label]->updateParameterWithDelta( i, -delta ); 
 						}
 					}
+
 					// the bigger lambda is, the slower it converges
 					lambda *= 2.0; 
 				}
 
-				Sleep(200);  // TODO: this is only for debuging 
+				// Sleep(200);  // TODO: this is only for debuging 
+				
 			}
 		}
 	}
