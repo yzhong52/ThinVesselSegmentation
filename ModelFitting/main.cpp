@@ -31,7 +31,7 @@ GLViwerModel ver;
 // thead function for visualization 
 void visualization_func( void* data ) {
 	GLViwerModel& ver = *(GLViwerModel*) data; 
-	ver.go(512, 300, 1);
+	ver.go(/*512, 300, 1*/);
 }
 
 const GC::EnergyType LOGLIKELIHOOD = 100; 
@@ -46,16 +46,13 @@ GC::EnergyType computeEnergy(
 
 	for( GC::SiteID site = 0; site < (GC::SiteID) dataPoints.size(); site++ ) {
 		GC::LabelID label = labelings[site];
-		
 		const Line3D* line = lines[label];
 		// distance from a point to a line
 		const int& x = dataPoints[site][0];
 		const int& y = dataPoints[site][1];
 		const int& z = dataPoints[site][2];
-
 		// log likelihood based on the distance
-		GC::EnergyTermType loglikelihood = line->loglikelihood( Vec3f(1.0f * x,1.0f * y,1.0f * z) ); // dist * dist / ( 2 * line.sigma * line.sigma );
-
+		GC::EnergyTermType loglikelihood = line->loglikelihood( Vec3f(1.0f * x,1.0f * y,1.0f * z) ); 
 		energy += LOGLIKELIHOOD * loglikelihood; 
 	}
 	return energy; 
@@ -71,7 +68,6 @@ Mat computeEnergyMatrix(
 
 	for( GC::SiteID site = 0; site < (GC::SiteID) dataPoints.size(); site++ ) {
 		GC::LabelID label = labelings[site];
-		
 		const Line3D* line = lines[label];
 		// distance from a point to a line
 		const int& x = dataPoints[site][0];
@@ -79,7 +75,6 @@ Mat computeEnergyMatrix(
 		const int& z = dataPoints[site][2];
 		// log likelihood based on the distance
 		GC::EnergyTermType loglikelihood = line->loglikelihood( Vec3f(1.0f * x,1.0f * y,1.0f * z) );
-
 		eng.at<double>( site, 0 ) = sqrt( LOGLIKELIHOOD * loglikelihood ); 
 	}
 	return eng; 
@@ -87,19 +82,6 @@ Mat computeEnergyMatrix(
 
 int main(int argc, char* argv[])
 {
-
-	//std::cout.width(1);
-	//for( int i=0; i<10; i++ ){
-	//	cout.width( 2 ); 
-	//	std::cout << std::setw(14) << std::scientific << 1.343434343435e3 << "  ";
-	//	std::cout << std::setw(14) << std::scientific << -1.343434343435e3 << "  ";
-	//}
-	////Mat Jacobian = Mat::ones( 3, 4, CV_32F ); 
-	////cout << Jacobian << endl;
-	////Jacobian.at<float>(2,3) = 2; 
-	////cout << Jacobian << endl;
-	//return 0; 
-
 	CreateDirectory(L"./output", NULL);
 	
 	Data3D<short> im_short;
@@ -113,12 +95,29 @@ int main(int argc, char* argv[])
 	}*/
 	im_short.at(5, 5, 5) = 100; 
 	im_short.at(5, 5, 10) = 100; 
-	im_short.at(5, 5, 13) = 100; 
-	im_short.at(10, 10, 10) = 100; 
-	im_short.at(15, 15, 15) = 100; 
+	im_short.at(5, 5, 15) = 100; 
+	
+	im_short.at(5, 6, 15) = 100; 
+	im_short.at(15, 16, 15) = 100; 
 
 	// OR real data
 	//im_short.load( "../data/data15.data" );
+
+	//////////////////////////////////////////////////
+	// Line Fitting
+	//////////////////////////////////////////////////
+	// Initial Samplings
+	const int num_init_labels = 2; 
+	vector<Line3D*> lines; 
+
+	Line3DTwoPoint* line = new Line3DTwoPoint();
+	line->setPositions( Vec3f(4,4,5), Vec3f(4,4,15) ); 
+	lines.push_back( line ); 
+
+	Line3DTwoPoint* line2 = new Line3DTwoPoint();
+	line2->setPositions( Vec3f(5,6,16), Vec3f(15,16,16) ); 
+	lines.push_back( line2 ); 
+
 
 	// threshold the data and put the data points into a vector
 	Data3D<unsigned char> im_uchar;
@@ -127,6 +126,7 @@ int main(int argc, char* argv[])
 	
 	// this is for visualization
 	GLViewer::GLLineModel *model = new GLViewer::GLLineModel( im_short.get_size() );
+	model->updatePoints( dataPoints ); 
 	ver.objs.push_back( model );
 
 	//////////////////////////////////////////////////
@@ -135,26 +135,8 @@ int main(int argc, char* argv[])
 	HANDLE thread_render = NULL; 
 	thread_render = (HANDLE) _beginthread( visualization_func, 0, (void*)&ver ); 
 	
-	model->updatePoints( dataPoints ); 
-
-	//////////////////////////////////////////////////
-	// Line Fitting
-	//////////////////////////////////////////////////
-	// Initial Sampling - random
-	const int num_init_labels = 2; 
-	vector<Line3D*> lines; 
-
-	Line3DTwoPoint* line = new Line3DTwoPoint();
-	line->setPositions( Vec3f(7,7,5), Vec3f(3,3,15) ); 
-	lines.push_back( line ); 
-
-	Line3DTwoPoint* line2 = new Line3DTwoPoint();
-	line2->setPositions( Vec3f(10,10,10), Vec3f(13,13,17) ); 
-	lines.push_back( line2 ); 
-
-
 	// Initial labelings
-	vector<int> labelings = vector<int>( dataPoints.size(), 1 ); 
+	vector<int> labelings = vector<int>( dataPoints.size(), 0 ); 
 	model->updateModel( lines, labelings ); 
 
 	cout << "Graph Cut Begin" << endl; 
@@ -162,7 +144,7 @@ int main(int argc, char* argv[])
 		// keep track of energy in previous iteration
 		GC::EnergyType energy_before = -1;
 
-		for( int gciter=0; gciter<1; gciter++ ) { // TODO: let's run the algorithm for only one iteration for now
+		for( int gciter=0; gciter<2; gciter++ ) { // TODO: let's run the algorithm for only one iteration for now
 			// TODO: let's not have background model for now. We will add background model later
 			GCoptimizationGeneralGraph gc( (int) dataPoints.size(), (int) lines.size() ); 
 
@@ -179,6 +161,7 @@ int main(int argc, char* argv[])
 					const int& z = dataPoints[site][2];
 					// log likelihood based on the distance
 					GC::EnergyTermType loglikelihood = line->loglikelihood( Vec3f(1.0f * x,1.0f * y,1.0f * z) );
+					// TODO: The following cannot be minimized with LM algorithm 
 					// loglikelihood += log( line.sigma ); 
 					// static double C = 0.5 * log( 2*M_PI ); 
 					// loglikelihood += C; 
@@ -221,6 +204,7 @@ int main(int argc, char* argv[])
 			////////////////////////////////////////////////
 			// Levenburg Maquart
 			double lambda = 1e4; 
+			double lambdaMultiplier = 1.0; 
 			for( int lmiter = 0; lambda < 10e100; lmiter++ ) { 
 				cout << "Levenburg Maquart: " << lmiter << " Lambda: " << lambda << endl; 
 
@@ -264,10 +248,11 @@ int main(int argc, char* argv[])
 				
 				Mat X; 
 				cv::solve( A, -B, X, DECOMP_QR  ); 
-				for( int i=0; i<X.rows; i++ ) {
-					std::cout << std::setw(14) << std::scientific << X.at<double>(i) << "  ";
-				}
-				cout << endl;
+				// Output for debug only 
+				//for( int i=0; i<X.rows; i++ ) {
+				//	std::cout << std::setw(14) << std::scientific << X.at<double>(i) << "  ";
+				//}
+				//cout << endl;
 
 				for( int label=0; label < lines.size(); label++ ) {
 					for( int i=0; i < lines[label]->getNumOfParameters(); i++ ) {
@@ -281,7 +266,9 @@ int main(int argc, char* argv[])
 					cout << "-" << endl; 
 					model->updateModel( lines, labelings ); 
 					// the smaller lambda is, the faster it converges
-					lambda *= 0.25; 
+					if( lambdaMultiplier<1.0 ) lambdaMultiplier *= 0.9; 
+					else lambdaMultiplier = 0.9; 
+					lambda *= lambdaMultiplier; 
 				} else {
 					// If an iteration gives insufficient reduction in the residual, lamda can be increased, 
 					// giving a step closer to the gradient descent direction 
@@ -294,11 +281,12 @@ int main(int argc, char* argv[])
 					}
 
 					// the bigger lambda is, the slower it converges
-					lambda *= 2.0; 
+					if( lambdaMultiplier>1.0 ) lambdaMultiplier *= 1.1; 
+					else lambdaMultiplier = 1.1; 
+					lambda *= lambdaMultiplier; 
 				}
 
-				// Sleep(200);  // TODO: this is only for debuging 
-				
+				// Sleep(20);  // TODO: this is only for debuging 
 			}
 		}
 	}
