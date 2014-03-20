@@ -45,9 +45,9 @@ void GLLineModel::render(void){
 		Vec3f prj = lines[lineID]->projection( dataPoints[i] ); 
 		glColor3ubv( &lineColors[lineID][0] ); 
 		glVertex3fv( &prj[0] ); 
-		// data points
-		glColor3f( 0.1f, 0.1f, 0.1f ); 
-		glVertex3iv( &dataPoints[i][0] ); 
+		// drawing data points
+		//glColor3f( 0.1f, 0.1f, 0.1f ); 
+		//glVertex3iv( &dataPoints[i][0] ); 
 	} 
 	glEnd();
 

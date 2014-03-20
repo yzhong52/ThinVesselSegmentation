@@ -94,12 +94,7 @@ GC::EnergyType smoothCostFnExtra( GC::SiteID s1, GC::SiteID s2, GC::LabelID l1, 
 	vector<Line3D*>& lines = *(((SmoothCostData*)data)->lines);
 
 	GC::EnergyType eng = 0;
-	if( s1==s2 || l1==l2 ) {
-		cout<< "Holly crap. This is not good." << endl; 
-		cout<< "A site should not have smooth cost to it self" << endl; 
-		system( "pause" );
-		return eng; 
-	}
+	if( s1==s2 || l1==l2 ) return eng; 
 
 	const int& x1 = dataPoints[s1][0];
 	const int& y1 = dataPoints[s1][1];
@@ -120,8 +115,8 @@ GC::EnergyType smoothCostFnExtra( GC::SiteID s1, GC::SiteID s2, GC::LabelID l1, 
 		Vec3f pipi1 = pi - pi1; 
 
 		float dist_pipj = pipj.dot(pipj); 
-		float dist_pjpj1 = pipj.dot(pjpj1); 
-		float dist_pipi1 = pipj.dot(pipi1); 
+		float dist_pjpj1 = pjpj1.dot(pjpj1); 
+		float dist_pipi1 = pipi1.dot(pipi1); 
 
 		if( dist_pipj > 1e-10 ) {
 			eng = ( dist_pjpj1 + dist_pipi1 ) / dist_pipj; 
@@ -131,6 +126,9 @@ GC::EnergyType smoothCostFnExtra( GC::SiteID s1, GC::SiteID s2, GC::LabelID l1, 
 	return eng; 
 }
 
+GC::EnergyType smoothCostFnPotts( GC::SiteID s1, GC::SiteID s2, GC::LabelID l1, GC::LabelID l2 ) {
+	return l1 != l2 ? 1 : 0;
+}
 
 int main(int argc, char* argv[])
 {
@@ -225,32 +223,28 @@ int main(int argc, char* argv[])
 			////////////////////////////////////////////////
 			// Smooth Cost
 			////////////////////////////////////////////////
-			//for( GC::SiteID site = 0; site < dataPoints.size(); site++ ) {
-			//	for( int nei=0; nei<13; nei++ ) {
-			//		static int offx, offy, offz;
-			//		Neighbour26::at( nei, offx, offy, offz ); 
-			//		const int& x = dataPoints[site][0] + offx;
-			//		const int& y = dataPoints[site][1] + offy;
-			//		const int& z = dataPoints[site][2] + offz;
-			//		if( indeces.isValid(x,y,z) ) {
-			//			GC::SiteID site2 = indeces.at(x,y,z); 
-			//			if( site2>=0 ) {
-			//				// set neighbour
-			//				gc.setNeighbors( site, site2 );
-			//			}
-			//		}
-			//	}
-			//}
 			for( GC::SiteID site = 0; site < dataPoints.size(); site++ ) {
-				for( GC::SiteID site2 = site+1; site2 < dataPoints.size(); site2++ ) {
-					gc.setNeighbors( site, site2 );
+				for( int nei=0; nei<13; nei++ ) {
+					static int offx, offy, offz;
+					Neighbour26::at( nei, offx, offy, offz ); 
+					const int& x = dataPoints[site][0] + offx;
+					const int& y = dataPoints[site][1] + offy;
+					const int& z = dataPoints[site][2] + offz;
+					if( indeces.isValid(x,y,z) ) {
+						GC::SiteID site2 = indeces.at(x,y,z); 
+						if( site2>=0 ) {
+							// set neighbour
+							gc.setNeighbors( site, site2 );
+						}
+					}
 				}
 			}
-			
+
 			SmoothCostData smoothCostData; 
 			smoothCostData.dataPoints = &dataPoints;
 			smoothCostData.lines = &lines; 
 			gc.setSmoothCost( smoothCostFnExtra, &smoothCostData ); 
+			
 			
 			////////////////////////////////////////////////
 			// Graph-Cut Begin
@@ -274,96 +268,96 @@ int main(int argc, char* argv[])
 			}
 			
 			model->updateModel( lines, labelings ); 
-			
-			////////////////////////////////////////////////
-			// Re-estimation
-			////////////////////////////////////////////////
-			// Levenburg Maquart
-			double lambda = 1e4; 
-			double lambdaMultiplier = 1.0; 
-			for( int lmiter = 0; lambda < 10e100; lmiter++ ) { 
-				cout << "Levenburg Maquart: " << lmiter << " Lambda: " << lambda << endl; 
+			//
+			//////////////////////////////////////////////////
+			//// Re-estimation
+			//////////////////////////////////////////////////
+			//// Levenburg Maquart
+			//double lambda = 1e4; 
+			//double lambdaMultiplier = 1.0; 
+			//for( int lmiter = 0; lambda < 10e100; lmiter++ ) { 
+			//	cout << "Levenburg Maquart: " << lmiter << " Lambda: " << lambda << endl; 
 
-				// there are six parameters
-				// Jacobian Matrix ( # of cols: number of data points; # of rows: number of parameters of each line models)? 
-				Mat Jacobian = Mat::zeros(
-					(int) dataPoints.size(), 
-					(int) lines.size() * lines[0]->getNumOfParameters(),
-					CV_64F ); 
-				
-				// Contruct Jacobian matrix
-				for( int label=0; label < lines.size(); label++ ) {
-					for( int site=0; site < dataPoints.size(); site++ ) {
-						if( labelings[site] != label ) {
-							for( int i=0; i < lines[label]->getNumOfParameters(); i++ ) {
-								Jacobian.at<double>( site, 6*label+i ) = 0; 
-							}
-						} 
-						else 
-						{
-							static const float delta = 0.001f; 
+			//	// there are six parameters
+			//	// Jacobian Matrix ( # of cols: number of data points; # of rows: number of parameters of each line models)? 
+			//	Mat Jacobian = Mat::zeros(
+			//		(int) dataPoints.size(), 
+			//		(int) lines.size() * lines[0]->getNumOfParameters(),
+			//		CV_64F ); 
+			//	
+			//	// Contruct Jacobian matrix
+			//	for( int label=0; label < lines.size(); label++ ) {
+			//		for( int site=0; site < dataPoints.size(); site++ ) {
+			//			if( labelings[site] != label ) {
+			//				for( int i=0; i < lines[label]->getNumOfParameters(); i++ ) {
+			//					Jacobian.at<double>( site, 6*label+i ) = 0; 
+			//				}
+			//			} 
+			//			else 
+			//			{
+			//				static const float delta = 0.001f; 
 
-							// TODO: this line is not necessary if we have run graph cut
-							energy_before = computeEnergy( dataPoints, labelings, lines ); 
+			//				// TODO: this line is not necessary if we have run graph cut
+			//				energy_before = computeEnergy( dataPoints, labelings, lines ); 
 
-							// compute the derivatives and construct Jacobian matrix
-							for( int i=0; i < lines[label]->getNumOfParameters(); i++ ) {
-								lines[label]->updateParameterWithDelta( i, delta ); 
-								Jacobian.at<double>( site, 6*label+i ) = 1.0 / delta * ( computeEnergy( dataPoints, labelings, lines ) - energy_before ); 
-								lines[label]->updateParameterWithDelta( i, -delta ); 
-							}
-						}
-					}
-				} // end of contruction of Jacobian Matrix
+			//				// compute the derivatives and construct Jacobian matrix
+			//				for( int i=0; i < lines[label]->getNumOfParameters(); i++ ) {
+			//					lines[label]->updateParameterWithDelta( i, delta ); 
+			//					Jacobian.at<double>( site, 6*label+i ) = 1.0 / delta * ( computeEnergy( dataPoints, labelings, lines ) - energy_before ); 
+			//					lines[label]->updateParameterWithDelta( i, -delta ); 
+			//				}
+			//			}
+			//		}
+			//	} // end of contruction of Jacobian Matrix
 
-				Mat A = Jacobian.t() * Jacobian; 
-				
-				A = A + Mat::diag( lambda * Mat::ones(A.cols, 1, CV_64F) ); 
-				
-				Mat B = Jacobian.t() * computeEnergyMatrix( dataPoints, labelings, lines ); 
-				
-				Mat X; 
-				cv::solve( A, -B, X, DECOMP_QR  ); 
-				// Output for debug only 
-				//for( int i=0; i<X.rows; i++ ) {
-				//	std::cout << std::setw(14) << std::scientific << X.at<double>(i) << "  ";
-				//}
-				//cout << endl;
+			//	Mat A = Jacobian.t() * Jacobian; 
+			//	
+			//	A = A + Mat::diag( lambda * Mat::ones(A.cols, 1, CV_64F) ); 
+			//	
+			//	Mat B = Jacobian.t() * computeEnergyMatrix( dataPoints, labelings, lines ); 
+			//	
+			//	Mat X; 
+			//	cv::solve( A, -B, X, DECOMP_QR  ); 
+			//	// Output for debug only 
+			//	//for( int i=0; i<X.rows; i++ ) {
+			//	//	std::cout << std::setw(14) << std::scientific << X.at<double>(i) << "  ";
+			//	//}
+			//	//cout << endl;
 
-				for( int label=0; label < lines.size(); label++ ) {
-					for( int i=0; i < lines[label]->getNumOfParameters(); i++ ) {
-						const double& delta = X.at<double>( label * lines[label]->getNumOfParameters() + i ); 
-						lines[label]->updateParameterWithDelta( i, delta ); 
-					}
-				}
+			//	for( int label=0; label < lines.size(); label++ ) {
+			//		for( int i=0; i < lines[label]->getNumOfParameters(); i++ ) {
+			//			const double& delta = X.at<double>( label * lines[label]->getNumOfParameters() + i ); 
+			//			lines[label]->updateParameterWithDelta( i, delta ); 
+			//		}
+			//	}
 
-				double energyDiff = computeEnergy( dataPoints, labelings, lines ) - energy_before;
-				if( energyDiff < 0 ) { // if energy is decreasing 
-					cout << "-" << endl; 
-					model->updateModel( lines, labelings ); 
-					// the smaller lambda is, the faster it converges
-					if( lambdaMultiplier<1.0 ) lambdaMultiplier *= 0.9; 
-					else lambdaMultiplier = 0.9; 
-					lambda *= lambdaMultiplier; 
-				} else {
-					// If an iteration gives insufficient reduction in the residual, lamda can be increased, 
-					// giving a step closer to the gradient descent direction 
-					cout << "+" << endl; 
-					for( int label=0; label < lines.size(); label++ ) {
-						for( int i=0; i < lines[label]->getNumOfParameters(); i++ ) {
-							const double& delta = X.at<double>( label * lines[label]->getNumOfParameters() + i ); 
-							lines[label]->updateParameterWithDelta( i, -delta ); 
-						}
-					}
+			//	double energyDiff = computeEnergy( dataPoints, labelings, lines ) - energy_before;
+			//	if( energyDiff < 0 ) { // if energy is decreasing 
+			//		cout << "-" << endl; 
+			//		model->updateModel( lines, labelings ); 
+			//		// the smaller lambda is, the faster it converges
+			//		if( lambdaMultiplier<1.0 ) lambdaMultiplier *= 0.9; 
+			//		else lambdaMultiplier = 0.9; 
+			//		lambda *= lambdaMultiplier; 
+			//	} else {
+			//		// If an iteration gives insufficient reduction in the residual, lamda can be increased, 
+			//		// giving a step closer to the gradient descent direction 
+			//		cout << "+" << endl; 
+			//		for( int label=0; label < lines.size(); label++ ) {
+			//			for( int i=0; i < lines[label]->getNumOfParameters(); i++ ) {
+			//				const double& delta = X.at<double>( label * lines[label]->getNumOfParameters() + i ); 
+			//				lines[label]->updateParameterWithDelta( i, -delta ); 
+			//			}
+			//		}
 
-					// the bigger lambda is, the slower it converges
-					if( lambdaMultiplier>1.0 ) lambdaMultiplier *= 1.1; 
-					else lambdaMultiplier = 1.1; 
-					lambda *= lambdaMultiplier; 
-				}
+			//		// the bigger lambda is, the slower it converges
+			//		if( lambdaMultiplier>1.0 ) lambdaMultiplier *= 1.1; 
+			//		else lambdaMultiplier = 1.1; 
+			//		lambda *= lambdaMultiplier; 
+			//	}
 
-				// Sleep(200);  // TODO: this is only for debuging 
-			}
+			//	// Sleep(200);  // TODO: this is only for debuging 
+			//}
 		}
 	}
 	catch (GCException e){
