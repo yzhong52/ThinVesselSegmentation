@@ -93,6 +93,9 @@
     <ClInclude Include="SyntheticData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="LevenburgMaquart.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -146,6 +149,9 @@
     </ClCompile>
     <ClCompile Include="Line3D.cpp">
       <Filter>Line3D</Filter>
+    </ClCompile>
+    <ClCompile Include="LevenburgMaquart.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

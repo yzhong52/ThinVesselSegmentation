@@ -156,6 +156,7 @@
     <ClInclude Include="gco-v3.0\LinkedBlockList.h" />
     <ClInclude Include="GLLineModel.h" />
     <ClInclude Include="GLViwerModel.h" />
+    <ClInclude Include="LevenburgMaquart.h" />
     <ClInclude Include="Line3D.h" />
     <ClInclude Include="Line3DPointDir.h" />
     <ClInclude Include="Line3DTwoPoint.h" />
@@ -178,6 +179,7 @@
     <ClCompile Include="gco-v3.0\maxflow.cpp" />
     <ClCompile Include="GLLineModel.cpp" />
     <ClCompile Include="GLViwerModel.cpp" />
+    <ClCompile Include="LevenburgMaquart.cpp" />
     <ClCompile Include="Line3D.cpp" />
     <ClCompile Include="Line3DPointDir.cpp" />
     <ClCompile Include="Line3DTwoPoint.cpp" />
