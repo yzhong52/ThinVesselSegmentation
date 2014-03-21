@@ -162,6 +162,7 @@
     <ClInclude Include="Neighbour26.h" />
     <ClInclude Include="nstdio.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="SyntheticData.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\VesselNess\GLCenterLine.cpp" />

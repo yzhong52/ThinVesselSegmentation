@@ -90,6 +90,9 @@
     <ClInclude Include="Neighbour26.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SyntheticData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
