@@ -1,17 +1,11 @@
 #include "LevenburgMaquart.h"
 
-
 #include <iostream> 
 #include <iomanip>
 #include <Windows.h>
 using namespace std; 
 
-
-
 #include "Line3D.h" 
-
-const double LOGLIKELIHOOD = 100; 
-
 
 double computeEnergy( 
 	const vector<Vec3i>& dataPoints,
@@ -22,16 +16,8 @@ double computeEnergy(
 
 	for( int site = 0; site < (int) dataPoints.size(); site++ ) {
 		int label = labelings[site];
-		
-		const Line3D* line = lines[label];
-		// distance from a point to a line
-		const int& x = dataPoints[site][0];
-		const int& y = dataPoints[site][1];
-		const int& z = dataPoints[site][2];
-
 		// log likelihood based on the distance
-		double loglikelihood = line->loglikelihood( Vec3f(1.0f * x,1.0f * y,1.0f * z) ); // dist * dist / ( 2 * line.sigma * line.sigma );
-
+		double loglikelihood = lines[label]->loglikelihood( dataPoints[site] );
 		energy += LOGLIKELIHOOD * loglikelihood; 
 	}
 	return energy; 
@@ -44,33 +30,14 @@ Mat computeEnergyMatrix(
 	const vector<Line3D*>& lines )
 {
 	Mat eng( (int) dataPoints.size(), 1, CV_64F ); 
-
 	for( int site = 0; site < (int) dataPoints.size(); site++ ) {
 		int label = labelings[site];
-		
-		const Line3D* line = lines[label];
-		// distance from a point to a line
-		const int& x = dataPoints[site][0];
-		const int& y = dataPoints[site][1];
-		const int& z = dataPoints[site][2];
 		// log likelihood based on the distance
-		double loglikelihood = line->loglikelihood( Vec3f(1.0f * x,1.0f * y,1.0f * z) );
-
+		double loglikelihood = lines[label]->loglikelihood( dataPoints[site] );
 		eng.at<double>( site, 0 ) = sqrt( LOGLIKELIHOOD * loglikelihood ); 
 	}
 	return eng; 
 }
-
-
-LevenburgMaquart::LevenburgMaquart(void)
-{
-}
-
-
-LevenburgMaquart::~LevenburgMaquart(void)
-{
-}
-
 
 
 void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
@@ -78,14 +45,10 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 	const vector<Line3D*>& lines ){
 	double lambda = 1e4; 
 
-	
-	
-
+	// TODO: this line is not necessary if we have run graph cut
+	double energy_before = computeEnergy( dataPoints, labelings, lines ); 
 
 	for( int lmiter = 0; lambda < 10e10; lmiter++ ) { 
-		// TODO: this line is not necessary if we have run graph cut
-		double energy_before = computeEnergy( dataPoints, labelings, lines ); 
-
 		cout << "Levenburg Maquart: " << lmiter << " Lambda: " << lambda << endl; 
 
 		// there are six parameters
@@ -141,10 +104,11 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 				lines[label]->updateParameterWithDelta( i, delta ); 
 			}
 		}
-		double energyDiff = computeEnergy( dataPoints, labelings, lines ) - energy_before;
-		if( energyDiff < 0 ) { // if energy is decreasing 
+		double new_energy = computeEnergy( dataPoints, labelings, lines );
+		if( new_energy < energy_before ) { // if energy is decreasing 
 			// the smaller lambda is, the faster it converges
 			lambda /= 2; 
+			energy_before = new_energy; 
 		} else {
 			for( int label=0; label < lines.size(); label++ ) {
 				for( int i=0; i < lines[label]->getNumOfParameters(); i++ ) {

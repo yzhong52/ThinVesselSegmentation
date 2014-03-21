@@ -6,11 +6,11 @@ using namespace cv;
 class Line3D; 
 extern const double LOGLIKELIHOOD;
 
-class LevenburgMaquart
+class GraphCut
 {
 public:
-	static void reestimate(const vector<Vec3i>& dataPoints,
-		const vector<int>& labelings, 
+	static double estimation( const vector<Vec3i>& dataPoints,
+		vector<int>& labelings, 
 		const vector<Line3D*>& lines );
 };
 
