@@ -77,7 +77,7 @@ int main(int argc, char* argv[])
 	// Line Fitting
 	//////////////////////////////////////////////////
 	// Initial Samplings
-	const int num_init_labels = 2; 
+	const int num_init_labels = 1; 
 	vector<Line3D*> lines; 
 	Line3DTwoPoint* line = new Line3DTwoPoint();
 	line->setPositions( Vec3i(5,6,5), Vec3i(5,4,10) ); 
@@ -87,6 +87,8 @@ int main(int argc, char* argv[])
 	lines.push_back( line2 );  
 
 	vector<int> labelings = vector<int>( dataPoints.size(), 0 ); 
+	labelings[2] = 1; 
+	labelings[3] = 1; 
 
 	model->updateModel( lines, labelings ); 
 

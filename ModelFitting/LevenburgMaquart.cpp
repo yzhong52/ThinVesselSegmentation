@@ -42,54 +42,54 @@ Mat computeEnergyMatrix(
 
 void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 	const vector<int>& labelings, 
-	const vector<Line3D*>& lines ){
+	const vector<Line3D*>& lines )
+{
 	double lambda = 1e4; 
+	//double lambdaMultiplier = 1.0; 
 
-	// TODO: this line is not necessary if we have run graph cut
-	double energy_before = computeEnergy( dataPoints, labelings, lines ); 
+	const int numOfParametersPerLine = lines[0]->getNumOfParameters();
+	const int numOfParametersTotal = (int) lines.size() * lines[0]->getNumOfParameters(); 
 
-	for( int lmiter = 0; lambda < 10e10; lmiter++ ) { 
+	for( int lmiter = 0; lambda < 10e50 && lambda > 10e-100 && lmiter<100; lmiter++ ) { 
 		cout << "Levenburg Maquart: " << lmiter << " Lambda: " << lambda << endl; 
 
-		// there are six parameters
-		// Jacobian Matrix ( # of cols: number of data points; # of rows: number of parameters of each line models)? 
-		Mat Jacobian = Mat::zeros(
-			(int) dataPoints.size(), 
-			(int) lines.size() * lines[0]->getNumOfParameters(),
-			CV_64F ); 
+		double energy_before = computeEnergy( dataPoints, labelings, lines ); 
+		Mat energyMatrix = computeEnergyMatrix( dataPoints, labelings, lines ); 
+
+		// Jacobian Matrix
+		//  - # of cols: number of data points; 
+		//  - # of rows: number of parameters for all the line models
+		Mat Jacobian = Mat::zeros( (int) dataPoints.size(), numOfParametersTotal, CV_64F ); 
 
 		// Contruct Jacobian matrix
 		for( int label=0; label < lines.size(); label++ ) {
 			for( int site=0; site < dataPoints.size(); site++ ) {
 				if( labelings[site] != label ) {
-					Jacobian.at<double>( site, 6*label ) = 0; 
-					Jacobian.at<double>( site, 6*label+1 ) = 0; 
-					Jacobian.at<double>( site, 6*label+2 ) = 0; 
-					Jacobian.at<double>( site, 6*label+3 ) = 0; 
-					Jacobian.at<double>( site, 6*label+4 ) = 0; 
-					Jacobian.at<double>( site, 6*label+5 ) = 0; 
+					for( int i=0; i < numOfParametersPerLine; i++ ) {
+						Jacobian.at<double>( site, numOfParametersPerLine * label + i ) = 0; 
+					}
 				} 
 				else 
 				{
 					static const float delta = 0.001f; 
 
+					// TODO: move this out of the loop
+					double energy_before_for_distance = computeEnergy( dataPoints, labelings, lines ); 
+
 					// compute the derivatives and construct Jacobian matrix
 					for( int i=0; i < lines[label]->getNumOfParameters(); i++ ) {
 						lines[label]->updateParameterWithDelta( i, delta ); 
-						Jacobian.at<double>( site, 6*label+i ) = 
-							1.0 / delta * ( computeEnergy( dataPoints, labelings, lines ) - energy_before ); 
+						Jacobian.at<double>( site, 6*label+i ) = 1.0 / delta * ( computeEnergy( dataPoints, labelings, lines ) - energy_before_for_distance ); 
 						lines[label]->updateParameterWithDelta( i, -delta ); 
 					}
 				}
 			}
 		} // end of contruction of Jacobian Matrix
 
-		Mat A = Jacobian.t() * Jacobian; 
+		Mat A = Jacobian.t() * Jacobian;
+		A  = A + Mat::diag( lambda * Mat::ones(A.cols, 1, CV_64F) ); 
 
-		A = A + Mat::diag( lambda * Mat::ones(A.cols, 1, CV_64F) ); 
-
-
-		Mat B = Jacobian.t() * computeEnergyMatrix( dataPoints, labelings, lines ); 
+		Mat B = Jacobian.t() * energyMatrix; 
 
 		Mat X; 
 		cv::solve( A, -B, X, DECOMP_QR  ); 
@@ -97,29 +97,38 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 			std::cout << std::setw(14) << std::scientific << X.at<double>(i) << "  ";
 		}
 		cout << endl;
+		
 
 		for( int label=0; label < lines.size(); label++ ) {
-			for( int i=0; i < lines[label]->getNumOfParameters(); i++ ) {
-				const double& delta = X.at<double>( label * (int) lines.size() + i ); 
+			for( int i=0; i < numOfParametersPerLine; i++ ) {
+				const double& delta = X.at<double>( label * numOfParametersPerLine + i ); 
 				lines[label]->updateParameterWithDelta( i, delta ); 
 			}
 		}
+
 		double new_energy = computeEnergy( dataPoints, labelings, lines );
 		if( new_energy < energy_before ) { // if energy is decreasing 
-			// the smaller lambda is, the faster it converges
-			lambda /= 2; 
 			energy_before = new_energy; 
+			// the smaller lambda is, the faster it converges
+			//if( lambdaMultiplier<1.0 ) lambdaMultiplier *= 0.9; 
+			//else lambdaMultiplier = 0.9; 
+			lambda *= 0.9; 
 		} else {
 			for( int label=0; label < lines.size(); label++ ) {
-				for( int i=0; i < lines[label]->getNumOfParameters(); i++ ) {
-					const double& delta = X.at<double>( label * (int) lines.size() + i ); 
+				for( int i=0; i < numOfParametersPerLine; i++ ) {
+					const double& delta = X.at<double>( label * numOfParametersPerLine + i ); 
 					lines[label]->updateParameterWithDelta( i, -delta ); 
 				}
 			}
-			// the bigger lambda is, the slower it converges
-			lambda *= 2; 
+			
+			//if( lambdaMultiplier>1.0 ) lambdaMultiplier *= 1.1; 
+			//else lambdaMultiplier = 1.1; 
+			lambda *= 1.1; 
 		}
-
+		
+		// the smaller lambda is, the faster it converges
+		// the bigger lambda is, the slower it converges
+		
 		// Sleep(300);  // TODO: this is only for debuging 
 	}
 }
