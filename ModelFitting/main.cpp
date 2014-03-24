@@ -25,6 +25,7 @@ typedef GCoptimization GC;
 #include "Line3DTwoPoint.h" 
 #include "LevenburgMaquart.h" 
 #include "GraphCut.h"
+#include "SyntheticData.h" 
 
 // for visualization
 GLViwerModel ver;
@@ -40,7 +41,7 @@ void visualization_func( void* data ) {
 
 
 
-const double LOGLIKELIHOOD = 0.1; 
+const double LOGLIKELIHOOD = 0.01; 
 
 int main(int argc, char* argv[])
 {
@@ -49,23 +50,26 @@ int main(int argc, char* argv[])
 	Data3D<short> im_short;
 	//Synthesic Data
 	im_short.reset( Vec3i(20,20,20) ); 
-	/*for( int i=5; i<15; i++ ) {
-		im_short.at(i,  i,  i)   = 100; 
-		im_short.at(i,  i,  i+1) = 100; 
-		im_short.at(i,  i+1,i)   = 100; 
-		im_short.at(i+1,i,  i)   = 100; 
-	}*/
-	im_short.at(5, 5, 5) = 10000; 
-	im_short.at(5, 5, 15) = 10000; 
-	im_short.at(5, 6, 15) = 10000; 
-	im_short.at(15, 16, 15) = 10000; 
+	for( int i=5; i<15; i++ ) {
+		im_short.at(i,  i,  i)   = 10000; 
+		im_short.at(i,  i,  i+1) = 10000; 
+		im_short.at(i,  i+1,i)   = 10000; 
+		im_short.at(i+1,i,  i)   = 10000; 
+	}
+	//im_short.at(5, 4, 14) = 10000; 
+	// im_short.at(5, 5, 15) = 10000; 
+	// im_short.at(5, 6, 15) = 10000; 
+	//im_short.at(6, 5, 16) = 10000; 
 	// OR real data
 	//im_short.load( "../data/data15.data" );
+	// make a doghout
+	// SyntheticData::Doughout( im_short ); 
 
 	// threshold the data and put the data points into a vector
 	Data3D<int> indeces;
 	vector<cv::Vec3i> dataPoints;
 	IP::threshold( im_short, indeces, dataPoints, short(4500) );
+	if( dataPoints.size()==0 ) return 0; 
 
 	GLViewer::GLLineModel *model = new GLViewer::GLLineModel( im_short.get_size() );
 	ver.objs.push_back( model );
@@ -86,18 +90,19 @@ int main(int argc, char* argv[])
 	vector<Line3D*> lines; 
 	for( int i=0; i<num_init_labels; i++ ) {
 		Line3DTwoPoint *line  = new ::Line3DTwoPoint();
-		line->setPositions( dataPoints[i], dataPoints[ (i+1)%dataPoints.size() ] ); 
+		Vec3i randomDir = Vec3i(
+				rand() % 100, 
+				rand() % 100, 
+				rand() % 100 ); 
+		line->setPositions( dataPoints[i], dataPoints[i] + randomDir ); 
 		lines.push_back( line ); 
 	}
-	( (Line3DTwoPoint*)(lines[1]) )->setPositions( dataPoints[1], dataPoints[1]+Vec3i(1,1,0) ); 
-	( (Line3DTwoPoint*)(lines[2]) )->setPositions( dataPoints[2], dataPoints[2]+Vec3i(1,1,0) ); 
-
 	
 	vector<int> labelings = vector<int>( dataPoints.size(), 0 ); 
-	for( int i=0; i<4; i++ ) labelings[i] = i; 
+	for( int i=0; i<num_init_labels; i++ ) labelings[i] = i; 
 
 	model->updateModel( lines, labelings ); 
-
+	
 	cout << "Graph Cut Begin" << endl; 
 	try{
 		// keep track of energy in previous iteration

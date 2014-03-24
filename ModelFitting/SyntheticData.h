@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Data3D.h" 
+#include <random> 
 
 namespace SyntheticData {
 	void Doughout( Data3D<short>& im_short ) {

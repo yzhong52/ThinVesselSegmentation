@@ -126,34 +126,35 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 		//  - # of rows: number of parameters for all the line models
 		Mat Jacobian = Mat::zeros( 0, numOfParametersTotal, CV_64F ); 
 
-		//// Construct Jacobian Matrix - for data cost
-		energy_matrix = computeenergy_matrix( dataPoints, labelings, lines ); 
-		Jacobian = Mat::zeros( (int) dataPoints.size(), numOfParametersTotal, CV_64F ); 
-		// Contruct Jacobian matrix
-		for( int label=0; label < lines.size(); label++ ) {
-			for( int site=0; site < dataPoints.size(); site++ ) {
-				if( labelings[site] != label ) {
-					for( int i=0; i < numOfParametersPerLine; i++ ) {
-						Jacobian.at<double>( site, numOfParametersPerLine * label + i ) = 0; 
-					}
-				} 
-				else 
-				{
-					static const float delta = 0.001f; 
+		if( LOGLIKELIHOOD > 1e-25 ) {
+			//// Construct Jacobian Matrix - for data cost
+			energy_matrix = computeenergy_matrix( dataPoints, labelings, lines ); 
+			Jacobian = Mat::zeros( (int) dataPoints.size(), numOfParametersTotal, CV_64F ); 
+			// Contruct Jacobian matrix
+			for( int label=0; label < lines.size(); label++ ) {
+				for( int site=0; site < dataPoints.size(); site++ ) {
+					if( labelings[site] != label ) {
+						for( int i=0; i < numOfParametersPerLine; i++ ) {
+							Jacobian.at<double>( site, numOfParametersPerLine * label + i ) = 0; 
+						}
+					} 
+					else 
+					{
+						static const float delta = 0.001f; 
 
-					// TODO: move this out of the loop
-					double energy_before_for_distance = compute_energy_datacost( dataPoints, labelings, lines ); 
+						// TODO: move this out of the loop
+						double energy_before_for_distance = compute_energy_datacost( dataPoints, labelings, lines ); 
 
-					// compute the derivatives and construct Jacobian matrix
-					for( int i=0; i < lines[label]->getNumOfParameters(); i++ ) {
-						lines[label]->updateParameterWithDelta( i, delta ); 
-						Jacobian.at<double>( site, 6*label+i ) = 1.0 / delta * ( compute_energy_datacost( dataPoints, labelings, lines ) - energy_before_for_distance ); 
-						lines[label]->updateParameterWithDelta( i, -delta ); 
+						// compute the derivatives and construct Jacobian matrix
+						for( int i=0; i < lines[label]->getNumOfParameters(); i++ ) {
+							lines[label]->updateParameterWithDelta( i, delta ); 
+							Jacobian.at<double>( site, 6*label+i ) = 1.0 / delta * ( compute_energy_datacost( dataPoints, labelings, lines ) - energy_before_for_distance ); 
+							lines[label]->updateParameterWithDelta( i, -delta ); 
+						}
 					}
 				}
-			}
-		} // Contruct Jacobian matrix (2B Continue)
-
+			} // Contruct Jacobian matrix (2B Continue)
+		}
 
 		// Contruct Jacobian matrix (Continue) - for smooth cost
 		for( int site = 0; site < dataPoints.size(); site++ ) { // For each data point
