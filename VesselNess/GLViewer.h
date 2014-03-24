@@ -45,6 +45,8 @@ namespace GLViewer
 	extern int numViewports; 
 	void go( std::vector<Object*> objects, int w=1280, int h = 720  ); 
 
+	void startCaptureVideo( int maxNumFrames = 3600 ); 
+
 	// TODO: visualize color texture
 }
 

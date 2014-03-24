@@ -5,6 +5,7 @@
 # temporary datas
 /temp/*
 temp.*
+*/output/*
 
 # User-specific files
 *.suo

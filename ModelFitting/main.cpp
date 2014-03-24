@@ -103,6 +103,8 @@ int main(int argc, char* argv[])
 
 	model->updateModel( lines, labelings ); 
 	
+	Sleep( 20000 ); 
+
 	cout << "Graph Cut Begin" << endl; 
 	try{
 		// keep track of energy in previous iteration

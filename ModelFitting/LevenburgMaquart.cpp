@@ -110,7 +110,7 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 	const vector<Line3D*>& lines,
 	const Data3D<int>& indeces )
 {
-	double lambda = 1e-3; 
+	double lambda = 1e-2; 
 	//double lambdaMultiplier = 1.0; 
 
 	const int numOfParametersPerLine = lines[0]->getNumOfParameters();

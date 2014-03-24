@@ -92,6 +92,15 @@ namespace GLViewer
 		glutSwapBuffers();
 	}
 
+	void startCaptureVideo( int maxNumFrames ) {
+		static int index = 0; 
+		stringstream videoName; 
+		videoName << "output/video" << ++index << ".avi";
+		cout << "Begin to create video '" << videoName.str() << "'" << endl; 
+		if( !videoSaver ) videoSaver = new VideoSaver();
+		videoSaver->init(width, height, videoName.str(), maxNumFrames );
+	}
+
 	void mouse_click(int button, int state, int x, int y) {
 		if(button == GLUT_LEFT_BUTTON) { // mouse left button
 			static int mouse_down_x;
@@ -215,17 +224,13 @@ namespace GLViewer
 		/////////////////////////////
 		case 'v': case 'V':
 			if( !videoSaver || videoSaver->isDone() ) {
-				static int index = 0; 
-				stringstream videoName; 
-				videoName << "output/video" << ++index << ".avi";
-				cout << "Begin to create video '" << videoName.str() << "'" << endl; 
-				if( !videoSaver ) videoSaver = new VideoSaver();
-				videoSaver->init(width, height, videoName.str(), 300 );
+				startCaptureVideo( ); 
 			} else if( videoSaver->isRendering() ) {
 				cout << "Video render complete. " << endl; 
 				videoSaver->stop();
 			} 
 			break;
+
 		case 27:
 			cout << "Rednering done. Thanks you for using GLViewer. " << endl;
 			exit(0);
