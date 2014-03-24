@@ -34,7 +34,13 @@ void visualization_func( void* data ) {
 	ver.go();
 }
 
-const double LOGLIKELIHOOD = 0.00001; 
+
+#include <assert.h>
+#include <iostream>
+
+
+
+const double LOGLIKELIHOOD = 0.1; 
 
 int main(int argc, char* argv[])
 {
@@ -83,8 +89,8 @@ int main(int argc, char* argv[])
 		line->setPositions( dataPoints[i], dataPoints[ (i+1)%dataPoints.size() ] ); 
 		lines.push_back( line ); 
 	}
-	( (Line3DTwoPoint*)(lines[1]) )->setPositions( dataPoints[1], dataPoints[1]+Vec3i(1,0,1) ); 
-	( (Line3DTwoPoint*)(lines[2]) )->setPositions( dataPoints[2], dataPoints[2]+Vec3i(1,1,2) ); 
+	( (Line3DTwoPoint*)(lines[1]) )->setPositions( dataPoints[1], dataPoints[1]+Vec3i(1,1,0) ); 
+	( (Line3DTwoPoint*)(lines[2]) )->setPositions( dataPoints[2], dataPoints[2]+Vec3i(1,1,0) ); 
 
 	
 	vector<int> labelings = vector<int>( dataPoints.size(), 0 ); 
@@ -98,7 +104,7 @@ int main(int argc, char* argv[])
 		GC::EnergyType energy_before = -1;
 
 		// TODO: let's run the algorithm for only one iteration for now
-		for( int i=0; i<60; i++ ) { 
+		for( int i=0; i<1; i++ ) { 
 			// TODO: let's not have background model for now. We will add background model later
 			
 			// GC::EnergyType energy = GraphCut::estimation( dataPoints, labelings, lines ); 

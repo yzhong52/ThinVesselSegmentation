@@ -64,8 +64,10 @@ void GLLineModel::render(void){
 
 		// data points
 		glColor3f( 0.3f, 0.3f, 0.3f ); 
-		glVertex3iv( &dataPoints[i][0] ); 
-		glVertex3fv( &((lines[lineID]->getDirection()+Vec3f(dataPoints[i]))[0]) ); 
+		// glVertex3iv( &dataPoints[i][0] ); 
+		Vec3f dir = lines[lineID]->getDirection(); 
+		glVertex3fv( &(prj + dir * 0.5 )[0] ); 
+		glVertex3fv( &(prj - dir * 0.5 )[0] ); 
 	} 
 	glEnd();
 
