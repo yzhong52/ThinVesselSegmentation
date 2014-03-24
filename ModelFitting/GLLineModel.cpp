@@ -41,7 +41,7 @@ void GLLineModel::render(void){
 	glBegin( GL_POINTS );
 	for( int i=0; i < (int) dataPoints.size(); i++ ) {
 		int lineID = labelings[i]; 
-		// actual position
+		// actual position (projection of the datapoint to the labeling line) 
 		Vec3f prj = lines[lineID]->projection( dataPoints[i] ); 
 		glColor3ubv( &lineColors[lineID][0] ); 
 		glVertex3fv( &prj[0] ); 
@@ -61,6 +61,11 @@ void GLLineModel::render(void){
 		// data points
 		glColor3f( 0.1f, 0.1f, 0.1f ); 
 		glVertex3iv( &dataPoints[i][0] ); 
+
+		// data points
+		glColor3f( 0.3f, 0.3f, 0.3f ); 
+		glVertex3iv( &dataPoints[i][0] ); 
+		glVertex3fv( &((lines[lineID]->getDirection()+Vec3f(dataPoints[i]))[0]) ); 
 	} 
 	glEnd();
 

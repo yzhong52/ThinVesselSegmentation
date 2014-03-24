@@ -25,5 +25,10 @@ public:
 
 	virtual void updateParameterWithDelta( int i, double delta ); 
 	
+	virtual Vec3f getDirection( void ) const {
+		Vec3f dir = Vec3f( &data[0] ) - Vec3f( &data[3] ); 
+		dir /= sqrt( dir.dot( dir ) );
+		return dir; 
+	}
 };
 

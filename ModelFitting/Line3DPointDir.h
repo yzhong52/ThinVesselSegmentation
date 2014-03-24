@@ -32,5 +32,7 @@ public:
 	float distanceToLine( const Vec3f& point ) const;
 	// projecting a point to the line
 	Vec3f projection( const Vec3f& point ) const;
+
+	virtual Vec3f getDirection( void ) const = 0; 
 };
 

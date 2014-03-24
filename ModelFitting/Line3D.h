@@ -25,5 +25,7 @@ public:
 
 	// Given a point, return the projection point on the line
 	virtual Vec3f projection( const Vec3f& point ) const = 0;
+
+	virtual Vec3f getDirection( void ) const = 0; 
 };
 
