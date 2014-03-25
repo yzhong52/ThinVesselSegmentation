@@ -5,26 +5,26 @@
 
 namespace SyntheticData {
 	void Doughout( Data3D<short>& im_short ) {
-		static int SX = 100; 
-		static int SY = 100; 
-		static int SZ = 50; 
-		static double r1 = 10; // SX * 0.3; 
-		static double r2 = 1; 
+		static int SX = 30; 
+		static int SY = 30; 
+		static int SZ = 30; 
+		static double r1 = 5.5; // SX * 0.3; 
+		static double r2 = 0.9; 
 
 		im_short.reset( Vec3i(SX, SY, SZ) ); 
 
 		// center of the doughout
-		int cx = SX / 2;
-		int cy = SY / 2;
-		int cz = SZ / 2; 
+		float cx = (float) SX / 2;
+		float cy = (float) SY / 2;
+		float cz = (float) SZ / 2 + 0.5f; 
 
 		for( int z=0; z<im_short.SZ(); z++ ) {
-			int dz = z - cz; // difference in z
+			float dz = z - cz; // difference in z
 			for( int y=0; y<SY; y++ ) for( int x=0; x<SX; x++ ) { 
 				// difference in x
-				int dx = x - cx; 
+				float dx = x - cx; 
 				// difference in y
-				int dy = y - cy; 
+				float dy = y - cy; 
 
 				// distance to the center of the doughout
 				double dc = sqrt( 1.0*dx*dx + 1.0*dy*dy );

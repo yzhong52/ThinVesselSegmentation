@@ -56,10 +56,10 @@ int main(int argc, char* argv[])
 		im_short.at(i,  i+1,i)   = 10000; 
 		im_short.at(i+1,i,  i)   = 10000; 
 	}
-	//im_short.at(5, 4, 14) = 10000; 
-	// im_short.at(5, 5, 15) = 10000; 
-	// im_short.at(5, 6, 15) = 10000; 
-	//im_short.at(6, 5, 16) = 10000; 
+	im_short.at(5, 5, 5) = 10000; 
+	im_short.at(5, 5, 15) = 10000; 
+	im_short.at(5, 6, 15) = 10000; 
+	im_short.at(15, 16, 15) = 10000; 
 	// OR real data
 	//im_short.load( "../data/data15.data" );
 	// make a doghout
@@ -88,13 +88,18 @@ int main(int argc, char* argv[])
 	// Initial Samplings
 	const int num_init_labels = (int) dataPoints.size(); 
 	vector<Line3D*> lines; 
+	//for( int i=0; i<num_init_labels; i++ ) {
+	//	Line3DTwoPoint *line  = new ::Line3DTwoPoint();
+	//	Vec3i randomDir = Vec3i(
+	//			rand() % 100 + 10, 
+	//			rand() % 100 + 10, 
+	//			0 ); 
+	//	line->setPositions( dataPoints[i] - randomDir, dataPoints[i] + randomDir ); 
+	//	lines.push_back( line ); 
+	//}
 	for( int i=0; i<num_init_labels; i++ ) {
 		Line3DTwoPoint *line  = new ::Line3DTwoPoint();
-		Vec3i randomDir = Vec3i(
-				rand() % 100, 
-				rand() % 100, 
-				rand() % 100 ); 
-		line->setPositions( dataPoints[i], dataPoints[i] + randomDir ); 
+		line->setPositions( dataPoints[i], dataPoints[ (i+1)%dataPoints.size() ] ); 
 		lines.push_back( line ); 
 	}
 	
@@ -103,7 +108,8 @@ int main(int argc, char* argv[])
 
 	model->updateModel( lines, labelings ); 
 	
-	Sleep( 20000 ); 
+	// Give myself sometime to decide whether we need to render a video
+	// Sleep( 20000 ); 
 
 	cout << "Graph Cut Begin" << endl; 
 	try{

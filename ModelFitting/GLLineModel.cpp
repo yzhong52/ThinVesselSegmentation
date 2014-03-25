@@ -54,7 +54,7 @@ void GLLineModel::render(void){
 	glBegin( GL_LINES );
 	for( int i=0; i < (int) dataPoints.size(); i++ ) {
 		int lineID = labelings[i]; 
-		// actual position
+		//// actual position
 		Vec3f prj = lines[lineID]->projection( dataPoints[i] ); 
 		glColor3ubv( &lineColors[lineID][0] ); 
 		glVertex3fv( &prj[0] ); 

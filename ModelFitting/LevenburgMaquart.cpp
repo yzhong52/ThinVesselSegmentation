@@ -110,7 +110,7 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 	const vector<Line3D*>& lines,
 	const Data3D<int>& indeces )
 {
-	double lambda = 1e-2; 
+	double lambda = 1e1; 
 	//double lambdaMultiplier = 1.0; 
 
 	const int numOfParametersPerLine = lines[0]->getNumOfParameters();
@@ -126,35 +126,34 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 		//  - # of rows: number of parameters for all the line models
 		Mat Jacobian = Mat::zeros( 0, numOfParametersTotal, CV_64F ); 
 
-		if( LOGLIKELIHOOD > 1e-25 ) {
-			//// Construct Jacobian Matrix - for data cost
-			energy_matrix = computeenergy_matrix( dataPoints, labelings, lines ); 
-			Jacobian = Mat::zeros( (int) dataPoints.size(), numOfParametersTotal, CV_64F ); 
-			// Contruct Jacobian matrix
-			for( int label=0; label < lines.size(); label++ ) {
-				for( int site=0; site < dataPoints.size(); site++ ) {
-					if( labelings[site] != label ) {
-						for( int i=0; i < numOfParametersPerLine; i++ ) {
-							Jacobian.at<double>( site, numOfParametersPerLine * label + i ) = 0; 
-						}
-					} 
-					else 
-					{
-						static const float delta = 0.001f; 
+		//// Construct Jacobian Matrix - for data cost
+		energy_matrix = computeenergy_matrix( dataPoints, labelings, lines ); 
+		Jacobian = Mat::zeros( (int) dataPoints.size(), numOfParametersTotal, CV_64F ); 
+		// Contruct Jacobian matrix
+		for( int label=0; label < lines.size(); label++ ) {
+			for( int site=0; site < dataPoints.size(); site++ ) {
+				if( labelings[site] != label ) {
+					for( int i=0; i < numOfParametersPerLine; i++ ) {
+						Jacobian.at<double>( site, numOfParametersPerLine * label + i ) = 0; 
+					}
+				} 
+				else 
+				{
+					static const float delta = 0.01f; 
 
-						// TODO: move this out of the loop
-						double energy_before_for_distance = compute_energy_datacost( dataPoints, labelings, lines ); 
+					// TODO: move this out of the loop
+					double energy_before_for_distance = compute_energy_datacost( dataPoints, labelings, lines ); 
 
-						// compute the derivatives and construct Jacobian matrix
-						for( int i=0; i < lines[label]->getNumOfParameters(); i++ ) {
-							lines[label]->updateParameterWithDelta( i, delta ); 
-							Jacobian.at<double>( site, 6*label+i ) = 1.0 / delta * ( compute_energy_datacost( dataPoints, labelings, lines ) - energy_before_for_distance ); 
-							lines[label]->updateParameterWithDelta( i, -delta ); 
-						}
+					// compute the derivatives and construct Jacobian matrix
+					for( int i=0; i < lines[label]->getNumOfParameters(); i++ ) {
+						lines[label]->updateParameterWithDelta( i, delta ); 
+						Jacobian.at<double>( site, 6*label+i ) = 1.0 / delta * ( compute_energy_datacost( dataPoints, labelings, lines ) - energy_before_for_distance ); 
+						lines[label]->updateParameterWithDelta( i, -delta ); 
 					}
 				}
-			} // Contruct Jacobian matrix (2B Continue)
-		}
+			}
+		} // Contruct Jacobian matrix (2B Continue)
+
 
 		// Contruct Jacobian matrix (Continue) - for smooth cost
 		for( int site = 0; site < dataPoints.size(); site++ ) { // For each data point
@@ -202,7 +201,7 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 				for( int label = 0; label < lines.size(); label++ ) { // for each label
 					if( (l1==label) || (l2==label) ) {
 						for( int i=0; i < numOfParametersPerLine; i++ ) {
-							static const float delta = 0.001f; 
+							static const float delta = 0.1f; 
 
 							lines[label]->updateParameterWithDelta( i, delta ); 
 							
@@ -223,9 +222,9 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 
 							// compute derivatives
 							JJ.at<double>( 0, numOfParametersPerLine * label + i ) = 
-								dist_pipi1 / dist_pipj - energy_smoothness_i; 
+								1.0 / delta * (dist_pipi1 / dist_pipj - energy_smoothness_i); 
 							JJ.at<double>( 1, numOfParametersPerLine * label + i ) = 
-								dist_pjpj1 / dist_pipj - energy_smoothness_j; 
+								1.0 / delta * (dist_pjpj1 / dist_pipj - energy_smoothness_j); 
 
 							lines[label]->updateParameterWithDelta( i, -delta ); 
 						}
@@ -272,7 +271,7 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 		if( new_energy <= energy_before ) { // if energy is decreasing 
 			cout << "-" << endl;
 			energy_before = new_energy; 
-			lambda *= 0.99; 
+			lambda *= 0.9; 
 		} else {
 			cout << "+" << endl;
 			for( int label=0; label < lines.size(); label++ ) {
@@ -281,7 +280,7 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 					lines[label]->updateParameterWithDelta( i, -delta ); 
 				}
 			}
-			lambda *= 1.01; 
+			lambda *= 1.5; 
 		}
 		
 		// Sleep(10);  // TODO: this is only for debuging 
