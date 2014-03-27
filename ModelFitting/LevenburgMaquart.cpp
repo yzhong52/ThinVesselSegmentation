@@ -137,7 +137,7 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 	const int numOfParametersTotal = (int) lines.size() * lines[0]->getNumOfParameters(); 
 
 	for( int lmiter = 0; lambda < 10e50 && lambda > 10e-100 && lmiter<100000; lmiter++ ) { 
-		cout << "Levenburg Maquart: " << lmiter << " Lambda: " << lambda << endl; 
+		// cout << "Levenburg Maquart: " << lmiter << " Lambda: " << lambda << endl; 
 
 		Mat energy_matrix = Mat( 0, 1, CV_64F );
 
@@ -235,11 +235,11 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 
 		Mat X; 
 		cv::solve( A, -B, X, DECOMP_QR  ); 
-		for( int i=0; i<X.rows; i++ ) {
-			std::cout << std::setw(14) << std::scientific << X.at<double>(i) << "  ";
-		}
-		cout << endl;
-		// Sleep(1000);
+		//for( int i=0; i<X.rows; i++ ) {
+		//	std::cout << std::setw(14) << std::scientific << X.at<double>(i) << "  ";
+		//}
+		//cout << endl;
+		//// Sleep(1000);
 		
 
 
@@ -257,18 +257,18 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 		// the smaller lambda is, the faster it converges
 		// the bigger lambda is, the slower it converges
 		if( new_energy <= energy_before ) { // if energy is decreasing 
-			cout << "-" << endl;
+			cout << "- ";
 			energy_before = new_energy; 
-			lambda *= 0.9; 
+			lambda *= 0.91; 
 		} else {
-			cout << "+" << endl;
+			cout << "+ ";
 			for( int label=0; label < lines.size(); label++ ) {
 				for( int i=0; i < numOfParametersPerLine; i++ ) {
 					const double& delta = X.at<double>( label * numOfParametersPerLine + i ); 
 					lines[label]->updateParameterWithDelta( i, -delta ); 
 				}
 			}
-			lambda *= 1.5; 
+			lambda *= 1.73; 
 		}
 	}
 }

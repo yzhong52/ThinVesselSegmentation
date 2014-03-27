@@ -29,7 +29,7 @@ typedef GCoptimization GC;
 
 // for visualization
 GLViwerModel ver;
-
+// thread function for rendering
 void visualization_func( void* data ) {
 	GLViwerModel& ver = *(GLViwerModel*) data; 
 	ver.go();
@@ -105,6 +105,9 @@ int main(int argc, char* argv[])
 	
 	vector<int> labelings = vector<int>( dataPoints.size(), 0 ); 
 	// for( int i=0; i<num_init_labels; i++ ) labelings[i] = i; 
+	for( int i=0; i<num_init_labels; i++ ) {
+		labelings[i] = (rand() % 100) / 50; 
+	}
 
 	model->updateModel( lines, labelings ); 
 	
