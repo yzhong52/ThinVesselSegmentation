@@ -38,6 +38,7 @@ void GLLineModel::render(void){
 	WaitForSingleObject( hMutex, INFINITE );
 
 	// draw the data points 
+	glPointSize( 3.0 );
 	glBegin( GL_POINTS );
 	for( int i=0; i < (int) dataPoints.size(); i++ ) {
 		int lineID = labelings[i]; 
@@ -50,6 +51,21 @@ void GLLineModel::render(void){
 		//glVertex3iv( &dataPoints[i][0] ); 
 	} 
 	glEnd();
+
+	// draw the end points of the lines
+	glPointSize( 6.0 );
+	glBegin( GL_POINTS );
+	for( int i=0; i < (int) dataPoints.size(); i++ ) {
+		int lineID = labelings[i]; 
+		// actual position (projection of the datapoint to the labeling line) 
+		Vec3f p1, p2; 
+		lines[lineID]->getEndPoints( p1, p2 ); 
+		glColor3ubv( &lineColors[lineID][0] ); 
+		glVertex3fv( &p1[0] ); 
+		glVertex3fv( &p2[0] ); 
+	} 
+	glEnd();
+
 
 	glBegin( GL_LINES );
 	for( int i=0; i < (int) dataPoints.size(); i++ ) {
@@ -143,5 +159,5 @@ void GLLineModel::init(void){
     glEnable( GL_POINT_SMOOTH );
     glEnable( GL_BLEND );
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-    glPointSize( 3.0 );
+    
 }

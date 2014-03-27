@@ -27,5 +27,7 @@ public:
 	virtual Vec3f projection( const Vec3f& point ) const = 0;
 
 	virtual Vec3f getDirection( void ) const = 0; 
+
+	virtual void getEndPoints( Vec3f& p1, Vec3f& p2 ) const = 0; 
 };
 

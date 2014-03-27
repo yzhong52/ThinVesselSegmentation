@@ -35,8 +35,8 @@ void compute_energy_smoothcost_for_pair(
 	const Line3D* line_j,
 	const Vec3i& pi_tilde, 
 	const Vec3i& pj_tilde,
-	double smooth_cost_i, 
-	double smooth_cost_j )
+	double& smooth_cost_i, 
+	double& smooth_cost_j )
 {
 	// single projection
 	Vec3f pi = line_i->projection( pi_tilde ); 
@@ -56,8 +56,8 @@ void compute_energy_smoothcost_for_pair(
 	float dist_pipi1 = pipi1.dot(pipi1); 
 	float dist_pjpj1 = pjpj1.dot(pjpj1); 
 
-	smooth_cost_i = dist_pipi1 / dist_pipj; 
-	smooth_cost_j = dist_pjpj1 / dist_pipj; 
+	smooth_cost_i = PAIRWISESMOOTH * dist_pipi1 / dist_pipj; 
+	smooth_cost_j = PAIRWISESMOOTH * dist_pjpj1 / dist_pipj; 
 }
 
 double compute_energy_smoothcost( 
@@ -131,7 +131,7 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 	const vector<Line3D*>& lines,
 	const Data3D<int>& indeces )
 {
-	double lambda = 1e-4; 
+	double lambda = 1e3; 
 
 	const int numOfParametersPerLine = lines[0]->getNumOfParameters();
 	const int numOfParametersTotal = (int) lines.size() * lines[0]->getNumOfParameters(); 
@@ -165,66 +165,66 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 		} // Contruct Jacobian matrix (2B Continue)
 
 
-		//// Contruct Jacobian matrix (Continue) - for smooth cost
-		//for( int site = 0; site < dataPoints.size(); site++ ) { // For each data point
-		//	for( int neibourIndex=0; neibourIndex<13; neibourIndex++ ) { // find it's neighbour
-		//		// the neighbour position
-		//		int x, y, z; 
-		//		Neighbour26::getNeigbour( neibourIndex, 
-		//			dataPoints[site][0], dataPoints[site][1], dataPoints[site][2], 
-		//			x, y, z ); 
-		//		if( !indeces.isValid(x,y,z) ) continue; // not a valid position
-		//		                                        // otherwise
+		// Contruct Jacobian matrix (Continue) - for smooth cost
+		for( int site = 0; site < dataPoints.size(); site++ ) { // For each data point
+			for( int neibourIndex=0; neibourIndex<13; neibourIndex++ ) { // find it's neighbour
+				// the neighbour position
+				int x, y, z; 
+				Neighbour26::getNeigbour( neibourIndex, 
+					dataPoints[site][0], dataPoints[site][1], dataPoints[site][2], 
+					x, y, z ); 
+				if( !indeces.isValid(x,y,z) ) continue; // not a valid position
+				                                        // otherwise
 
-		//		int site2 = indeces.at(x,y,z); 
-		//		if( site2==-1 ) continue ; // not a neighbour
-		//		                           // other wise, found a neighbour
+				int site2 = indeces.at(x,y,z); 
+				if( site2==-1 ) continue ; // not a neighbour
+				                           // other wise, found a neighbour
 
-		//		Mat JJ = Mat::zeros( 2, numOfParametersTotal, CV_64F ); 
+				Mat JJ = Mat::zeros( 2, numOfParametersTotal, CV_64F ); 
 
-		//		int l1 = labelings[site];
-		//		int l2 = labelings[site2];
-		//		
-		//		if( l1==l2 ) continue; 
+				int l1 = labelings[site];
+				int l2 = labelings[site2];
+				
+				if( l1==l2 ) continue; 
 
-		//		double smoothcost_i_before = 0, smoothcost_j_before = 0;
-		//		compute_energy_smoothcost_for_pair( 
-		//			lines[l1], lines[l2], 
-		//			dataPoints[site], dataPoints[site2], 
-		//			smoothcost_i_before, smoothcost_j_before ); 
-		//		
-		//		// add more rows to energy_matrix according to smooth cost 
-		//		energy_matrix.push_back( sqrt( smoothcost_i_before ) ); 
-		//		energy_matrix.push_back( sqrt( smoothcost_j_before ) ); 
+				double smoothcost_i_before = 0, smoothcost_j_before = 0;
+				compute_energy_smoothcost_for_pair( 
+					lines[l1], lines[l2], 
+					dataPoints[site], dataPoints[site2], 
+					smoothcost_i_before, smoothcost_j_before ); 
+				
+				// add more rows to energy_matrix according to smooth cost 
+				energy_matrix.push_back( sqrt( smoothcost_i_before ) ); 
+				energy_matrix.push_back( sqrt( smoothcost_j_before ) ); 
 
-		//		// compute derivatives
-		//		// Setting up J
-		//		for( int label = 0; label < lines.size(); label++ ) { // for each label
-		//			if( (l1==label) || (l2==label) ) {
-		//				for( int i=0; i < numOfParametersPerLine; i++ ) {
-		//					static const float delta = 0.1f; 
+				// compute derivatives
+				// Setting up J
+				for( int label = 0; label < lines.size(); label++ ) { // for each label
+					if( (l1==label) || (l2==label) ) {
+						for( int i=0; i < numOfParametersPerLine; i++ ) {
+							static const float delta = 0.1f; 
 
-		//					// compute derivatives
-		//					lines[label]->updateParameterWithDelta( i, delta ); 
-		//					
-		//					double smoothcost_i_new = 0, smoothcost_j_new = 0;
-		//					compute_energy_smoothcost_for_pair( 
-		//						lines[l1], lines[l2], 
-		//						dataPoints[site], dataPoints[site2], 
-		//						smoothcost_i_new, smoothcost_j_new ); 
-		//					JJ.at<double>( 0, numOfParametersPerLine * label + i ) = 
-		//						1.0 / delta * (smoothcost_i_new - smoothcost_i_before); 
-		//					JJ.at<double>( 1, numOfParametersPerLine * label + i ) = 
-		//						1.0 / delta * (smoothcost_j_new - smoothcost_j_before); 
+							// compute derivatives
+							lines[label]->updateParameterWithDelta( i, delta ); 
+							
+							double smoothcost_i_new = 0, smoothcost_j_new = 0;
+							compute_energy_smoothcost_for_pair( 
+								lines[l1], lines[l2], 
+								dataPoints[site], dataPoints[site2], 
+								smoothcost_i_new, smoothcost_j_new ); 
+							JJ.at<double>( 0, numOfParametersPerLine * label + i ) = 
+								1.0 / delta * (smoothcost_i_new - smoothcost_i_before); 
+							JJ.at<double>( 1, numOfParametersPerLine * label + i ) = 
+								1.0 / delta * (smoothcost_j_new - smoothcost_j_before); 
 
-		//					lines[label]->updateParameterWithDelta( i, -delta ); 
-		//				}	
-		//			}
-		//		}
-		//		// Add J1 and J2 to Jacobian matrix as an additional row
-		//		Jacobian.push_back( JJ ); 
-		//	} // for each pair of pi and pj
-		//} // end of contruction of Jacobian Matrix
+							lines[label]->updateParameterWithDelta( i, -delta ); 
+						}	
+					}
+				}
+				// Add J1 and J2 to Jacobian matrix as an additional row
+				Jacobian.push_back( JJ ); 
+			} // for each pair of pi and pj
+		} // end of contruction of Jacobian Matrix
 
 
 
@@ -239,7 +239,7 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 		//	std::cout << std::setw(14) << std::scientific << X.at<double>(i) << "  ";
 		//}
 		//cout << endl;
-		//// Sleep(1000);
+		// Sleep(500);
 		
 
 
@@ -259,7 +259,7 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 		if( new_energy <= energy_before ) { // if energy is decreasing 
 			cout << "- ";
 			energy_before = new_energy; 
-			lambda *= 0.91; 
+			lambda *= 0.51; 
 		} else {
 			cout << "+ ";
 			for( int label=0; label < lines.size(); label++ ) {
@@ -268,7 +268,8 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 					lines[label]->updateParameterWithDelta( i, -delta ); 
 				}
 			}
-			lambda *= 1.73; 
+			lambda *= 2.13; 
 		}
+
 	}
 }

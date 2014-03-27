@@ -41,24 +41,28 @@ void visualization_func( void* data ) {
 
 
 
-const double LOGLIKELIHOOD = 1.0001; 
+const double LOGLIKELIHOOD = 50.10; 
+const double PAIRWISESMOOTH = 10.0; 
 
 int main(int argc, char* argv[])
 {
+	//srand( time(NULL) ); 
+	srand( 3 ); 
+
 	CreateDirectory(L"./output", NULL);
 	
 	Data3D<short> im_short;
 	//Synthesic Data
 	im_short.reset( Vec3i(20,20,20) ); 
-	for( int i=5; i<15; i++ ) {
+	for( int i=3; i<18; i++ ) {
 		im_short.at(i,  i,  i)   = 10000; 
 		im_short.at(i,  i,  i+1) = 10000; 
 		im_short.at(i,  i+1,i)   = 10000; 
 		im_short.at(i+1,i,  i)   = 10000; 
 	}
 	//im_short.at(5, 5, 5) = 10000; 
-	/*im_short.at(5, 5, 15) = 10000; 
-	im_short.at(5, 6, 15) = 10000; */
+	//im_short.at(5, 5, 15) = 10000; 
+	//im_short.at(5, 6, 15) = 10000; 
 	//im_short.at(15, 16, 15) = 10000; 
 	// OR real data
 	//im_short.load( "../data/data15.data" );
@@ -104,7 +108,9 @@ int main(int argc, char* argv[])
 	//}
 	
 	vector<int> labelings = vector<int>( dataPoints.size(), 0 ); 
+	//// randomly assign label for each point separatedly 
 	// for( int i=0; i<num_init_labels; i++ ) labelings[i] = i; 
+	// randomly assign label 1 or 2
 	for( int i=0; i<num_init_labels; i++ ) {
 		labelings[i] = (rand() % 100) / 50; 
 	}

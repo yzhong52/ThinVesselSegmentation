@@ -30,5 +30,10 @@ public:
 		dir /= sqrt( dir.dot( dir ) );
 		return dir; 
 	}
+
+	virtual void getEndPoints( Vec3f& p1, Vec3f& p2 ) const{
+		p1 = Vec3f( &data[0] );
+		p2 = Vec3f( &data[3] ); 
+	}; 
 };
 
