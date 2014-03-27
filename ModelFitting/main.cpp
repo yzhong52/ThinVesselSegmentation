@@ -41,7 +41,7 @@ void visualization_func( void* data ) {
 
 
 
-const double LOGLIKELIHOOD = 0.01; 
+const double LOGLIKELIHOOD = 1.0001; 
 
 int main(int argc, char* argv[])
 {
@@ -56,10 +56,10 @@ int main(int argc, char* argv[])
 		im_short.at(i,  i+1,i)   = 10000; 
 		im_short.at(i+1,i,  i)   = 10000; 
 	}
-	im_short.at(5, 5, 5) = 10000; 
-	im_short.at(5, 5, 15) = 10000; 
-	im_short.at(5, 6, 15) = 10000; 
-	im_short.at(15, 16, 15) = 10000; 
+	//im_short.at(5, 5, 5) = 10000; 
+	/*im_short.at(5, 5, 15) = 10000; 
+	im_short.at(5, 6, 15) = 10000; */
+	//im_short.at(15, 16, 15) = 10000; 
 	// OR real data
 	//im_short.load( "../data/data15.data" );
 	// make a doghout
@@ -88,23 +88,23 @@ int main(int argc, char* argv[])
 	// Initial Samplings
 	const int num_init_labels = (int) dataPoints.size(); 
 	vector<Line3D*> lines; 
-	//for( int i=0; i<num_init_labels; i++ ) {
-	//	Line3DTwoPoint *line  = new ::Line3DTwoPoint();
-	//	Vec3i randomDir = Vec3i(
-	//			rand() % 100 + 10, 
-	//			rand() % 100 + 10, 
-	//			0 ); 
-	//	line->setPositions( dataPoints[i] - randomDir, dataPoints[i] + randomDir ); 
-	//	lines.push_back( line ); 
-	//}
 	for( int i=0; i<num_init_labels; i++ ) {
 		Line3DTwoPoint *line  = new ::Line3DTwoPoint();
-		line->setPositions( dataPoints[i], dataPoints[ (i+1)%dataPoints.size() ] ); 
+		Vec3i randomDir = Vec3i(
+				rand() % 100 + 10, 
+				rand() % 100 + 10, 
+				rand() % 100 + 10 ); 
+		line->setPositions( dataPoints[i] - randomDir, dataPoints[i] + randomDir ); 
 		lines.push_back( line ); 
 	}
+	//for( int i=0; i<num_init_labels; i++ ) {
+	//	Line3DTwoPoint *line  = new ::Line3DTwoPoint();
+	//	line->setPositions( dataPoints[i], dataPoints[ (i+1)%dataPoints.size() ] ); 
+	//	lines.push_back( line ); 
+	//}
 	
 	vector<int> labelings = vector<int>( dataPoints.size(), 0 ); 
-	for( int i=0; i<num_init_labels; i++ ) labelings[i] = i; 
+	// for( int i=0; i<num_init_labels; i++ ) labelings[i] = i; 
 
 	model->updateModel( lines, labelings ); 
 	
