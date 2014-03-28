@@ -3,6 +3,7 @@
 #include <iostream> 
 #include <iomanip>
 #include <Windows.h>
+#include <limits>
 using namespace std; 
 
 #include "Line3D.h" 
@@ -271,5 +272,33 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 			lambda *= 2.13; 
 		}
 
+		
+		// update the end points of the line
+		vector<float> minT( (int) labelings.size(), (std::numeric_limits<float>::max)() );
+		vector<float> maxT( (int) labelings.size(), (std::numeric_limits<float>::min)() );
+		for( int site = 0; site < dataPoints.size(); site++ ) { // For each data point
+			int label = labelings[site]; 
+			Vec3f p1, p2;
+			lines[label]->getEndPoints( p1, p2 ); 
+
+			Vec3f& pos = p1;
+			Vec3f dir = p2 - p1; 
+			dir /= sqrt( dir.dot( dir ) ); // normalize the direction 
+			float t = ( Vec3f(dataPoints[site]) - pos ).dot( dir );
+			maxT[label] = max( t+1, maxT[label] );
+			minT[label] = min( t-1, minT[label] );
+		}
+		for( int label=0; label<labelings.size(); label++ ) {
+			if( minT[label] < maxT[label] ) {
+				Vec3f p1, p2;
+				lines[label]->getEndPoints( p1, p2 ); 
+
+				Vec3f& pos = p1;
+				Vec3f dir = p2 - p1; 
+				dir /= sqrt( dir.dot( dir ) ); // normalize the direction 
+				
+				lines[label]->setPositions( pos + dir * minT[label], pos + dir * maxT[label] ); 
+			}
+		}
 	}
 }

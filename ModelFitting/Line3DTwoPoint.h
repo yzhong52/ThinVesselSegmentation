@@ -18,7 +18,7 @@ public:
 	// Given a point, return the projection point on the line
 	virtual Vec3f projection( const Vec3f& point ) const;
 	
-	inline void setPositions( Vec3f pos1, Vec3f pos2 ) {
+	virtual inline void setPositions( Vec3f pos1, Vec3f pos2 ) {
 		memcpy( &data[0], &pos1[0], sizeof(int) * 3 ); 
 		memcpy( &data[3], &pos2[0], sizeof(int) * 3 ); 
 	}

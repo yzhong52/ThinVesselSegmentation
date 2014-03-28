@@ -38,15 +38,14 @@ void visualization_func( void* data ) {
 
 #include <assert.h>
 #include <iostream>
+#include <limits> 
 
 
-
-const double LOGLIKELIHOOD = 50.10; 
+const double LOGLIKELIHOOD = 1.10; 
 const double PAIRWISESMOOTH = 10.0; 
 
 int main(int argc, char* argv[])
 {
-	//srand( time(NULL) ); 
 	srand( 3 ); 
 
 	CreateDirectory(L"./output", NULL);
@@ -109,16 +108,16 @@ int main(int argc, char* argv[])
 	
 	vector<int> labelings = vector<int>( dataPoints.size(), 0 ); 
 	//// randomly assign label for each point separatedly 
-	// for( int i=0; i<num_init_labels; i++ ) labelings[i] = i; 
+	for( int i=0; i<num_init_labels; i++ ) labelings[i] = i; 
 	// randomly assign label 1 or 2
-	for( int i=0; i<num_init_labels; i++ ) {
-		labelings[i] = (rand() % 100) / 50; 
-	}
+	//for( int i=0; i<num_init_labels; i++ ) {
+	//	labelings[i] = (rand() % 100) / 50; 
+	//}
 
 	model->updateModel( lines, labelings ); 
 	
 	// Give myself sometime to decide whether we need to render a video
-	// Sleep( 20000 ); 
+	Sleep( 10000 ); 
 
 	cout << "Graph Cut Begin" << endl; 
 	try{

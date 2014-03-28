@@ -29,5 +29,7 @@ public:
 	virtual Vec3f getDirection( void ) const = 0; 
 
 	virtual void getEndPoints( Vec3f& p1, Vec3f& p2 ) const = 0; 
+
+	virtual inline void setPositions( Vec3f pos1, Vec3f pos2 ) = 0; 
 };
 
