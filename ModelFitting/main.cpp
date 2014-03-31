@@ -58,6 +58,7 @@ int main(int argc, char* argv[])
 		im_short.at(i,  i,  i+1) = 10000; 
 		im_short.at(i,  i+1,i)   = 10000; 
 		im_short.at(i+1,i,  i)   = 10000; 
+		im_short.at(i+1,i+1,i+1) = 10000; 
 	}
 	//im_short.at(5, 5, 5) = 10000; 
 	//im_short.at(5, 5, 15) = 10000; 
@@ -117,7 +118,7 @@ int main(int argc, char* argv[])
 	model->updateModel( lines, labelings ); 
 	
 	// Give myself sometime to decide whether we need to render a video
-	Sleep( 10000 ); 
+	// Sleep( 10000 ); 
 
 	cout << "Graph Cut Begin" << endl; 
 	try{

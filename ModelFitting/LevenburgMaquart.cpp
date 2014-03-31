@@ -127,12 +127,75 @@ Mat compute_energy_matrix_datacost(
 }
 
 
+
+Mat compute_energy_datacost_derivative_for_one( const Line3D* l,  const Vec3i tildeP ) {
+	Vec3f X1, X2; 
+	l->getEndPoints( X1, X2 ); 
+
+	Mat nablaA( 6, 1, CV_64F );
+	nablaA.at<double>(0) =  tildeP[0] - X2[0]; 
+	nablaA.at<double>(1) =  tildeP[1] - X2[1]; 
+	nablaA.at<double>(2) =  tildeP[2] - X2[2]; 
+	nablaA.at<double>(3) = -tildeP[0] - X1[0] + 2 * X2[0]; 
+	nablaA.at<double>(4) = -tildeP[1] - X1[1] + 2 * X2[1]; 
+	nablaA.at<double>(5) = -tildeP[2] - X1[2] + 2 * X2[2]; 
+
+	Mat nablaB( 6, 1, CV_64F ); 
+	nablaB.at<double>(0) = 2 * ( X1[0] - X2[0] ); 
+	nablaB.at<double>(1) = 2 * ( X1[1] - X2[1] ); 
+	nablaB.at<double>(2) = 2 * ( X1[2] - X2[2] ); 
+	nablaB.at<double>(3) = 2 * ( X2[0] - X1[0] ); 
+	nablaB.at<double>(4) = 2 * ( X2[1] - X1[1] ); 
+	nablaB.at<double>(5) = 2 * ( X2[2] - X1[2] ); 
+
+	double A = ( Vec3f(tildeP) - X2 ).dot( X1 - X2 );
+	double B = ( X1 - X2 ).dot( X1 - X2 );
+
+	Mat nablaT = (nablaA * B - nablaB * A ) / (B * B); // 6 * 1 matrix
+	
+	double T = A / B; // B is the length of a line (won't be zero) 
+
+	Mat MX1 = Mat::zeros( 3,1, CV_64F ); 
+	Mat MX2 = Mat::zeros( 3,1, CV_64F ); 
+	for( int i=0; i<3; i++ ) {
+		MX1.at<double>(i)   = X1[i];
+		MX2.at<double>(i) = X2[i];
+	}
+
+	static const Mat nablaX1 = (Mat_<double>(6, 3) << 
+		1.0, 0.0, 0.0,
+		0.0, 1.0, 0.0,
+		0.0, 0.0, 1.0,
+		0.0, 0.0, 0.0,
+		0.0, 0.0, 0.0,
+		0.0, 0.0, 0.0 );
+	static const Mat nablaX2 = (Mat_<double>(6, 3) << 
+		0.0, 0.0, 0.0,
+		0.0, 0.0, 0.0,
+		0.0, 0.0, 0.0,
+		1.0, 0.0, 0.0,
+		0.0, 1.0, 0.0,
+		0.0, 0.0, 1.0 );
+
+	// 6 * 3 
+	Mat nablaP = nablaT * MX1.t() + nablaX1 * T + nablaX2 * (1-T) - nablaT * MX2.t();
+	
+	Vec3d tildeP_P = Vec3d(tildeP) - Vec3d( T * X1 + (1-T) * X2 ); 
+	double tildaP_P_lenght = max( 1e-10, sqrt( tildeP_P.dot(tildeP_P) ) ); // l->distanceToLine( tildeP );
+
+	//cout << nablaP << endl;
+
+	Mat M_TildeP_P = (Mat_<double>(3, 1) << tildeP_P[0], tildeP_P[1], tildeP_P[2]); 
+
+	return -nablaP * M_TildeP_P / tildaP_P_lenght; 
+}
+
 void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 	const vector<int>& labelings, 
 	const vector<Line3D*>& lines,
 	const Data3D<int>& indeces )
 {
-	double lambda = 1e3; 
+	double lambda = 1e2; 
 
 	const int numOfParametersPerLine = lines[0]->getNumOfParameters();
 	const int numOfParametersTotal = (int) lines.size() * lines[0]->getNumOfParameters(); 
@@ -152,17 +215,23 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 		Jacobian = Mat::zeros( (int) dataPoints.size(), numOfParametersTotal, CV_64F ); 
 		for( int site=0; site < dataPoints.size(); site++ ) {
 			int label = labelings[site]; 
-			static const float delta = 0.01f; 
+			static const float delta = 0.0003f; 
 
 			double datacost_before = compute_energy_datacost_for_one( lines[label], dataPoints[site] ); 
 
 			// compute the derivatives and construct Jacobian matrix
-			for( int i=0; i < lines[label]->getNumOfParameters(); i++ ) {
+			/*for( int i=0; i < numOfParametersPerLine; i++ ) {
 				lines[label]->updateParameterWithDelta( i, delta ); 
 				double datacost_new = compute_energy_datacost_for_one( lines[label], dataPoints[site] ); 
 				Jacobian.at<double>( site, 6*label+i ) = 1.0 / delta * ( datacost_new - datacost_before ); 
 				lines[label]->updateParameterWithDelta( i, -delta ); 
 			}
+			cout << Jacobian << endl; */
+			Mat m = compute_energy_datacost_derivative_for_one( lines[label], dataPoints[site] ); 
+			for( int i=0; i < numOfParametersPerLine; i++ ) {
+				Jacobian.at<double>( site, 6*label+i ) = m.at<double>(i); 
+			}
+			//cout << Jacobian << endl; 
 		} // Contruct Jacobian matrix (2B Continue)
 
 
