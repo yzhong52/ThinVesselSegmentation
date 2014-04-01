@@ -133,6 +133,46 @@ Mat compute_energy_matrix_datacost(
 
 
 
+
+
+
+void  projection_jacobians( 
+	const Vec3f X1, const Vec3f X2,                  // two end points of a line
+	const Mat nablaX1, const Mat nablaX2,          // Jacobians of the end points of the line
+	const Vec3i& tildeP, const Mat nablaTildeP,   // a point, and the Jacobian of the point
+	Vec3f& P, Mat& nablaP )
+{	
+	// Convert the end points into matrix form
+	Mat MX1 = (Mat_<double>(3,1) << double(X1[0]), double(X1[1]), double(X1[2]) ); 
+	Mat MX2 = (Mat_<double>(3,1) << double(X2[0]), double(X2[1]), double(X2[2]) ); 
+	// convert the observe points into matrix form
+	Mat MTildeP = (Mat_<double>(3,1) << double(tildeP[0]), double(tildeP[1]), double(tildeP[2]) ); 
+
+	// Assume that: P = T * X1 + (1-T) * X2
+	const double A = ( Vec3f(tildeP) - X2 ).dot( X1 - X2 );
+	const double B = ( X1 - X2 ).dot( X1 - X2 );
+	const double T = A / B;
+	
+	// Compute the Jacobian matrix for Ai, Bi and Aj, Bj
+	const Mat nablaA = ( nablaTildeP - nablaX2 ) * ( MX1 - MX2 ) + (nablaX1 - nablaX2) * ( MTildeP - MX2 );
+	const Mat nablaB = 2 * ( nablaX1 - nablaX2 ) * ( MX1 - MX2 ); 
+	
+	// Compute the Jacobian matrix for Ti and Tj
+	// N * 1 matrices
+	const Mat nablaT = ( nablaA * B - nablaB * A ) / ( B * B );
+
+	// Compute the projection point
+	P = T * X1 + (1-T) * X2; 
+	
+	// convert the projection points into matrix form
+	const Mat MP = (Mat_<double>(3,1) << double(P[0]), double(P[1]), double(P[2]) ); 
+	
+	// And the Jacobian matrix of the projection point
+	// N * 3  matrices
+	nablaP = nablaT * MX1.t() + nablaX1 * T + nablaX2 * (1-T) - nablaT * MX2.t();
+}
+
+
 Mat compute_energy_datacost_derivative_for_one( const Line3D* l,  const Vec3i tildeP ) {
 	Vec3f X1, X2; 
 	l->getEndPoints( X1, X2 ); 
@@ -192,8 +232,19 @@ Mat compute_energy_datacost_derivative_for_one( const Line3D* l,  const Vec3i ti
 
 	Mat M_TildeP_P = (Mat_<double>(3, 1) << tildeP_P[0], tildeP_P[1], tildeP_P[2]); 
 
+	// function validation
+	// TODO: adopt this function 'projection_jacobians'
+	//Vec3f Ptest; 
+	//Mat nablaPtest; 
+	//projection_jacobians( X1, X2, nablaX1, nablaX2, tildeP, Mat::zeros( 6, 3, CV_64F), Ptest, nablaPtest );
+	//cout << Ptest << endl;
+	//cout << T * X1 + (1-T) * X2 << endl; 
+	//cout << nablaPtest << endl; 
+	//cout << nablaP << endl; 
+
 	return -nablaP * M_TildeP_P / tildaP_P_lenght; 
 }
+
 
 
 
@@ -380,8 +431,9 @@ Mat compute_energy_smoothcost_derivative_for_pair( const Line3D* li,  const Line
 	Mat nabla_pi_pj       = (nablaPi - nablaPj) * ( MPi - MPj ) / dist_pi_pj; 
 
 	Mat res( 0, 12, CV_64F ); 
-	Mat row1 = nabla_pi_pi_prime * dist_pi_pj + nabla_pi_pj * dist_pi_pi_prime; 
-	Mat row2 = nabla_pj_pj_prime * dist_pi_pj + nabla_pi_pj * dist_pj_pj_prime; 
+	Mat row1 = nabla_pi_pi_prime * dist_pi_pj - nabla_pi_pj * dist_pi_pi_prime; 
+	Mat row2 = nabla_pj_pj_prime * dist_pi_pj - nabla_pi_pj * dist_pj_pj_prime; 
+
 
 	//for( int i=0; i<row1.rows; i++ ) {	
 	//	if( i%3==0 ) cout << endl; 
@@ -431,12 +483,85 @@ Mat compute_energy_smoothcost_derivative_for_pair( const Line3D* li,  const Line
 	return res; 
 }
 
+
+
+
+Mat compute_energy_smoothcost_derivative_for_pair2( const Line3D* li,  const Line3D* lj, const Vec3i& tildePi, const Vec3i& tildePj ) {
+	Vec3f Xi1, Xi2, Xj1, Xj2; 
+	li->getEndPoints( Xi1, Xi2 ); 
+	lj->getEndPoints( Xj1, Xj2 ); 
+
+	// Compute the derivatives of the end points over 
+	// the 12 parameters
+	static Mat nablaXi1 = Mat::zeros(12, 3, CV_64F);
+	static Mat nablaXi2 = Mat::zeros(12, 3, CV_64F);
+	static Mat nablaXj1 = Mat::zeros(12, 3, CV_64F);
+	static Mat nablaXj2 = Mat::zeros(12, 3, CV_64F);
+	for( int i=0; i<3; i++ ) {
+		nablaXi1.at<double>(i+0,i) = 1; 
+		nablaXi2.at<double>(i+3,i) = 1; 
+		nablaXj1.at<double>(i+6,i) = 1; 
+		nablaXj2.at<double>(i+9,i) = 1; 
+	}
+
+	Vec3f Pi, Pj, Pi_prime, Pj_prime;
+	Mat nablaPi, nablaPj, nablaPi_prime, nablaPj_prime; 
+	projection_jacobians( Xi1, Xi2, nablaXi1, nablaXi2, tildePi, Mat::zeros( 12, 3, CV_64F), Pi, nablaPi );
+	projection_jacobians( Xj1, Xj2, nablaXj1, nablaXj2, tildePj, Mat::zeros( 12, 3, CV_64F), Pj, nablaPj );
+	projection_jacobians( Xj1, Xj2, nablaXj1, nablaXj2, Pi, nablaPi, Pi_prime, nablaPi_prime );
+	projection_jacobians( Xi1, Xi2, nablaXi1, nablaXi2, Pj, nablaPj, Pj_prime, nablaPj_prime );
+
+	const double dist_pi_pj2       = max(1e-27, (Pi-Pj).dot(Pi-Pj) ); 
+	const double dist_pi_pi_prime2 = max(1e-27, (Pi-Pi_prime).dot(Pi-Pi_prime) ); 
+	const double dist_pj_pj_prime2 = max(1e-27, (Pj-Pj_prime).dot(Pj-Pj_prime) ); 
+	const double dist_pi_pj        = sqrt( dist_pi_pj2 );
+	const double dist_pi_pi_prime  = sqrt( dist_pi_pi_prime2 ); 
+	const double dist_pj_pj_prime  = sqrt( dist_pj_pj_prime2 ); 
+
+	
+	// Convert the end points into matrix form
+	Mat MPi = Mat::zeros( 3,1, CV_64F ); 
+	Mat MPj = Mat::zeros( 3,1, CV_64F ); 
+	Mat MPi_prime = Mat::zeros( 3,1, CV_64F ); 
+	Mat MPj_prime = Mat::zeros( 3,1, CV_64F ); 
+	for( int i=0; i<3; i++ ) {
+		MPi.at<double>(i) = Pi[i];
+		MPj.at<double>(i) = Pj[i];
+		MPi_prime.at<double>(i) = Pi_prime[i];
+		MPj_prime.at<double>(i) = Pj_prime[i];
+	}
+
+	Mat nabla_pi_pi_prime = (nablaPi - nablaPi_prime) * ( MPi - MPi_prime ) / dist_pi_pi_prime; 
+	Mat nabla_pj_pj_prime = (nablaPj - nablaPj_prime) * ( MPj - MPj_prime ) / dist_pj_pj_prime; 
+	Mat nabla_pi_pj       = (nablaPi - nablaPj) * ( MPi - MPj ) / dist_pi_pj; 
+
+	Mat res( 0, 12, CV_64F ); 
+	Mat row1 = nabla_pi_pi_prime * dist_pi_pj - nabla_pi_pj * dist_pi_pi_prime; 
+	Mat row2 = nabla_pj_pj_prime * dist_pi_pj - nabla_pi_pj * dist_pj_pj_prime; 
+
+	res.push_back( Mat( row1.t() ) );
+	res.push_back( Mat( row2.t() ) );
+	res = res / dist_pi_pj2; 
+	
+	//for( int i=0; i<res.cols; i++ ) {
+	//	std::cout << std::setw(14) << std::scientific << res.at<double>(0, i) << "  ";
+	//	if( (i+1)%3 == 0 ) { cout << endl; }
+	//}
+
+	return res; 
+}
+
+
+
+
+
+
 void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 	const vector<int>& labelings, 
 	const vector<Line3D*>& lines,
 	const Data3D<int>& indeces )
 {
-	double lambda = 1e4; 
+	double lambda = 1e2; 
 
 	const int numOfParametersPerLine = lines[0]->getNumOfParameters();
 	const int numOfParametersTotal = (int) lines.size() * lines[0]->getNumOfParameters(); 
@@ -513,7 +638,7 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 				//for( int label = 0; label < lines.size(); label++ ) { // for each label
 				//	if( (l1==label) || (l2==label) ) {
 				//		for( int i=0; i < numOfParametersPerLine; i++ ) {
-				//			static const float delta = 0.00001f; 
+				//			static const float delta = 0.0001f; 
 				//			// compute derivatives
 				//			lines[label]->updateParameterWithDelta( i, delta ); 
 				//			double smoothcost_i_new = 0, smoothcost_j_new = 0;
@@ -530,31 +655,61 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 				//	}
 				//}
 				
-				//for( int i=0; i<JJ.rows; i++ ) for( int j=0; j<JJ.cols; j++ ) {	
-				//	if( j%3==0 ) cout << endl; 
-				//	std::cout << std::setw(14) << std::scientific << JJ.at<double>(i, j) << "  ";
+
+
+				//cout << endl << "JJ = " << endl;
+				//for( int i=0; i<JJ.rows; i++ ) {
+				//	for( int j=0; j<JJ.cols; j++ ) {	
+				//		if( j%3==0 ) cout << endl; 
+				//		std::cout << std::setw(14) << std::scientific << JJ.at<double>(i, j) << "  ";
+				//	}
+				//	cout << endl; 
 				//}
 				//cout << endl;
 
-				//// Computing derivative of pair-wise smooth cost analytically
-				Mat tempJJ = compute_energy_smoothcost_derivative_for_pair( 
+				// Computing derivative of pair-wise smooth cost analytically
+				Mat tempJJ = compute_energy_smoothcost_derivative_for_pair2( 
+					lines[l1], lines[l2], 
+					dataPoints[site], dataPoints[site2] ); 
+/*
+				Mat tempJJ2 = compute_energy_smoothcost_derivative_for_pair2( 
 					lines[l1], lines[l2], 
 					dataPoints[site], dataPoints[site2] ); 
 
+				cout << endl << "tempJJ = " << endl;
+				for( int i=0; i<tempJJ.rows; i++ ) {
+					for( int j=0; j<tempJJ.cols; j++ ) {	
+						if( j%3==0 ) cout << endl; 
+						std::cout << std::setw(14) << std::scientific << tempJJ.at<double>(i, j) << "  ";
+					}
+					cout << endl; 
+				}
+				cout << endl;
+
+				cout << endl << "tempJJ2 = " << endl;
+				for( int i=0; i<tempJJ2.rows; i++ ) {
+					for( int j=0; j<tempJJ2.cols; j++ ) {	
+						if( j%3==0 ) cout << endl; 
+						std::cout << std::setw(14) << std::scientific << tempJJ2.at<double>(i, j) << "  ";
+					}
+					cout << endl; 
+				}
+				cout << endl;
+*/
 				for( int i=0; i < numOfParametersPerLine; i++ ) { 
-					JJ.at<double>( 0, numOfParametersPerLine * l1 + i ) 
-						= tempJJ.at<double>(0, i); 
-					JJ.at<double>( 0, numOfParametersPerLine * l2 + i ) 
-						= tempJJ.at<double>(0, i + numOfParametersPerLine); 
-					JJ.at<double>( 1, numOfParametersPerLine * l1 + i ) 
-						= tempJJ.at<double>(1, i); 
-					JJ.at<double>( 1, numOfParametersPerLine * l2 + i ) 
-						= tempJJ.at<double>(1, i + numOfParametersPerLine ); 
+					JJ.at<double>( 0, numOfParametersPerLine * l1 + i ) = tempJJ.at<double>(0, i); 
+					JJ.at<double>( 0, numOfParametersPerLine * l2 + i ) = tempJJ.at<double>(0, i + numOfParametersPerLine); 
+					JJ.at<double>( 1, numOfParametersPerLine * l1 + i ) = tempJJ.at<double>(1, i); 
+					JJ.at<double>( 1, numOfParametersPerLine * l2 + i ) = tempJJ.at<double>(1, i + numOfParametersPerLine ); 
 				}
 
-				//for( int i=0; i<JJ.rows; i++ ) for( int j=0; j<JJ.cols; j++ ) {	
-				//	if( j%3==0 ) cout << endl; 
-				//	std::cout << std::setw(14) << std::scientific << JJ.at<double>(i, j) << "  ";
+				//cout << endl << "JJ = " << endl;
+				//for( int i=0; i<JJ.rows; i++ ) {
+				//	for( int j=0; j<JJ.cols; j++ ) {	
+				//		if( j%3==0 ) cout << endl; 
+				//		std::cout << std::setw(14) << std::scientific << JJ.at<double>(i, j) << "  ";
+				//	}
+				//	cout << endl; 
 				//}
 				//cout << endl;
 
@@ -572,11 +727,12 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 
 		Mat X; 
 		cv::solve( A, -B, X, DECOMP_QR  ); 
+		
 		//for( int i=0; i<X.rows; i++ ) {
 		//	std::cout << std::setw(14) << std::scientific << X.at<double>(i) << "  ";
 		//}
 		//cout << endl;
-		// Sleep(500);
+		//Sleep(500);
 		
 
 
