@@ -61,8 +61,8 @@ int main(int argc, char* argv[])
 		im_short.at(i+1,i+1,i+1) = 10000; 
 	}
 	//im_short.at(5, 5, 5) = 10000; 
-	//im_short.at(5, 5, 15) = 10000; 
-	//im_short.at(5, 6, 15) = 10000; 
+	im_short.at(5, 5, 15) = 10000; 
+	im_short.at(6, 6, 15) = 10000; 
 	//im_short.at(15, 16, 15) = 10000; 
 	// OR real data
 	//im_short.load( "../data/data15.data" );
@@ -101,6 +101,13 @@ int main(int argc, char* argv[])
 		line->setPositions( dataPoints[i] - randomDir, dataPoints[i] + randomDir ); 
 		lines.push_back( line ); 
 	}
+	((Line3DTwoPoint*)(lines[0]))->setPositions( 
+		(Vec3f)dataPoints[0] + Vec3f(-1, 0.2f, 0), 
+		(Vec3f)dataPoints[0] + Vec3f( 1, 0.2f, 0) ); 
+	((Line3DTwoPoint*)(lines[1]))->setPositions( 
+		(Vec3f)dataPoints[1] + Vec3f(-1,-0.2f, 0), 
+		(Vec3f)dataPoints[1] + Vec3f( 1,-0.2f, 0) ); 
+	
 	//for( int i=0; i<num_init_labels; i++ ) {
 	//	Line3DTwoPoint *line  = new ::Line3DTwoPoint();
 	//	line->setPositions( dataPoints[i], dataPoints[ (i+1)%dataPoints.size() ] ); 
