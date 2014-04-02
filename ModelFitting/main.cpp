@@ -41,7 +41,7 @@ void visualization_func( void* data ) {
 #include <limits> 
 
 
-const double LOGLIKELIHOOD = 01.15; 
+const double LOGLIKELIHOOD = 1.15; 
 const double PAIRWISESMOOTH = 10.0; 
 
 int main(int argc, char* argv[])
