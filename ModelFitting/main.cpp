@@ -96,9 +96,9 @@ int main(int argc, char* argv[])
 		Line3DTwoPoint *line  = new ::Line3DTwoPoint();
 		Vec3i randomDir = Vec3i(
 				rand() % 200 - 100, 
-				rand() % 200 - 100, 
-				/*rand() % 100 + 10, 
-				rand() % 100 + 10, */
+				//rand() % 200 - 100, 
+				// rand() % 100 + 10, 
+				rand() % 100 + 10, 
 				rand() % 100 + 10 ); 
 		line->setPositions( dataPoints[i] - randomDir, dataPoints[i] + randomDir ); 
 		lines.push_back( line ); 
