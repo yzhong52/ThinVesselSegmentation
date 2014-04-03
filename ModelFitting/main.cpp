@@ -42,7 +42,7 @@ void visualization_func( void* data ) {
 
 
 const double LOGLIKELIHOOD = 1.15; 
-const double PAIRWISESMOOTH = 10.0; 
+const double PAIRWISESMOOTH = 3.0; 
 
 int main(int argc, char* argv[])
 {
@@ -95,10 +95,10 @@ int main(int argc, char* argv[])
 	for( int i=0; i<num_init_labels; i++ ) {
 		Line3DTwoPoint *line  = new ::Line3DTwoPoint();
 		Vec3i randomDir = Vec3i(
-				//rand() % 200 - 100, 
-				//rand() % 200 - 100, 
-				rand() % 100 + 10, 
-				rand() % 100 + 10, 
+				rand() % 200 - 100, 
+				rand() % 200 - 100, 
+				/*rand() % 100 + 10, 
+				rand() % 100 + 10, */
 				rand() % 100 + 10 ); 
 		line->setPositions( dataPoints[i] - randomDir, dataPoints[i] + randomDir ); 
 		lines.push_back( line ); 

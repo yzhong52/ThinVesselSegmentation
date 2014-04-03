@@ -12,9 +12,9 @@ using namespace std;
 
 inline double compute_energy_datacost_for_one( 
 	const Line3D* line_i,
-	const Vec3i& pi )
+	const Vec3f& pi )
 {
-	return LOGLIKELIHOOD* line_i->loglikelihood( pi );
+	return LOGLIKELIHOOD * LOGLIKELIHOOD * line_i->loglikelihood( pi );
 }
 
 double compute_energy_datacost( 
@@ -34,8 +34,8 @@ double compute_energy_datacost(
 void compute_energy_smoothcost_for_pair( 
 	const Line3D* line_i,
 	const Line3D* line_j,
-	const Vec3i& pi_tilde, 
-	const Vec3i& pj_tilde,
+	const Vec3f& pi_tilde, 
+	const Vec3f& pj_tilde,
 	double& smooth_cost_i, 
 	double& smooth_cost_j )
 {
@@ -48,22 +48,22 @@ void compute_energy_smoothcost_for_pair(
 	Vec3f pj_prime = line_i->projection( pj ); 
 
 	// distance vector
-	Vec3f pipj  = pi - pj; 
-	Vec3f pipi1 = pi - pi_prime; 
-	Vec3f pjpj1 = pj - pj_prime;
+	Vec3f pi_pj       = pi - pj; 
+	Vec3f pi_pi_prime = pi - pi_prime; 
+	Vec3f pj_pj_prime = pj - pj_prime;
 
 	// distance
-	double dist_pipj  = pipj.dot(pipj); 
-	double dist_pipi1 = pipi1.dot(pipi1); 
-	double dist_pjpj1 = pjpj1.dot(pjpj1); 
+	double dist_pi_pj  = pi_pj.dot(pi_pj); 
+	double dist_pi_pi_prime = pi_pi_prime.dot(pi_pi_prime); 
+	double dist_pj_pj_prime = pj_pj_prime.dot(pj_pj_prime); 
 
-	if( dist_pipj < 1e-10 ) dist_pipj = 1e-10; 
+	if( dist_pi_pj < 1e-20 ) dist_pi_pj = 1e-20; 
 	
-	if( dist_pipi1 < 1e-10 ) smooth_cost_i = 0; 
-	else smooth_cost_i = PAIRWISESMOOTH * dist_pipi1 / dist_pipj; 
+	if( dist_pi_pi_prime < 1e-10 ) smooth_cost_i = 0; 
+	else smooth_cost_i = PAIRWISESMOOTH * PAIRWISESMOOTH * dist_pi_pi_prime / dist_pi_pj; 
 	
-	if( dist_pjpj1 < 1e-10 ) smooth_cost_j = 0; 
-	else smooth_cost_j = PAIRWISESMOOTH * dist_pjpj1 / dist_pipj; 
+	if( dist_pj_pj_prime < 1e-10 ) smooth_cost_j = 0; 
+	else smooth_cost_j = PAIRWISESMOOTH * PAIRWISESMOOTH * dist_pj_pj_prime / dist_pi_pj; 
 }
 
 double compute_energy_smoothcost( 
@@ -139,7 +139,7 @@ Mat compute_energy_matrix_datacost(
 void  projection_jacobians( 
 	const Vec3f X1, const Vec3f X2,                  // two end points of a line
 	const Mat nablaX1, const Mat nablaX2,          // Jacobians of the end points of the line
-	const Vec3i& tildeP, const Mat nablaTildeP,   // a point, and the Jacobian of the point
+	const Vec3f& tildeP, const Mat nablaTildeP,   // a point, and the Jacobian of the point
 	Vec3f& P, Mat& nablaP )
 {	
 	// Convert the end points into matrix form
@@ -173,7 +173,7 @@ void  projection_jacobians(
 }
 
 
-Mat compute_energy_datacost_derivative_for_one( const Line3D* l,  const Vec3i tildeP ) {
+Mat compute_energy_datacost_derivative_for_one( const Line3D* l,  const Vec3f tildeP ) {
 	Vec3f X1, X2; 
 	l->getEndPoints( X1, X2 ); 
 	static const Mat nablaX1 = (Mat_<double>(6, 3) << 
@@ -245,7 +245,7 @@ Mat compute_energy_datacost_derivative_for_one( const Line3D* l,  const Vec3i ti
 
 
 
-Mat compute_energy_smoothcost_derivative_for_pair( const Line3D* li,  const Line3D* lj, const Vec3i& tildePi, const Vec3i& tildePj ) {
+Mat compute_energy_smoothcost_derivative_for_pair( const Line3D* li,  const Line3D* lj, const Vec3f& tildePi, const Vec3f& tildePj ) {
 	// Get the end points of the line 
 	// [Xi1, Xi2]
 	// [Xj1, Xj2]
@@ -483,9 +483,11 @@ Mat compute_energy_smoothcost_derivative_for_pair( const Line3D* li,  const Line
 
 
 
-Mat compute_energy_smoothcost_derivative_for_pair2( const Line3D* li,  const Line3D* lj, const Vec3i& tildePi, const Vec3i& tildePj ) {
-	Vec3f Xi1, Xi2, Xj1, Xj2; 
+Mat compute_energy_smoothcost_derivative_for_pair2(  Line3D* li,   Line3D* lj, const Vec3f& tildePi, const Vec3f& tildePj ) {
+	Vec3f Xi1, Xi2; 
 	li->getEndPoints( Xi1, Xi2 ); 
+
+	Vec3f Xj1, Xj2; 
 	lj->getEndPoints( Xj1, Xj2 ); 
 
 	// Compute the derivatives of the end points over 
@@ -504,10 +506,12 @@ Mat compute_energy_smoothcost_derivative_for_pair2( const Line3D* li,  const Lin
 	Vec3f Pi, Pj, Pi_prime, Pj_prime;
 	Mat nablaPi, nablaPj, nablaPi_prime, nablaPj_prime; 
 
-	projection_jacobians( Xi1, Xi2, nablaXi1, nablaXi2, tildePi, Mat::zeros( 12, 3, CV_64F), Pi, nablaPi );
-	projection_jacobians( Xj1, Xj2, nablaXj1, nablaXj2, tildePj, Mat::zeros( 12, 3, CV_64F), Pj, nablaPj );
-	projection_jacobians( Xj1, Xj2, nablaXj1, nablaXj2, Pi, nablaPi, Pi_prime, nablaPi_prime );
-	projection_jacobians( Xi1, Xi2, nablaXi1, nablaXi2, Pj, nablaPj, Pj_prime, nablaPj_prime );
+	projection_jacobians( Xi1, Xi2, nablaXi1, nablaXi2, tildePi, Mat::zeros( 12, 3, CV_64F), Pi,       nablaPi );
+	projection_jacobians( Xj1, Xj2, nablaXj1, nablaXj2, tildePj, Mat::zeros( 12, 3, CV_64F), Pj,       nablaPj );
+	projection_jacobians( Xj1, Xj2, nablaXj1, nablaXj2, Pi,      nablaPi,                    Pi_prime, nablaPi_prime );
+	projection_jacobians( Xi1, Xi2, nablaXi1, nablaXi2, Pj,      nablaPj,                    Pj_prime, nablaPj_prime );
+
+
 
 	const double dist_pi_pj2       = max(1e-27, (Pi-Pj).dot(Pi-Pj) ); 
 	const double dist_pi_pi_prime2 = max(1e-27, (Pi-Pi_prime).dot(Pi-Pi_prime) ); 
@@ -522,9 +526,201 @@ Mat compute_energy_smoothcost_derivative_for_pair2( const Line3D* li,  const Lin
 	const Mat MPi_prime = (Mat_<double>(3,1) << double(Pi_prime[0]), double(Pi_prime[1]), double(Pi_prime[2]) ); 
 	const Mat MPj_prime = (Mat_<double>(3,1) << double(Pj_prime[0]), double(Pj_prime[1]), double(Pj_prime[2]) ); 
 	
-	const Mat nabla_pi_pi_prime = (nablaPi - nablaPi_prime) * ( MPi - MPi_prime ) / dist_pi_pi_prime; 
-	const Mat nabla_pj_pj_prime = (nablaPj - nablaPj_prime) * ( MPj - MPj_prime ) / dist_pj_pj_prime; 
-	const Mat nabla_pi_pj       = (nablaPi - nablaPj) * ( MPi - MPj ) / dist_pi_pj; 
+
+
+
+
+	//cout << endl << "nablaPi = " << endl;
+	//for( int i=0; i<nablaPj.rows; i++ ) {
+	//	for( int j=0; j<nablaPj.cols; j++ ) {	
+	//		std::cout << std::setw(14) << std::scientific << nablaPj.at<double>(i, j) << "  ";
+	//	}
+	//	cout << endl; 
+	//}
+	//cout << endl;
+	//cout << endl << "nablaPi_prime = " << endl;
+	//for( int i=0; i<nablaPi_prime.rows; i++ ) {
+	//	for( int j=0; j<nablaPi_prime.cols; j++ ) {	
+	//		std::cout << std::setw(14) << std::scientific << nablaPi_prime.at<double>(i, j) << "  ";
+	//	}
+	//	cout << endl; 
+	//}
+	//cout << endl;
+
+	////// validate the following: 
+	//////  - nablaPi_prime (validated)
+	//////  - nablaPj_prime (validated)
+	//////  - nablaPi (validated)
+	//////  - nablaPj (validated) 
+	//for( int i=0; i<6; i++ ){
+	//	static const double delta = 0.001; 
+	//	Vec3f new_pi_prime, old_pi_prime; 
+	//	Vec3f new_pi, old_pi; 
+	//	Vec3f new_pj_prime, old_pj_prime; 
+	//	Vec3f new_pj, old_pj; 
+	//	
+	//	old_pi = li->projection( tildePi );
+	//	old_pi_prime = lj->projection( old_pi );
+	//	old_pj = lj->projection( tildePj );
+	//	old_pj_prime = li->projection( old_pj );
+
+	//	li->updateParameterWithDelta( i, delta );
+	//	new_pi = li->projection( tildePi );
+	//	new_pi_prime = lj->projection( new_pi );
+	//	new_pj = lj->projection( tildePj );
+	//	new_pj_prime = li->projection( new_pj );
+	//	li->updateParameterWithDelta( i, -delta );
+	//	for( int j=0; j<3; j++ ) {
+	//		nablaPi_prime.at<double>(i,j)  = 1.0 / delta * ( new_pi_prime[j] - old_pi_prime[j] ); 
+	//		nablaPj_prime.at<double>(i,j)  = 1.0 / delta * ( new_pj_prime[j] - old_pj_prime[j] ); 
+	//		nablaPi.at<double>(i,j) = 1.0 / delta * ( new_pi[j] - old_pi[j] ); 
+	//		nablaPj.at<double>(i,j) = 1.0 / delta * ( new_pj[j] - old_pj[j] ); 
+	//	}
+
+	//	lj->updateParameterWithDelta( i, delta );
+	//	new_pi = li->projection( tildePi );
+	//	new_pi_prime = lj->projection( new_pi );
+	//	new_pj = lj->projection( tildePj );
+	//	new_pj_prime = li->projection( new_pj );
+	//	lj->updateParameterWithDelta( i, -delta );
+	//	for( int j=0; j<3; j++ ) {
+	//		nablaPi_prime.at<double>(i+6,j)  = 1.0 / delta * ( new_pi_prime[j] - old_pi_prime[j] ); 
+	//		nablaPj_prime.at<double>(i+6,j)  = 1.0 / delta * ( new_pj_prime[j] - old_pj_prime[j] ); 
+	//		nablaPi.at<double>(i+6,j) = 1.0 / delta * ( new_pi[j] - old_pi[j] ); 
+	//		nablaPj.at<double>(i+6,j) = 1.0 / delta * ( new_pj[j] - old_pj[j] ); 
+	//	}
+	//}
+	//cout << endl << "nablaPi = " << endl;
+	//for( int i=0; i<nablaPj.rows; i++ ) {
+	//	for( int j=0; j<nablaPj.cols; j++ ) {	
+	//		std::cout << std::setw(14) << std::scientific << nablaPj.at<double>(i, j) << "  ";
+	//	}
+	//	cout << endl; 
+	//}
+	//cout << endl;
+	//cout << endl << "nablaPi_prime = " << endl;
+	//for( int i=0; i<nablaPi_prime.rows; i++ ) {
+	//	for( int j=0; j<nablaPi_prime.cols; j++ ) {	
+	//		std::cout << std::setw(14) << std::scientific << nablaPi_prime.at<double>(i, j) << "  ";
+	//	}
+	//	cout << endl; 
+	//}
+	//cout << endl;
+
+
+	//
+	//cout << MPi << endl; 
+	//cout << Pi << endl; 
+	//Pi = li->projection( tildePi ); 
+	//cout << Pi << endl; 
+	//
+	//cout << MPi_prime << endl; 
+	//cout << Pi_prime << endl; 
+	//Pi_prime = lj->projection( Pi ); 
+	//cout << Pi_prime << endl; 
+
+
+	
+	Mat nabla_pi_pi_prime = (nablaPi - nablaPi_prime) * ( MPi - MPi_prime ) / dist_pi_pi_prime; 
+	Mat nabla_pj_pj_prime = (nablaPj - nablaPj_prime) * ( MPj - MPj_prime ) / dist_pj_pj_prime; 
+	Mat nabla_pi_pj       = (nablaPi - nablaPj) * ( MPi - MPj ) / dist_pi_pj; 
+
+	//
+	//cout << "nabla_pi_pi_prime = "; 
+	//for( int i=0; i<nabla_pi_pi_prime.rows; i++ ) {	
+	//	if( i%3==0 ) cout << endl; 
+	//	std::cout << std::setw(14) << std::scientific << nabla_pi_pi_prime.at<double>(i ) << "  ";
+	//}
+	//cout << endl;
+	////cout << "nabla_pj_pj_prime = "; 
+	////for( int i=0; i<nabla_pj_pj_prime.rows; i++ ) {	
+	////	if( i%3==0 ) cout << endl; 
+	////	std::cout << std::setw(14) << std::scientific << nabla_pj_pj_prime.at<double>(i ) << "  ";
+	////}
+	////cout << endl;
+	////cout << "nabla_pi_pj = "; 
+	////for( int i=0; i<nabla_pi_pj.rows; i++ ) {	
+	////	if( i%3==0 ) cout << endl; 
+	////	std::cout << std::setw(14) << std::scientific << nabla_pi_pj.at<double>(i ) << "  ";
+	////}
+	////cout << endl;
+
+	//// compute these manually 
+	//// nabla_pi_pi_prime, nabla_pj_pj_prime, nabla_pi_pj
+	//for( int i=0; i<6; i++ ) {
+	//	static const double delta = 0.0001; 
+	//	double new_pi_pi_prime = 0, old_pi_pi_prime = 0; 
+	//	double new_pj_pj_prime = 0, old_pj_pj_prime = 0; 
+	//	double new_pi_pj = 0, old_pi_pj = 0;
+
+	//	Vec3f pi = li->projection( tildePi );
+	//	Vec3f pi_prime = lj->projection( pi );
+	//	old_pi_pi_prime = sqrt( (pi - pi_prime).dot( pi - pi_prime ) ); 
+	//	
+	//	Vec3f pj = lj->projection( tildePj );
+	//	Vec3f pj_prime = li->projection( pj );
+	//	old_pj_pj_prime = sqrt( (pj - pj_prime).dot( pj - pj_prime ) ); 
+
+	//	old_pi_pj = sqrt( (pi-pj).dot(pi-pj) ); 
+
+
+
+	//	li->updateParameterWithDelta( i, delta );
+	//	
+	//	pi = li->projection( tildePi );
+	//	pi_prime = lj->projection( pi );
+	//	new_pi_pi_prime = sqrt( (pi - pi_prime).dot( pi - pi_prime ) ); 
+	//	
+	//	pj = lj->projection( tildePj );
+	//	pj_prime = li->projection( pj );
+	//	new_pj_pj_prime = sqrt( (pj - pj_prime).dot( pj - pj_prime ) ); 
+
+	//	new_pi_pj = sqrt( (pi-pj).dot(pi-pj) ); 
+
+	//	li->updateParameterWithDelta( i, -delta );
+
+	//	nabla_pi_pi_prime.at<double>( i ) = 1.0 / delta * ( new_pi_pi_prime - old_pi_pi_prime); 
+	//	nabla_pj_pj_prime.at<double>( i ) = 1.0 / delta * ( new_pj_pj_prime - old_pj_pj_prime); 
+	//	nabla_pi_pj.at<double>( i ) = 1.0 / delta * ( new_pi_pj - old_pi_pj ); 
+
+
+	//	lj->updateParameterWithDelta( i, delta );
+	//	
+	//	pi = li->projection( tildePi );
+	//	pi_prime = lj->projection( pi );
+	//	new_pi_pi_prime = sqrt( (pi - pi_prime).dot( pi - pi_prime ) ); 
+	//	
+	//	pj = lj->projection( tildePj );
+	//	pj_prime = li->projection( pj );
+	//	new_pj_pj_prime = sqrt( (pj - pj_prime).dot( pj - pj_prime ) ); 
+
+	//	new_pi_pj = sqrt( (pi-pj).dot(pi-pj) ); 
+
+	//	lj->updateParameterWithDelta( i, -delta );
+
+	//	nabla_pi_pi_prime.at<double>( i + 6 ) = 1.0 / delta * ( new_pi_pi_prime - old_pi_pi_prime); 
+	//	nabla_pj_pj_prime.at<double>( i + 6 ) = 1.0 / delta * ( new_pj_pj_prime - old_pj_pj_prime); 
+	//	nabla_pi_pj.at<double>( i + 6 ) = 1.0 / delta * ( new_pi_pj - old_pi_pj ); 
+	//}
+
+	//cout << "nabla_pi_pi_prime = "; 
+	//for( int i=0; i<nabla_pi_pi_prime.rows; i++ ) {	
+	//	if( i%3==0 ) cout << endl; 
+	//	std::cout << std::setw(14) << std::scientific << nabla_pi_pi_prime.at<double>(i ) << "  ";
+	//}
+	//cout << endl;
+	//cout << "nabla_pj_pj_prime = "; 
+	//for( int i=0; i<nabla_pj_pj_prime.rows; i++ ) {	
+	//	if( i%3==0 ) cout << endl; 
+	//	std::cout << std::setw(14) << std::scientific << nabla_pj_pj_prime.at<double>(i ) << "  ";
+	//}
+	//cout << endl;
+	//cout << "nabla_pi_pj = "; 
+	//for( int i=0; i<nabla_pi_pj.rows; i++ ) {	
+	//	if( i%3==0 ) cout << endl; 
+	//	std::cout << std::setw(14) << std::scientific << nabla_pi_pj.at<double>(i ) << "  ";
+	//}
+	//cout << endl;
 
 	Mat res( 0, 12, CV_64F ); 
 	const Mat row1 = nabla_pi_pi_prime * dist_pi_pj - nabla_pi_pj * dist_pi_pi_prime; 
@@ -534,11 +730,6 @@ Mat compute_energy_smoothcost_derivative_for_pair2( const Line3D* li,  const Lin
 	res.push_back( Mat( row2.t() ) );
 	res = res / dist_pi_pj2 * PAIRWISESMOOTH; 
 	
-	//for( int i=0; i<res.cols; i++ ) {
-	//	std::cout << std::setw(14) << std::scientific << res.at<double>(0, i) << "  ";
-	//	if( (i+1)%3 == 0 ) { cout << endl; }
-	//}
-
 	return res; 
 }
 
@@ -572,9 +763,9 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 		Jacobian = Mat::zeros( (int) dataPoints.size(), numOfParametersTotal, CV_64F ); 
 		for( int site=0; site < dataPoints.size(); site++ ) {
 			int label = labelings[site]; 
-			static const float delta = 0.0003f; 
+			//static const float delta = 0.00003f; 
 			// compute the derivatives and construct Jacobian matrix
-		 double datacost_before = compute_energy_datacost_for_one( lines[label], dataPoints[site] ); 
+			//double datacost_before = compute_energy_datacost_for_one( lines[label], dataPoints[site] ); 
 			// Computing Derivative Nemerically
 			/*for( int i=0; i < numOfParametersPerLine; i++ ) {
 				lines[label]->updateParameterWithDelta( i, delta ); 
@@ -623,31 +814,30 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 				energy_matrix.push_back( sqrt( smoothcost_i_before ) ); 
 				energy_matrix.push_back( sqrt( smoothcost_j_before ) ); 
 
-				// compute derivatives numerically
-				// Setting up J
-				// Computing derivative of pair-wise smooth cost numerically
-				for( int label = 0; label < lines.size(); label++ ) { // for each label
-					if( (l1==label) || (l2==label) ) {
-						for( int i=0; i < numOfParametersPerLine; i++ ) {
-							static const float delta = 0.0001f; 
-							// compute derivatives
-							lines[label]->updateParameterWithDelta( i, delta ); 
-							double smoothcost_i_new = 0, smoothcost_j_new = 0;
-							compute_energy_smoothcost_for_pair( 
-								lines[l1], lines[l2], 
-								dataPoints[site], dataPoints[site2], 
-								smoothcost_i_new, smoothcost_j_new ); 
-							JJ.at<double>( 0, numOfParametersPerLine * label + i ) = 
-								1.0 / delta * (smoothcost_i_new - smoothcost_i_before); 
-							JJ.at<double>( 1, numOfParametersPerLine * label + i ) = 
-								1.0 / delta * (smoothcost_j_new - smoothcost_j_before); 
-							lines[label]->updateParameterWithDelta( i, -delta ); 
-						}	
-					}
-				}
-				
-
-
+				//// compute derivatives numerically
+				//// Setting up J
+				//// Computing derivative of pair-wise smooth cost numerically
+				//for( int label = 0; label < lines.size(); label++ ) { // for each label
+				//	if( (l1==label) || (l2==label) ) {
+				//		for( int i=0; i < numOfParametersPerLine; i++ ) {
+				//			// if( label!=0 || i>2 ) continue;  // TODO: for debug
+				//			static const float delta = 0.01f; 
+				//			// compute derivatives
+				//			lines[label]->updateParameterWithDelta( i, delta ); 
+				//			double smoothcost_i_new = 0, smoothcost_j_new = 0;
+				//			compute_energy_smoothcost_for_pair( 
+				//				lines[l1], lines[l2], 
+				//				dataPoints[site], dataPoints[site2], 
+				//				smoothcost_i_new, smoothcost_j_new ); 
+				//			lines[label]->updateParameterWithDelta( i, -delta ); 
+				//			JJ.at<double>( 0, numOfParametersPerLine * label + i ) = 
+				//				1.0 / delta * ( sqrt(smoothcost_i_new) - sqrt(smoothcost_i_before) ); 
+				//			JJ.at<double>( 1, numOfParametersPerLine * label + i ) = 
+				//				1.0 / delta * ( sqrt(smoothcost_j_new) - sqrt(smoothcost_j_before) ); 
+				//		}	
+				//	}
+				//}
+				//
 				//cout << endl << "JJ = " << endl;
 				//for( int i=0; i<JJ.rows; i++ ) {
 				//	for( int j=0; j<JJ.cols; j++ ) {	
@@ -658,43 +848,19 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 				//}
 				//cout << endl;
 
-				//// Computing derivative of pair-wise smooth cost analytically
+	
+				////// Computing derivative of pair-wise smooth cost analytically
 				Mat tempJJ = compute_energy_smoothcost_derivative_for_pair2( 
 					lines[l1], lines[l2], 
 					dataPoints[site], dataPoints[site2] ); 
-				
 				for( int i=0; i < numOfParametersPerLine; i++ ) { 
 					JJ.at<double>( 0, numOfParametersPerLine * l1 + i ) = tempJJ.at<double>(0, i); 
 					JJ.at<double>( 0, numOfParametersPerLine * l2 + i ) = tempJJ.at<double>(0, i + numOfParametersPerLine); 
 					JJ.at<double>( 1, numOfParametersPerLine * l1 + i ) = tempJJ.at<double>(1, i); 
 					JJ.at<double>( 1, numOfParametersPerLine * l2 + i ) = tempJJ.at<double>(1, i + numOfParametersPerLine ); 
 				}
-				
 
-				//Mat tempJJ2 = compute_energy_smoothcost_derivative_for_pair2( 
-				//	lines[l1], lines[l2], 
-				//	dataPoints[site], dataPoints[site2] ); 
-
-				//cout << endl << "tempJJ = " << endl;
-				//for( int i=0; i<tempJJ.rows; i++ ) {
-				//	for( int j=0; j<tempJJ.cols; j++ ) {	
-				//		if( j%3==0 ) cout << endl; 
-				//		std::cout << std::setw(14) << std::scientific << tempJJ.at<double>(i, j) << "  ";
-				//	}
-				//	cout << endl; 
-				//}
-				//cout << endl;
-
-				//cout << endl << "tempJJ2 = " << endl;
-				//for( int i=0; i<tempJJ2.rows; i++ ) {
-				//	for( int j=0; j<tempJJ2.cols; j++ ) {	
-				//		if( j%3==0 ) cout << endl; 
-				//		std::cout << std::setw(14) << std::scientific << tempJJ2.at<double>(i, j) << "  ";
-				//	}
-				//	cout << endl; 
-				//}
-				//cout << endl;
-				
+				//				
 				//cout << endl << "JJ = " << endl;
 				//for( int i=0; i<JJ.rows; i++ ) {
 				//	for( int j=0; j<JJ.cols; j++ ) {	
@@ -704,7 +870,6 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 				//	cout << endl; 
 				//}
 				//cout << endl;
-
 				// Add J1 and J2 to Jacobian matrix as an additional row
 				Jacobian.push_back( JJ ); 
 			} // for each pair of pi and pj
@@ -744,7 +909,7 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 		if( new_energy <= energy_before ) { // if energy is decreasing 
 			cout << "- ";
 			energy_before = new_energy; 
-			lambda *= 0.51; 
+			lambda *= 0.71; 
 		} else {
 			cout << "+ ";
 			for( int label=0; label < lines.size(); label++ ) {
