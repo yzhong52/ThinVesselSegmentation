@@ -47,7 +47,9 @@ const SparseMatrix& SparseMatrix::operator=( const SparseMatrix& matrix ){
 	return (*this); 
 }
 
-SparseMatrix::SparseMatrix( int rows, int cols, int indeces[][2], double value[], int N )
+
+
+SparseMatrix::SparseMatrix( int rows, int cols, const int indeces[][2], const double value[], int N )
 {
 	init( rows, cols ); 
 
@@ -150,7 +152,7 @@ const SparseMatrix operator+( const SparseMatrix& m1, const SparseMatrix& m2 ){
 
 
 const SparseMatrix operator*( const SparseMatrix& m1, const SparseMatrix& m2 ){
-	smart_assert( m1.cols()==m2.rows() && m1.rows()==m2.cols(), "Matrix sizes do not mathc. " );
+	smart_assert( m1.cols()==m2.rows(), "Matrix sizes do not mathc. " );
 
 	SparseMatrix res( m1.rows(), m2.cols() ); 
 
@@ -209,14 +211,29 @@ const SparseMatrix& SparseMatrix::operator/=( const double& value )
 	return (*this); 
 }
 
+void SparseMatrix::setWithOffSet( const SparseMatrix& matrix, int offsetR, int offsetC ){
+	smart_assert( this->cols() >= matrix.cols() + offsetC, "Destination matrix does not have enought columns. " );
+	smart_assert( this->rows() >= matrix.rows() + offsetR, "Destination matrix does not have enought columns. " );
+
+	int r, thisR; 
+	std::unordered_set<int>::iterator it; 
+	for( r=0, thisR = offsetR; r < matrix.rows(); r++, thisR++ ) {
+		for( it = matrix.unzeros_for_row->at( r ).begin(); it != matrix.unzeros_for_row->at( r ).end(); it++ ) {
+			const int& c = *it; 
+			const int thisJ = c + offsetC; 
+			this->set( thisR, thisJ, matrix.get(r, c) ); 
+		}
+	}
+}
+
 SparseMatrix SparseMatrix::multiply( const SparseMatrix& matrix ) const {
 	return (*this) * matrix; 
 }
 
 SparseMatrix SparseMatrix::multiply_transpose( const SparseMatrix& matrix ) const{
-	smart_assert( this->cols()==matrix.cols() && this->rows()==matrix.rows(), "Matrix sizes do not mathc. " );
+	smart_assert( this->cols()==matrix.cols(), "Matrix sizes do not mathc. " );
 
-	SparseMatrix res( this->rows(), this->rows() ); 
+	SparseMatrix res( this->rows(), matrix.rows() ); 
 
 	// iterator of column index in matrix 1 and matrix 2
 	std::unordered_set<int>::iterator it1, it2; 
@@ -241,9 +258,9 @@ SparseMatrix SparseMatrix::multiply_transpose( const SparseMatrix& matrix ) cons
 }
 
 SparseMatrix SparseMatrix::transpose_multiply( const SparseMatrix& matrix ) const{
-	smart_assert( this->cols()==matrix.cols() && this->rows()==matrix.rows(), "Matrix sizes do not mathc. " );
+	smart_assert( this->rows()==matrix.rows(), "Matrix sizes do not mathc. " );
 
-	SparseMatrix res( this->cols(), this->cols() ); 
+	SparseMatrix res( this->cols(), matrix.cols() ); 
 
 	// iterator of column index in matrix 1 and matrix 2
 	std::unordered_set<int>::iterator it1, it2; 
@@ -265,6 +282,14 @@ SparseMatrix SparseMatrix::transpose_multiply( const SparseMatrix& matrix ) cons
 	}
 
 	return res; 
+}
+
+SparseMatrix SparseMatrix::ones( int rows, int cols ){
+	SparseMatrix matrix( rows, cols ); 
+	for( int r=0; r<rows; r++ ) for( int c=0; c<cols; c++ ) {
+		matrix.set( r, c, 1.0 ); 
+	}
+	return matrix; 
 }
 
 

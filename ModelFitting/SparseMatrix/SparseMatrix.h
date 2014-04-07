@@ -13,14 +13,17 @@
 
 class SparseMatrix
 {
-	
+	void init( const int& r, const int& c ); 
 public:
 	// constructor & destructor
-	SparseMatrix( int rows, int cols );
-	SparseMatrix( int rows, int cols, int indeces[][2], double value[], int N );
+	SparseMatrix( int rows = 1, int cols = 1 );
+	SparseMatrix( int rows, int cols, const int indeces[][2], const double value[], int N );
 	SparseMatrix( const SparseMatrix& m );
-	const SparseMatrix& operator=( const SparseMatrix& matrix ); 
+	template <class T, int n>
+	SparseMatrix( const cv::Vec<T, n>& vec );
 	~SparseMatrix( void );
+
+	const SparseMatrix& operator=( const SparseMatrix& matrix ); 
 
 	// size of the matrix
 	inline int rows() const { return sm.size(0); }
@@ -45,9 +48,12 @@ public:
 	const SparseMatrix& operator*=( const double& value ); 
 	const SparseMatrix& operator/=( const double& value ); 
 
-	inline int getReferenceCount(void) const { reference->AddRef(); return reference->Release(); }
+	void setWithOffSet( const SparseMatrix& matrix, int offsetR, int offsetC ); 
+
+	static SparseMatrix ones( int rows, int cols ); 
+
 private:
-	
+
 	cv::SparseMat sm; 
 
 	// use reference counting
@@ -57,8 +63,6 @@ private:
 	std::vector< std::unordered_set<int> >* unzeros_for_row; 
 	std::vector< std::unordered_set<int> >* unzeros_for_col; 
 	
-	void init( const int& r, const int& c ); 
-
 	// getter
 	inline double at( const int& r, const int& c ) const {
 		const int idx[] = {r, c}; 
@@ -79,7 +83,14 @@ private:
 };
 
 
+template <class T, int n> 
+SparseMatrix::SparseMatrix( const cv::Vec<T, n>& vec ) {
+	init( n ,1 ); 
+	for( int i=0; i<n; i++ ) this->set( i, 0, vec[i] ); 
+}
+
 namespace cv{
 	// Overload the opencv solve function so that it can take SparseMatrix as input
 	void solve( const SparseMatrix& A, const Mat& B, Mat& X );
 };
+
