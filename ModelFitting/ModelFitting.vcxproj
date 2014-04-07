@@ -163,6 +163,15 @@
     <ClInclude Include="Line3DTwoPoint.h" />
     <ClInclude Include="Neighbour26.h" />
     <ClInclude Include="nstdio.h" />
+    <ClInclude Include="SparseMatrix\cblas\f2c.h" />
+    <ClInclude Include="SparseMatrix\lsolver\bicgsq.h" />
+    <ClInclude Include="SparseMatrix\lsolver\bicgstab.h" />
+    <ClInclude Include="SparseMatrix\lsolver\cblas.h" />
+    <ClInclude Include="SparseMatrix\lsolver\cghs.h" />
+    <ClInclude Include="SparseMatrix\lsolver\gmres.h" />
+    <ClInclude Include="SparseMatrix\RC.h" />
+    <ClInclude Include="SparseMatrix\smart_assert.h" />
+    <ClInclude Include="SparseMatrix\SparseMatrix.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="SyntheticData.h" />
   </ItemGroup>
@@ -186,10 +195,16 @@
     <ClCompile Include="Line3DPointDir.cpp" />
     <ClCompile Include="Line3DTwoPoint.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="SparseMatrix\cblas\daxpy.c" />
+    <ClCompile Include="SparseMatrix\cblas\dcopy.c" />
+    <ClCompile Include="SparseMatrix\cblas\ddot.c" />
+    <ClCompile Include="SparseMatrix\cblas\dscal.c" />
+    <ClCompile Include="SparseMatrix\SparseMatrix.cpp" />
     <ClCompile Include="stdafx.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="gco-v3.0\GCO_README.TXT" />
+    <None Include="SparseMatrix\lsolver\README" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
