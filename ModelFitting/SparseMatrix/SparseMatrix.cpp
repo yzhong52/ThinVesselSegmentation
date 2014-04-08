@@ -166,14 +166,42 @@ const SparseMatrix operator*( const SparseMatrix& m1, const SparseMatrix& m2 ){
 			// the non-zero columns in matrix 1
 			const int& j = *it1; 
 			// for each row j in matrix 2
+			double value = res.get( i, j ); 
 			for( it2 = m2.unzeros_for_row->at(j).begin(); it2 != m2.unzeros_for_row->at(j).end(); it2++ ) {
-				double value = m1.get( i, j ) * m2.get( j, *it2 ) + res.get( i, j ); 
-				res.set( i, j, value ); 
+				double value = m1.get( i, j ) * m2.get( j, *it2 ); 
 			}
+			res.set( i, j, value ); 
 		} 
 	}
 	return res; 
 } 
+
+const SparseMatrix operator*( const SparseMatrix& m1, const cv::Mat& m2 ){
+	smart_assert( m1.cols()==m2.rows, "Matrix sizes do not mathc. " );
+
+	SparseMatrix res( m1.rows(), m2.cols ); 
+
+	// iterator of column index in matrix 1
+	std::unordered_set<int>::iterator it1; 
+
+	// for each row in matrix 1
+	int i, k; 
+	double value = 0; 
+	for ( i=0; i<m1.rows(); ++i ) {
+		// for each column in row i of matrix 1
+		for( it1 = m1.unzeros_for_row->at(i).begin(); it1 != m1.unzeros_for_row->at(i).end(); it1++ ) {
+			// the non-zero columns in matrix 1
+			const int& j = *it1; 
+			// for each row j in matrix 2
+			value = res.get( i, j ); 
+			for( k = 0; k < m2.cols; k++ ) {
+				value += m1.get( i, j ) * m2.at<double>(j, k); 
+			}
+			res.set( i, j, value ); 
+		} 
+	}
+	return res; 
+}
 
 const SparseMatrix SparseMatrix::operator/( const double& value ) const {
 	SparseMatrix res = this->clone(); 
@@ -213,7 +241,7 @@ const SparseMatrix& SparseMatrix::operator/=( const double& value )
 
 void SparseMatrix::setWithOffSet( const SparseMatrix& matrix, int offsetR, int offsetC ){
 	smart_assert( this->cols() >= matrix.cols() + offsetC, "Destination matrix does not have enought columns. " );
-	smart_assert( this->rows() >= matrix.rows() + offsetR, "Destination matrix does not have enought columns. " );
+	smart_assert( this->rows() >= matrix.rows() + offsetR, "Destination matrix does not have enought rows. " );
 
 	int r, thisR; 
 	std::unordered_set<int>::iterator it; 
@@ -276,6 +304,32 @@ SparseMatrix SparseMatrix::transpose_multiply( const SparseMatrix& matrix ) cons
 			for( it2 = matrix.unzeros_for_row->at(r1).begin(); it2 != matrix.unzeros_for_row->at(r1).end(); it2++ ) {
 				const int& c2 = *it2; 
 				double value = this->get( r1, c1 ) * matrix.get( r1, c2 ) + res.get( c1, c2 ); 
+				res.set( c1, c2, value ); 
+			}
+		} 
+	}
+
+	return res; 
+}
+
+SparseMatrix SparseMatrix::transpose_multiply( const cv::Mat& matrix ) const {
+	smart_assert( this->rows()==matrix.rows, "Matrix sizes do not mathc. " );
+
+	SparseMatrix res( this->cols(), matrix.cols ); 
+
+		// iterator of column index in matrix 1 and matrix 2
+	std::unordered_set<int>::iterator it1; 
+
+	// for each col in the current matrix (this)
+	for ( int c1 = 0; c1 < this->cols(); ++c1 ) {
+		// for each row in the current matrix (this)
+		for( it1 = this->unzeros_for_col->at(c1).begin(); it1 != this->unzeros_for_col->at(c1).end(); it1++ ) {
+			// the non-zero columns of the current matrix (this) in column c1
+			const int& r1 = *it1; 
+
+			// for each row j in matrix 2
+			for( int c2 = 0; c2 < matrix.cols; c2 ++ ) {
+				double value = this->get( r1, c1 ) * matrix.at<double>( r1, c2 ) + res.get( c1, c2 ); 
 				res.set( c1, c2, value ); 
 			}
 		} 

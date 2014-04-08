@@ -42,6 +42,7 @@ public:
 	SparseMatrix multiply_transpose( const SparseMatrix& matrix ) const;
 	// transposed the current matrix and then mutiply another matrix
 	SparseMatrix transpose_multiply( const SparseMatrix& matrix ) const;
+	SparseMatrix transpose_multiply( const cv::Mat& matrix ) const;
 
 	const SparseMatrix operator*( const double& value ) const; 
 	const SparseMatrix operator/( const double& value ) const; 
@@ -52,6 +53,7 @@ public:
 
 	static SparseMatrix ones( int rows, int cols ); 
 
+	inline cv::SparseMat getMatrix( void) { return sm; } 
 private:
 
 	cv::SparseMat sm; 
@@ -79,6 +81,7 @@ private:
 	friend const SparseMatrix operator-( const SparseMatrix& m1, const SparseMatrix& m2 ); 
 	friend const SparseMatrix operator+( const SparseMatrix& m1, const SparseMatrix& m2 ); 
 	friend const SparseMatrix operator*( const SparseMatrix& m1, const SparseMatrix& m2 ); 
+	friend const SparseMatrix operator*( const SparseMatrix& m1, const cv::Mat& m2 ); 
 	friend std::ostream& operator<<( std::ostream& out, const SparseMatrix& matrix ) ;
 };
 

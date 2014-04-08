@@ -193,7 +193,7 @@ SparseMatrix compute_energy_datacost_derivative_for_one( const Line3D* l,  const
 }
 
 
-SparseMatrix compute_energy_smoothcost_derivative_for_pair2(  Line3D* li,   Line3D* lj, const Vec3f& tildePi, const Vec3f& tildePj ) {
+void compute_energy_smoothcost_derivative_for_pair2(  Line3D* li,   Line3D* lj, const Vec3f& tildePi, const Vec3f& tildePj, SparseMatrix& J1, SparseMatrix& J2 ) {
 	Vec3f Xi1, Xi2; 
 	li->getEndPoints( Xi1, Xi2 ); 
 
@@ -237,15 +237,8 @@ SparseMatrix compute_energy_smoothcost_derivative_for_pair2(  Line3D* li,   Line
 	SparseMatrix nabla_pj_pj_prime = ( MPj - MPj_prime ).transpose_multiply( nablaPj - nablaPj_prime ) / dist_pj_pj_prime; 
 	SparseMatrix nabla_pi_pj       = ( MPi - MPj ).transpose_multiply( nablaPi - nablaPj ) / dist_pi_pj; 
 
-	SparseMatrix res( 2, 12 ); 
-	const SparseMatrix row1 = nabla_pi_pi_prime * dist_pi_pj - nabla_pi_pj * dist_pi_pi_prime; 
-	const SparseMatrix row2 = nabla_pj_pj_prime * dist_pi_pj - nabla_pi_pj * dist_pj_pj_prime; 
-
-	res.setWithOffSet( row1, 0 , 0 );
-	res.setWithOffSet( row2, 1 , 0 );
-	res = res / dist_pi_pj2 * PAIRWISESMOOTH; 
-	
-	return res; 
+	J1 = nabla_pi_pi_prime * dist_pi_pj - nabla_pi_pj * dist_pi_pi_prime; 
+	J2 = nabla_pj_pj_prime * dist_pi_pj - nabla_pi_pj * dist_pj_pj_prime; 
 }
 
 
@@ -263,6 +256,23 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 	const int numOfParametersPerLine = lines[0]->getNumOfParameters();
 	const int numOfParametersTotal = (int) lines.size() * lines[0]->getNumOfParameters(); 
 
+
+	int JacobianRowsCount = (int) dataPoints.size(); 
+	for( int site = 0; site < dataPoints.size(); site++ ) { // For each data point
+		for( int neibourIndex=0; neibourIndex<13; neibourIndex++ ) { // find it's neighbour
+			// the neighbour position
+			int x, y, z; 
+			Neighbour26::getNeigbour( neibourIndex, 
+				dataPoints[site][0], dataPoints[site][1], dataPoints[site][2], 
+				x, y, z ); 
+
+			if( indeces.isValid(x,y,z) &&  indeces.at(x,y,z)!=-1 ) {
+				// found a neighbour
+				JacobianRowsCount+=2; 
+			}
+		}
+	}
+
 	for( int lmiter = 0; lambda < 10e50 && lambda > 10e-100 && lmiter<100000; lmiter++ ) { 
 		// cout << "Levenburg Maquart: " << lmiter << " Lambda: " << lambda << endl; 
 
@@ -271,11 +281,11 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 		// Jacobian Matrix
 		//  - # of cols: number of data points; 
 		//  - # of rows: number of parameters for all the line models
-		Mat Jacobian = Mat::zeros( 0, numOfParametersTotal, CV_64F ); 
-
+		SparseMatrix Jacobian( JacobianRowsCount, numOfParametersTotal ); 
+		
 		//// Construct Jacobian Matrix - for data cost
 		energy_matrix = compute_energy_matrix_datacost( dataPoints, labelings, lines ); 
-		Jacobian = Mat::zeros( (int) dataPoints.size(), numOfParametersTotal, CV_64F ); 
+		
 		for( int site=0; site < dataPoints.size(); site++ ) {
 			int label = labelings[site]; 
 			//static const float delta = 0.00003f; 
@@ -288,17 +298,15 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 			//	Jacobian.at<double>( site, 6*label+i ) = 1.0 / delta * ( datacost_new - datacost_before ); 
 			//	lines[label]->updateParameterWithDelta( i, -delta ); 
 			//}
-			//
 
 			// Computing Derivative Analytically
 			SparseMatrix m = compute_energy_datacost_derivative_for_one( lines[label], dataPoints[site] ); 
-			for( int i=0; i < numOfParametersPerLine; i++ ) {
-				Jacobian.at<double>( site, 6*label+i ) = m.get(0, i); 
-			}
-			
+
+			Jacobian.setWithOffSet( m, site, 0 ); 
 		} // Contruct Jacobian matrix (2B Continue)
 
 
+		int offsetR = (int) dataPoints.size(); 
 		// Contruct Jacobian matrix (Continue) - for smooth cost
 		for( int site = 0; site < dataPoints.size(); site++ ) { // For each data point
 			for( int neibourIndex=0; neibourIndex<13; neibourIndex++ ) { // find it's neighbour
@@ -356,30 +364,38 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 				//}
 	
 				////// Computing derivative of pair-wise smooth cost analytically
-				SparseMatrix tempJJ = compute_energy_smoothcost_derivative_for_pair2( 
+				SparseMatrix J1, J2;
+				compute_energy_smoothcost_derivative_for_pair2( 
 					lines[l1], lines[l2], 
-					dataPoints[site], dataPoints[site2] ); 
-				for( int i=0; i < numOfParametersPerLine; i++ ) { 
-					JJ.at<double>( 0, numOfParametersPerLine * l1 + i ) = tempJJ.get( 0, i ); 
-					JJ.at<double>( 0, numOfParametersPerLine * l2 + i ) = tempJJ.get( 0, i + numOfParametersPerLine ); 
-					JJ.at<double>( 1, numOfParametersPerLine * l1 + i ) = tempJJ.get( 1, i ); 
-					JJ.at<double>( 1, numOfParametersPerLine * l2 + i ) = tempJJ.get( 1, i + numOfParametersPerLine ); 
-				}
+					dataPoints[site], dataPoints[site2], J1, J2 ); 
 
+				// TODO: this is time consuming
+				for( int i=0; i<numOfParametersPerLine; i++ ) {
+					Jacobian.set( offsetR,   i + numOfParametersPerLine * l1, J1.get(0, i) ); 
+					Jacobian.set( offsetR,   i + numOfParametersPerLine * l2, J1.get(0, i + numOfParametersPerLine) ); 
+					Jacobian.set( offsetR+1, i + numOfParametersPerLine * l1, J2.get(0, i) ); 
+					Jacobian.set( offsetR+1, i + numOfParametersPerLine * l2, J2.get(0, i + numOfParametersPerLine) ); 
+				}
+				offsetR += 2; 
 				// Add J1 and J2 to Jacobian matrix as an additional row
-				Jacobian.push_back( JJ ); 
 			} // for each pair of pi and pj
 		} // end of contruction of Jacobian Matrix
 
 
 
-		Mat A = Jacobian.t() * Jacobian;
-		A  = A + Mat::diag( lambda * Mat::ones(A.cols, 1, CV_64F) ); 
+		SparseMatrix A = Jacobian.transpose_multiply( Jacobian );
+		for( int i=0; i<A.rows(); i++ ) {
+			A.set(i,i, A.get(i,i) + lambda); 
+		}
 
-		Mat B = Jacobian.t() * energy_matrix; 
+		Mat JacobianMat; 
+		Jacobian.getMatrix().convertTo( JacobianMat, CV_64F ); 
+		Mat B = JacobianMat.t() * energy_matrix; 
 
 		Mat X; 
-		cv::solve( A, -B, X, DECOMP_QR  ); 
+		cv::solve( A, B, X ); 
+		
+		X = -X; 
 		
 		//for( int i=0; i<X.rows; i++ ) {
 		//	std::cout << std::setw(14) << std::scientific << X.at<double>(i) << "  ";
