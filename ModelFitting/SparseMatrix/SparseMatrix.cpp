@@ -3,10 +3,10 @@
 #include <iostream>
 using namespace std; 
 
-#include "lsolver/cghs.h"
-#include "lsolver/bicgsq.h"
+//#include "lsolver/cghs.h"
+//#include "lsolver/bicgsq.h"
 #include "lsolver/bicgstab.h"
-#include "lsolver/gmres.h"
+//#include "lsolver/gmres.h"
 
 #include "smart_assert.h"
 
@@ -23,15 +23,16 @@ void SparseMatrix::init( const int& rows, const int& cols )
 }
 
 SparseMatrix::SparseMatrix(int rows, int cols)
+	: reference( NULL ), unzeros_for_row( NULL ), unzeros_for_col( NULL )
 {
 	init( rows, cols ); 
 }
 
 SparseMatrix::SparseMatrix( const SparseMatrix& matrix ) 
 	: sm( matrix.sm )
-	, unzeros_for_row ( matrix.unzeros_for_row )
-	, unzeros_for_col ( matrix.unzeros_for_col )
-	, reference( matrix.reference ) 
+	, reference( matrix.reference )
+	, unzeros_for_row( matrix.unzeros_for_row )
+	, unzeros_for_col( matrix.unzeros_for_col )
 {
 	// increase reference
 	reference->AddRef(); 
@@ -50,6 +51,7 @@ const SparseMatrix& SparseMatrix::operator=( const SparseMatrix& matrix ){
 
 
 SparseMatrix::SparseMatrix( int rows, int cols, const int indeces[][2], const double value[], int N )
+	: reference( NULL ), unzeros_for_row( NULL ), unzeros_for_col( NULL )
 {
 	init( rows, cols ); 
 
@@ -78,7 +80,6 @@ void SparseMatrix::set( const int& r, const int& c, const double& value ){
 		unzeros_for_row->at(r).erase( c ); 
 		unzeros_for_col->at(c).erase( r ); 
 		// erase this value from sparse matrix
-		const int idx[] = {r, c}; 
 		sm.erase( r, c ); 
 	} else{
 		unzeros_for_row->at(r).insert( c ); 
@@ -159,6 +160,7 @@ const SparseMatrix operator*( const SparseMatrix& m1, const SparseMatrix& m2 ){
 	// iterator of column index in matrix 1 and matrix 2
 	std::unordered_set<int>::iterator it1, it2; 
 
+
 	// for each row in matrix 1
 	for ( int i=0; i<m1.rows(); ++i ) {
 		// for each column in row i of matrix 1
@@ -168,7 +170,8 @@ const SparseMatrix operator*( const SparseMatrix& m1, const SparseMatrix& m2 ){
 			// for each row j in matrix 2
 			double value = res.get( i, j ); 
 			for( it2 = m2.unzeros_for_row->at(j).begin(); it2 != m2.unzeros_for_row->at(j).end(); it2++ ) {
-				double value = m1.get( i, j ) * m2.get( j, *it2 ); 
+				// TODO: This line should be furthur tested
+				value += m1.get( i, j ) * m2.get( j, *it2 ); 
 			}
 			res.set( i, j, value ); 
 		} 
@@ -241,7 +244,7 @@ const SparseMatrix& SparseMatrix::operator/=( const double& value )
 
 void SparseMatrix::setWithOffSet( const SparseMatrix& matrix, int offsetR, int offsetC ){
 	smart_assert( this->cols() >= matrix.cols() + offsetC, "Destination matrix does not have enought columns. " );
-	smart_assert( this->rows() >= matrix.rows() + offsetR, "Destination matrix does not have enought rows. " );
+	smart_assert( this->rows() >= matrix.rows() + offsetR, "Destination matrix does not have enought columns. " );
 
 	int r, thisR; 
 	std::unordered_set<int>::iterator it; 
@@ -365,7 +368,9 @@ namespace cv{
 		smart_assert(B.rows== A.cols() && B.cols==1, "Data type does not match. " );
 
 		X = Mat::zeros(1, A.cols(), CV_64F ); 
-		int its = bicgstab( A.rows(), A, (double*)B.data, (double*)X.data, 1e-5 );
+
+		// the returns of the following function give the nubmer of iterations it runs
+		bicgstab( A.rows(), A, (double*)B.data, (double*)X.data, 1e-5 );
 	}
 };
 

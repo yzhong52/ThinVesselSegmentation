@@ -143,15 +143,18 @@ public:
 	}
 };
 
+// The namespace cv here is necessary. 
+// Reference: http://stackoverflow.com/questions/2282349/specialization-of-templateclass-tp-struct-stdless-in-different-namespace
+namespace cv{
+	// Yuchen: I should understand these better
+	template< > class DataType< Vesselness     > : public DataType< Vec<float, Vesselness::_size> > { };
 
-// Yuchen: I should understand these better
-template< > class DataType< Vesselness     > : public DataType< Vec<float, Vesselness::_size> > { };
+	template< > class DataType< Vesselness_Sig > : public DataType< Vec<float, Vesselness_Sig::_size> > { };
 
-template< > class DataType< Vesselness_Sig > : public DataType< Vec<float, Vesselness_Sig::_size> > { };
+	template< > class DataType< Vesselness_Nor > : public DataType< Vec<float, Vesselness_Nor::_size> > { };
 
-template< > class DataType< Vesselness_Nor > : public DataType< Vec<float, Vesselness_Nor::_size> > { };
-
-template< > class DataType< Vesselness_All > : public DataType< Vec<float, Vesselness_All::_size> > { };
+	template< > class DataType< Vesselness_All > : public DataType< Vec<float, Vesselness_All::_size> > { };
+}
 
 // This one below works as well 
 // template< > class DataType< Vesselness_Sig  > : public DataType< Vec<float,5> >{

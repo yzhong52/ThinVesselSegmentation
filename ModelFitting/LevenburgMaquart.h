@@ -4,7 +4,7 @@
 using namespace cv; 
 
 class Line3D; 
-template <typename = T> class Data3D; 
+template <typename T> class Data3D; 
 
 extern const double LOGLIKELIHOOD;
 extern const double PAIRWISESMOOTH; 

@@ -33,6 +33,4 @@ using namespace cv;
 //// Get String Descriptor from type_info
 //string STR_TYPE(const type_info& type);
 
-static const short MAX_SHORT = unsigned short(1<<15)-1;
-static const short MIN_SHORT = short(1<<15);
 

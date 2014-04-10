@@ -97,7 +97,7 @@ namespace ImageProcessing
 	template<typename T>
 	void threshold( const Data3D<T>& src, Data3D<T>& dst, T thresh ){
 		int x,y,z;
-		if( &sec!=&dst ) dst.reset( src.get_size() );
+		if( &src!=&dst ) dst.reset( src.get_size() );
 		for(z=0;z<src.SZ();z++) for (y=0;y<src.SY();y++) for(x=0;x<src.SX();x++) {
 			dst.at(x,y,z) = src.at(x,y,z) > thresh ? src.at(x,y,z) : 0;
 		}

@@ -47,3 +47,7 @@ ipch/
 *.sdf
 *.cachefile
 *.pdb
+
+
+
+ModelFitting/*.o

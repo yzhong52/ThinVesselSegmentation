@@ -15,7 +15,7 @@
 // This project is build after VesselNess. 
 // Some of the building blocks (Data3D, Visualization) are borrowed from VesselNess. 
 #include "Data3D.h" 
-#include "GLViwerModel.h"
+
 #include "MinSpanTree.h" 
 
 // For the use of graph cut
@@ -26,13 +26,15 @@ typedef GCoptimization GC;
 #include "LevenburgMaquart.h" 
 #include "GraphCut.h"
 #include "SyntheticData.h" 
+#include "ImageProcessing.h"
 
 // for visualization
-GLViwerModel ver;
-// thread function for rendering
+//#include "GLViwerModel.h"
+//GLViwerModel ver;
+//// thread function for rendering
 void visualization_func( void* data ) {
-	GLViwerModel& ver = *(GLViwerModel*) data; 
-	ver.go();
+//	GLViwerModel& ver = *(GLViwerModel*) data; 
+//	ver.go();
 }
 
 
@@ -48,7 +50,8 @@ int main(int argc, char* argv[])
 {
 	srand( 3 ); 
 
-	CreateDirectory(L"./output", NULL);
+	// TODO: not compatible with MinGW? 
+	// CreateDirectory(L"./output", NULL);
 	
 	Data3D<short> im_short;
 	//Synthesic Data
@@ -75,16 +78,16 @@ int main(int argc, char* argv[])
 	IP::threshold( im_short, indeces, dataPoints, short(4500) );
 	if( dataPoints.size()==0 ) return 0; 
 
-	GLViewer::GLLineModel *model = new GLViewer::GLLineModel( im_short.get_size() );
-	ver.objs.push_back( model );
+	//GLViewer::GLLineModel *model = new GLViewer::GLLineModel( im_short.get_size() );
+	//ver.objs.push_back( model );
 
 	//////////////////////////////////////////////////
 	// create a thread for rendering
 	//////////////////////////////////////////////////
 	HANDLE thread_render = NULL; 
-	thread_render = (HANDLE) _beginthread( visualization_func, 0, (void*)&ver ); 
+	// thread_render = (HANDLE) _beginthread( visualization_func, 0, (void*)&ver ); 
 	
-	model->updatePoints( dataPoints ); 
+	// model->updatePoints( dataPoints ); 
 
 	//////////////////////////////////////////////////
 	// Line Fitting
@@ -124,7 +127,7 @@ int main(int argc, char* argv[])
 	//	labelings[i] = (rand() % 100) / 50; 
 	//}
 
-	model->updateModel( lines, labelings ); 
+	// model->updateModel( lines, labelings ); 
 	
 	// Give myself sometime to decide whether we need to render a video
 	// Sleep( 10000 ); 
@@ -140,7 +143,7 @@ int main(int argc, char* argv[])
 			
 			// GC::EnergyType energy = GraphCut::estimation( dataPoints, labelings, lines ); 
 			
-			model->updateModel( lines, labelings ); 
+			// model->updateModel( lines, labelings ); 
 			LevenburgMaquart::reestimate( dataPoints, labelings, lines, indeces ); 
 		}
 	}
