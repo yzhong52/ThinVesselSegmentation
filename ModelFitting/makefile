@@ -34,15 +34,17 @@ INCLUDES += -I "gco-v3.0"
 # define library paths in addition to /usr/lib
 #   if I wanted to include libraries not in /usr/lib I'd specify
 #   their path using -Lpath, something like:
-LFLAGS = -L ./
+LFLAGS  = -L ./
+LFLAGS += -L ../dependencies/opencv2.4.8/x64-mingw32-w64
+
 
 # define any libraries to link into executable:
 #   if I want to link in libraries (libx.so or libx.a) I use the -llibname 
 #   option, something like (this will link in libmylib.so and libm.so:
-LIBS = -lopencv_core243.dll
+LIBS = -lopencv_core248.dll
 
 # define the cpp source files
-SRCS = SparseMatrix.cpp 
+SRCS = SparseMatrix.cpp Line3D.cpp Line3DTwoPoint.cpp Line3DPointDir.cpp LevenburgMaquart.cpp
 
 # define the C object files 
 #
@@ -63,13 +65,15 @@ CBLAS_SRCS = ddot.c daxpy.c dscal.c dcopy.c
 CBLAS_OBJS = $(CBLAS_SRCS:%.c=CBLAS_%.o) 
 
 # define the executable file 
-TARGET = executable.exe
+TARGET = modelfitting.exe
 
 # Yuchen: The remove command.
 # It is for Windoes only. Under Linux, ti will be something 
 # like the following (which is not tested): 
 #	rm -f
 RM = del 
+
+TEXTEDITOR = "C:/Program Files/Sublime Text 2/sublime_text.exe"
 
 all: $(CBLAS_OBJS) $(OBJS)
 	@echo.
@@ -80,9 +84,9 @@ all: $(CBLAS_OBJS) $(OBJS)
 
 # Yuchen: This is for profiling
 prof: 
-	$(TARGET) $(SRCS)
-	gprof $(TARGET) gmon.out > analysis.txt
-	profiling_analysis.txt
+	$(TARGET) LevenburgMaquart.cpp
+	gprof $(TARGET) gmon.out > profiling_analysis.txt
+	$(TEXTEDITOR) profiling_analysis.txt
 
 
 

@@ -8,7 +8,8 @@ using namespace std;
 
 #include "Line3D.h" 
 #include "Neighbour26.h"
-#include "Data3D.h" 
+#include "Data3D.h"
+
 
 #include "SparseMatrix\SparseMatrix.h"
 
@@ -220,9 +221,9 @@ void compute_energy_smoothcost_derivative_for_pair2(  Line3D* li,   Line3D* lj, 
 	projection_jacobians( Xj1, Xj2, nablaXj1, nablaXj2, Pi,      nablaPi,             Pi_prime, nablaPi_prime );
 	projection_jacobians( Xi1, Xi2, nablaXi1, nablaXi2, Pj,      nablaPj,             Pj_prime, nablaPj_prime );
 
-	const double dist_pi_pj2       = max(1e-27, (Pi-Pj).dot(Pi-Pj) ); 
-	const double dist_pi_pi_prime2 = max(1e-27, (Pi-Pi_prime).dot(Pi-Pi_prime) ); 
-	const double dist_pj_pj_prime2 = max(1e-27, (Pj-Pj_prime).dot(Pj-Pj_prime) ); 
+	const double dist_pi_pj2       = max(1e-27, double( (Pi-Pj).dot(Pi-Pj) ) ); 
+	const double dist_pi_pi_prime2 = max(1e-27, double( (Pi-Pi_prime).dot(Pi-Pi_prime) ) ); 
+	const double dist_pj_pj_prime2 = max(1e-27, double( (Pj-Pj_prime).dot(Pj-Pj_prime))  ); 
 	const double dist_pi_pj        = sqrt( dist_pi_pj2 );
 	const double dist_pi_pi_prime  = sqrt( dist_pi_pi_prime2 ); 
 	const double dist_pj_pj_prime  = sqrt( dist_pj_pj_prime2 ); 
@@ -245,10 +246,9 @@ void compute_energy_smoothcost_derivative_for_pair2(  Line3D* li,   Line3D* lj, 
 
 
 
-
 void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 	const vector<int>& labelings, 
-	const vector<Line3D*>& lines,
+	const vector<Line3D*>& lines, 
 	const Data3D<int>& indeces )
 {
 	double lambda = 1e2; 
@@ -273,7 +273,7 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 		}
 	}
 
-	for( int lmiter = 0; lambda < 10e50 && lambda > 10e-100 && lmiter<100000; lmiter++ ) { 
+	for( int lmiter = 0; lambda < 10e50 && lambda > 10e-100 && lmiter<30; lmiter++ ) { 
 		// cout << "Levenburg Maquart: " << lmiter << " Lambda: " << lambda << endl; 
 
 		Mat energy_matrix = Mat( 0, 1, CV_64F );

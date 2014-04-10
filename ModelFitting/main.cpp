@@ -132,10 +132,11 @@ int main(int argc, char* argv[])
 	// Give myself sometime to decide whether we need to render a video
 	// Sleep( 10000 ); 
 
+	LevenburgMaquart lm;
 	cout << "Graph Cut Begin" << endl; 
-	try{
-		// keep track of energy in previous iteration
-		GC::EnergyType energy_before = -1;
+	//try{
+	//	// keep track of energy in previous iteration
+	//	GC::EnergyType energy_before = -1;
 
 		// TODO: let's run the algorithm for only one iteration for now
 		for( int i=0; i<1; i++ ) { 
@@ -144,12 +145,12 @@ int main(int argc, char* argv[])
 			// GC::EnergyType energy = GraphCut::estimation( dataPoints, labelings, lines ); 
 			
 			// model->updateModel( lines, labelings ); 
-			LevenburgMaquart::reestimate( dataPoints, labelings, lines, indeces ); 
+			lm.reestimate( dataPoints, labelings, lines, indeces ); 
 		}
-	}
-	catch (GCException e){
-		e.Report();
-	}
+	//}
+	//catch (GCException e){
+	//	e.Report();
+	//}
 	
 	cout << "Main Thread is Done. " << endl; 
 	WaitForSingleObject( thread_render, INFINITE);

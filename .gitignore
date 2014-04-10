@@ -51,3 +51,7 @@ ipch/
 
 
 ModelFitting/*.o
+ModelFitting/gmon.out
+ModelFitting/executable.exe
+ModelFitting/analysis.txt
+ModelFitting/modelfitting.exe
