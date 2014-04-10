@@ -7,7 +7,15 @@
 # 3. Some of the code for this make file is borrowed from:
 #    - http://www.cs.swarthmore.edu/~newhall/unixhelp/howto_makefiles.html
 
-
+# Yuchen: if you are using mingw32, do the following:
+# 1. compile and link the project
+# mingw32-make
+# 2. profile the program
+# mingw32-make prof
+# 3. show result as txt
+# mingw32-make prof-show-txt
+# 4. show rsult as png image (the png file will be located under the same folder)
+# mingw32-make prof-show-graph
 
 
 # define some Makefile variables for the compiler and compiler flags
@@ -17,7 +25,8 @@
 #  -Wall turns on most, but not all, compiler warnings
 #  -pg   adds profiling information to the executable file
 #
-CFLAGS = -g -pg #-Wall 
+CFLAGS = -g -pg 
+#-Wall  -fno-omit-frame-pointer 
 
 # for C++ define  CC = g++
 #  -m64  compile for 64 bits
@@ -65,7 +74,7 @@ CBLAS_SRCS = ddot.c daxpy.c dscal.c dcopy.c
 CBLAS_OBJS = $(CBLAS_SRCS:%.c=CBLAS_%.o) 
 
 # define the executable file 
-TARGET = modelfitting.exe
+TARGET = executable.exe
 
 # Yuchen: The remove command.
 # It is for Windoes only. Under Linux, ti will be something 
@@ -82,13 +91,26 @@ all: $(CBLAS_OBJS) $(OBJS)
 	$(CC) $(CFLAGS) $(INCLUDES) $(OBJS) $(CBLAS_OBJS) main.cpp -o $(TARGET) $(LFLAGS) $(LIBS)
 
 
+# Yuchen: The following s is for profiling
+# Genereate the analysis file gprof.txt
 # Yuchen: This is for profiling
 prof: 
 	$(TARGET) LevenburgMaquart.cpp
-	gprof $(TARGET) gmon.out > profiling_analysis.txt
-	$(TEXTEDITOR) profiling_analysis.txt
+	gprof $(TARGET) gmon.out > analysis.txt
+#prof: 
+#	$(TARGET) LevenburgMaquart.cpp
+#	gprof $(TARGET) gmon.out > analysis.txt
+#	gprof executable.exe gmon.out > analysis.txt
+	
 
+# Show the txt files
+prof-show-txt: 
+	$(TEXTEDITOR) analysis.txt
 
+# Analysise the txt file and gerate call graph
+prof-show-graph: 
+	python gprof2dot.py -n0.5 -s analysis.txt > analysis.dot 
+	dot -Tpng analysis.dot -Gcharset=latin1 -o analysis.png
 
 # A pattern rule ‘%.o : %.c’ says how to make any file stem.o from another file stem.c
 # Reference: http://www.gnu.org/software/make/manual/make.html#Pattern-Rules
@@ -110,5 +132,5 @@ SparseMatrix.o: SparseMatrix/SparseMatrix.cpp
 
 # Yuchen: Removes all .o files and the excutable file, so that the next make rebuilds them
 clean: 
-	$(RM) *.o $(TARGET)
+	$(RM) *.o $(TARGET) analysis.dot analysis.png analysis.txt gmon.out
 
