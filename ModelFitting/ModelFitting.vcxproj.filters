@@ -210,6 +210,9 @@
     <ClCompile Include="SparseMatrix\cblas\ddot.c">
       <Filter>SparseMatrix\cblas</Filter>
     </ClCompile>
+    <ClCompile Include="..\Timer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="gco-v3.0\GCO_README.TXT">

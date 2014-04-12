@@ -5,6 +5,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VesselNess", "VesselNess\Ve
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ModelFitting", "ModelFitting\ModelFitting.vcxproj", "{BC8B11D4-A2AC-4DCA-BD34-12D599F0F3B1}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SparseMatrix", "ModelFitting\SparseMatrix\SparseMatrix.vcxproj", "{4FDCBF9A-2314-4068-B84E-5171EEADEC69}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -19,6 +21,10 @@ Global
 		{BC8B11D4-A2AC-4DCA-BD34-12D599F0F3B1}.Debug|x64.Build.0 = Debug|x64
 		{BC8B11D4-A2AC-4DCA-BD34-12D599F0F3B1}.Release|x64.ActiveCfg = Release|x64
 		{BC8B11D4-A2AC-4DCA-BD34-12D599F0F3B1}.Release|x64.Build.0 = Release|x64
+		{4FDCBF9A-2314-4068-B84E-5171EEADEC69}.Debug|x64.ActiveCfg = Debug|x64
+		{4FDCBF9A-2314-4068-B84E-5171EEADEC69}.Debug|x64.Build.0 = Debug|x64
+		{4FDCBF9A-2314-4068-B84E-5171EEADEC69}.Release|x64.ActiveCfg = Release|x64
+		{4FDCBF9A-2314-4068-B84E-5171EEADEC69}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

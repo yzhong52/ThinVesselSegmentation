@@ -10,17 +10,9 @@ using namespace std;
 
 #include "smart_assert.h"
 
-static const double epsilon = 1e-50; 
 
-void SparseMatrix::init( const int& rows, const int& cols )
-{
-	int dims = 2; // Array dimensionality
-	const int _sizes[] = {rows, cols}; 
-	sm = cv::SparseMat( dims, _sizes, CV_64F );
-	unzeros_for_row = new std::vector<std::unordered_set<int>>( rows ); 
-	unzeros_for_col = new std::vector<std::unordered_set<int>>( cols ); 
-	reference = new RC(); 
-}
+////////////////////////////////////////////////////////////////////////////////////////
+// SparseMatrix:: Construtctors and Destructors
 
 SparseMatrix::SparseMatrix(int rows, int cols)
 	: reference( NULL ), unzeros_for_row( NULL ), unzeros_for_col( NULL )
@@ -48,8 +40,6 @@ const SparseMatrix& SparseMatrix::operator=( const SparseMatrix& matrix ){
 	return (*this); 
 }
 
-
-
 SparseMatrix::SparseMatrix( int rows, int cols, const int indeces[][2], const double value[], int N )
 	: reference( NULL ), unzeros_for_row( NULL ), unzeros_for_col( NULL )
 {
@@ -73,23 +63,14 @@ SparseMatrix::~SparseMatrix(void)
 	}
 }
 
-
-void SparseMatrix::set( const int& r, const int& c, const double& value ){
-	// maintain a map of the non-zero indeces
-	if( abs(value) < epsilon ) {
-		unzeros_for_row->at(r).erase( c ); 
-		unzeros_for_col->at(c).erase( r ); 
-		// erase this value from sparse matrix
-		sm.erase( r, c ); 
-	} else{
-		unzeros_for_row->at(r).insert( c ); 
-		unzeros_for_col->at(c).insert( r ); 
-		at( r, c ) = value;  // update the value
-	}
-}
-
-double SparseMatrix::get( const int& r, const int& c) const {
-	return at( r, c ); 
+void SparseMatrix::init( const int& rows, const int& cols )
+{
+	int dims = 2; // Array dimensionality
+	const int _sizes[] = {rows, cols}; 
+	sm = cv::SparseMat( dims, _sizes, CV_64F );
+	unzeros_for_row = new std::vector<std::unordered_set<int>>( rows ); 
+	unzeros_for_col = new std::vector<std::unordered_set<int>>( cols ); 
+	reference = new RC(); 
 }
 
 SparseMatrix SparseMatrix::clone(void) const {
@@ -101,15 +82,16 @@ SparseMatrix SparseMatrix::clone(void) const {
 	return matrix; 
 }
 
-void mult( const SparseMatrix &A, const double *v, double *w ) {
-	std::unordered_set<int>::iterator it;
-	for ( int i=0; i<A.rows(); ++i ) {
-		w[i] = 0; 
-		for( it = A.unzeros_for_row->at(i).begin(); it != A.unzeros_for_row->at(i).end(); it++ ) {
-			w[i] += A.get( i, *it ) * v[*it]; 
-		} 
-	}
-}
+
+
+
+
+
+
+
+
+
+
 
 
 const SparseMatrix operator-( const SparseMatrix& m1, const SparseMatrix& m2 ){
@@ -315,29 +297,28 @@ SparseMatrix SparseMatrix::transpose_multiply( const SparseMatrix& matrix ) cons
 	return res; 
 }
 
-SparseMatrix SparseMatrix::transpose_multiply( const cv::Mat& matrix ) const {
+cv::Mat SparseMatrix::transpose_multiply( const cv::Mat& matrix ) const {
 	smart_assert( this->rows()==matrix.rows, "Matrix sizes do not mathc. " );
 
-	SparseMatrix res( this->cols(), matrix.cols ); 
+	// allocate memory
+	cv::Mat res( this->cols(), matrix.cols, CV_64F ); 
 
-		// iterator of column index in matrix 1 and matrix 2
+	// iterator of column index in matrix 1 and matrix 2
 	std::unordered_set<int>::iterator it1; 
 
 	// for each col in the current matrix (this)
 	for ( int c1 = 0; c1 < this->cols(); ++c1 ) {
-		// for each row in the current matrix (this)
-		for( it1 = this->unzeros_for_col->at(c1).begin(); it1 != this->unzeros_for_col->at(c1).end(); it1++ ) {
-			// the non-zero columns of the current matrix (this) in column c1
-			const int& r1 = *it1; 
-
-			// for each row j in matrix 2
-			for( int c2 = 0; c2 < matrix.cols; c2 ++ ) {
-				double value = this->get( r1, c1 ) * matrix.at<double>( r1, c2 ) + res.get( c1, c2 ); 
-				res.set( c1, c2, value ); 
+		// for each col in matrix
+		for( int c2 = 0; c2 < matrix.cols; c2 ++ ) {
+			double value = 0; 
+			for( it1 = this->unzeros_for_col->at(c1).begin(); it1 != this->unzeros_for_col->at(c1).end(); it1++ ) {
+				value += this->get( *it1, c1 ) * matrix.at<double>( *it1, c2 );
 			}
+			res.at<double>( c1, c2 ) = value; 
 		} 
 	}
 
+	// return matrix
 	return res; 
 }
 
@@ -360,6 +341,20 @@ std::ostream& operator<<( std::ostream& out, const SparseMatrix& matrix ){
 	}
 	return out; 
 }
+
+
+
+
+void mult( const SparseMatrix &A, const double *v, double *w ) {
+	std::unordered_set<int>::iterator it;
+	for ( int i=0; i<A.rows(); ++i ) {
+		w[i] = 0; 
+		for( it = A.unzeros_for_row->at(i).begin(); it != A.unzeros_for_row->at(i).end(); it++ ) {
+			w[i] += A.get( i, *it ) * v[*it]; 
+		} 
+	}
+}
+
 
 namespace cv{
 	// Overload the opencv solve function so that it can take SparseMatrix as input
