@@ -66,7 +66,7 @@
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LinkIncremental>true</LinkIncremental>
+    <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -94,7 +94,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)../VesselNess;$(ProjectDir)../dependencies/opencv2.4.8/include;$(ProjectDir)../dependencies/freeglut 2.8.1/include;$(ProjectDir)../dependencies/glew-1.10.0/include;$(ProjectDir)gco-v3.0</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../VesselNess;$(ProjectDir)../dependencies/opencv2.4.8/include;$(ProjectDir)../dependencies/freeglut 2.8.1/include;$(ProjectDir)../dependencies/glew-1.10.0/include;$(ProjectDir)gco-v3.0;$(ProjectDir)../</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
