@@ -54,16 +54,10 @@ int main(int argc, char* argv[])
 	// TODO: not compatible with MinGW? 
 	// CreateDirectory(L"./output", NULL);
 	
-	//Data3D<Vesselness_Sig> vn_sig;
-	//vn_sig.load( "../temp/data15.vn_sig" ); 
-
 	Image3D<short> im_short;
-	
-	// Real data
-	im_short.load( "../data/data15.data" );
-	im_short.shrink_by_half();
-	// im_short.remove_margin( 5 ); 
-	im_short.shrink_by_half();
+	//// Real data
+	//im_short.load( "../data/data15.data" );
+	//im_short.shrink_by_half();
 
 	// Synthesic Data
 	//SyntheticData::Doughout( im_short ); 
@@ -104,12 +98,6 @@ int main(int argc, char* argv[])
 		line->setPositions( dataPoints[i] - randomDir, dataPoints[i] + randomDir ); 
 		lines.push_back( line ); 
 	}
-	
-	//for( int i=0; i<num_init_labels; i++ ) {
-	//	Line3DTwoPoint *line  = new ::Line3DTwoPoint();
-	//	line->setPositions( dataPoints[i], dataPoints[ (i+1)%dataPoints.size() ] ); 
-	//	lines.push_back( line ); 
-	//}
 	
 	vector<int> labelings = vector<int>( dataPoints.size(), 0 ); 
 	// randomly assign label for each point separatedly 
