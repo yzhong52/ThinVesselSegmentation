@@ -66,7 +66,7 @@
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LinkIncremental>true</LinkIncremental>
+    <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -94,13 +94,13 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)../VesselNess;$(ProjectDir)../dependencies/OpenCV 2.4.3/include;$(ProjectDir)../dependencies/freeglut 2.8.1/include;$(ProjectDir)../dependencies/glew-1.10.0/include;$(ProjectDir)gco-v3.0</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../VesselNess;$(ProjectDir)../dependencies/opencv2.4.8/include;$(ProjectDir)../dependencies/freeglut 2.8.1/include;$(ProjectDir)../dependencies/glew-1.10.0/include;$(ProjectDir)gco-v3.0;$(ProjectDir)../</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opencv_core243d.lib;opencv_highgui243d.lib;opencv_imgproc243d.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(ProjectDir)..\dependencies\freeglut 2.8.1\lib\x64;$(ProjectDir)..\dependencies\OpenCV 2.4.3\x64\vc10\lib;$(ProjectDir)..\dependencies\glew-1.10.0\lib\Release\x64</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opencv_core248d.lib;opencv_highgui248d.lib;opencv_imgproc248d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)..\dependencies\freeglut 2.8.1\x64;$(ProjectDir)..\dependencies\opencv2.4.8\x64-vc10;$(ProjectDir)..\dependencies\glew-1.10.0\x64</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -130,15 +130,15 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)../VesselNess;$(ProjectDir)../dependencies/OpenCV 2.4.3/include;$(ProjectDir)../dependencies/freeglut 2.8.1/include;$(ProjectDir)../dependencies/glew-1.10.0/include;$(ProjectDir)gco-v3.0</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../VesselNess;$(ProjectDir)../dependencies/opencv2.4.8/include;$(ProjectDir)../dependencies/freeglut 2.8.1/include;$(ProjectDir)../dependencies/glew-1.10.0/include;$(ProjectDir)gco-v3.0;$(ProjectDir)../;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>opencv_core243.lib;opencv_highgui243.lib;opencv_imgproc243.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(ProjectDir)..\dependencies\OpenCV 2.4.3\x64\vc10\lib;$(ProjectDir)..\dependencies\freeglut 2.8.1\lib\x64;$(ProjectDir)..\dependencies\glew-1.10.0\lib\Release\x64</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opencv_core248.lib;opencv_highgui248.lib;opencv_imgproc248.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)..\dependencies\freeglut 2.8.1\x64;$(ProjectDir)..\dependencies\opencv2.4.8\x64-vc10;$(ProjectDir)..\dependencies\glew-1.10.0\x64</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -163,10 +163,20 @@
     <ClInclude Include="Line3DTwoPoint.h" />
     <ClInclude Include="Neighbour26.h" />
     <ClInclude Include="nstdio.h" />
+    <ClInclude Include="SparseMatrix\cblas\f2c.h" />
+    <ClInclude Include="SparseMatrix\lsolver\bicgsq.h" />
+    <ClInclude Include="SparseMatrix\lsolver\bicgstab.h" />
+    <ClInclude Include="SparseMatrix\lsolver\cblas.h" />
+    <ClInclude Include="SparseMatrix\lsolver\cghs.h" />
+    <ClInclude Include="SparseMatrix\lsolver\gmres.h" />
+    <ClInclude Include="SparseMatrix\RC.h" />
+    <ClInclude Include="SparseMatrix\smart_assert.h" />
+    <ClInclude Include="SparseMatrix\SparseMatrix.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="SyntheticData.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Timer.cpp" />
     <ClCompile Include="..\VesselNess\GLCenterLine.cpp" />
     <ClCompile Include="..\VesselNess\GLCamera.cpp" />
     <ClCompile Include="..\VesselNess\GLVideoSaver.cpp" />
@@ -186,10 +196,16 @@
     <ClCompile Include="Line3DPointDir.cpp" />
     <ClCompile Include="Line3DTwoPoint.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="SparseMatrix\cblas\daxpy.c" />
+    <ClCompile Include="SparseMatrix\cblas\dcopy.c" />
+    <ClCompile Include="SparseMatrix\cblas\ddot.c" />
+    <ClCompile Include="SparseMatrix\cblas\dscal.c" />
+    <ClCompile Include="SparseMatrix\SparseMatrix.cpp" />
     <ClCompile Include="stdafx.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="gco-v3.0\GCO_README.TXT" />
+    <None Include="SparseMatrix\lsolver\README" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

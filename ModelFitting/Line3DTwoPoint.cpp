@@ -21,8 +21,8 @@ float Line3DTwoPoint::distanceToLine( const Vec3f& point ) const
 
 Vec3f Line3DTwoPoint::projection( const Vec3f& point ) const
 {
-	Vec3f& pos = Vec3f( &data[0] );
-	Vec3f dir = Vec3f( &data[3] ) - Vec3f( &data[0] ); 
+	Vec3f pos = cv::Vec3f( &data[0] );
+	Vec3f dir = cv::Vec3f( &data[3] ) - cv::Vec3f( &data[0] ); 
 	dir /= sqrt( dir.dot( dir ) ); // normalize the direction 
 	float t = ( point-pos ).dot( dir );
 	return pos + dir * t; 

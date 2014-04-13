@@ -15,7 +15,7 @@
 // This project is build after VesselNess. 
 // Some of the building blocks (Data3D, Visualization) are borrowed from VesselNess. 
 #include "Data3D.h" 
-#include "GLViwerModel.h"
+
 #include "MinSpanTree.h" 
 
 // For the use of graph cut
@@ -26,8 +26,11 @@ typedef GCoptimization GC;
 #include "LevenburgMaquart.h" 
 #include "GraphCut.h"
 #include "SyntheticData.h" 
+#include "ImageProcessing.h"
+#include "Timer.h"
 
-// for visualization
+// for visualization, comment out for profiling
+#include "GLViwerModel.h"
 GLViwerModel ver;
 // thread function for rendering
 void visualization_func( void* data ) {
@@ -45,35 +48,34 @@ const double LOGLIKELIHOOD = 1.15;
 const double PAIRWISESMOOTH = 3.0; 
 
 int main(int argc, char* argv[])
-{
+{	
 	srand( 3 ); 
 
-	CreateDirectory(L"./output", NULL);
+	// TODO: not compatible with MinGW? 
+	// CreateDirectory(L"./output", NULL);
 	
-	Data3D<short> im_short;
-	//Synthesic Data
-	im_short.reset( Vec3i(20,20,20) ); 
-	for( int i=3; i<17; i++ ) {
-		im_short.at(i,  i,  i)   = 10000; 
-		im_short.at(i,  i,  i+1) = 10000; 
-		im_short.at(i,  i+1,i)   = 10000; 
-		im_short.at(i+1,i,  i)   = 10000; 
-		im_short.at(i+1,i+1,i+1) = 10000; 
-	}
-	//im_short.at(5, 5, 5) = 10000; 
-	//im_short.at(5, 5, 15) = 10000; 
-	//im_short.at(6, 5, 15) = 10000; 
-	//im_short.at(15, 16, 15) = 10000; 
-	// OR real data
-	//im_short.load( "../data/data15.data" );
-	// make a doghout
-	// SyntheticData::Doughout( im_short ); 
+	//Data3D<Vesselness_Sig> vn_sig;
+	//vn_sig.load( "../temp/data15.vn_sig" ); 
+
+	Image3D<short> im_short;
+	
+	// Real data
+	im_short.load( "../data/data15.data" );
+	im_short.shrink_by_half();
+	// im_short.remove_margin( 5 ); 
+	im_short.shrink_by_half();
+
+	// Synthesic Data
+	//SyntheticData::Doughout( im_short ); 
+	SyntheticData::Stick( im_short ); 
 
 	// threshold the data and put the data points into a vector
 	Data3D<int> indeces;
 	vector<cv::Vec3i> dataPoints;
 	IP::threshold( im_short, indeces, dataPoints, short(4500) );
-	if( dataPoints.size()==0 ) return 0; 
+	
+	cout << "Number of data points: "  << dataPoints.size() << endl; 
+	
 
 	GLViewer::GLLineModel *model = new GLViewer::GLLineModel( im_short.get_size() );
 	ver.objs.push_back( model );
@@ -83,7 +85,6 @@ int main(int argc, char* argv[])
 	//////////////////////////////////////////////////
 	HANDLE thread_render = NULL; 
 	thread_render = (HANDLE) _beginthread( visualization_func, 0, (void*)&ver ); 
-	
 	model->updatePoints( dataPoints ); 
 
 	//////////////////////////////////////////////////
@@ -103,12 +104,6 @@ int main(int argc, char* argv[])
 		line->setPositions( dataPoints[i] - randomDir, dataPoints[i] + randomDir ); 
 		lines.push_back( line ); 
 	}
-	//((Line3DTwoPoint*)(lines[0]))->setPositions( 
-	//	(Vec3f)dataPoints[0] + Vec3f(-1, 0, 0), 
-	//	(Vec3f)dataPoints[0] + Vec3f( 0.5f, 0.5f, 0) ); 
-	//((Line3DTwoPoint*)(lines[1]))->setPositions( 
-	//	(Vec3f)dataPoints[1] + Vec3f(-0.5,  0.5f, 0), 
-	//	(Vec3f)dataPoints[1] + Vec3f( 1, 0, 0) ); 
 	
 	//for( int i=0; i<num_init_labels; i++ ) {
 	//	Line3DTwoPoint *line  = new ::Line3DTwoPoint();
@@ -117,38 +112,22 @@ int main(int argc, char* argv[])
 	//}
 	
 	vector<int> labelings = vector<int>( dataPoints.size(), 0 ); 
-	//// randomly assign label for each point separatedly 
+	// randomly assign label for each point separatedly 
 	for( int i=0; i<num_init_labels; i++ ) labelings[i] = i; 
-	// randomly assign label 1 or 2
-	//for( int i=0; i<num_init_labels; i++ ) {
-	//	labelings[i] = (rand() % 100) / 50; 
-	//}
-
 	model->updateModel( lines, labelings ); 
 	
 	// Give myself sometime to decide whether we need to render a video
-	// Sleep( 10000 ); 
+	Sleep( 1000 ); 
 
-	cout << "Graph Cut Begin" << endl; 
-	try{
-		// keep track of energy in previous iteration
-		GC::EnergyType energy_before = -1;
-
-		// TODO: let's run the algorithm for only one iteration for now
-		for( int i=0; i<1; i++ ) { 
-			// TODO: let's not have background model for now. We will add background model later
-			
-			// GC::EnergyType energy = GraphCut::estimation( dataPoints, labelings, lines ); 
-			
-			model->updateModel( lines, labelings ); 
-			LevenburgMaquart::reestimate( dataPoints, labelings, lines, indeces ); 
-		}
-	}
-	catch (GCException e){
-		e.Report();
-	}
+	LevenburgMaquart lm;
 	
+	Timmer::begin();
+	lm.reestimate( dataPoints, labelings, lines, indeces ); 
+	Timmer::end(); 
+
 	cout << "Main Thread is Done. " << endl; 
+	cout << Timmer::summery() << endl; 
+
 	WaitForSingleObject( thread_render, INFINITE);
 
 	for( int i=0; i<num_init_labels; i++ ){
