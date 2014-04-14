@@ -3,10 +3,10 @@
 #include <iostream>
 using namespace std; 
 
-//#include "lsolver/cghs.h"
-//#include "lsolver/bicgsq.h"
+#include "lsolver/cghs.h"
+#include "lsolver/bicgsq.h"
 #include "lsolver/bicgstab.h"
-//#include "lsolver/gmres.h"
+#include "lsolver/gmres.h"
 
 #include "smart_assert.h"
 
@@ -28,6 +28,17 @@ SparseMatrix::SparseMatrix( const SparseMatrix& matrix )
 {
 	// increase reference
 	reference->AddRef(); 
+}
+
+SparseMatrix::SparseMatrix( const cv::Mat& m ) 
+{
+	smart_assert( m.type()==CV_64F, "Invalid Data type" );
+	init( m.rows, m.cols );
+	for( int i=0; i<m.rows; i++ ) {
+		for( int j=0; j<m.cols; j++ ) {
+			this->set( i, j, m.at<double>(i,j) );
+		}
+	}
 }
 
 const SparseMatrix& SparseMatrix::operator=( const SparseMatrix& matrix ){
@@ -140,23 +151,18 @@ const SparseMatrix operator*( const SparseMatrix& m1, const SparseMatrix& m2 ){
 	SparseMatrix res( m1.rows(), m2.cols() ); 
 
 	// iterator of column index in matrix 1 and matrix 2
-	std::unordered_set<int>::iterator it1, it2; 
-
+	std::unordered_set<int>::iterator it1; 
 
 	// for each row in matrix 1
-	for ( int i=0; i<m1.rows(); ++i ) {
-		// for each column in row i of matrix 1
-		for( it1 = m1.unzeros_for_row->at(i).begin(); it1 != m1.unzeros_for_row->at(i).end(); it1++ ) {
-			// the non-zero columns in matrix 1
-			const int& j = *it1; 
-			// for each row j in matrix 2
-			double value = res.get( i, j ); 
-			for( it2 = m2.unzeros_for_row->at(j).begin(); it2 != m2.unzeros_for_row->at(j).end(); it2++ ) {
-				// TODO: This line should be furthur tested
-				value += m1.get( i, j ) * m2.get( j, *it2 ); 
+	for ( int r=0; r<m1.rows(); ++r ) {
+		for( int c=0; c<m2.cols(); ++c ) {
+			double value = 0; 
+			it1 = m1.unzeros_for_row->at(r).begin();
+			for( ; it1 != m1.unzeros_for_row->at(r).end(); ++it1 ) {
+				value += m1.get( r, *it1 ) * m2.get( *it1, c );
 			}
-			res.set( i, j, value ); 
-		} 
+			res.set( r, c, value ); 
+		}
 	}
 	return res; 
 } 
@@ -244,9 +250,12 @@ SparseMatrix SparseMatrix::multiply( const SparseMatrix& matrix ) const {
 }
 
 SparseMatrix SparseMatrix::multiply_transpose( const SparseMatrix& matrix ) const{
-	smart_assert( this->cols()==matrix.cols(), "Matrix sizes do not mathc. " );
-
 	SparseMatrix res( this->rows(), matrix.rows() ); 
+
+	if( this->cols()!=matrix.cols() ) {
+		std::cerr << "Matrix sizes do not mathc. " << std::endl; 
+		return res; 
+	}
 
 	// iterator of column index in matrix 1 and matrix 2
 	std::unordered_set<int>::iterator it1, it2; 
@@ -271,9 +280,12 @@ SparseMatrix SparseMatrix::multiply_transpose( const SparseMatrix& matrix ) cons
 }
 
 SparseMatrix SparseMatrix::transpose_multiply( const SparseMatrix& matrix ) const{
-	smart_assert( this->rows()==matrix.rows(), "Matrix sizes do not mathc. " );
-
 	SparseMatrix res( this->cols(), matrix.cols() ); 
+
+	if( this->rows()!=matrix.rows() ) {
+		std::cerr << "Matrix sizes do not mathc. " << std::endl; 
+		return res; 
+	}
 
 	// iterator of column index in matrix 1 and matrix 2
 	std::unordered_set<int>::iterator it1, it2; 
@@ -342,6 +354,19 @@ std::ostream& operator<<( std::ostream& out, const SparseMatrix& matrix ){
 	return out; 
 }
 
+void SparseMatrix::print(void) const{
+	// for each row in matrix 1
+	std::unordered_set<int>::iterator it1; 
+	for ( int i=0; i < this->rows(); ++i ) {
+		// for each column in row i of matrix 2
+		if( unzeros_for_row->at(i).size() ) cout << "  Row " << i << ": "; 
+		for( it1 = this->unzeros_for_row->at(i).begin(); it1 != this->unzeros_for_row->at(i).end(); it1++ ) {
+			cout << this->get( i, *it1 ) << " "; 
+		}
+		if( unzeros_for_row->at(i).size() ) cout << endl; 
+	}
+	cout << endl; 
+}
 
 
 
@@ -360,12 +385,15 @@ namespace cv{
 	// Overload the opencv solve function so that it can take SparseMatrix as input
 	void solve( const SparseMatrix& A, const Mat& B, Mat& X ){
 		smart_assert( B.type()==CV_64F, "Data type does not match. " );
-		smart_assert(B.rows== A.cols() && B.cols==1, "Data type does not match. " );
+		smart_assert( B.rows== A.cols() && B.cols==1, "Data type does not match. " );
 
 		X = Mat::zeros(1, A.cols(), CV_64F ); 
 
+
 		// the returns of the following function give the nubmer of iterations it runs
-		bicgstab( A.rows(), A, (double*)B.data, (double*)X.data, 1e-5 );
+		// cghs( A.rows(), A, (double*)B.data, (double*)X.data, 1e-7 );
+		bicgsq( A.rows(), A, (double*)B.data, (double*)X.data, 1e-7 );
+		// bicgstab( A.rows(), A, (double*)B.data, (double*)X.data, 1e-7 );
 	}
 };
 
