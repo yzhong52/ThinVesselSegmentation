@@ -34,8 +34,9 @@ CC = g++ -std=c++11 -m64
 
 # define any directories containing header files other than /usr/include
 #
-INCLUDES = -I ./
-INCLUDES += -I "../dependencies/OpenCV 2.4.8/include"
+INCLUDES  = -I ./
+INCLUDES += -I ../
+INCLUDES += -I "../dependencies/opencv2.4.8/include"
 INCLUDES += -I "../VesselNess"
 INCLUDES += -I "gco-v3.0"
 
@@ -53,7 +54,8 @@ LFLAGS += -L ../dependencies/opencv2.4.8/x64-mingw32-w64
 LIBS = -lopencv_core248.dll
 
 # define the cpp source files
-SRCS = SparseMatrix.cpp Line3D.cpp Line3DTwoPoint.cpp Line3DPointDir.cpp LevenburgMaquart.cpp
+SRCS  = SparseMatrix.cpp Line3D.cpp Line3DTwoPoint.cpp Line3DPointDir.cpp LevenburgMaquart.cpp
+SRCS += Timer.cpp
 
 # define the C object files 
 #
@@ -128,7 +130,8 @@ CBLAS_%.o : SparseMatrix/cblas/%.c
 SparseMatrix.o: SparseMatrix/SparseMatrix.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
-
+Timer.o: ../Timer.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 # Yuchen: Removes all .o files and the excutable file, so that the next make rebuilds them
 clean: 

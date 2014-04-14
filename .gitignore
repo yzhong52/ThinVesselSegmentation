@@ -56,3 +56,4 @@ ModelFitting/executable.exe
 ModelFitting/analysis.txt
 ModelFitting/modelfitting.exe
 ModelFitting/profiling_analysis.txt
+ModelFitting/SparseMatrix/x64/*

@@ -19,6 +19,7 @@ public:
 	SparseMatrix( int rows = 1, int cols = 1 );
 	SparseMatrix( int rows, int cols, const int indeces[][2], const double value[], int N );
 	SparseMatrix( const SparseMatrix& m );
+	SparseMatrix( const cv::Mat& m );
 	template <class T, int n>
 	SparseMatrix( const cv::Vec<T, n>& vec );
 	~SparseMatrix( void );
@@ -82,6 +83,7 @@ private:
 		return sm.ref<double>( idx ); 
 	}
 
+
 	friend void mult( const SparseMatrix &A, const double *v, double *w );
 
 	friend const SparseMatrix operator-( const SparseMatrix& m1, const SparseMatrix& m2 ); 
@@ -89,6 +91,8 @@ private:
 	friend const SparseMatrix operator*( const SparseMatrix& m1, const SparseMatrix& m2 ); 
 	friend const SparseMatrix operator*( const SparseMatrix& m1, const cv::Mat& m2 ); 
 	friend std::ostream& operator<<( std::ostream& out, const SparseMatrix& matrix ) ;
+public:
+	void print(void) const;
 };
 
 
@@ -114,10 +118,13 @@ SparseMatrix::SparseMatrix( const cv::Vec<T, n>& vec ) {
 
 template <class T, int n>
 SparseMatrix transpose_multiply( const  cv::Vec<T, n>& vec, const SparseMatrix& sm ){
-	smart_assert( n==sm.rows(), "Matrix sizes do not mathc. " );
-
 	// allocate memory
 	SparseMatrix res( 1, sm.cols() ); 
+
+	if( n!=sm.rows() ) {
+		std::cerr << "Matrix sizes do not mathc. " << std::endl;
+		return res; 
+	}
 
 	// iterator of column index in sm
 	std::unordered_set<int>::iterator it; 
@@ -137,24 +144,35 @@ SparseMatrix transpose_multiply( const  cv::Vec<T, n>& vec, const SparseMatrix& 
 
 template <class T, int n>
 SparseMatrix multiply( const  cv::Vec<T, n>& vec, const SparseMatrix& sm ){
-	smart_assert( 1==sm.rows(), "Matrix sizes do not mathc. " );
+	std::cout << " SparseMatrix multiply( const  cv::Vec<T, n>& vec, const SparseMatrix& sm ) " << std::endl;
 
 	// allocate memory
 	SparseMatrix res( n, sm.cols() ); 
 
+	if( 1!=sm.rows() ){
+		std::cerr << "Matrix sizes do not mathc. " << std::endl; 
+		return res; 
+	}
+	
 	// iterator of column index in sm
 	std::unordered_set<int>::iterator it; 
 
 	// for each col in sm, sm has only one row
 	for( it=sm.unzeros_for_row->at(0).begin(); it!=sm.unzeros_for_row->at(0).end(); it++ ){
 		for( int i=0; i<n; i++ ) {
+			std::cout <<  vec[i] << " * " << sm.get(0, *it) << " = " << vec[i] * sm.get(0, *it) << std::endl; 
+			system( "pause" );
 			res.set( i, *it, vec[i] * sm.get(0, *it) ); 
 		}
 	}
 
+	std::cout << "res = " << std::endl;
+	res.print();
+
 	// return matrix
 	return res; 
 }
+
 
 
 ////////////////////////////////////////////////////////////////////////////////////////

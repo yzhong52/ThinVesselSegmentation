@@ -97,5 +97,38 @@ int main( void ) {
 	cout << "SparseM11 = SparseM1 * 0.5; SparseM11.push_back( SparseM1 ); " << endl; 
 	cout << SparseM11 << endl; 
 
+		{
+		// Testing 
+		cout << "Testing: " << endl;
+		cout << "const SparseMatrix operator*( const SparseMatrix& m1, const SparseMatrix& m2 )" << endl;
+
+		SparseMatrix SparseM1(3, 5); 
+		for( int i=0; i<10; i++ ) {
+			SparseM1.set( 
+				rand()%SparseM1.rows(), 
+				rand()%SparseM1.cols(), 
+				rand()%10);
+		}
+		cout << SparseM1 << endl; 
+
+		SparseMatrix SparseM2(5, 5); 
+		for( int i=0; i<20; i++ ) {
+			SparseM2.set( 
+				rand()%SparseM2.rows(), 
+				rand()%SparseM2.cols(), 
+				rand()%10);
+		}
+		cout << SparseM2 << endl; 
+		cout << SparseM1 * SparseM2 << endl;
+
+		Mat DenseM1, DenseM2, DenseM3;
+		SparseM1.getMatrix().convertTo( DenseM1, CV_64F );
+		SparseM2.getMatrix().convertTo( DenseM2, CV_64F );
+		DenseM3 = DenseM1 * DenseM2;
+		
+		SparseMatrix SparseM3 = DenseM3; 
+		cout << SparseM3 << endl;
+	}
+
 	return 0; 
 }
