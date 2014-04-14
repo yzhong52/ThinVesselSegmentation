@@ -370,6 +370,39 @@ void SparseMatrix::print(void) const{
 
 
 
+struct Entry{
+	int row, col;
+	double value;
+	friend bool operator<( const Entry& e1, const Entry& e2 );
+};
+
+class SparseMatrix2 {
+	vector<Entry> entries; 
+	int rows;
+	int cols;
+public:
+	SparseMatrix2( const SparseMatrix& A ) : rows( A.rows() ), cols( A.cols() )
+	{
+		for ( int i=0; i<A.rows(); ++i ) {
+			for( int j=0; j<A.cols(); j++ ) {
+				if( abs( A.get(i, j) ) > 1e-20 ) {
+					Entry e;
+					e.row = i;
+					e.col = j; 
+					entries.push_back( e ); 
+				}
+			} 
+		}
+	}
+	void sort( void ) {
+		std::sort( entries.begin(), entries.end() );
+	}
+};
+
+bool operator<( const Entry& e1, const Entry& e2 ){
+		return (e1.row < e2.row) || (e1.row==e2.row && e1.col < e2.row); 
+	}
+
 void mult( const SparseMatrix &A, const double *v, double *w ) {
 	std::unordered_set<int>::iterator it;
 	for ( int i=0; i<A.rows(); ++i ) {
@@ -380,6 +413,11 @@ void mult( const SparseMatrix &A, const double *v, double *w ) {
 	}
 }
 
+void mult( const SparseMatrix2 &A, const double *v, double *w ) {
+	
+}
+
+
 
 namespace cv{
 	// Overload the opencv solve function so that it can take SparseMatrix as input
@@ -389,7 +427,7 @@ namespace cv{
 
 		X = Mat::zeros(1, A.cols(), CV_64F ); 
 
-
+		SparseMatrix2 A2( A ); 
 		// the returns of the following function give the nubmer of iterations it runs
 		// cghs( A.rows(), A, (double*)B.data, (double*)X.data, 1e-7 );
 		bicgsq( A.rows(), A, (double*)B.data, (double*)X.data, 1e-7 );
