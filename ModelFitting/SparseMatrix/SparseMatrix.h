@@ -144,8 +144,6 @@ SparseMatrix transpose_multiply( const  cv::Vec<T, n>& vec, const SparseMatrix& 
 
 template <class T, int n>
 SparseMatrix multiply( const  cv::Vec<T, n>& vec, const SparseMatrix& sm ){
-	std::cout << " SparseMatrix multiply( const  cv::Vec<T, n>& vec, const SparseMatrix& sm ) " << std::endl;
-
 	// allocate memory
 	SparseMatrix res( n, sm.cols() ); 
 
@@ -159,15 +157,11 @@ SparseMatrix multiply( const  cv::Vec<T, n>& vec, const SparseMatrix& sm ){
 
 	// for each col in sm, sm has only one row
 	for( it=sm.unzeros_for_row->at(0).begin(); it!=sm.unzeros_for_row->at(0).end(); it++ ){
-		for( int i=0; i<n; i++ ) {
-			std::cout <<  vec[i] << " * " << sm.get(0, *it) << " = " << vec[i] * sm.get(0, *it) << std::endl; 
-			system( "pause" );
-			res.set( i, *it, vec[i] * sm.get(0, *it) ); 
+		double curVal = sm.get(0, *it);
+		for( int r=0; r<n; r++ ) {
+			res.set( r, *it, vec[r]*curVal ); 
 		}
 	}
-
-	std::cout << "res = " << std::endl;
-	res.print();
 
 	// return matrix
 	return res; 
@@ -181,7 +175,7 @@ SparseMatrix multiply( const  cv::Vec<T, n>& vec, const SparseMatrix& sm ){
 inline void SparseMatrix::set( const int& r, const int& c, const double& value ){
 	static const double epsilon = 1e-50; 
 	// maintain a map of the non-zero indeces
-	if( abs(value) < epsilon ) {
+	if( std::abs(value) < epsilon ) {
 		unzeros_for_row->at(r).erase( c ); 
 		unzeros_for_col->at(c).erase( r ); 
 		// erase this value from sparse matrix

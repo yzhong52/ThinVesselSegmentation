@@ -172,6 +172,7 @@ void  projection_jacobians(
 	// This following line is even slower than the above three
 	// nablaP = multiply( X1, nablaT ) + nablaX1 * T + nablaX2 * (1-T) - multiply( X2, nablaT );
 	Timmer::end("Projection Jacobians");
+	
 }
 
 

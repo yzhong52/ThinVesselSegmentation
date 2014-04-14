@@ -70,9 +70,9 @@ HANDLE thread_render = NULL;
 
 
 
-
+#include "SparseMatrix\SparseMatrix.h"
 int main(int argc, char* argv[])
-{	
+{
 	srand( 3 ); 
 
 	// TODO: not compatible with MinGW? 
