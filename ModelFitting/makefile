@@ -110,9 +110,15 @@ prof-show-txt:
 	$(TEXTEDITOR) analysis.txt
 
 # Analysise the txt file and gerate call graph
+# In order to run the follow script 'prof-show-graph', you have to install the following:
+#  - python 3.3 (official tested), or python 2.7 (official tested), or Python 3.4 (tested by Yuchen)
+#  - GraphViz 2.26.3 (offical tested), or graphviz-2.38 (tested by Yuchen)
+#  - make sure gprof2dot.py is in the current directory; otherwise, download it from https://code.google.com/p/jrfonseca/wiki/Gprof2Dot
+#  - run scritp 'prof' in advance in order to get file 'analysis.txt'
 prof-show-graph: 
 	python gprof2dot.py -n0.5 -s analysis.txt > analysis.dot 
 	dot -Tpng analysis.dot -Gcharset=latin1 -o analysis.png
+	@echo Done... Image has been saved to analysis.png
 
 # A pattern rule ‘%.o : %.c’ says how to make any file stem.o from another file stem.c
 # Reference: http://www.gnu.org/software/make/manual/make.html#Pattern-Rules

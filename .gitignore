@@ -60,3 +60,5 @@ ModelFitting/SparseMatrix/x64/*
 ModelFitting/SparseMatrix/x64/Debug/*
 *.tlog
 *.idb
+ModelFitting/analysis.png
+ModelFitting/analysis.dot
