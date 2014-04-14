@@ -202,7 +202,7 @@ struct Entry{
 	double value;
 };
 inline bool sort_row_func( const Entry& e1, const Entry& e2 ){
-	return (e1.row < e2.row) || (e1.row==e2.row && e1.col < e2.row); 
+	return (e1.row < e2.row) || (e1.row==e2.row && e1.col < e2.col); 
 }
 inline bool sort_col_func( const Entry& e1, const Entry& e2 ){
 	return (e1.col < e2.col) || (e1.col==e2.col && e1.row < e2.row); 
@@ -217,7 +217,7 @@ public:
 	{
 		for ( int i=0; i<A.rows(); ++i ) {
 			for( int j=0; j<A.cols(); j++ ) {
-				if( abs( A.get(i, j) ) > 1e-20 ) {
+				if( abs( A.get(i, j) ) > 0 ) {
 					Entry e;
 					e.row = i;
 					e.col = j; 
