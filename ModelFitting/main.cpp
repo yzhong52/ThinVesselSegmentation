@@ -39,7 +39,7 @@ const double PAIRWISESMOOTH = 3.0;
 
 
 
-#define IS_PROFILING
+//#define IS_PROFILING
 HANDLE thread_render = NULL; 
 #ifndef IS_PROFILING // NOT profiling, add visualization model
 	#include "GLViwerModel.h"
@@ -73,6 +73,8 @@ HANDLE thread_render = NULL;
 #include "SparseMatrix\SparseMatrix.h"
 int main(int argc, char* argv[])
 {
+
+
 	srand( 3 ); 
 
 	// TODO: not compatible with MinGW? 

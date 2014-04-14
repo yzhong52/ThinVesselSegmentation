@@ -370,38 +370,7 @@ void SparseMatrix::print(void) const{
 
 
 
-struct Entry{
-	int row, col;
-	double value;
-	friend bool operator<( const Entry& e1, const Entry& e2 );
-};
 
-class SparseMatrix2 {
-	vector<Entry> entries; 
-	int rows;
-	int cols;
-public:
-	SparseMatrix2( const SparseMatrix& A ) : rows( A.rows() ), cols( A.cols() )
-	{
-		for ( int i=0; i<A.rows(); ++i ) {
-			for( int j=0; j<A.cols(); j++ ) {
-				if( abs( A.get(i, j) ) > 1e-20 ) {
-					Entry e;
-					e.row = i;
-					e.col = j; 
-					entries.push_back( e ); 
-				}
-			} 
-		}
-	}
-	void sort( void ) {
-		std::sort( entries.begin(), entries.end() );
-	}
-};
-
-bool operator<( const Entry& e1, const Entry& e2 ){
-		return (e1.row < e2.row) || (e1.row==e2.row && e1.col < e2.row); 
-	}
 
 void mult( const SparseMatrix &A, const double *v, double *w ) {
 	std::unordered_set<int>::iterator it;
@@ -414,7 +383,14 @@ void mult( const SparseMatrix &A, const double *v, double *w ) {
 }
 
 void mult( const SparseMatrix2 &A, const double *v, double *w ) {
-	
+	for( int i=0; i<A.row(); i++ ) w[i] = 0.0;
+
+	int previous = -1; 
+	for( int i=0; i<A.entries.size(); i++ ) {
+		const int& r = A.entries[i].row;
+		const int& c = A.entries[i].col;
+		w[r] += A.entries[i].value * v[c]; 
+	}
 }
 
 
@@ -428,10 +404,14 @@ namespace cv{
 		X = Mat::zeros(1, A.cols(), CV_64F ); 
 
 		SparseMatrix2 A2( A ); 
+		// A2.sort_with_row();
+
 		// the returns of the following function give the nubmer of iterations it runs
 		// cghs( A.rows(), A, (double*)B.data, (double*)X.data, 1e-7 );
-		bicgsq( A.rows(), A, (double*)B.data, (double*)X.data, 1e-7 );
 		// bicgstab( A.rows(), A, (double*)B.data, (double*)X.data, 1e-7 );
+
+		//bicgsq( A2.row(), A2, (double*)B.data, (double*)X.data, 1e-7 );
+		bicgsq( A.rows(), A, (double*)B.data, (double*)X.data, 1e-7 );
 	}
 };
 
