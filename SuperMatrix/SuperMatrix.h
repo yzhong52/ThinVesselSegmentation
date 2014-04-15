@@ -8,4 +8,3 @@ public:
 	SuperMatrix(void);
 	~SuperMatrix(void);
 };
-
