@@ -9,7 +9,7 @@ using namespace std;
 #include "lsolver/gmres.h"
 
 #include "smart_assert.h"
-
+#include "Timer.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // SparseMatrix:: Construtctors and Destructors
@@ -370,7 +370,10 @@ void SparseMatrix::print(void) const{
 
 
 
+
+
 void mult( const SparseMatrix &A, const double *v, double *w ) {
+	Timmer::begin("mult A");
 	std::unordered_set<int>::iterator it;
 	for ( int i=0; i<A.rows(); ++i ) {
 		w[i] = 0; 
@@ -378,7 +381,36 @@ void mult( const SparseMatrix &A, const double *v, double *w ) {
 			w[i] += A.get( i, *it ) * v[*it]; 
 		} 
 	}
+	Timmer::end("mult A");
+
+	SparseMatrix2 A2( A ); 
+
+	double w2[1000];
+	mult( A2, v, w2 );
+
+	double err = 0.0;
+	for( int i=0; i<A2.row(); i++ ) {
+		err += abs( w[i] - w2[i] ); 
+	}
+	if( err > 1e-10 ) {
+		std::cout << err << std::endl; 
+		system("pause");
+	}
 }
+
+void mult( const SparseMatrix2 &A, const double *v, double *w ) {
+	Timmer::begin("mult A2");
+	for( int i=0; i<A.row(); i++ ) w[i] = 0.0;
+
+	int previous = -1; 
+	for( int i=0; i<A.entries.size(); i++ ) {
+		const int& r = A.entries[i].row;
+		const int& c = A.entries[i].col;
+		w[r] += A.entries[i].value * v[c]; 
+	}
+	Timmer::end("mult A2");
+}
+
 
 
 namespace cv{
@@ -389,11 +421,15 @@ namespace cv{
 
 		X = Mat::zeros(1, A.cols(), CV_64F ); 
 
+		SparseMatrix2 A2( A ); 
+		A2.sort_with_row();
 
 		// the returns of the following function give the nubmer of iterations it runs
 		// cghs( A.rows(), A, (double*)B.data, (double*)X.data, 1e-7 );
-		bicgsq( A.rows(), A, (double*)B.data, (double*)X.data, 1e-7 );
 		// bicgstab( A.rows(), A, (double*)B.data, (double*)X.data, 1e-7 );
+
+		//bicgsq( A2.row(), A2, (double*)B.data, (double*)X.data, 1e-7 );
+		bicgsq( A.rows(), A, (double*)B.data, (double*)X.data, 1e-7 );
 	}
 };
 

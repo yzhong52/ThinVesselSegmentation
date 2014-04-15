@@ -190,3 +190,55 @@ inline void SparseMatrix::set( const int& r, const int& c, const double& value )
 inline double SparseMatrix::get( const int& r, const int& c) const {
 	return at( r, c ); 
 }
+
+
+
+
+
+
+
+struct Entry{
+	int row, col;
+	double value;
+};
+inline bool sort_row_func( const Entry& e1, const Entry& e2 ){
+	return (e1.row < e2.row) || (e1.row==e2.row && e1.col < e2.col); 
+}
+inline bool sort_col_func( const Entry& e1, const Entry& e2 ){
+	return (e1.col < e2.col) || (e1.col==e2.col && e1.row < e2.row); 
+}; 
+
+class SparseMatrix2 {
+	std::vector<Entry> entries; 
+	int rows;
+	int cols;
+public:
+	SparseMatrix2( const SparseMatrix& A ) : rows( A.rows() ), cols( A.cols() )
+	{
+		for ( int i=0; i<A.rows(); ++i ) {
+			for( int j=0; j<A.cols(); j++ ) {
+				if( abs( A.get(i, j) ) > 0 ) {
+					Entry e;
+					e.row = i;
+					e.col = j; 
+					e.value = A.get(i, j); 
+					entries.push_back( e ); 
+				}
+			} 
+		}
+	}
+
+	void sort_with_row( void ) {
+		std::sort( entries.begin(), entries.end(), sort_row_func );
+	}
+	void sort_with_col( void ) {
+		std::sort( entries.begin(), entries.end(), sort_col_func );
+	}
+
+	inline const int& row() const { return rows; }; 
+	inline const int& col() const { return cols; }; 
+
+	friend void mult( const SparseMatrix2 &A, const double *v, double *w );
+};
+
+
