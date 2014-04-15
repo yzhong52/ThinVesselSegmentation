@@ -74,6 +74,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="SuperMatrix.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="SuperMatrix.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
