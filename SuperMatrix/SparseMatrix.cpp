@@ -1,5 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "SparseMatrix.h"
+#include <vector>
 #include <iostream> 
 
 using namespace std;
@@ -120,7 +121,7 @@ void solve( const SparseMatrix& AAAA, const double* BBBB, double* XXXX )
 
 
 ostream& operator<<( ostream& out, const SparseMatrix& m ){
-	const int& N         = m.data->getRow()->nnz(); 
+	const int& N              = m.data->getRow()->nnz(); 
 	const double* const nzval = m.data->getRow()->nzvel(); 
 	const int* const colidx   = m.data->getRow()->colinx(); 
 	const int* const rowptr   = m.data->getRow()->rowptr(); 
@@ -137,4 +138,47 @@ ostream& operator<<( ostream& out, const SparseMatrix& m ){
 	}
 
 	return out; 
+}
+
+
+const SparseMatrix multiple( const SparseMatrix& m1, const SparseMatrix& m2 ) {
+	vector<double> res_nzval;
+	vector<int> res_colidx;
+	vector<int> res_rowptr;
+
+	const double* const nzval1 = m1.data->getRow()->nzvel(); 
+	const int* const colidx1   = m1.data->getRow()->colinx(); 
+	const int* const rowptr1   = m1.data->getRow()->rowptr(); 
+	
+	const double* const nzval2 = m2.data->getCol()->nzvel(); 
+	const int* const rowidx2   = m2.data->getCol()->rowinx(); 
+	const int* const colptr2   = m2.data->getCol()->colptr(); 
+	
+	// store the result as row-order
+	res_rowptr.push_back( 0 ); 
+	for( int r=0; r < m1.row(); r++ ) {
+		for( int c=0; c < m2.col(); c++ ) {
+			int r1 = rowptr1[r];
+			int c2 = colptr2[c]; 
+			double v = 0.0; 
+			while( r1!=rowptr1[r+1] && c2!=colptr2[c+1] ) {
+				if( colidx1[r1]==rowidx2[c2] ) v += nzval1[r1++] * nzval2[c2++];
+				else if( colidx1[r1]<rowidx2[c2] ) r1++; 
+				else c2++; 
+			}
+			if( v!=0.0 ) { 
+				res_nzval.push_back( v ); 
+				res_colidx.push_back( c ); 
+			}
+		}
+		res_rowptr.push_back( (int) res_nzval.size() ); 
+	}
+
+	SparseMatrix res( m1.row(), m2.col(),
+		(const double*) (&res_nzval[0]),
+		(const int*) (&res_colidx[0]),
+		(const int*) (&res_rowptr[0]), 
+		(int) res_nzval.size() );
+
+	return res; 
 }

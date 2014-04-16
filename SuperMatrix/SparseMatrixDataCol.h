@@ -15,6 +15,7 @@ class SparseMatrixDataCol {
 	inline int*    rowinx(){ return getData()->rowind; }
 	inline int*    colptr(){ return getData()->colptr; }
 public:
+	inline const int&    nnz()   const { return getData()->nnz; }
 	inline double* const nzvel()  const {  return (double*) getData()->nzval; }
 	inline int* const    rowinx() const { return getData()->rowind; }
 	inline int* const    colptr() const { return getData()->colptr; }

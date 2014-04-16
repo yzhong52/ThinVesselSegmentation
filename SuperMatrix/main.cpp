@@ -31,6 +31,17 @@ int main( void ) {
 	SparseMatrix B(6, 5, non_zero_value_B, col_index_B, row_pointer_B, 9);
 	cout << B << endl; 
 
+	SparseMatrix AmulB = multiple( A, B );
+	// Expeted Out put
+	// 0    266    0  105  441
+	// 252  168    0    0  147
+	// 144    0    0    0   84
+	// 252  252    0   25  483
+	// 360  384    0    0  409
+	cout << AmulB << endl; 
+	
+
+
 	//double* B = NULL;
 	//double* X = NULL;
 	//solve( A, B, X );

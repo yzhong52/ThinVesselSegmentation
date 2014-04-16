@@ -34,7 +34,9 @@ public:
 	friend const SparseMatrix multiple( const SparseMatrix& m1, const SparseMatrix& m2 ); 
 	friend const SparseMatrix transpose_multiple( const SparseMatrix& m1, const SparseMatrix& m2 ); 
 	friend const SparseMatrix multiple_transpose( const SparseMatrix& m1, const SparseMatrix& m2 ); 
-	friend const SparseMatrix add( const SparseMatrix& m1, const SparseMatrix& m2 ); 
-	friend const SparseMatrix subtract( const SparseMatrix& m1, const SparseMatrix& m2 ); 
+	friend const SparseMatrix operator/( const SparseMatrix& m1, const SparseMatrix& m2 ); 
+	friend const SparseMatrix operator*( const SparseMatrix& m1, const SparseMatrix& m2 ); 
+	friend const SparseMatrix operator+( const SparseMatrix& m1, const SparseMatrix& m2 ); 
+	friend const SparseMatrix operator-( const SparseMatrix& m1, const SparseMatrix& m2 ); 
 	friend std::ostream& operator<<( std::ostream& out, const SparseMatrix& m );
 };
