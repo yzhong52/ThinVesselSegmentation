@@ -5,12 +5,10 @@
 using namespace std;
 
 int main( void ) {
-	double s = 19.0; double u = 21.0; double p = 16.0; 
-	double e = 5.0;  double r = 18.0; double l = 12.0;
-	double i = 1.0; 
-	double non_zero_value_A[13] ={19, u, u, l, u, l, p, e, u, l, l, r, i}; 
-	int    col_index_A[13] =     { 0, 2, 3, 0, 1, 1, 2, 3, 4, 0, 1, 4, 5}; 
-	int    row_pointer_A[6] =    { 0,       3,    5,    7,    9,      13};
+	 
+	double non_zero_value_A[13] ={19, 21, 21, 12, 21, 12, 16,  5, 21, 12, 12, 18, 1}; 
+	int    col_index_A[13] =     { 0,  2,  3,  0,  1,  1,  2,  3,  4,  0,  1,  4, 5}; 
+	int    row_pointer_A[6] =    { 0,          3,      5,      7,      9,        13};
 	SparseMatrix A(5, 6, non_zero_value_A, col_index_A, row_pointer_A, 13);
 	/* [19,  0, 21, 21,  0,  0;
 	    12, 21,  0,  0,  0,  0;
@@ -40,7 +38,19 @@ int main( void ) {
 	// 360  384    0    0  409
 	cout << AmulB << endl; 
 	
-
+	double non_zero_value_C[13] ={19,-21, 21,-12, 21, 12, 16,  5, 21, 12, 12, 18, 1}; 
+	int    col_index_C[13] =     { 0,  2,  3,  0,  1,  1,  2,  2,  4,  0,  3,  4, 5}; 
+	int    row_pointer_C[6] =    { 0,          3,      5,      7,      9,        13};
+	SparseMatrix C(5, 6, non_zero_value_C, col_index_C, row_pointer_C, 13);
+	/* [19,  0, 21, 21,  0,  0;
+	    12, 21,  0,  0,  0,  0;
+	     0, 12, 16,  0,  0,  0;
+	     0,  0,  0,  5, 21,  0;
+	    12, 12,  0,  0, 18,  1]; */
+	cout << A << endl;
+	cout << C << endl;
+	cout << A+C << endl; 
+	cout << A-C << endl; 
 
 	//double* B = NULL;
 	//double* X = NULL;

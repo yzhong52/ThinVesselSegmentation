@@ -142,6 +142,8 @@ ostream& operator<<( ostream& out, const SparseMatrix& m ){
 
 
 const SparseMatrix multiple( const SparseMatrix& m1, const SparseMatrix& m2 ) {
+	assert( m1.col()==m2.row() && "Matrix size does not match" ); 
+
 	vector<double> res_nzval;
 	vector<int> res_colidx;
 	vector<int> res_rowptr;
@@ -176,8 +178,111 @@ const SparseMatrix multiple( const SparseMatrix& m1, const SparseMatrix& m2 ) {
 
 	SparseMatrix res( m1.row(), m2.col(),
 		(const double*) (&res_nzval[0]),
-		(const int*) (&res_colidx[0]),
-		(const int*) (&res_rowptr[0]), 
+		(const int*)    (&res_colidx[0]),
+		(const int*)    (&res_rowptr[0]), 
+		(int) res_nzval.size() );
+
+	return res; 
+}
+
+
+const SparseMatrix operator-( const SparseMatrix& m1, const SparseMatrix& m2 ){
+	assert( m1.row()==m2.row() && m1.col()==m2.col() && "Matrix size does not match" ); 
+
+	vector<double> res_nzval;
+	vector<int> res_colidx;
+	vector<int> res_rowptr;
+
+	const double* const nzval1 = m1.data->getRow()->nzvel(); 
+	const int* const colidx1   = m1.data->getRow()->colinx(); 
+	const int* const rowptr1   = m1.data->getRow()->rowptr(); 
+	
+	const double* const nzval2 = m2.data->getRow()->nzvel(); 
+	const int* const colidx2   = m2.data->getRow()->colinx(); 
+	const int* const rowptr2   = m2.data->getRow()->rowptr(); 
+
+	// store the result as row-order
+	res_rowptr.push_back( 0 ); 
+	for( int r=0; r < m1.row(); r++ ) {
+		int i1 = rowptr1[r];
+		int i2 = rowptr2[r]; 
+		while( i1!=rowptr1[r+1] && i2!=rowptr2[r+1] ) {
+			const int& c1 = colidx1[i1];
+			const int& c2 = colidx2[i2];
+
+			double v = 0; 
+			int c = min(c1, c2);
+			if( c1==c2 ) {
+				v = nzval1[i1++] - nzval2[i2++];
+				if( abs(v)<1e-35 ) continue; 
+			} else if( c1 < c2 ) {
+				v = nzval1[i1++]; 
+			} else {
+				v = -nzval2[i2++]; 
+			}
+			res_nzval.push_back( v ); 
+			res_colidx.push_back( c ); 
+		}
+		res_rowptr.push_back( (int) res_nzval.size() ); 
+	}
+
+	SparseMatrix res( m1.row(), m2.col(),
+		(const double*) (&res_nzval[0]),
+		(const int*)    (&res_colidx[0]),
+		(const int*)    (&res_rowptr[0]), 
+		(int) res_nzval.size() );
+
+	return res; 
+}
+
+
+
+const SparseMatrix operator+( const SparseMatrix& m1, const SparseMatrix& m2 ){
+	assert( m1.row()==m2.row() && m1.col()==m2.col() && "Matrix size does not match" ); 
+
+	vector<double> res_nzval;
+	vector<int> res_colidx;
+	vector<int> res_rowptr;
+
+	const double* const nzval1 = m1.data->getRow()->nzvel(); 
+	const int* const colidx1   = m1.data->getRow()->colinx(); 
+	const int* const rowptr1   = m1.data->getRow()->rowptr(); 
+	
+	const double* const nzval2 = m2.data->getRow()->nzvel(); 
+	const int* const colidx2   = m2.data->getRow()->colinx(); 
+	const int* const rowptr2   = m2.data->getRow()->rowptr(); 
+
+	// store the result as row-order
+	res_rowptr.push_back( 0 ); 
+	for( int r=0; r < m1.row(); r++ ) {
+		int i1 = rowptr1[r];
+		int i2 = rowptr2[r]; 
+		while( i1!=rowptr1[r+1] && i2!=rowptr2[r+1] ) {
+			if( colidx1[i1]==colidx2[i2] ) {
+				double v = nzval1[i1] + nzval2[i2];
+				if( abs(v)>1e-35 ) { 
+					res_nzval.push_back( v ); 
+					res_colidx.push_back( colidx1[i1] ); 
+				}
+				i1++; 
+				i2++;
+			} else if( colidx1[i1]<colidx2[i2] ) {
+				res_nzval.push_back( nzval1[i1] ); 
+				res_colidx.push_back( colidx1[i1] ); 
+				i1++; 
+			} else {
+				res_nzval.push_back( nzval2[i2] ); 
+				res_colidx.push_back( colidx2[i2] ); 
+				i2++; 
+			}
+		}
+		res_rowptr.push_back( (int) res_nzval.size() ); 
+	}
+
+	SparseMatrix res( m1.row(), m2.col(),
+		(const double*) (&res_nzval[0]),
+		(const int*)    (&res_colidx[0]),
+		(const int*)    (&res_rowptr[0]), 
 		(int) res_nzval.size() );
 
 	return res; 
