@@ -15,7 +15,7 @@ SparseMatrixDataRow::SparseMatrixDataRow( int rows, int cols,
 
 	int* rowptr; 
 	if ( !(rowptr = intMalloc(rows+1)) ) ABORT("Fail to alloc memory for SparseMatrix");
-	memcpy( rowptr, row_pointer, sizeof(int) * cols ); 
+	memcpy( rowptr, row_pointer, sizeof(int) * rows ); 
 	rowptr[rows] = N;
 
 	supermatrix = new SuperMatrix();

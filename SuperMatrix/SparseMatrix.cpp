@@ -27,6 +27,7 @@ SparseMatrix::SparseMatrix( const SparseMatrix& matrix ){
 }
 
 const SparseMatrix& SparseMatrix::operator=( const SparseMatrix& matrix ){
+	this->~SparseMatrix(); 
 	this->data = matrix.data;
 	this->rc   = matrix.rc;
 	this->rc->AddRef();
@@ -125,6 +126,7 @@ ostream& operator<<( ostream& out, const SparseMatrix& m ){
 	const int* const rowptr   = m.data->getRow()->rowptr(); 
 	
 	int vi = 0; 
+	cout << "Size: " << m.row() << " x " << m.col() << endl; 
 	for( int r=0; r<m.row(); r++ ) {
 		for( int c=0; c<m.col(); c++ ) {
 			cout.width( 4 ); 

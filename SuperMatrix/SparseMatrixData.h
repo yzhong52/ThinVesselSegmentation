@@ -23,8 +23,8 @@ public:
 		if( datarow ) delete datarow; 
 	}
 
-	const int col() const { return (datarow) ? datarow->supermatrix->nrow : 0; }
-	const int row() const { return (datarow) ? datarow->supermatrix->ncol : 0; }
+	const int col() const { return (datarow) ? datarow->supermatrix->ncol : 0; }
+	const int row() const { return (datarow) ? datarow->supermatrix->nrow : 0; }
 
 	const SparseMatrixDataCol* const getCol(){ 
 		if( datarow==NULL || datacol ) return datacol; 

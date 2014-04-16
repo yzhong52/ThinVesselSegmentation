@@ -7,15 +7,29 @@ using namespace std;
 int main( void ) {
 	double s = 19.0; double u = 21.0; double p = 16.0; 
 	double e = 5.0;  double r = 18.0; double l = 12.0;
-	double non_zero_values[12] = {s, u, u, l, u, l, p, e, u, l, l, r}; 
-	int    col_indeces[12] =     {0, 2, 3, 0, 1, 1, 2, 3, 4, 0, 1, 4}; 
-	int    row_pointers[6] =     {0,       3,    5,    7,    9};
-	SparseMatrix A(5, 5, non_zero_values, col_indeces, row_pointers, 12);
-
-	cout << A << endl;
-
-	SparseMatrix refA = A; 
+	double i = 1.0; 
+	double non_zero_value_A[13] ={19, u, u, l, u, l, p, e, u, l, l, r, i}; 
+	int    col_index_A[13] =     { 0, 2, 3, 0, 1, 1, 2, 3, 4, 0, 1, 4, 5}; 
+	int    row_pointer_A[6] =    { 0,       3,    5,    7,    9,      13};
+	SparseMatrix A(5, 6, non_zero_value_A, col_index_A, row_pointer_A, 13);
+	/* [19,  0, 21, 21,  0,  0;
+	    12, 21,  0,  0,  0,  0;
+	     0, 12, 16,  0,  0,  0;
+	     0,  0,  0,  5, 21,  0;
+	    12, 12,  0,  0, 18,  1]; */
 	cout << A << endl; 
+
+	/*[ 0, 14,  0,  0,  0;
+	   12,  0,  0,  0,  7;
+	    0,  0,  0,  0,  0;
+	    0,  0,  0,  5, 21;
+	   12, 12,  0,  0, 18;
+	    0,  0,  0,  0,  1;]; */
+	double non_zero_value_B[9] ={14, 12,  7,  5, 21, 12, 12, 18,  1}; 
+	int    col_index_B[9]      ={ 1,  0,  4,  3,  4,  0,  1,  4,  4}; 
+	int    row_pointer_B[6]    ={ 0,  1,    3,3,      5,          8};
+	SparseMatrix B(6, 5, non_zero_value_B, col_index_B, row_pointer_B, 9);
+	cout << B << endl; 
 
 	//double* B = NULL;
 	//double* X = NULL;
