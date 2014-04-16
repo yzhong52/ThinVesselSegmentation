@@ -31,9 +31,9 @@ public:
 	const SparseMatrix& operator/=( const double& value ); 
 
 	friend void solve( const SparseMatrix& A, const double* B, double* X ); 
-	friend const SparseMatrix multiple( const SparseMatrix& m1, const SparseMatrix& m2 ); 
-	friend const SparseMatrix transpose_multiple( const SparseMatrix& m1, const SparseMatrix& m2 ); 
-	friend const SparseMatrix multiple_transpose( const SparseMatrix& m1, const SparseMatrix& m2 ); 
+	friend const SparseMatrix multiply( const SparseMatrix& m1, const SparseMatrix& m2 ); 
+	friend const SparseMatrix transpose_multiply( const SparseMatrix& m1, const SparseMatrix& m2 ); 
+	friend const SparseMatrix multiply_transpose( const SparseMatrix& m1, const SparseMatrix& m2 ); 
 	friend const SparseMatrix operator/( const SparseMatrix& m1, const SparseMatrix& m2 ); 
 	friend const SparseMatrix operator*( const SparseMatrix& m1, const SparseMatrix& m2 ); 
 	friend const SparseMatrix operator+( const SparseMatrix& m1, const SparseMatrix& m2 ); 

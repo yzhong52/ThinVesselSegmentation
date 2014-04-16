@@ -29,7 +29,7 @@ int main( void ) {
 	SparseMatrix B(6, 5, non_zero_value_B, col_index_B, row_pointer_B, 9);
 	cout << B << endl; 
 
-	SparseMatrix AmulB = multiple( A, B );
+	SparseMatrix AmulB = multiply( A, B );
 	// Expeted Out put
 	// 0    266    0  105  441
 	// 252  168    0    0  147
@@ -51,6 +51,13 @@ int main( void ) {
 	cout << C << endl;
 	cout << A+C << endl; 
 	cout << A-C << endl; 
+
+	/* 1243         228         336         105         228
+        228         585         252           0         396
+        336         252         400           0         144
+        105           0           0         466         378
+        228         396         144         378         613*/
+	cout << multiply_transpose(A, A) << endl;
 
 	//double* B = NULL;
 	//double* X = NULL;

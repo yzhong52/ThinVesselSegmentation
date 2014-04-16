@@ -141,7 +141,7 @@ ostream& operator<<( ostream& out, const SparseMatrix& m ){
 }
 
 
-const SparseMatrix multiple( const SparseMatrix& m1, const SparseMatrix& m2 ) {
+const SparseMatrix multiply( const SparseMatrix& m1, const SparseMatrix& m2 ) {
 	assert( m1.col()==m2.row() && "Matrix size does not match" ); 
 
 	vector<double> res_nzval;
@@ -185,6 +185,51 @@ const SparseMatrix multiple( const SparseMatrix& m1, const SparseMatrix& m2 ) {
 	return res; 
 }
 
+
+const SparseMatrix multiply_transpose( const SparseMatrix& m1, const SparseMatrix& m2 )
+{
+	assert( m1.col()==m2.col() && "Matrix size does not match" ); 
+
+	vector<double> res_nzval;
+	vector<int> res_colidx;
+	vector<int> res_rowptr;
+
+	const double* const nzval1 = m1.data->getRow()->nzvel(); 
+	const int* const colidx1   = m1.data->getRow()->colinx(); 
+	const int* const rowptr1   = m1.data->getRow()->rowptr(); 
+
+	const double* const nzval2 = m2.data->getRow()->nzvel(); 
+	const int* const colidx2   = m2.data->getRow()->colinx(); 
+	const int* const rowptr2   = m2.data->getRow()->rowptr(); 
+	
+	// store the result as row-order
+	res_rowptr.push_back( 0 ); 
+	for( int r1 = 0; r1 < m1.row(); r1++ ) {
+		for( int r2 = 0; r2 < m2.row(); r2++ ) {
+			int i1 = rowptr1[r1];
+			int i2 = rowptr2[r2]; 
+			double v = 0.0; 
+			while( i1!=rowptr1[r1+1] && i2!=rowptr2[r2+1] ) {
+				if( colidx1[i1]==colidx2[i2] ) v += nzval1[i1++] * nzval2[i2++];
+				else if( colidx1[i1]<colidx2[i2] ) i1++; 
+				else i2++; 
+			}
+			if( v!=0.0 ) { 
+				res_nzval.push_back( v ); 
+				res_colidx.push_back( r2 ); 
+			}
+		}
+		res_rowptr.push_back( (int) res_nzval.size() ); 
+	}
+
+	SparseMatrix res( m1.row(), m2.row(),
+		(const double*) (&res_nzval[0]),
+		(const int*)    (&res_colidx[0]),
+		(const int*)    (&res_rowptr[0]), 
+		(int) res_nzval.size() );
+
+	return res; 
+}
 
 const SparseMatrix operator-( const SparseMatrix& m1, const SparseMatrix& m2 ){
 	assert( m1.row()==m2.row() && m1.col()==m2.col() && "Matrix size does not match" ); 
