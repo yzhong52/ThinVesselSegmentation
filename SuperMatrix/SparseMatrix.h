@@ -5,30 +5,27 @@
 
 #include <iostream>
 #include "SparseMatrixData.h"
+#include "RC.h"
 
 class SparseMatrix
 {
 	SparseMatrixData *data; 
-
-	int rows; // number of rows
-	int cols; // number of cols
+	RC *rc; 
 public:
-	SparseMatrix( int rows, int cols );
-	
-	SparseMatrix::SparseMatrix( int num_rows, int num_cols, 
+	// SparseMatrix( int rows, int cols );
+	SparseMatrix( int num_rows, int num_cols, 
 		const double non_zero_value[], 
 		const int col_index[], 
 		const int row_pointer[], 
 		int N );
-	// SparseMatrix( int rows, int cols, const int indeces[][2], const double value[], int N );
-	SparseMatrix clone(void) const;
-	
 	const SparseMatrix& operator=( const SparseMatrix& matrix ); 	
-	SparseMatrix(void);
+	SparseMatrix( const SparseMatrix& matrix );
+	// SparseMatrix clone(void) const;
+	
 	~SparseMatrix(void);
 
-	inline const int& row() const { return rows; } 
-	inline const int& col() const { return cols; } 
+	inline const int row() const { return data->row(); } 
+	inline const int col() const { return data->col(); } 
 
 	const SparseMatrix& operator*=( const double& value ); 
 	const SparseMatrix& operator/=( const double& value ); 

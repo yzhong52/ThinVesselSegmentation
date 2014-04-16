@@ -4,24 +4,27 @@
 
 class SparseMatrixData
 {
-	// data
+	// data - 
 	SparseMatrixDataCol* datacol; // matrix data stored in collumn order
 	SparseMatrixDataRow* datarow; // matrix data stored in row order
 
 public:
 	// constructor & destructor 
-	SparseMatrixData( int num_rows, int num_cols, 
-		const double non_zero_value[], 
-		const int col_index[], 
-		const int row_pointer[], 
-		int N )
+	// By defaut the is stored as row order
+	SparseMatrixData( int num_rows, int num_cols, const double non_zero_value[], 
+		const int col_index[], const int row_pointer[], int N ) 
 	{
 		datarow = new SparseMatrixDataRow( num_rows, num_cols, non_zero_value, col_index, row_pointer, N ); 
+		datacol = NULL; 
 	}
+
 	~SparseMatrixData(){
 		if( datacol ) delete datacol;
 		if( datarow ) delete datarow; 
 	}
+
+	const int col() const { return (datarow) ? datarow->supermatrix->nrow : 0; }
+	const int row() const { return (datarow) ? datarow->supermatrix->ncol : 0; }
 
 	const SparseMatrixDataCol* const getCol(){ 
 		if( datarow==NULL || datacol ) return datacol; 
@@ -53,6 +56,12 @@ public:
 
 	const SparseMatrixDataRow* const getRow(){
 		if( datacol==NULL || datarow ) return datarow;
+
+		// TODO: 
+		// The matrix is by default stored as row order, if datacol is NULL, 
+		// then datarow should be NULL as well; which implies that the following
+		// code might not be executed at all. 
+		assert(0 && "The following should not be executed. " );
 
 		/* Convert the compressed row fromat to the compressed column format. */
 		double* nzval = NULL; 

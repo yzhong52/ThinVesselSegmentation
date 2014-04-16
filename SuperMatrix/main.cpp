@@ -14,6 +14,9 @@ int main( void ) {
 
 	cout << A << endl;
 
+	SparseMatrix refA = A; 
+	cout << A << endl; 
+
 	//double* B = NULL;
 	//double* X = NULL;
 	//solve( A, B, X );

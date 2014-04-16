@@ -1,18 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
-    </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
     <Filter Include="SuperLU4.3">
       <UniqueIdentifier>{86719207-2d8d-438c-b1b3-2d2d952f9255}</UniqueIdentifier>
     </Filter>
@@ -25,13 +13,14 @@
     <Filter Include="Data Structure">
       <UniqueIdentifier>{b038bb7c-b4f1-4f42-817b-3c815a064d38}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SparseMatrix">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="SparseMatrix.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>SparseMatrix</Filter>
     </ClCompile>
     <ClCompile Include="SuperLU_4.3\SRC\ccolumn_bmod.c">
       <Filter>SuperLU4.3\SRC</Filter>
@@ -741,11 +730,9 @@
     <ClCompile Include="SparseMatrixDataCol.cpp">
       <Filter>Data Structure</Filter>
     </ClCompile>
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="SparseMatrix.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="SuperLU_4.3\SRC\colamd.h">
       <Filter>SuperLU4.3\SRC</Filter>
     </ClInclude>
@@ -799,6 +786,9 @@
     </ClInclude>
     <ClInclude Include="SparseMatrixData.h">
       <Filter>Data Structure</Filter>
+    </ClInclude>
+    <ClInclude Include="SparseMatrix.h">
+      <Filter>SparseMatrix</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

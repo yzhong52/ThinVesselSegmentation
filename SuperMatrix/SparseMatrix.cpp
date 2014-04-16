@@ -5,21 +5,40 @@
 using namespace std;
 
 SparseMatrix::SparseMatrix( int num_rows, int num_cols, const double non_zero_value[], 
-	const int col_index[], const int row_pointer[], int N ) : rows( num_rows ), cols( num_cols )
+	const int col_index[], const int row_pointer[], int N )
 {
 	data = new SparseMatrixData( num_rows, num_cols, non_zero_value, col_index, row_pointer, N );
-}
-
-SparseMatrix::SparseMatrix(void)
-{
-
+	rc = new RC(); 
 }
 
 
 SparseMatrix::~SparseMatrix(void)
 {
-
+	if( rc->Release()==0 ){
+		delete data;
+		delete rc;
+	}
 }
+
+SparseMatrix::SparseMatrix( const SparseMatrix& matrix ){
+	this->data = matrix.data;
+	this->rc   = matrix.rc;
+	this->rc->AddRef();
+}
+
+const SparseMatrix& SparseMatrix::operator=( const SparseMatrix& matrix ){
+	this->data = matrix.data;
+	this->rc   = matrix.rc;
+	this->rc->AddRef();
+	return *this;
+}
+
+
+
+
+
+
+
 
 
 // friend functions
@@ -101,21 +120,16 @@ void solve( const SparseMatrix& AAAA, const double* BBBB, double* XXXX )
 
 ostream& operator<<( ostream& out, const SparseMatrix& m ){
 	const int& N         = m.data->getRow()->nnz(); 
-	double * const nzval = m.data->getRow()->nzvel(); 
-	int * const colidx   = m.data->getRow()->colinx(); 
-	int * const rowptr   = m.data->getRow()->rowptr(); 
+	const double* const nzval = m.data->getRow()->nzvel(); 
+	const int* const colidx   = m.data->getRow()->colinx(); 
+	const int* const rowptr   = m.data->getRow()->rowptr(); 
 	
 	int vi = 0; 
-
 	for( int r=0; r<m.row(); r++ ) {
 		for( int c=0; c<m.col(); c++ ) {
 			cout.width( 4 ); 
-			if( colidx[vi]==c && vi<rowptr[r+1] ){
-				cout << nzval[vi] << " "; 
-				vi++; 
-			} else {
-				cout << 0 << " ";
-			}
+			if( colidx[vi]==c && vi<rowptr[r+1] ) cout << nzval[vi++] << " "; 
+			else cout << 0 << " ";
 		}
 		cout << endl; 
 	}
