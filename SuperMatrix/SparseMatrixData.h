@@ -9,13 +9,21 @@ class SparseMatrixData
 	SparseMatrixDataRow* datarow; // matrix data stored in row order
 
 public:
-	// constructor
+	// constructor & destructor 
+	SparseMatrixData( int num_rows, int num_cols, 
+		const double non_zero_value[], 
+		const int col_index[], 
+		const int row_pointer[], 
+		int N )
+	{
+		datarow = new SparseMatrixDataRow( num_rows, num_cols, non_zero_value, col_index, row_pointer, N ); 
+	}
 	~SparseMatrixData(){
 		if( datacol ) delete datacol;
 		if( datarow ) delete datarow; 
 	}
 
-	SparseMatrixDataCol* getCol(){ 
+	const SparseMatrixDataCol* const getCol(){ 
 		if( datarow==NULL || datacol ) return datacol; 
 
 		/* Convert the compressed row fromat to the compressed column format. */
@@ -43,7 +51,7 @@ public:
 		return datacol;
 	}
 
-	SparseMatrixDataRow* getRow(){
+	const SparseMatrixDataRow* const getRow(){
 		if( datacol==NULL || datarow ) return datarow;
 
 		/* Convert the compressed row fromat to the compressed column format. */

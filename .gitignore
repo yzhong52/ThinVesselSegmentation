@@ -62,3 +62,6 @@ ModelFitting/SparseMatrix/x64/Debug/*
 *.idb
 ModelFitting/analysis.png
 ModelFitting/analysis.dot
+
+
+SuperMatrix/x64/*

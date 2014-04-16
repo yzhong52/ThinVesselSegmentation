@@ -4,37 +4,10 @@
 
 using namespace std;
 
-SparseMatrix::SparseMatrix( int rows, int cols, 
-	const double non_zero_value[], const int rowIndeces[], const int colPointers[], 
-	int N ) : rows( rows ), cols( cols )
+SparseMatrix::SparseMatrix( int num_rows, int num_cols, const double non_zero_value[], 
+	const int col_index[], const int row_pointer[], int N ) : rows( num_rows ), cols( num_cols )
 {
-	// non-zero values
-	double   *nzval = NULL; 
-	if ( !(nzval = doubleMalloc(N)) ) ABORT("Fail to alloc memory for SparseMatrix");
-	memcpy( nzval, non_zero_value, sizeof(double) * N ); 
-
-	int* rowind; 
-	if ( !(rowind = intMalloc(N)) ) ABORT("Fail to alloc memory for SparseMatrix");
-	memcpy( rowind, rowIndeces, sizeof(int) * N ); 
-
-	int* colptr; 
-	if ( !(colptr = intMalloc(cols+1)) ) ABORT("Fail to alloc memory for SparseMatrix");
-	memcpy( colptr, colPointers, sizeof(int) * cols ); 
-	colptr[cols] = cols;
-
-	data = new SparseMatrixData();
-	/* Create matrix A in the format expected by SuperLU. */
-	dCreate_CompCol_Matrix( 
-		data->getCol(), 
-		rows,   // number of rows
-		cols,   // number of cols
-		N,      // number of non zero entrires
-		nzval,  // the values column wise
-		rowind, // row indices of the nonzeros
-		colptr, // beginning of columns in nzval[] and rowind[]
-		SLU_NC, // Data storage order: column-wise
-		SLU_D,  // Data type: double
-		SLU_GE);// Matrix type: genral
+	data = new SparseMatrixData( num_rows, num_cols, non_zero_value, col_index, row_pointer, N );
 }
 
 SparseMatrix::SparseMatrix(void)
@@ -127,5 +100,25 @@ void solve( const SparseMatrix& AAAA, const double* BBBB, double* XXXX )
 
 
 ostream& operator<<( ostream& out, const SparseMatrix& m ){
+	const int& N         = m.data->getRow()->nnz(); 
+	double * const nzval = m.data->getRow()->nzvel(); 
+	int * const colidx   = m.data->getRow()->colinx(); 
+	int * const rowptr   = m.data->getRow()->rowptr(); 
 	
+	int vi = 0; 
+
+	for( int r=0; r<m.row(); r++ ) {
+		for( int c=0; c<m.col(); c++ ) {
+			cout.width( 4 ); 
+			if( colidx[vi]==c && vi<rowptr[r+1] ){
+				cout << nzval[vi] << " "; 
+				vi++; 
+			} else {
+				cout << 0 << " ";
+			}
+		}
+		cout << endl; 
+	}
+
+	return out; 
 }

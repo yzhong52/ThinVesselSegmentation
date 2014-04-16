@@ -16,7 +16,7 @@ SparseMatrixDataCol::SparseMatrixDataCol( int rows, int cols,
 	int* colptr; 
 	if ( !(colptr = intMalloc(rows+1)) ) ABORT("Fail to alloc memory for SparseMatrix");
 	memcpy( colptr, col_pointer, sizeof(int) * cols ); 
-	colptr[cols] = cols;
+	colptr[cols] = N;
 
 	supermatrix = new SuperMatrix();
 	/* Create matrix A in the format expected by SuperLU. */

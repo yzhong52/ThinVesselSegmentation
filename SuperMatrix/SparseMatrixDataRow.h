@@ -10,9 +10,17 @@ class SparseMatrixDataRow {
 
 	// getters
 	NRformat* getData() { return (NRformat*) supermatrix->Store; }
+	const NRformat* getData() const { return (NRformat*) supermatrix->Store; }
+private:
 	inline double* nzvel(){  return (double*) getData()->nzval; }
 	inline int*    colinx(){ return getData()->colind; }
 	inline int*    rowptr(){ return getData()->rowptr; }
+public:
+	inline const int&    nnz()   const { return getData()->nnz; }
+	inline double* const nzvel() const { return (double*) getData()->nzval; }
+	inline int* const   colinx() const { return getData()->colind; }
+	inline int* const   rowptr() const { return getData()->rowptr; }
+private:
 
 	// constructors & destructors
 	SparseMatrixDataRow( int rows, int cols, double nzval[], int colidx[], int rowptr[], int N ); 

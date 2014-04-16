@@ -22,6 +22,9 @@
     <Filter Include="SuperLU4.3\CBLAS">
       <UniqueIdentifier>{0760bbf2-da6f-4ef3-8351-84c5e59d69ba}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Data Structure">
+      <UniqueIdentifier>{b038bb7c-b4f1-4f42-817b-3c815a064d38}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -730,13 +733,13 @@
       <Filter>SuperLU4.3\CBLAS</Filter>
     </ClCompile>
     <ClCompile Include="SparseMatrixData.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SparseMatrixDataCol.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Data Structure</Filter>
     </ClCompile>
     <ClCompile Include="SparseMatrixDataRow.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Data Structure</Filter>
+    </ClCompile>
+    <ClCompile Include="SparseMatrixDataCol.cpp">
+      <Filter>Data Structure</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -788,14 +791,14 @@
     <ClInclude Include="SuperLU_4.3\SRC\slu_Cnames.h">
       <Filter>SuperLU4.3\SRC</Filter>
     </ClInclude>
-    <ClInclude Include="SparseMatrixData.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="SparseMatrixDataRow.h">
+      <Filter>Data Structure</Filter>
     </ClInclude>
     <ClInclude Include="SparseMatrixDataCol.h">
-      <Filter>Header Files</Filter>
+      <Filter>Data Structure</Filter>
     </ClInclude>
-    <ClInclude Include="SparseMatrixDataRow.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="SparseMatrixData.h">
+      <Filter>Data Structure</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
