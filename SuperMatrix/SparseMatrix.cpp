@@ -1,4 +1,41 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include "SparseMatrix.h"
+#include <iostream> 
+
+using namespace std;
+
+SparseMatrix::SparseMatrix( int rows, int cols, 
+	const double non_zero_value[], const int rowIndeces[], const int colPointers[], 
+	int N ) : rows( rows ), cols( cols )
+{
+	// non-zero values
+	double   *nzval = NULL; 
+	if ( !(nzval = doubleMalloc(N)) ) ABORT("Fail to alloc memory for SparseMatrix");
+	memcpy( nzval, non_zero_value, sizeof(double) * N ); 
+
+	int* rowind; 
+	if ( !(rowind = intMalloc(N)) ) ABORT("Fail to alloc memory for SparseMatrix");
+	memcpy( rowind, rowIndeces, sizeof(int) * N ); 
+
+	int* colptr; 
+	if ( !(colptr = intMalloc(cols+1)) ) ABORT("Fail to alloc memory for SparseMatrix");
+	memcpy( colptr, colPointers, sizeof(int) * cols ); 
+	colptr[cols] = cols;
+
+	data = new SparseMatrixData();
+	/* Create matrix A in the format expected by SuperLU. */
+	dCreate_CompCol_Matrix( 
+		data->getCol(), 
+		rows,   // number of rows
+		cols,   // number of cols
+		N,      // number of non zero entrires
+		nzval,  // the values column wise
+		rowind, // row indices of the nonzeros
+		colptr, // beginning of columns in nzval[] and rowind[]
+		SLU_NC, // Data storage order: column-wise
+		SLU_D,  // Data type: double
+		SLU_GE);// Matrix type: genral
+}
 
 SparseMatrix::SparseMatrix(void)
 {
@@ -41,7 +78,7 @@ void solve( const SparseMatrix& AAAA, const double* BBBB, double* XXXX )
     nnz = 12;
     if ( !(a = doubleMalloc(nnz)) ) ABORT("Malloc fails for a[].");
     if ( !(asub = intMalloc(nnz)) ) ABORT("Malloc fails for asub[].");
-    if ( !(xa = intMalloc(n+1)) ) ABORT("Malloc fails for xa[].");
+    if ( !(xa = intMalloc(n+1)) )   ABORT("Malloc fails for xa[].");
     s = 19.0; u = 21.0; p = 16.0; e = 5.0; r = 18.0; l = 12.0;
     a[0] = s; a[1] = l; a[2] = l; a[3] = u; a[4] = l; a[5] = l;
     a[6] = u; a[7] = p; a[8] = u; a[9] = e; a[10]= u; a[11]= r;
@@ -86,4 +123,9 @@ void solve( const SparseMatrix& AAAA, const double* BBBB, double* XXXX )
     Destroy_SuperNode_Matrix(&L);
     Destroy_CompCol_Matrix(&U);
     StatFree(&stat);
+}
+
+
+ostream& operator<<( ostream& out, const SparseMatrix& m ){
+	
 }

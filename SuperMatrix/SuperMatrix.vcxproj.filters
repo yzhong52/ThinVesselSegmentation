@@ -729,6 +729,15 @@
     <ClCompile Include="SuperLU_4.3\CBLAS\ztrsv.c">
       <Filter>SuperLU4.3\CBLAS</Filter>
     </ClCompile>
+    <ClCompile Include="SparseMatrixData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SparseMatrixDataCol.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SparseMatrixDataRow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SparseMatrix.h">
@@ -778,6 +787,15 @@
     </ClInclude>
     <ClInclude Include="SuperLU_4.3\SRC\slu_Cnames.h">
       <Filter>SuperLU4.3\SRC</Filter>
+    </ClInclude>
+    <ClInclude Include="SparseMatrixData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SparseMatrixDataCol.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SparseMatrixDataRow.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -75,6 +75,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="SparseMatrix.h" />
+    <ClInclude Include="SparseMatrixData.h" />
+    <ClInclude Include="SparseMatrixDataCol.h" />
+    <ClInclude Include="SparseMatrixDataRow.h" />
     <ClInclude Include="SuperLU_4.3\CBLAS\f2c.h" />
     <ClInclude Include="SuperLU_4.3\CBLAS\slu_Cnames.h" />
     <ClInclude Include="SuperLU_4.3\CBLAS\superlu_f2c.h" />
@@ -94,6 +97,9 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="SparseMatrix.cpp" />
+    <ClCompile Include="SparseMatrixData.cpp" />
+    <ClCompile Include="SparseMatrixDataCol.cpp" />
+    <ClCompile Include="SparseMatrixDataRow.cpp" />
     <ClCompile Include="SuperLU_4.3\CBLAS\caxpy.c" />
     <ClCompile Include="SuperLU_4.3\CBLAS\ccopy.c" />
     <ClCompile Include="SuperLU_4.3\CBLAS\cdotc.c" />
