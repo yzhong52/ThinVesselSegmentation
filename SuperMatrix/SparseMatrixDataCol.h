@@ -11,8 +11,8 @@ class SparseMatrixDataCol {
 	// getters
 	NCformat* getData() { return (NCformat*) supermatrix->Store; }
 	inline double* nzvel(){  return (double*) getData()->nzval; }
-	inline int*    rowinx() { return getData()->rowind; }
-	inline int*    colptr() { return getData()->colptr; }
+	inline int*    rowinx(){ return getData()->rowind; }
+	inline int*    colptr(){ return getData()->colptr; }
 
 	// constructors & destructors
 	SparseMatrixDataCol( int rows, int cols, double nzval[], int rowidx[], int colptr[], int N ); 

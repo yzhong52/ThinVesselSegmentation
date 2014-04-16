@@ -1,7 +1,5 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include "SparseMatrixDataCol.h"
-
-
-
 
 SparseMatrixDataCol::SparseMatrixDataCol( int rows, int cols, 
 	const double non_zero_value[], const int row_index[], const int col_pointer[], int N )
