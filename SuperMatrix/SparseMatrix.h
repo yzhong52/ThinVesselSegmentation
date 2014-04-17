@@ -8,6 +8,10 @@
 #include "RC.h"
 
 
+// This SparseMatrix implementation, once the matrix is created
+// it is almost impossible to modify the values anymore. 
+// but it is designe for solving linear equations. 
+
 class SparseMatrix
 {
 	// matrix data are all store in class SparseMatrixData
@@ -33,16 +37,23 @@ public:
 	inline const int row() const { return data->row(); } 
 	inline const int col() const { return data->col(); } 
 
-	const SparseMatrix& operator*=( const double& value ); 
-	const SparseMatrix& operator/=( const double& value ); 
+	
+	////////////////////////////////////////////////////////////////
+	// Matrix manipulations 
+	////////////////////////////////////////////////////////////////
+
 	// Transpose a matrix
 	const SparseMatrix t() const;
-
+	// mutiply by value
+	const SparseMatrix& operator*=( const double& value ); 
+	const SparseMatrix& operator/=( const double& value ); 
 	friend void solve( const SparseMatrix& A, const double* B, double* X ); 
 	friend const SparseMatrix multiply( const SparseMatrix& m1, const SparseMatrix& m2 ); 
 	friend const SparseMatrix operator/( const SparseMatrix& m1, const SparseMatrix& m2 ); 
 	friend const SparseMatrix operator*( const SparseMatrix& m1, const SparseMatrix& m2 ); 
 	friend const SparseMatrix operator+( const SparseMatrix& m1, const SparseMatrix& m2 ); 
 	friend const SparseMatrix operator-( const SparseMatrix& m1, const SparseMatrix& m2 ); 
+
+	// utility functions
 	friend std::ostream& operator<<( std::ostream& out, const SparseMatrix& m );
 };

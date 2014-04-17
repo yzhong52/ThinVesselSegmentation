@@ -195,6 +195,7 @@ const SparseMatrix multiply( const SparseMatrix& m1, const SparseMatrix& m2 ) {
 		res_rowptr.push_back( (int) res_nzval.size() ); 
 	}
 
+	// use (const T*) to force the constructor to make a deep copy of the data
 	SparseMatrix res( m1.row(), m2.col(),
 		(const double*) (&res_nzval[0]),
 		(const int*)    (&res_colidx[0]),
@@ -244,6 +245,7 @@ const SparseMatrix operator-( const SparseMatrix& m1, const SparseMatrix& m2 ){
 		res_rowptr.push_back( (int) res_nzval.size() ); 
 	}
 
+	// use (const T*) to force the constructor to make a deep copy of the data
 	SparseMatrix res( m1.row(), m2.col(),
 		(const double*) (&res_nzval[0]),
 		(const int*)    (&res_colidx[0]),
@@ -297,6 +299,7 @@ const SparseMatrix operator+( const SparseMatrix& m1, const SparseMatrix& m2 ){
 		res_rowptr.push_back( (int) res_nzval.size() ); 
 	}
 
+	// use (const T*) to force the constructor to make a deep copy of the data
 	SparseMatrix res( m1.row(), m2.col(),
 		(const double*) (&res_nzval[0]),
 		(const int*)    (&res_colidx[0]),
