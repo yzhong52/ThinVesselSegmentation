@@ -4,6 +4,10 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VesselNess", "VesselNess\VesselNess.vcxproj", "{8C1B273B-B6D3-44B9-84EB-F0A1E33F3CED}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ModelFitting", "ModelFitting\ModelFitting.vcxproj", "{BC8B11D4-A2AC-4DCA-BD34-12D599F0F3B1}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5F72BE36-064D-4D8A-B530-73A6B6781DED} = {5F72BE36-064D-4D8A-B530-73A6B6781DED}
+		{8C1B273B-B6D3-44B9-84EB-F0A1E33F3CED} = {8C1B273B-B6D3-44B9-84EB-F0A1E33F3CED}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SuperMatrix", "SuperMatrix\SuperMatrix.vcxproj", "{5F72BE36-064D-4D8A-B530-73A6B6781DED}"
 EndProject

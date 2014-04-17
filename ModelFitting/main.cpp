@@ -39,7 +39,7 @@ const double PAIRWISESMOOTH = 3.0;
 
 
 
-#define IS_PROFILING
+//#define IS_PROFILING
 HANDLE thread_render = NULL; 
 #ifndef IS_PROFILING // NOT profiling, add visualization model
 	#include "GLViwerModel.h"
