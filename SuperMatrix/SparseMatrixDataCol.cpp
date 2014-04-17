@@ -55,6 +55,7 @@ SparseMatrixDataCol::SparseMatrixDataCol( int rows, int cols, double nzval[],
 SparseMatrixDataCol::~SparseMatrixDataCol(){
 	if( supermatrix ) {
 		Destroy_CompCol_Matrix( supermatrix );
+		delete supermatrix; 
 		supermatrix = NULL; 
 	}
 }

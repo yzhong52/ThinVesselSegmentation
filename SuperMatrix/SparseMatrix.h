@@ -20,8 +20,7 @@ public:
 		int N );
 	const SparseMatrix& operator=( const SparseMatrix& matrix ); 	
 	SparseMatrix( const SparseMatrix& matrix );
-	// SparseMatrix clone(void) const;
-	
+	const SparseMatrix clone(void) const;
 	~SparseMatrix(void);
 
 	inline const int row() const { return data->row(); } 
@@ -30,9 +29,11 @@ public:
 	const SparseMatrix& operator*=( const double& value ); 
 	const SparseMatrix& operator/=( const double& value ); 
 
+	// Transpose a matrix
+	const SparseMatrix t() const;
+
 	friend void solve( const SparseMatrix& A, const double* B, double* X ); 
 	friend const SparseMatrix multiply( const SparseMatrix& m1, const SparseMatrix& m2 ); 
-	friend const SparseMatrix transpose_multiply( const SparseMatrix& m1, const SparseMatrix& m2 ); 
 	friend const SparseMatrix multiply_transpose( const SparseMatrix& m1, const SparseMatrix& m2 ); 
 	friend const SparseMatrix operator/( const SparseMatrix& m1, const SparseMatrix& m2 ); 
 	friend const SparseMatrix operator*( const SparseMatrix& m1, const SparseMatrix& m2 ); 

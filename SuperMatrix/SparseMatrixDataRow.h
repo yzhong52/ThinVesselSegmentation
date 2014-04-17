@@ -17,8 +17,8 @@ class SparseMatrixDataRow {
 public:
 	inline const int&    nnz()   const { return getData()->nnz; }
 	inline double* const nzvel() const { return (double*) getData()->nzval; }
-	inline int* const   colinx() const { return getData()->colind; }
-	inline int* const   rowptr() const { return getData()->rowptr; }
+	inline int* const    colinx() const { return getData()->colind; }
+	inline int* const    rowptr() const { return getData()->rowptr; }
 
 private:
 

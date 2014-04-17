@@ -55,6 +55,7 @@ SparseMatrixDataRow::SparseMatrixDataRow( int rows, int cols, double nzval[],
 SparseMatrixDataRow::~SparseMatrixDataRow(){
 	if( supermatrix ) {
 		Destroy_CompRow_Matrix( supermatrix );
+		delete supermatrix; 
 		supermatrix = NULL; 
 	}
 }

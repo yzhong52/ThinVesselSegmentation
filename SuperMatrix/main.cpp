@@ -52,12 +52,21 @@ int main( void ) {
 	cout << A+C << endl; 
 	cout << A-C << endl; 
 
+	
+
+	cout << "=A and A.t()=====================================" << endl; 
+	cout << A << endl;
+	cout << A.t() << endl; 
+
+	cout << "=A * A.t()=====================================" << endl; 
 	/* 1243         228         336         105         228
         228         585         252           0         396
         336         252         400           0         144
         105           0           0         466         378
         228         396         144         378         613*/
 	cout << multiply_transpose(A, A) << endl;
+	cout << A * (A.t()) << endl; 
+	cout << A.t() * A << endl; 
 
 	//double* B = NULL;
 	//double* X = NULL;
