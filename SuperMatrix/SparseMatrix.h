@@ -7,9 +7,12 @@
 #include "SparseMatrixData.h"
 #include "RC.h"
 
+
 class SparseMatrix
 {
+	// matrix data are all store in class SparseMatrixData
 	SparseMatrixData *data; 
+	// for reference counting 
 	RC *rc; 
 public:
 	// SparseMatrix( int rows, int cols );
@@ -18,23 +21,25 @@ public:
 		const int col_index[], 
 		const int row_pointer[], 
 		int N );
-	const SparseMatrix& operator=( const SparseMatrix& matrix ); 	
+	// copy constructor 
 	SparseMatrix( const SparseMatrix& matrix );
+	const SparseMatrix& operator=( const SparseMatrix& matrix ); 	
+	// deep copy of the matrix data
 	const SparseMatrix clone(void) const;
+	// destructor
 	~SparseMatrix(void);
 
+	// get the number of rows and column of the matrix
 	inline const int row() const { return data->row(); } 
 	inline const int col() const { return data->col(); } 
 
 	const SparseMatrix& operator*=( const double& value ); 
 	const SparseMatrix& operator/=( const double& value ); 
-
 	// Transpose a matrix
 	const SparseMatrix t() const;
 
 	friend void solve( const SparseMatrix& A, const double* B, double* X ); 
 	friend const SparseMatrix multiply( const SparseMatrix& m1, const SparseMatrix& m2 ); 
-	friend const SparseMatrix multiply_transpose( const SparseMatrix& m1, const SparseMatrix& m2 ); 
 	friend const SparseMatrix operator/( const SparseMatrix& m1, const SparseMatrix& m2 ); 
 	friend const SparseMatrix operator*( const SparseMatrix& m1, const SparseMatrix& m2 ); 
 	friend const SparseMatrix operator+( const SparseMatrix& m1, const SparseMatrix& m2 ); 

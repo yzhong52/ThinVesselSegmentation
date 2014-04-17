@@ -64,7 +64,6 @@ int main( void ) {
         336         252         400           0         144
         105           0           0         466         378
         228         396         144         378         613*/
-	cout << multiply_transpose(A, A) << endl;
 	cout << A * (A.t()) << endl; 
 	cout << A.t() * A << endl; 
 
