@@ -28,15 +28,6 @@
     <Filter Include="Line3D">
       <UniqueIdentifier>{9a771b09-0252-43e5-92d2-cd3a616e0901}</UniqueIdentifier>
     </Filter>
-    <Filter Include="SparseMatrix">
-      <UniqueIdentifier>{5d7230c2-727d-4c11-93b9-df9b8e824126}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SparseMatrix\lsolver">
-      <UniqueIdentifier>{b1f7d8ed-65b0-4adc-b71c-068c1dcaa972}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SparseMatrix\cblas">
-      <UniqueIdentifier>{86c56bce-e813-48ae-84eb-8a56d58a0599}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -108,33 +99,6 @@
     <ClInclude Include="GraphCut.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SparseMatrix\RC.h">
-      <Filter>SparseMatrix</Filter>
-    </ClInclude>
-    <ClInclude Include="SparseMatrix\smart_assert.h">
-      <Filter>SparseMatrix</Filter>
-    </ClInclude>
-    <ClInclude Include="SparseMatrix\SparseMatrix.h">
-      <Filter>SparseMatrix</Filter>
-    </ClInclude>
-    <ClInclude Include="SparseMatrix\lsolver\cblas.h">
-      <Filter>SparseMatrix\lsolver</Filter>
-    </ClInclude>
-    <ClInclude Include="SparseMatrix\lsolver\cghs.h">
-      <Filter>SparseMatrix\lsolver</Filter>
-    </ClInclude>
-    <ClInclude Include="SparseMatrix\lsolver\gmres.h">
-      <Filter>SparseMatrix\lsolver</Filter>
-    </ClInclude>
-    <ClInclude Include="SparseMatrix\lsolver\bicgsq.h">
-      <Filter>SparseMatrix\lsolver</Filter>
-    </ClInclude>
-    <ClInclude Include="SparseMatrix\lsolver\bicgstab.h">
-      <Filter>SparseMatrix\lsolver</Filter>
-    </ClInclude>
-    <ClInclude Include="SparseMatrix\cblas\f2c.h">
-      <Filter>SparseMatrix\cblas</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -195,21 +159,6 @@
     <ClCompile Include="GraphCut.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SparseMatrix\SparseMatrix.cpp">
-      <Filter>SparseMatrix</Filter>
-    </ClCompile>
-    <ClCompile Include="SparseMatrix\cblas\dscal.c">
-      <Filter>SparseMatrix\cblas</Filter>
-    </ClCompile>
-    <ClCompile Include="SparseMatrix\cblas\daxpy.c">
-      <Filter>SparseMatrix\cblas</Filter>
-    </ClCompile>
-    <ClCompile Include="SparseMatrix\cblas\dcopy.c">
-      <Filter>SparseMatrix\cblas</Filter>
-    </ClCompile>
-    <ClCompile Include="SparseMatrix\cblas\ddot.c">
-      <Filter>SparseMatrix\cblas</Filter>
-    </ClCompile>
     <ClCompile Include="..\Timer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -217,9 +166,6 @@
   <ItemGroup>
     <None Include="gco-v3.0\GCO_README.TXT">
       <Filter>gco-v3.0</Filter>
-    </None>
-    <None Include="SparseMatrix\lsolver\README">
-      <Filter>SparseMatrix\lsolver</Filter>
     </None>
   </ItemGroup>
 </Project>

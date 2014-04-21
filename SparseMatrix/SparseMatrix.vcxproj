@@ -11,18 +11,18 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{5F72BE36-064D-4D8A-B530-73A6B6781DED}</ProjectGuid>
+    <ProjectGuid>{D9EEC145-010A-4626-980D-B972282F6211}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>SuperMatrix</RootNamespace>
+    <RootNamespace>SparseMatrix</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
@@ -74,6 +74,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="RC.h" />
     <ClInclude Include="SparseMatrix.h" />
     <ClInclude Include="SparseMatrixData.h" />
     <ClInclude Include="SparseMatrixDataCol.h" />
@@ -95,7 +96,6 @@
     <ClInclude Include="SuperLU_4.3\SRC\supermatrix.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
     <ClCompile Include="SparseMatrix.cpp" />
     <ClCompile Include="SparseMatrixData.cpp" />
     <ClCompile Include="SparseMatrixDataCol.cpp" />

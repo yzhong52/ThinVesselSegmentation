@@ -4,8 +4,26 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VesselNess", "VesselNess\VesselNess.vcxproj", "{8C1B273B-B6D3-44B9-84EB-F0A1E33F3CED}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ModelFitting", "ModelFitting\ModelFitting.vcxproj", "{BC8B11D4-A2AC-4DCA-BD34-12D599F0F3B1}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8C1B273B-B6D3-44B9-84EB-F0A1E33F3CED} = {8C1B273B-B6D3-44B9-84EB-F0A1E33F3CED}
+		{D9EEC145-010A-4626-980D-B972282F6211} = {D9EEC145-010A-4626-980D-B972282F6211}
+		{E334D7B0-88EF-4A25-B558-AC8302FE15E3} = {E334D7B0-88EF-4A25-B558-AC8302FE15E3}
+	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SuperMatrix", "SuperMatrix\SuperMatrix.vcxproj", "{5F72BE36-064D-4D8A-B530-73A6B6781DED}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SparseMatrix-test", "SparseMatrix-test\SparseMatrix-test.vcxproj", "{2D76D1D8-1E66-4431-83F6-BFE972588B95}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D9EEC145-010A-4626-980D-B972282F6211} = {D9EEC145-010A-4626-980D-B972282F6211}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SparseMatrixCV", "SparseMatrixCV\SparseMatrixCV.vcxproj", "{E334D7B0-88EF-4A25-B558-AC8302FE15E3}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SparseMatrixCV-test", "SparseMatrixCV-test\SparseMatrixCV-test.vcxproj", "{82FC3E8C-E0B6-48B6-9698-944850F47EE3}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D9EEC145-010A-4626-980D-B972282F6211} = {D9EEC145-010A-4626-980D-B972282F6211}
+		{E334D7B0-88EF-4A25-B558-AC8302FE15E3} = {E334D7B0-88EF-4A25-B558-AC8302FE15E3}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SparseMatrix", "SparseMatrix\SparseMatrix.vcxproj", "{D9EEC145-010A-4626-980D-B972282F6211}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,10 +39,18 @@ Global
 		{BC8B11D4-A2AC-4DCA-BD34-12D599F0F3B1}.Debug|x64.Build.0 = Debug|x64
 		{BC8B11D4-A2AC-4DCA-BD34-12D599F0F3B1}.Release|x64.ActiveCfg = Release|x64
 		{BC8B11D4-A2AC-4DCA-BD34-12D599F0F3B1}.Release|x64.Build.0 = Release|x64
-		{5F72BE36-064D-4D8A-B530-73A6B6781DED}.Debug|x64.ActiveCfg = Debug|x64
-		{5F72BE36-064D-4D8A-B530-73A6B6781DED}.Debug|x64.Build.0 = Debug|x64
-		{5F72BE36-064D-4D8A-B530-73A6B6781DED}.Release|x64.ActiveCfg = Release|x64
-		{5F72BE36-064D-4D8A-B530-73A6B6781DED}.Release|x64.Build.0 = Release|x64
+		{2D76D1D8-1E66-4431-83F6-BFE972588B95}.Debug|x64.ActiveCfg = Debug|x64
+		{2D76D1D8-1E66-4431-83F6-BFE972588B95}.Release|x64.ActiveCfg = Release|x64
+		{2D76D1D8-1E66-4431-83F6-BFE972588B95}.Release|x64.Build.0 = Release|x64
+		{E334D7B0-88EF-4A25-B558-AC8302FE15E3}.Debug|x64.ActiveCfg = Debug|x64
+		{E334D7B0-88EF-4A25-B558-AC8302FE15E3}.Release|x64.ActiveCfg = Release|x64
+		{E334D7B0-88EF-4A25-B558-AC8302FE15E3}.Release|x64.Build.0 = Release|x64
+		{82FC3E8C-E0B6-48B6-9698-944850F47EE3}.Debug|x64.ActiveCfg = Debug|x64
+		{82FC3E8C-E0B6-48B6-9698-944850F47EE3}.Release|x64.ActiveCfg = Release|x64
+		{82FC3E8C-E0B6-48B6-9698-944850F47EE3}.Release|x64.Build.0 = Release|x64
+		{D9EEC145-010A-4626-980D-B972282F6211}.Debug|x64.ActiveCfg = Debug|x64
+		{D9EEC145-010A-4626-980D-B972282F6211}.Release|x64.ActiveCfg = Release|x64
+		{D9EEC145-010A-4626-980D-B972282F6211}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
