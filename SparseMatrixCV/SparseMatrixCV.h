@@ -9,7 +9,7 @@ class SparseMatrixCV
 	SparseMatrix data; 
 public:
 	SparseMatrixCV( void ) : data(0,0,0,0,0,0) { }
-	SparseMatrixCV( int nrow, int ncol, const int indecesM1[][2], const double values[], int N )  : data(0,0,0,0,0,0) { }
+	SparseMatrixCV( int nrow, int ncol, const int indecesM1[][2], const double values[], int N ) { }
 	SparseMatrixCV( int nrow, int ncol ) : data(0,0,0,0,0,0) { }
 	SparseMatrixCV( const SparseMatrixCV& m ) : data(0,0,0,0,0,0) { }
 	SparseMatrixCV( const SparseMatrix& m ) : data( m ) { }

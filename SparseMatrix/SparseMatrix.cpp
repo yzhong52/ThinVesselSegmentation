@@ -5,6 +5,10 @@
 
 using namespace std;
 
+SparseMatrix::SparseMatrix( int num_rows, int num_cols ) {
+	data = new SparseMatrixData( num_rows, num_cols, 0, 0, 0, 0 ); 
+	rc = new RC(); 
+}
 SparseMatrix::SparseMatrix( int num_rows, int num_cols, const double non_zero_value[], 
 	const int col_index[], const int row_pointer[], int N )
 {
