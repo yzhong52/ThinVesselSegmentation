@@ -22,6 +22,7 @@ SparseMatrix::~SparseMatrix(void)
 }
 
 const SparseMatrix SparseMatrix::clone(void) const{
+	// deep copy of the data
 	SparseMatrix m( 
 		this->row(),
 		this->col(),
@@ -53,7 +54,15 @@ const SparseMatrix SparseMatrix::t() const{
 }
 
 
+const SparseMatrix& SparseMatrix::operator*=( const double& value ){
+	this->data->multiply( value ); 
+	return (*this);
+}
 
+const SparseMatrix& SparseMatrix::operator/=( const double& value ){
+	this->data->multiply( 1.0/value ); 
+	return (*this);
+}
 
 
 
@@ -157,10 +166,6 @@ ostream& operator<<( ostream& out, const SparseMatrix& m ){
 
 
 const SparseMatrix operator*( const SparseMatrix& m1, const SparseMatrix& m2 ){
-	return multiply( m1, m2 ); 
-}
-
-const SparseMatrix multiply( const SparseMatrix& m1, const SparseMatrix& m2 ) {
 	assert( m1.col()==m2.row() && "Matrix size does not match" ); 
 
 	vector<double> res_nzval;
@@ -307,4 +312,16 @@ const SparseMatrix operator+( const SparseMatrix& m1, const SparseMatrix& m2 ){
 		(int) res_nzval.size() );
 
 	return res; 
+}
+
+
+const SparseMatrix operator/( const SparseMatrix& m1, const double& value ){
+	SparseMatrix sm = m1.clone();
+	return (sm /= value);
+}
+
+
+const SparseMatrix operator*( const SparseMatrix& m1, const double& value ){
+	SparseMatrix sm = m1.clone();
+	return (sm *= value);
 }
