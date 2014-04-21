@@ -161,7 +161,7 @@ void  projection_jacobians(
 	const SparseMatrixCV nablaX1_nablaX2 = nablaX1 - nablaX2; 
 	//const SparseMatrix nablaA = ( MX1_MX2 ).transpose_multiply( nablaTildeP - nablaX2 ) + ( MTildeP - MX2 ).transpose_multiply( nablaX1_nablaX2 );
 	//const SparseMatrix nablaB = ( MX1_MX2 ).transpose_multiply( nablaX1_nablaX2 ) * 2; 
-	const SparseMatrixCV nablaA = X1_X2.t() * ( nablaTildeP - nablaX2 ) + (tildeP - X2).t() * nablaX1_nablaX2;
+	const SparseMatrixCV nablaA = X1_X2.t() * SparseMatrixCV( nablaTildeP - nablaX2 ) + (tildeP - X2).t() * nablaX1_nablaX2;
 	const SparseMatrixCV nablaB = X1_X2 * 2 * nablaX1_nablaX2; 
 	
 	// Compute the Jacobian matrix for Ti and Tj

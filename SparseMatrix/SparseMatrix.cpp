@@ -75,7 +75,7 @@ const SparseMatrix& SparseMatrix::operator/=( const double& value ){
 
 void solve( const SparseMatrix& AAAA, const double* BBBB, double* XXXX )
 {
-	
+	// TODO: 
 /*
  * Purpose
  * =======
@@ -149,6 +149,11 @@ void solve( const SparseMatrix& AAAA, const double* BBBB, double* XXXX )
 
 
 ostream& operator<<( ostream& out, const SparseMatrix& m ){
+	if( m.data->getRow()==NULL ){
+		cout << "This is a zero matrix." << endl;
+		return out; 
+	} 
+
 	const int& N              = m.data->getRow()->nnz(); 
 	const double* const nzval = m.data->getRow()->nzvel(); 
 	const int* const colidx   = m.data->getRow()->colinx(); 
@@ -171,6 +176,11 @@ ostream& operator<<( ostream& out, const SparseMatrix& m ){
 
 const SparseMatrix operator*( const SparseMatrix& m1, const SparseMatrix& m2 ){
 	assert( m1.col()==m2.row() && "Matrix size does not match" ); 
+
+	if( m1.data->getRow()==NULL || m2.data->getCol()==NULL ){
+		// if either m1 or m2 is zero matrix, return a zero matrix
+		return SparseMatrix( m1.row(), m2.col() ); 
+	} 
 
 	vector<double> res_nzval;
 	vector<int> res_colidx;
@@ -216,6 +226,17 @@ const SparseMatrix operator*( const SparseMatrix& m1, const SparseMatrix& m2 ){
 
 const SparseMatrix operator-( const SparseMatrix& m1, const SparseMatrix& m2 ){
 	assert( m1.row()==m2.row() && m1.col()==m2.col() && "Matrix size does not match" ); 
+
+	
+	if( m1.data->getRow()==NULL && m2.data->getRow()==NULL ){
+		// if both of the are zero, return a zero matrix
+		return SparseMatrix( m1.row(), m2.col() ); 
+	} else if( m1.data->getRow()==NULL ){
+		SparseMatrix res = m2.clone();
+		return res*=-1.0;
+	} else if( m2.data->getRow()==NULL ){
+		return m1.clone();
+	}
 
 	vector<double> res_nzval;
 	vector<int> res_colidx;
@@ -268,6 +289,15 @@ const SparseMatrix operator-( const SparseMatrix& m1, const SparseMatrix& m2 ){
 
 const SparseMatrix operator+( const SparseMatrix& m1, const SparseMatrix& m2 ){
 	assert( m1.row()==m2.row() && m1.col()==m2.col() && "Matrix size does not match" ); 
+
+	if( m1.data->getRow()==NULL && m2.data->getRow()==NULL ){
+		// if both of the are zero, return a zero matrix
+		return SparseMatrix( m1.row(), m2.col() ); 
+	} else if( m1.data->getRow()==NULL ){
+		return m2.clone();
+	} else if( m2.data->getRow()==NULL ){
+		return m1.clone();
+	}
 
 	vector<double> res_nzval;
 	vector<int> res_colidx;
