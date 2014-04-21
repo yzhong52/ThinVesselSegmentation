@@ -99,7 +99,6 @@
     <ClInclude Include="Line3DTwoPoint.h" />
     <ClInclude Include="Neighbour26.h" />
     <ClInclude Include="nstdio.h" />
-    <ClInclude Include="SparseMatrixCV.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="SyntheticData.h" />
   </ItemGroup>
@@ -124,7 +123,6 @@
     <ClCompile Include="Line3DPointDir.cpp" />
     <ClCompile Include="Line3DTwoPoint.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="SparseMatrixCV.cpp" />
     <ClCompile Include="stdafx.cpp" />
   </ItemGroup>
   <ItemGroup>

@@ -99,9 +99,6 @@
     <ClInclude Include="GraphCut.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SparseMatrixCV.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -163,9 +160,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\Timer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SparseMatrixCV.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

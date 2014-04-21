@@ -12,7 +12,14 @@ using namespace std;
 #include "Timer.h"
 
 
-#include "SparseMatrixCV.h"
+#include "../SparseMatrixCV/SparseMatrixCV.h"
+#ifdef _DEBUG
+	#pragma comment(lib,"../x64/Debug/SparseMatrixCV.lib")
+	#pragma comment(lib,"../x64/Debug/SparseMatrix.lib")
+#else
+	#pragma comment(lib,"../x64/Release/SparseMatrixCV.lib")
+	#pragma comment(lib,"../x64/Release/SparseMatrix.lib")
+#endif
 
 inline double compute_energy_datacost_for_one( 
 	const Line3D* line_i,

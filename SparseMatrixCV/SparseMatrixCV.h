@@ -1,7 +1,7 @@
 #pragma once
 
 #include "opencv2/core/core.hpp"
-#include "../SuperMatrix/SparseMatrix.h"
+#include "../SparseMatrix/SparseMatrix.h"
 
 
 class SparseMatrixCV : SparseMatrix
