@@ -3,20 +3,22 @@
 using namespace std;
 
 #ifdef _DEBUG
-	#pragma comment(lib,"../x64/Debug/SparseMatrixCV.lib")
-	#pragma comment(lib,"../x64/Debug/SparseMatrix.lib")
+#pragma comment(lib,"../x64/Debug/SparseMatrixCV.lib")
+#pragma comment(lib,"../x64/Debug/SparseMatrix.lib")
 #else
-	#pragma comment(lib,"../x64/Release/SparseMatrixCV.lib")
-	#pragma comment(lib,"../x64/Release/SparseMatrix.lib")
+#pragma comment(lib,"../x64/Release/SparseMatrixCV.lib")
+#pragma comment(lib,"../x64/Release/SparseMatrix.lib")
 #endif
 
 int main( void ) {
-	SparseMatrixCV A, B;
-	SparseMatrixCV A_B = A - B; 
-	cout << A_B << endl; 
+
+	static const int index[][2] = { {0, 0}, {1, 1}, {2, 2} }; 
+	static const double value[] = { 1.0, 1.0, 1.0 }; 
+	static const SparseMatrixCV A( 3, 6, index, value, 3 );
+
+	cout << A << endl; 
 
 	cout << "hello world" << endl; 
-
-	system( "pause" ); 
+	
 	return 0;
 }

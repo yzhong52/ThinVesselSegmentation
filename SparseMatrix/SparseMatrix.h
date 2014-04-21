@@ -14,6 +14,7 @@
 
 class SparseMatrix
 {
+protected:
 	// matrix data are all store in class SparseMatrixData
 	SparseMatrixData *data; 
 	// for reference counting 
