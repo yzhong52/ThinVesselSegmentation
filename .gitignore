@@ -64,4 +64,8 @@ ModelFitting/analysis.png
 ModelFitting/analysis.dot
 
 
-SuperMatrix/x64/*
+x64/Debug/*
+x64/Release/*
+Debug/*
+Release/*
+
