@@ -156,14 +156,22 @@ void  projection_jacobians(
 	const double B = ( X1_X2 ).dot( X1_X2 );
 	const double T = A / B;
 	
+	cout << nablaX1 << endl; 
+	cout << nablaX2 << endl; 
 	// Compute the Jacobian matrix for Ai, Bi and Aj, Bj
 	//const SparseMatrix MX1_MX2 = MX1 - MX2; 
 	const SparseMatrixCV nablaX1_nablaX2 = nablaX1 - nablaX2; 
+	
+	cout << nablaX1_nablaX2 << endl; 
+
 	//const SparseMatrix nablaA = ( MX1_MX2 ).transpose_multiply( nablaTildeP - nablaX2 ) + ( MTildeP - MX2 ).transpose_multiply( nablaX1_nablaX2 );
 	//const SparseMatrix nablaB = ( MX1_MX2 ).transpose_multiply( nablaX1_nablaX2 ) * 2; 
 	const SparseMatrixCV nablaA = X1_X2.t() * SparseMatrixCV( nablaTildeP - nablaX2 ) + (tildeP - X2).t() * nablaX1_nablaX2;
-	const SparseMatrixCV nablaB = X1_X2 * 2 * nablaX1_nablaX2; 
-	
+	const SparseMatrixCV nablaB = X1_X2.t() * 2 * nablaX1_nablaX2; 
+	cout << nablaX1_nablaX2 << endl; 
+	cout << nablaA << endl; 
+	cout << nablaB << endl; 
+
 	// Compute the Jacobian matrix for Ti and Tj
 	// 1 * N matrices
 	const SparseMatrixCV nablaT = ( nablaA * B - nablaB * A ) / ( B * B );
@@ -176,6 +184,10 @@ void  projection_jacobians(
 	const SparseMatrixCV MX1( X1 );
 	const SparseMatrixCV MX2( X2 ); 
 	nablaP = MX1 * nablaT + nablaX1 * T + nablaX2 * (1-T) - MX2 * nablaT;
+	cout << nablaP << endl; 
+	cout << nablaX1 << endl; 
+	cout << nablaT << endl; 
+
 	// This following line is even slower than the above three
 	// nablaP = multiply( X1, nablaT ) + nablaX1 * T + nablaX2 * (1-T) - multiply( X2, nablaT );
 	Timmer::end("Projection Jacobians");
@@ -200,7 +212,8 @@ SparseMatrixCV compute_datacost_derivative_analytically( const Line3D* l,  const
 	
 	Vec3d tildeP_P = Vec3d(tildeP) - Vec3d(P); 
 	double tildaP_P_lenght = max( 1e-10, sqrt( tildeP_P.dot(tildeP_P) ) ); // l->distanceToLine( tildeP );
-	
+
+	cout << nablaP << endl; 
 	SparseMatrixCV res = tildeP_P.t() * nablaP * ( -1.0 / tildaP_P_lenght * LOGLIKELIHOOD ); 
 	Timmer::end("Datacost Derivative");
 	return res; 
@@ -260,7 +273,18 @@ void compute_smoothcost_derivative_analitically(  Line3D* li,   Line3D* lj, cons
 }
 
 
+void appendTo( const SparseMatrixCV& matrix, vector<double>& Jacobian_nzv, vector<int>& rowind, vector<int>& colptr ){
+	int N;
+	const double* non_zero_value = NULL;
+	const int * column_index = NULL;
+	const int* row_pointer = NULL; 
+	matrix.getRowMatrixData( N, non_zero_value, column_index, row_pointer ); 
+	cout << matrix << endl; 
 
+	for( int i=0; i<N; i++ ) {
+		cout << non_zero_value[i] << " ";
+	}
+}
 
 
 void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
@@ -270,61 +294,36 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 {
 	double lambda = 1e2; 
 
-	const int numOfParametersPerLine = lines[0]->getNumOfParameters();
-	const int numOfParametersTotal = (int) lines.size() * lines[0]->getNumOfParameters(); 
+	// Data for Jacobian matrix
+	//  - # of cols: number of data points; 
+	//  - # of rows: number of parameters for all the line models
+	vector<double> Jacobian_nzv;
+	vector<int>    Jacobian_colindx;
+	vector<int>    Jacobian_rowptr;
 
-
-	int JacobianRowsCount = (int) dataPoints.size(); 
-	for( int site = 0; site < dataPoints.size(); site++ ) { // For each data point
-		for( int neibourIndex=0; neibourIndex<13; neibourIndex++ ) { // find it's neighbour
-			// the neighbour position
-			int x, y, z; 
-			Neighbour26::getNeigbour( neibourIndex, 
-				dataPoints[site][0], dataPoints[site][1], dataPoints[site][2], 
-				x, y, z ); 
-
-			if( indeces.isValid(x,y,z) &&  indeces.at(x,y,z)!=-1 ) {
-				// found a neighbour
-				JacobianRowsCount+=2; 
-			}
-		}
-	}
+	int numOfParametersPerLine = lines[0]->getNumOfParameters(); 
 
 	for( int lmiter = 0; lambda < 10e50 && lambda > 10e-100 && lmiter<30; lmiter++ ) { 
-		// cout << "Levenburg Maquart: " << lmiter << " Lambda: " << lambda << endl; 
-
 		Mat_<double> energy_matrix = Mat_<double>( 0, 1 );
 
-		// Jacobian Matrix
-		//  - # of cols: number of data points; 
-		//  - # of rows: number of parameters for all the line models
-		SparseMatrixCV Jacobian( JacobianRowsCount, numOfParametersTotal ); 
-		
-		//// Construct Jacobian Matrix - for data cost
+		// // // // // // // // // // // // // // // // // // 
+		// Construct Jacobian Matrix - for data cost
+		// // // // // // // // // // // // // // // // // // 
+
 		energy_matrix = compute_energy_matrix_datacost( dataPoints, labelings, lines ); 
 		
 		for( int site=0; site < dataPoints.size(); site++ ) {
 			int label = labelings[site]; 
-			//static const float delta = 0.00003f; 
-			//// compute the derivatives and construct Jacobian matrix
-			//double datacost_before = compute_energy_datacost_for_one( lines[label], dataPoints[site] ); 
-			//// Computing Derivative Nemerically
-			//for( int i=0; i < numOfParametersPerLine; i++ ) {
-			//	lines[label]->updateParameterWithDelta( i, delta ); 
-			//	double datacost_new = compute_energy_datacost_for_one( lines[label], dataPoints[site] ); 
-			//	Jacobian.at<double>( site, 6*label+i ) = 1.0 / delta * ( datacost_new - datacost_before ); 
-			//	lines[label]->updateParameterWithDelta( i, -delta ); 
-			//}
-
 			// Computing Derivative Analytically
-			SparseMatrixCV m = compute_datacost_derivative_analytically( lines[label], dataPoints[site] ); 
+			SparseMatrixCV matrix = compute_datacost_derivative_analytically( lines[label], dataPoints[site] ); 
+			cout << matrix << endl; 
 
-			// Jacobian.setWithOffSet( m, site, 0 ); 
-		} // Contruct Jacobian matrix (2B Continue)
+			appendTo( matrix, Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr ); 
+		}
 
-
-		int offsetR = (int) dataPoints.size(); 
-		// Contruct Jacobian matrix (Continue) - for smooth cost
+		// // // // // // // // // // // // // // // // // // 
+		// Construct Jacobian Matrix - for smooth cost
+		// // // // // // // // // // // // // // // // // // 
 		for( int site = 0; site < dataPoints.size(); site++ ) { // For each data point
 			for( int neibourIndex=0; neibourIndex<13; neibourIndex++ ) { // find it's neighbour
 				// the neighbour position
@@ -339,7 +338,7 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 				if( site2==-1 ) continue ; // not a neighbour
 				                           // other wise, found a neighbour
 
-				Mat JJ = Mat::zeros( 2, numOfParametersTotal, CV_64F ); 
+				// Mat JJ = Mat::zeros( 2, numOfParametersTotal, CV_64F ); 
 
 				int l1 = labelings[site];
 				int l2 = labelings[site2];
@@ -351,6 +350,7 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 					lines[l1], lines[l2], 
 					dataPoints[site], dataPoints[site2], 
 					smoothcost_i_before, smoothcost_j_before ); 
+				
 				
 				// add more rows to energy_matrix according to smooth cost 
 				energy_matrix.push_back( sqrt( smoothcost_i_before ) ); 
@@ -386,24 +386,13 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 				compute_smoothcost_derivative_analitically(  lines[l1], lines[l2], 
 					dataPoints[site], dataPoints[site2], J1, J2 ); 
 
-					
-				
-				// TODO: to be optimized
-	/*			for( int i=0; i<numOfParametersPerLine; i++ ) {
-					Jacobian.set( offsetR,   i + numOfParametersPerLine * l1, J1.get(0, i) ); 
-					Jacobian.set( offsetR,   i + numOfParametersPerLine * l2, J1.get(0, i + numOfParametersPerLine) ); 
-					Jacobian.set( offsetR+1, i + numOfParametersPerLine * l1, J2.get(0, i) ); 
-					Jacobian.set( offsetR+1, i + numOfParametersPerLine * l2, J2.get(0, i + numOfParametersPerLine) ); 
-				}
-				*/
-
-				offsetR += 2; 
-				
-				// Add J1 and J2 to Jacobian matrix as an additional row
+				appendTo( J1, Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr ); 
+				appendTo( J2, Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr ); 
 			} // for each pair of pi and pj
 		} // end of contruction of Jacobian Matrix
 
 
+		SparseMatrixCV Jacobian = SparseMatrix( 0, 0, Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr );
 
 		SparseMatrixCV A = Jacobian.t() * Jacobian;
 		/*for( int i=0; i<A.row(); i++ ) {

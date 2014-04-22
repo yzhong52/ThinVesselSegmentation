@@ -33,8 +33,9 @@ public:
 	SparseMatrixData( int num_rows, int num_cols);
 	~SparseMatrixData();
 
-	const int col() const { return ncol; }
-	const int row() const { return nrow; }
+	inline const int col() const { return ncol; }
+	inline const int row() const { return nrow; }
+	inline const bool isZero ( void ) const { return !datacol && !datarow; }
 
 	const SparseMatrixDataCol* const getCol();
 	const SparseMatrixDataRow* const getRow();

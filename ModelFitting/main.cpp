@@ -39,7 +39,7 @@ const double PAIRWISESMOOTH = 3.0;
 
 
 
-//#define IS_PROFILING
+#define IS_PROFILING
 HANDLE thread_render = NULL; 
 #ifndef IS_PROFILING // NOT profiling, add visualization model
 	#include "GLViwerModel.h"
@@ -110,7 +110,7 @@ int main(int argc, char* argv[])
 				// rand() % 100 + 10, 
 				rand() % 100 + 10, 
 				rand() % 100 + 10 ); 
-		line->setPositions( dataPoints[i] - randomDir, dataPoints[i] + randomDir ); 
+		line->setPositions( dataPoints[i] - randomDir + Vec3i(2, 3, 1) , dataPoints[i] + randomDir + Vec3i(3, 2, 1) ); 
 		lines.push_back( line ); 
 	}
 	

@@ -19,6 +19,8 @@ protected:
 	SparseMatrixData *data; 
 	// for reference counting 
 	RC *rc; 
+
+	inline bool isZero(void) const{ return data->isZero(); };
 public:
 	// initialized a zero matrix
 	SparseMatrix( int num_rows, int num_cols ); 

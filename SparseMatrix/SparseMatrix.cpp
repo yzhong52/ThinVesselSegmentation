@@ -41,14 +41,18 @@ SparseMatrix::~SparseMatrix(void)
 
 const SparseMatrix SparseMatrix::clone(void) const{
 	// deep copy of the data
-	SparseMatrix m( 
-		this->row(),
-		this->col(),
-		(const double*)(this->data->getRow()->nzvel()),
-		(const int*)   (this->data->getRow()->colinx()),
-		(const int*)   (this->data->getRow()->rowptr()),
-		this->data->getRow()->nnz() );
-	return m; 
+	if( this->isZero() ) {
+		return SparseMatrix( this->row(), this->col() );
+	} else {
+		SparseMatrix m( 
+			this->row(),
+			this->col(),
+			(const double*)(this->data->getRow()->nzvel()),
+			(const int*)   (this->data->getRow()->colinx()),
+			(const int*)   (this->data->getRow()->rowptr()),
+			this->data->getRow()->nnz() );
+		return m; 
+	}
 }
 
 SparseMatrix::SparseMatrix( const SparseMatrix& matrix ){
@@ -87,11 +91,16 @@ bool SparseMatrix::updateData( int num_rows, int num_cols,
 		const std::vector<int> col_index, 
 		const std::vector<int> row_pointer )
 {
-	return this->updateData( num_rows, num_cols, 
-		(const double*) &non_zero_value[0], 
-		(const int*)    &col_index[0], 
-		(const int*)    &row_pointer[0], 
-		(int) non_zero_value.size() );
+	if( non_zero_value.size()==0 ) {
+		delete data; 
+		data = new SparseMatrixData( num_rows, num_cols );
+	}else {
+		return this->updateData( num_rows, num_cols, 
+			(const double*) &non_zero_value[0], 
+			(const int*)    &col_index[0], 
+			(const int*)    &row_pointer[0], 
+			(int) non_zero_value.size() );
+	}
 }
 
 bool SparseMatrix::updateData(  int num_rows, int num_cols, 
@@ -205,8 +214,10 @@ void solve( const SparseMatrix& AAAA, const double* BBBB, double* XXXX )
 
 
 ostream& operator<<( ostream& out, const SparseMatrix& m ){
+	cout << "Size: " << m.row() << " x " << m.col() << endl; 
+
 	if( m.data->getRow()==NULL ){
-		cout << "This is a zero matrix." << endl;
+		cout << "  ...This is a zero matrix." << endl;
 		return out; 
 	} 
 
@@ -216,7 +227,6 @@ ostream& operator<<( ostream& out, const SparseMatrix& m ){
 	const int* const rowptr   = m.data->getRow()->rowptr(); 
 	
 	int vi = 0; 
-	cout << "Size: " << m.row() << " x " << m.col() << endl; 
 	for( int r=0; r<m.row(); r++ ) {
 		for( int c=0; c<m.col(); c++ ) {
 			cout.width( 4 ); 
@@ -311,7 +321,7 @@ const SparseMatrix operator-( const SparseMatrix& m1, const SparseMatrix& m2 ){
 	for( int r=0; r < m1.row(); r++ ) {
 		int i1 = rowptr1[r];
 		int i2 = rowptr2[r]; 
-		while( i1!=rowptr1[r+1] && i2!=rowptr2[r+1] ) {
+		while( i1<rowptr1[r+1] && i2<rowptr2[r+1] ) {
 			const int& c1 = colidx1[i1];
 			const int& c2 = colidx2[i2];
 
@@ -328,6 +338,17 @@ const SparseMatrix operator-( const SparseMatrix& m1, const SparseMatrix& m2 ){
 			res_nzval.push_back( v ); 
 			res_colidx.push_back( c ); 
 		}
+		while( i1<rowptr1[r+1] ) {
+			res_nzval.push_back( nzval1[i1] ); 
+			res_colidx.push_back( colidx1[i1] ); 
+			i1++;
+		}
+		while( i2<rowptr2[r+1] ) {
+			res_nzval.push_back( -nzval2[i2] ); 
+			res_colidx.push_back( colidx2[i2] ); 
+			i2++; 
+		}
+		
 		res_rowptr.push_back( (int) res_nzval.size() ); 
 	}
 
@@ -390,6 +411,16 @@ const SparseMatrix operator+( const SparseMatrix& m1, const SparseMatrix& m2 ){
 				res_colidx.push_back( colidx2[i2] ); 
 				i2++; 
 			}
+		}
+		while( i1<rowptr1[r+1] ) {
+			res_nzval.push_back( nzval1[i1] ); 
+			res_colidx.push_back( colidx1[i1] ); 
+			i1++;
+		}
+		while( i2<rowptr2[r+1] ) {
+			res_nzval.push_back( nzval2[i2] ); 
+			res_colidx.push_back( colidx2[i2] ); 
+			i2++; 
 		}
 		res_rowptr.push_back( (int) res_nzval.size() ); 
 	}
