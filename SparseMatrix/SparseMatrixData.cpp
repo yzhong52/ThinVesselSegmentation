@@ -23,7 +23,7 @@ SparseMatrixData::SparseMatrixData( int num_rows, int num_cols, double non_zero_
 }
 
 
-SparseMatrixData::SparseMatrixData( int num_rows, int num_cols) 
+SparseMatrixData::SparseMatrixData( int num_rows, int num_cols ) 
 	: ncol( num_cols ), nrow( num_rows ), datarow( NULL ), datacol( NULL )
 {
 

@@ -21,7 +21,7 @@ protected:
 	RC *rc; 
 public:
 	// initialized a zero matrix
-	SparseMatrix( int num_rows = 0, int num_cols = 0 ); 
+	SparseMatrix( int num_rows, int num_cols ); 
 	SparseMatrix( int num_rows, int num_cols, 
 		const double non_zero_value[], 
 		const int col_index[], 

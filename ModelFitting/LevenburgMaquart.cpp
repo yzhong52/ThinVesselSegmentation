@@ -293,7 +293,7 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 	for( int lmiter = 0; lambda < 10e50 && lambda > 10e-100 && lmiter<30; lmiter++ ) { 
 		// cout << "Levenburg Maquart: " << lmiter << " Lambda: " << lambda << endl; 
 
-		Mat energy_matrix = Mat( 0, 1, CV_64F );
+		Mat_<double> energy_matrix = Mat_<double>( 0, 1 );
 
 		// Jacobian Matrix
 		//  - # of cols: number of data points; 

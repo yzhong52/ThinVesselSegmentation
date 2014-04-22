@@ -11,6 +11,7 @@
 using namespace std;
 
 SparseMatrixCV::SparseMatrixCV( int nrow, int ncol, const int index[][2], const double value[], int N )
+	: SparseMatrix(0,0)
 {
 	struct Three{
 		Three( int r, int c, double v) : row(r), col(c), val(v) { }
@@ -47,4 +48,31 @@ SparseMatrixCV::SparseMatrixCV( int nrow, int ncol, const int index[][2], const 
 	//delete[] row_pointer;
 	//delete[] col_index;
 	//delete[] non_zero_value;
+}
+
+
+const cv::Mat_<double> operator*( const SparseMatrixCV& m1, const cv::Mat_<double>& m2 ){
+	cv::Mat_<double> res( m1.row(), m2.cols ); 
+
+	assert( m1.col()==m2.rows && "Matrix size does not match" ); 
+
+	std::vector<double> res_nzval;
+	std::vector<int> res_colidx;
+	std::vector<int> res_rowptr;
+
+	const double* const nzval1 = m1.data->getRow()->nzvel(); 
+	const int* const colidx1   = m1.data->getRow()->colinx(); 
+	const int* const rowptr1   = m1.data->getRow()->rowptr(); 
+	
+	// store the result as row-order
+	res_rowptr.push_back( 0 ); 
+	for( int r=0; r < m1.row(); r++ ) {
+		for( int c=0; c < m2.cols; c++ ) {
+			res(r,c) = 0.0; 
+			for( int i = rowptr1[r]; i!=rowptr1[r+1]; i++ ) {
+				res(r,c) += nzval1[i] * m2( colidx1[i], c );
+			}
+		}	
+	}
+	return res; 
 }
