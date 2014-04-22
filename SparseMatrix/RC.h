@@ -12,6 +12,8 @@ public:
 	// Initially, reference count is 1
 	RC() : count(1) { }
 
+	inline int num(void) const { return count; }
+
 	// Increment the reference count
 	void AddRef(){ count++; }
 
