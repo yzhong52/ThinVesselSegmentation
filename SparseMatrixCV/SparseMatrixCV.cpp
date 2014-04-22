@@ -38,15 +38,13 @@ SparseMatrixCV::SparseMatrixCV( int nrow, int ncol, const int index[][2], const 
 			row_pointer[++previous_row] = i; 
 		}
 	}
+	row_pointer[nrow] = N; 
 
 	// re-constuct the matrix with give data
-	delete this->data; 
-	this->data = new SparseMatrixData( nrow, ncol, 
-		(const double*) non_zero_value, 
-		(const int* )   col_index, 
-		(const int* )   row_pointer, N ); 
+	this->updateData( nrow, ncol, non_zero_value, col_index, row_pointer, N ); 
 
-	delete[] row_pointer;
-	delete[] col_index;
-	delete[] non_zero_value;
+	// we don't need to release the data, the memroy is used in the matrix data
+	//delete[] row_pointer;
+	//delete[] col_index;
+	//delete[] non_zero_value;
 }

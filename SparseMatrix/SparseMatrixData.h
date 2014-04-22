@@ -22,6 +22,15 @@ public:
 		const int col_index[],			// pointer to column indeces
 		const int row_pointer[],		// pointers to data of each row
 		int N );						// number of non-zero values
+	SparseMatrixData( 
+		int num_rows,                   // number of row
+		int num_cols,                   // number of cols
+		double non_zero_value[],		// non-zero values
+		int col_index[],				// pointer to column indeces
+		int row_pointer[],				// pointers to data of each row
+		int N );						// number of non-zero values
+	// create an empty matrix
+	SparseMatrixData( int num_rows, int num_cols);
 	~SparseMatrixData();
 
 	const int col() const { return ncol; }

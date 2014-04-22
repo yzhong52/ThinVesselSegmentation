@@ -6,7 +6,8 @@
 using namespace std;
 
 SparseMatrix::SparseMatrix( int num_rows, int num_cols ) {
-	data = new SparseMatrixData( num_rows, num_cols, 0, 0, 0, 0 ); 
+	// create a zero-matrix
+	data = new SparseMatrixData( num_rows, num_cols ); 
 	rc = new RC(); 
 }
 SparseMatrix::SparseMatrix( int num_rows, int num_cols, const double non_zero_value[], 
@@ -16,6 +17,19 @@ SparseMatrix::SparseMatrix( int num_rows, int num_cols, const double non_zero_va
 	rc = new RC(); 
 }
 
+SparseMatrix::SparseMatrix( int num_rows, int num_cols, 
+		const std::vector<double> non_zero_value, 
+		const std::vector<int> col_index, 
+		const std::vector<int> row_pointer )
+{
+	assert( non_zero_value.size()==col_index.size() && row_pointer.size()==num_rows+1 && "Data size is invalid. " );
+	data = new SparseMatrixData( num_rows, num_cols, 
+		(const double*) &non_zero_value[0], 
+		(const int*)    &col_index[0], 
+		(const int*)    &row_pointer[0], 
+		(int) non_zero_value.size() );
+	rc = new RC(); 
+}
 
 SparseMatrix::~SparseMatrix(void)
 {
@@ -31,8 +45,8 @@ const SparseMatrix SparseMatrix::clone(void) const{
 		this->row(),
 		this->col(),
 		(const double*)(this->data->getRow()->nzvel()),
-		(const int*)(this->data->getRow()->colinx()),
-		(const int*)(this->data->getRow()->rowptr()),
+		(const int*)   (this->data->getRow()->colinx()),
+		(const int*)   (this->data->getRow()->rowptr()),
 		this->data->getRow()->nnz() );
 	return m; 
 }
@@ -68,7 +82,49 @@ const SparseMatrix& SparseMatrix::operator/=( const double& value ){
 	return (*this);
 }
 
+bool SparseMatrix::updateData( int num_rows, int num_cols, 
+		const std::vector<double> non_zero_value, 
+		const std::vector<int> col_index, 
+		const std::vector<int> row_pointer )
+{
+	return this->updateData( num_rows, num_cols, 
+		(const double*) &non_zero_value[0], 
+		(const int*)    &col_index[0], 
+		(const int*)    &row_pointer[0], 
+		(int) non_zero_value.size() );
+}
 
+bool SparseMatrix::updateData(  int num_rows, int num_cols, 
+	const double non_zero_value[], 
+	const int col_index[], 
+	const int row_pointer[], 
+	int N )
+{
+	if( rc->num()!=1 ){
+		std::cout << "Unable to update data, there are more than one reference. " << std::endl;
+		return false; 
+	}
+
+	delete data; 
+	data = new SparseMatrixData( num_rows, num_cols, non_zero_value, col_index, row_pointer, N );
+	return true;
+}
+
+bool SparseMatrix::updateData(  int num_rows, int num_cols, 
+	double non_zero_value[], 
+	int col_index[], 
+	int row_pointer[], 
+	int N )
+{
+	if( rc->num()!=1 ){
+		std::cout << "Unable to update data, there are more than one reference. " << std::endl;
+		return false; 
+	}
+
+	delete data; 
+	data = new SparseMatrixData( num_rows, num_cols, non_zero_value, col_index, row_pointer, N );
+	return true;
+}
 
 
 // friend functions

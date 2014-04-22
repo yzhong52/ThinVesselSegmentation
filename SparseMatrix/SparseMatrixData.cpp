@@ -6,12 +6,28 @@ SparseMatrixData::SparseMatrixData( int num_rows, int num_cols, const double non
 	const int col_index[], const int row_pointer[], int N ) 
 	: ncol( num_cols ), nrow( num_rows ), datarow( NULL ), datacol( NULL )
 {
-	if( N != 0 ) {
-		datarow = new SparseMatrixDataRow( num_rows, num_cols, non_zero_value, col_index, row_pointer, N ); 
-	}
-	// eles if N==0, then this is a zero matrix, then don't allocate matrix data
+	// N==0, then this is a zero matrix, then don't allocate matrix data
+	if( N == 0 ) return;
+
+	datarow = new SparseMatrixDataRow( num_rows, num_cols, non_zero_value, col_index, row_pointer, N ); 
 }
 
+SparseMatrixData::SparseMatrixData( int num_rows, int num_cols, double non_zero_value[], 
+	int col_index[], int row_pointer[], int N ) 
+	: ncol( num_cols ), nrow( num_rows ), datarow( NULL ), datacol( NULL )
+{
+	// N==0, then this is a zero matrix, then don't allocate matrix data
+	if( N == 0 ) return;
+
+	datarow = new SparseMatrixDataRow( num_rows, num_cols, non_zero_value, col_index, row_pointer, N ); 
+}
+
+
+SparseMatrixData::SparseMatrixData( int num_rows, int num_cols) 
+	: ncol( num_cols ), nrow( num_rows ), datarow( NULL ), datacol( NULL )
+{
+
+}
 
 SparseMatrixData::~SparseMatrixData(){
 	// destro matrix data

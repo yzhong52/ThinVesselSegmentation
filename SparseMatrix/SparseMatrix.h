@@ -6,7 +6,7 @@
 #include <iostream>
 #include "SparseMatrixData.h"
 #include "RC.h"
-
+#include <vector>
 
 // This SparseMatrix implementation, once the matrix is created
 // it is almost impossible to modify the values anymore. 
@@ -27,6 +27,11 @@ public:
 		const int col_index[], 
 		const int row_pointer[], 
 		int N );
+		// use (const T*) to force the constructor to make a deep copy of the data
+	SparseMatrix( int num_rows, int num_cols, 
+		const std::vector<double> non_zero_value, 
+		const std::vector<int> col_index, 
+		const std::vector<int> row_pointer );
 	// copy constructor 
 	SparseMatrix( const SparseMatrix& matrix );
 	const SparseMatrix& operator=( const SparseMatrix& matrix ); 	
@@ -39,6 +44,20 @@ public:
 	inline const int row() const { return data->row(); } 
 	inline const int col() const { return data->col(); } 
 
+	bool updateData( int num_rows, int num_cols, 
+		const std::vector<double> non_zero_value, 
+		const std::vector<int> col_index, 
+		const std::vector<int> row_pointer );
+	bool updateData(  int num_rows, int num_cols, 
+		const double non_zero_value[], 
+		const int col_index[], 
+		const int row_pointer[], 
+		int N );
+	bool updateData(  int num_rows, int num_cols, 
+		double non_zero_value[], 
+		int col_index[], 
+		int row_pointer[], 
+		int N );
 	
 	////////////////////////////////////////////////////////////////
 	// Matrix manipulations 

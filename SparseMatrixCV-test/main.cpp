@@ -15,10 +15,11 @@ int main( void ) {
 	static const int index[][2] = { {0, 0}, {1, 1}, {2, 2} }; 
 	static const double value[] = { 1.0, 1.0, 1.0 }; 
 	static const SparseMatrixCV A( 3, 6, index, value, 3 );
-
 	cout << A << endl; 
 
-	cout << "hello world" << endl; 
-	
+	cv::Vec3f v(1.0f, 0.0f, 2.0f);
+	static const SparseMatrixCV B( v );
+	cout << B << endl; 
+
 	return 0;
 }

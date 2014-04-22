@@ -36,6 +36,7 @@ SparseMatrixDataRow::SparseMatrixDataRow( int rows, int cols,
 SparseMatrixDataRow::SparseMatrixDataRow( int rows, int cols, double nzval[], 
 	int colidx[], int rowptr[], int N )
 {
+	assert( rowptr[0]==0 && rowptr[rows]==N && "rowptr is not initialliezed properly." ); 
 	supermatrix = new SuperMatrix();
 	/* Create matrix A in the format expected by SuperLU. */
 	dCreate_CompCol_Matrix( 
