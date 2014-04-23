@@ -83,16 +83,16 @@ SparseMatrixCV::SparseMatrixCV( const cv::Matx<_Tp, m, n>& vec ) : SparseMatrix(
 }
 
 template <class _Tp>
-SparseMatrixCV::SparseMatrixCV( const cv::Mat_<_Tp>& m ){
+SparseMatrixCV::SparseMatrixCV( const cv::Mat_<_Tp>& m ) : SparseMatrix( m.rows, m.cols ) {
 	vector<double> non_zero_value;
 	vector<int> col_index;
 	vector<int> row_pointer;
 
 	row_pointer.push_back( 0 ); 
-	for( int r = 0; r < m; r++ ) {
-		for( int c = 0; c < n; c++ ) {
-			if( abs( vec(r, c) )>1e-12 ) {
-				non_zero_value.push_back( vec(r, c) ); 
+	for( int r = 0; r < m.rows; r++ ) {
+		for( int c = 0; c < m.cols; c++ ) {
+			if( abs( m(r, c) )>1e-12 ) {
+				non_zero_value.push_back( m(r, c) ); 
 				col_index.push_back( c ); 
 			}
 		}
@@ -100,7 +100,7 @@ SparseMatrixCV::SparseMatrixCV( const cv::Mat_<_Tp>& m ){
 	}
 
 	// re-constuct the matrix with give data
-	this->updateData( m, n, non_zero_value, col_index, row_pointer ); 
+	this->updateData( m.rows, m.cols, non_zero_value, col_index, row_pointer ); 
 }
 
 template <class _Tp, int m, int n>
