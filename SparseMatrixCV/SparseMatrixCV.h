@@ -33,6 +33,7 @@ public:
 	friend SparseMatrixCV operator*( const cv::Matx<_Tp,m,n>& vec, const SparseMatrixCV& sm );
 	
 	friend const cv::Mat_<double> operator*( const SparseMatrixCV& m1, const cv::Mat_<double>& m2 );
+	friend const cv::Mat_<double> operator/( const SparseMatrixCV& m1, const cv::Mat_<double>& m2 );
 
 	inline const SparseMatrixCV t() const {
 		return SparseMatrix::t(); 

@@ -78,6 +78,14 @@ const cv::Mat_<double> operator*( const SparseMatrixCV& m1, const cv::Mat_<doubl
 }
 
 
+const cv::Mat_<double> operator/( const SparseMatrixCV& m1, const cv::Mat_<double>& m2 ){
+	cv::Mat_<double> res( m1.row(), 1 );
+	solve( m1, 
+		(const double*)m2.data, 
+		(double*) res.data ); 
+	return res; 
+}
+
 SparseMatrixCV SparseMatrixCV::I( int rows )
 {
 	double* nzv = new double[rows];
