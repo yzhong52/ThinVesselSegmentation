@@ -28,6 +28,7 @@ public:
 
 	~SparseMatrixCV( void ) { }
 
+	
 	/////////////////////////////////////////////////////////////////
 	// Matrix manipulation functions
 	// // // // // // // // // // // // // // // // // // // // // // 
@@ -47,6 +48,7 @@ public:
 
 	static SparseMatrixCV I( int rows );
 
+	void convertTo( cv::Mat_<double>& m ); 
 
 	/////////////////////////////////////////////////////////////////
 	// friends function for liner sover

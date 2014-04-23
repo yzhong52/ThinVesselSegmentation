@@ -34,12 +34,12 @@ typedef GCoptimization GC;
 #include <iostream>
 #include <limits> 
 
-const double LOGLIKELIHOOD = 1.15; 
-const double PAIRWISESMOOTH = 3.0; 
+const double LOGLIKELIHOOD = 100.0; 
+const double PAIRWISESMOOTH = 1.0; 
 
 
 
-#define IS_PROFILING
+//#define IS_PROFILING
 HANDLE thread_render = NULL; 
 #ifndef IS_PROFILING // NOT profiling, add visualization model
 	#include "GLViwerModel.h"
@@ -88,6 +88,8 @@ int main(int argc, char* argv[])
 	//SyntheticData::Doughout( im_short ); 
 	SyntheticData::Stick( im_short ); 
 
+
+
 	// threshold the data and put the data points into a vector
 	Data3D<int> indeces;
 	vector<cv::Vec3i> dataPoints;
@@ -109,7 +111,7 @@ int main(int argc, char* argv[])
 				// rand() % 100 + 10, 
 				rand() % 100 + 10, 
 				rand() % 100 + 10 ); 
-		line->setPositions( dataPoints[i] - randomDir + Vec3i(2, 3, 1) , dataPoints[i] + randomDir + Vec3i(3, 2, 1) ); 
+		line->setPositions( dataPoints[i] - randomDir +Vec3i(3,2,1), dataPoints[i] + randomDir +Vec3i(1,2,3)); 
 		lines.push_back( line ); 
 	}
 	

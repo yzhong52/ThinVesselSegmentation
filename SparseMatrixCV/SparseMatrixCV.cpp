@@ -108,3 +108,24 @@ void SparseMatrixCV::getRowMatrixData( int& N, double const** non_zero_value, in
 		*row_pointer = 0; 
 	}
 }
+
+void SparseMatrixCV::convertTo( cv::Mat_<double>& m ){
+	m = cv::Mat_<double>::zeros( this->row(), this->col() ); 
+
+	if( this->data->getRow()==NULL ){
+		return; 
+	} 
+
+	const int& N              = this->data->getRow()->nnz(); 
+	const double* const nzval = this->data->getRow()->nzvel(); 
+	const int* const colidx   = this->data->getRow()->colinx(); 
+	const int* const rowptr   = this->data->getRow()->rowptr(); 
+	
+	int vi = 0; 
+	for( int r=0; r < this->row(); r++ ) {
+		for( int c=0; c < this->col(); c++ ) {
+			if( colidx[vi]==c && vi<rowptr[r+1] ) 
+				m(r,c) = nzval[vi++]; 
+		}
+	}
+}

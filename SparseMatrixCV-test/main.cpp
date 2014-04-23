@@ -107,6 +107,16 @@ int main( void ) {
 		solve( A, B, X, SparseMatrixCV::BICGSQ );
 		cout << "X = " << endl << X << endl << endl; 
 		cout << "A * X = " << endl << A * X << endl << endl; 
+
+		Mat DenseX;
+		Mat_<double> DenseA; 
+		A.convertTo( DenseA ); 
+		
+		cv::solve( DenseA, B, DenseX, CV_64F );
+		cout << DenseX << endl; 
+		cout << "A * X = " << endl << DenseA * DenseX << endl << endl; 
+
+		return 0; 
 	}
 
 	cout << "############################ The End (^_^) ##########################" << endl << endl; 
