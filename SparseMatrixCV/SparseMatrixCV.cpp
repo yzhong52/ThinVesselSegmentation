@@ -76,3 +76,19 @@ const cv::Mat_<double> operator*( const SparseMatrixCV& m1, const cv::Mat_<doubl
 	}
 	return res; 
 }
+
+
+SparseMatrixCV SparseMatrixCV::I( int rows )
+{
+	double* nzv = new double[rows];
+	int* colind = new int[rows]; 
+	int* rowptr = new int[rows+1];
+	for( int i=0; i<rows; i++ ) {
+		nzv[i] = 1.0;
+		colind[i] = i; 
+		rowptr[i] = i; 
+	}
+	rowptr[rows] = rows; 
+
+	return SparseMatrixCV( rows, rows, nzv, colind, rowptr, rows ); 
+}

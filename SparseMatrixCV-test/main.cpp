@@ -16,6 +16,10 @@ using namespace std;
 
 
 int main( void ) {
+	cout << "############################ Identity Matrix ###########################" << endl << endl; 
+	cout << SparseMatrixCV::I( 4 ) << endl; 
+	
+	cout << "############################ Add & Sub #################################" << endl << endl; 
 	{
 		static const int index[][2] = { {0, 0}, {1, 1}, {2, 2} }; 
 		static const double value[] = { 1.0, 1.0, 1.0 }; 
@@ -31,10 +35,13 @@ int main( void ) {
 		cout << A + AA << endl; 
 	}
 
+	cout << "############################ Constructors   ###########################" << endl << endl; 
+
 	cv::Vec3f v(1.0f, 0.0f, 2.0f);
 	static const SparseMatrixCV B( v );
 	cout << B << endl; 
 
+	cout << "############################ Multiplications ###########################" << endl << endl; 
 	{
 		/* [19,  0, 21, 21,  0,  0;
 			12, 21,  0,  0,  0,  0;

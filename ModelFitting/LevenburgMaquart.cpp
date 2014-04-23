@@ -155,22 +155,15 @@ void  projection_jacobians(
 	const double A = ( tildeP - X2 ).dot( X1_X2 );
 	const double B = ( X1_X2 ).dot( X1_X2 );
 	const double T = A / B;
-	
-	cout << nablaX1 << endl; 
-	cout << nablaX2 << endl; 
+
 	// Compute the Jacobian matrix for Ai, Bi and Aj, Bj
 	//const SparseMatrix MX1_MX2 = MX1 - MX2; 
 	const SparseMatrixCV nablaX1_nablaX2 = nablaX1 - nablaX2; 
-	
-	cout << nablaX1_nablaX2 << endl; 
 
 	//const SparseMatrix nablaA = ( MX1_MX2 ).transpose_multiply( nablaTildeP - nablaX2 ) + ( MTildeP - MX2 ).transpose_multiply( nablaX1_nablaX2 );
 	//const SparseMatrix nablaB = ( MX1_MX2 ).transpose_multiply( nablaX1_nablaX2 ) * 2; 
 	const SparseMatrixCV nablaA = X1_X2.t() * SparseMatrixCV( nablaTildeP - nablaX2 ) + (tildeP - X2).t() * nablaX1_nablaX2;
 	const SparseMatrixCV nablaB = X1_X2.t() * 2 * nablaX1_nablaX2; 
-	cout << nablaX1_nablaX2 << endl; 
-	cout << nablaA << endl; 
-	cout << nablaB << endl; 
 
 	// Compute the Jacobian matrix for Ti and Tj
 	// 1 * N matrices
@@ -184,9 +177,6 @@ void  projection_jacobians(
 	const SparseMatrixCV MX1( X1 );
 	const SparseMatrixCV MX2( X2 ); 
 	nablaP = MX1 * nablaT + nablaX1 * T + nablaX2 * (1-T) - MX2 * nablaT;
-	cout << nablaP << endl; 
-	cout << nablaX1 << endl; 
-	cout << nablaT << endl; 
 
 	// This following line is even slower than the above three
 	// nablaP = multiply( X1, nablaT ) + nablaX1 * T + nablaX2 * (1-T) - multiply( X2, nablaT );
@@ -213,7 +203,6 @@ SparseMatrixCV compute_datacost_derivative_analytically( const Line3D* l,  const
 	Vec3d tildeP_P = Vec3d(tildeP) - Vec3d(P); 
 	double tildaP_P_lenght = max( 1e-10, sqrt( tildeP_P.dot(tildeP_P) ) ); // l->distanceToLine( tildeP );
 
-	cout << nablaP << endl; 
 	SparseMatrixCV res = tildeP_P.t() * nablaP * ( -1.0 / tildaP_P_lenght * LOGLIKELIHOOD ); 
 	Timmer::end("Datacost Derivative");
 	return res; 
@@ -272,21 +261,6 @@ void compute_smoothcost_derivative_analitically(  Line3D* li,   Line3D* lj, cons
 	Timmer::end("Smoothcost Derivative");
 }
 
-
-void appendTo( const SparseMatrixCV& matrix, vector<double>& Jacobian_nzv, vector<int>& rowind, vector<int>& colptr ){
-	int N;
-	const double* non_zero_value = NULL;
-	const int * column_index = NULL;
-	const int* row_pointer = NULL; 
-	matrix.getRowMatrixData( N, non_zero_value, column_index, row_pointer ); 
-	cout << matrix << endl; 
-
-	for( int i=0; i<N; i++ ) {
-		cout << non_zero_value[i] << " ";
-	}
-}
-
-
 void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 	const vector<int>& labelings, 
 	const vector<Line3D*>& lines, 
@@ -299,7 +273,7 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 	//  - # of rows: number of parameters for all the line models
 	vector<double> Jacobian_nzv;
 	vector<int>    Jacobian_colindx;
-	vector<int>    Jacobian_rowptr;
+	vector<int>    Jacobian_rowptr(1, 0);
 
 	int numOfParametersPerLine = lines[0]->getNumOfParameters(); 
 
@@ -316,10 +290,21 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 			int label = labelings[site]; 
 			// Computing Derivative Analytically
 			SparseMatrixCV matrix = compute_datacost_derivative_analytically( lines[label], dataPoints[site] ); 
-			cout << matrix << endl; 
-
-			appendTo( matrix, Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr ); 
+			
+			int N;
+			const double* non_zero_value = NULL;
+			const int * column_index = NULL;
+			const int* row_pointer = NULL; 
+			matrix.getRowMatrixData( N, &non_zero_value, &column_index, &row_pointer ); 
+			
+			assert( matrix.row()==1 && N==numOfParametersPerLine && "Number of row is not correct for Jacobian matrix" );
+			for( int i=0; i<N; i++ ) {
+				Jacobian_nzv.push_back( non_zero_value[i] );
+				Jacobian_colindx.push_back( column_index[i] + site * N ); 
+			}
+			Jacobian_rowptr.push_back( (int) Jacobian_nzv.size() ); 
 		}
+
 
 		// // // // // // // // // // // // // // // // // // 
 		// Construct Jacobian Matrix - for smooth cost
@@ -351,48 +336,42 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 					dataPoints[site], dataPoints[site2], 
 					smoothcost_i_before, smoothcost_j_before ); 
 				
-				
 				// add more rows to energy_matrix according to smooth cost 
 				energy_matrix.push_back( sqrt( smoothcost_i_before ) ); 
 				energy_matrix.push_back( sqrt( smoothcost_j_before ) ); 
 				
-
-				//// compute derivatives numerically
-				//// Setting up J
-				//// Computing derivative of pair-wise smooth cost numerically
-				//for( int label = 0; label < lines.size(); label++ ) { // for each label
-				//	if( (l1==label) || (l2==label) ) {
-				//		for( int i=0; i < numOfParametersPerLine; i++ ) {
-				//			// if( label!=0 || i>2 ) continue;  // TODO: for debug
-				//			static const float delta = 0.01f; 
-				//			// compute derivatives
-				//			lines[label]->updateParameterWithDelta( i, delta ); 
-				//			double smoothcost_i_new = 0, smoothcost_j_new = 0;
-				//			compute_energy_smoothcost_for_pair( 
-				//				lines[l1], lines[l2], 
-				//				dataPoints[site], dataPoints[site2], 
-				//				smoothcost_i_new, smoothcost_j_new ); 
-				//			lines[label]->updateParameterWithDelta( i, -delta ); 
-				//			JJ.at<double>( 0, numOfParametersPerLine * label + i ) = 
-				//				1.0 / delta * ( sqrt(smoothcost_i_new) - sqrt(smoothcost_i_before) ); 
-				//			JJ.at<double>( 1, numOfParametersPerLine * label + i ) = 
-				//				1.0 / delta * ( sqrt(smoothcost_j_new) - sqrt(smoothcost_j_before) ); 
-				//		}	
-				//	}
-				//}
-	
 				////// Computing derivative of pair-wise smooth cost analytically
-				SparseMatrixCV J1, J2;
+				SparseMatrixCV J[2];
 				compute_smoothcost_derivative_analitically(  lines[l1], lines[l2], 
-					dataPoints[site], dataPoints[site2], J1, J2 ); 
+					dataPoints[site], dataPoints[site2], J[0], J[1] ); 
 
-				appendTo( J1, Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr ); 
-				appendTo( J2, Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr ); 
+				for( int ji = 0; ji<2; ji++ ) {
+					int N;
+					const double* non_zero_value = NULL;
+					const int * column_index = NULL;
+					const int* row_pointer = NULL; 
+					J[ji].getRowMatrixData( N, &non_zero_value, &column_index, &row_pointer ); 
+					assert( J[ji].row()==1 && N==2*numOfParametersPerLine && "Number of row is not correct for Jacobian matrix" );
+
+					const int N2 = N/2; 
+					for( int i=0; i<N2; i++ ) {
+						Jacobian_nzv.push_back( non_zero_value[i] );
+						Jacobian_colindx.push_back( column_index[i] + site * N2 ); 
+					}
+					for( int i=0; i<N2; i++ ) {
+						Jacobian_nzv.push_back( non_zero_value[i + N2] );
+						Jacobian_colindx.push_back( column_index[i + N2] + site2 * N2 ); 
+					}
+					Jacobian_rowptr.push_back( (int) Jacobian_nzv.size() ); 
+				}
 			} // for each pair of pi and pj
 		} // end of contruction of Jacobian Matrix
 
 
-		SparseMatrixCV Jacobian = SparseMatrix( 0, 0, Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr );
+		SparseMatrixCV Jacobian = SparseMatrix(
+			(int) Jacobian_rowptr.size(), 
+			(int) lines.size() * numOfParametersPerLine, 
+			Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr );
 
 		SparseMatrixCV A = Jacobian.t() * Jacobian;
 		/*for( int i=0; i<A.row(); i++ ) {
