@@ -74,7 +74,6 @@ HANDLE thread_render = NULL;
 int main(int argc, char* argv[])
 {
 
-
 	srand( 3 ); 
 
 	// TODO: not compatible with MinGW? 

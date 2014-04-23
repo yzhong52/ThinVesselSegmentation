@@ -369,7 +369,7 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 
 
 		SparseMatrixCV Jacobian = SparseMatrix(
-			(int) Jacobian_rowptr.size(), 
+			(int) Jacobian_rowptr.size() - 1, 
 			(int) lines.size() * numOfParametersPerLine, 
 			Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr );
 
