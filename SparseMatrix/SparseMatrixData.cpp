@@ -1,7 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "SparseMatrixData.h"
 
-
 SparseMatrixData::SparseMatrixData( int num_rows, int num_cols, const double non_zero_value[], 
 	const int col_index[], const int row_pointer[], int N ) 
 	: ncol( num_cols ), nrow( num_rows ), datarow( NULL ), datacol( NULL )
@@ -70,14 +69,14 @@ const SparseMatrixDataRow* const SparseMatrixData::getRow(){
 	// IMPORTANT!: ncol and nrow is reversed in the following function. 
 	// This is because dCompRow_to_CompCol is a function for converting 
 	// row-order sparse matrix to col-order matrix. But it can also be 
-	// used to comvert a col matrix into a row one if carefully used. 
+	// used to comvert a col matrix into a row one if it is carefully used. 
 	dCompRow_to_CompCol( 
 		ncol,						// number of rows
 		nrow,						// number of cols
 		datacol->getData()->nnz,    // number of non-zero entries
 		datacol->nzvel(),           // non-zero entries
-		datacol->rowinx(),          // column index
-		datacol->colptr(),          // row pointers
+		datacol->rowinx(),          // pretend it is column index array
+		datacol->colptr(),          // pretend it is row pointers arrays
 		&nzval,                     // non-zero entries (for row-order matrix)
 		&colidx,                    // column indeces
 		&rowptr );                  // row pointers
@@ -99,7 +98,7 @@ void SparseMatrixData::transpose( void ) {
 	} 
 	else if( datarow ) 
 	{
-		// if the matrix is stored as row-order only
+		// If the matrix is stored as row-order only
 		// convert the matrix from row-order to col-order
 		datacol = new SparseMatrixDataCol( 
 			nrow,   // number of rows
@@ -108,7 +107,7 @@ void SparseMatrixData::transpose( void ) {
 			datarow->colinx(),   // row index
 			datarow->rowptr(),   // col pointer
 			datarow->getData()->nnz );
-
+		
 		// destroy row-order data 
 		// IMPORTANT: the matrix data stored in supermatrix won't be destroyed. 
 		//  as they are used in datacol->sparsematrix

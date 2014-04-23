@@ -3,7 +3,7 @@
 // This class is build with SuperLU 4.3, referece can be found in the following lin: 
 // http://crd-legacy.lbl.gov/~xiaoye/SuperLU/
 
-#include <iostream>
+
 #include "SparseMatrixData.h"
 #include "RC.h"
 #include <vector>

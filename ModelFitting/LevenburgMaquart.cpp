@@ -267,17 +267,16 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 	const Data3D<int>& indeces )
 {
 	double lambda = 1e2; 
-
-	// Data for Jacobian matrix
-	//  - # of cols: number of data points; 
-	//  - # of rows: number of parameters for all the line models
-	vector<double> Jacobian_nzv;
-	vector<int>    Jacobian_colindx;
-	vector<int>    Jacobian_rowptr(1, 0);
-
 	int numOfParametersPerLine = lines[0]->getNumOfParameters(); 
 
 	for( int lmiter = 0; lambda < 10e50 && lambda > 10e-100 && lmiter<30; lmiter++ ) { 
+		// Data for Jacobian matrix
+		//  - # of cols: number of data points; 
+		//  - # of rows: number of parameters for all the line models
+		vector<double> Jacobian_nzv;
+		vector<int>    Jacobian_colindx;
+		vector<int>    Jacobian_rowptr(1, 0);
+
 		Mat_<double> energy_matrix = Mat_<double>( 0, 1 );
 
 		// // // // // // // // // // // // // // // // // // 
@@ -332,8 +331,7 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 
 				double smoothcost_i_before = 0, smoothcost_j_before = 0;
 				compute_energy_smoothcost_for_pair( 
-					lines[l1], lines[l2], 
-					dataPoints[site], dataPoints[site2], 
+					lines[l1], lines[l2], dataPoints[site], dataPoints[site2], 
 					smoothcost_i_before, smoothcost_j_before ); 
 				
 				// add more rows to energy_matrix according to smooth cost 
@@ -345,7 +343,8 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 				compute_smoothcost_derivative_analitically(  lines[l1], lines[l2], 
 					dataPoints[site], dataPoints[site2], J[0], J[1] ); 
 
-				for( int ji = 0; ji<2; ji++ ) {
+				for( int ji = 0; ji<1; ji++ ) {
+					
 					int N;
 					const double* non_zero_value = NULL;
 					const int * column_index = NULL;
@@ -358,9 +357,10 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 						Jacobian_nzv.push_back( non_zero_value[i] );
 						Jacobian_colindx.push_back( column_index[i] + site * N2 ); 
 					}
+					Jacobian_rowptr.push_back( (int) Jacobian_nzv.size() ); 
 					for( int i=0; i<N2; i++ ) {
 						Jacobian_nzv.push_back( non_zero_value[i + N2] );
-						Jacobian_colindx.push_back( column_index[i + N2] + site2 * N2 ); 
+						Jacobian_colindx.push_back( column_index[i + N2] - N2 + site2 * N2 ); 
 					}
 					Jacobian_rowptr.push_back( (int) Jacobian_nzv.size() ); 
 				}
@@ -373,7 +373,7 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 			(int) lines.size() * numOfParametersPerLine, 
 			Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr );
 
-		SparseMatrixCV A = Jacobian.t() * Jacobian + SparseMatrixCV::I( Jacobian.row() );
+		SparseMatrixCV A = Jacobian.t() * Jacobian + SparseMatrixCV::I( Jacobian.col() ) * lambda;
 
 		Mat_<double> B = Jacobian.t() * energy_matrix; 
 
@@ -388,8 +388,6 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 		//cout << endl;
 		//Sleep(500);
 		
-
-
 		double energy_before = compute_energy( dataPoints, labelings, lines, indeces );
 
 		for( int label=0; label < lines.size(); label++ ) {

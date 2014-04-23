@@ -41,9 +41,9 @@ namespace SyntheticData {
 		for( int i=10; i<11; i++ ) {
 			im_short.at(i,  i,  i)   = 10000; 
 			im_short.at(i,  i,  i+1) = 10000; 
-			im_short.at(i,  i+1,i)   = 10000; 
-			im_short.at(i+1,i,  i)   = 10000; 
-			im_short.at(i+1,i+1,i+1) = 10000; 
+			//im_short.at(i,  i+1,i)   = 10000; 
+			//im_short.at(i+1,i,  i)   = 10000; 
+			//im_short.at(i+1,i+1,i+1) = 10000; 
 		}
 	}
 }
