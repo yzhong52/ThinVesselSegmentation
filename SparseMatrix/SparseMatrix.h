@@ -71,8 +71,6 @@ public:
 	const SparseMatrix& operator*=( const double& value ); 
 	const SparseMatrix& operator/=( const double& value ); 
 	friend void solve( const SparseMatrix& A, const double* B, double* X ); 
-	//friend const SparseMatrix multiply( const SparseMatrix& m1, const SparseMatrix& m2 ); 
-	friend const SparseMatrix operator/( const SparseMatrix& m1, const SparseMatrix& m2 ); 
 	friend const SparseMatrix operator*( const SparseMatrix& m1, const SparseMatrix& m2 ); 
 	friend const SparseMatrix operator+( const SparseMatrix& m1, const SparseMatrix& m2 ); 
 	friend const SparseMatrix operator-( const SparseMatrix& m1, const SparseMatrix& m2 ); 

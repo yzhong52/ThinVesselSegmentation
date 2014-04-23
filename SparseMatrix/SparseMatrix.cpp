@@ -141,6 +141,8 @@ bool SparseMatrix::updateData(  int num_rows, int num_cols,
 
 void solve( const SparseMatrix& AAAA, const double* BBBB, double* XXXX )
 {
+	assert( 0 && "The output of the function need to be futher tested. " ); 
+
     SuperMatrix L, U;
     
 	int m = AAAA.row(); 
