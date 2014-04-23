@@ -101,5 +101,10 @@ void SparseMatrixCV::getRowMatrixData( int& N, double const** non_zero_value, in
 		*non_zero_value = rowData->nzvel(); 
 		*column_index = rowData->colinx(); 
 		*row_pointer = rowData->rowptr(); 
+	} else {
+		N = 0;
+		*non_zero_value = 0; 
+		*column_index = 0; 
+		*row_pointer = 0; 
 	}
 }
