@@ -429,7 +429,7 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 	const int numOfParametersTotal = (int) lines.size() * lines[0]->getNumOfParameters(); 
 
 
-	for( int lmiter = 0; lambda < 10e50 && lambda > 10e-100 && lmiter<130; lmiter++ ) { 
+	for( int lmiter = 0; lambda < 10e50 && lambda > 10e-100 && lmiter<230; lmiter++ ) { 
 
 		
 		// Data for Jacobian matrix
@@ -489,110 +489,110 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 		}
 
 
-		// // // // // // // // // // // // // // // // // // 
-		// Construct Jacobian Matrix - for smooth cost
-		// // // // // // // // // // // // // // // // // // 
-		for( int site = 0; site < dataPoints.size(); site++ ) { // For each data point
-			for( int neibourIndex=0; neibourIndex<13; neibourIndex++ ) { // find it's neighbour
-				// the neighbour position
-				int x, y, z; 
-				Neighbour26::getNeigbour( neibourIndex, 
-					dataPoints[site][0], dataPoints[site][1], dataPoints[site][2], 
-					x, y, z ); 
-				if( !indeces.isValid(x,y,z) ) continue; // not a valid position
-				                                        // otherwise
+		//// // // // // // // // // // // // // // // // // // 
+		//// Construct Jacobian Matrix - for smooth cost
+		//// // // // // // // // // // // // // // // // // // 
+		//for( int site = 0; site < dataPoints.size(); site++ ) { // For each data point
+		//	for( int neibourIndex=0; neibourIndex<13; neibourIndex++ ) { // find it's neighbour
+		//		// the neighbour position
+		//		int x, y, z; 
+		//		Neighbour26::getNeigbour( neibourIndex, 
+		//			dataPoints[site][0], dataPoints[site][1], dataPoints[site][2], 
+		//			x, y, z ); 
+		//		if( !indeces.isValid(x,y,z) ) continue; // not a valid position
+		//		                                        // otherwise
 
-				int site2 = indeces.at(x,y,z); 
-				if( site2==-1 ) continue ; // not a neighbour
-				                           // other wise, found a neighbour
+		//		int site2 = indeces.at(x,y,z); 
+		//		if( site2==-1 ) continue ; // not a neighbour
+		//		                           // other wise, found a neighbour
 
-				// Mat JJ = Mat::zeros( 2, numOfParametersTotal, CV_64F ); 
+		//		// Mat JJ = Mat::zeros( 2, numOfParametersTotal, CV_64F ); 
 
-				int l1 = labelings[site];
-				int l2 = labelings[site2];
-				
-				if( l1==l2 ) continue; // TODO
+		//		int l1 = labelings[site];
+		//		int l2 = labelings[site2];
+		//		
+		//		if( l1==l2 ) continue; // TODO
 
-				double smoothcost_i_before = 0, smoothcost_j_before = 0;
-				compute_energy_smoothcost_for_pair( 
-					lines[l1], lines[l2], dataPoints[site], dataPoints[site2], 
-					smoothcost_i_before, smoothcost_j_before ); 
-				
-				// add more rows to energy_matrix according to smooth cost 
-				energy_matrix.push_back( sqrt( smoothcost_i_before ) ); 
-				energy_matrix.push_back( sqrt( smoothcost_j_before ) ); 
-				
-				////// Computing derivative of pair-wise smooth cost analytically
-				SparseMatrixCV J[2];
-				compute_smoothcost_derivative_analitically(  lines[l1], lines[l2], 
-					dataPoints[site], dataPoints[site2], J[0], J[1] ); 
+		//		double smoothcost_i_before = 0, smoothcost_j_before = 0;
+		//		compute_energy_smoothcost_for_pair( 
+		//			lines[l1], lines[l2], dataPoints[site], dataPoints[site2], 
+		//			smoothcost_i_before, smoothcost_j_before ); 
+		//		
+		//		// add more rows to energy_matrix according to smooth cost 
+		//		energy_matrix.push_back( sqrt( smoothcost_i_before ) ); 
+		//		energy_matrix.push_back( sqrt( smoothcost_j_before ) ); 
+		//		
+		//		////// Computing derivative of pair-wise smooth cost analytically
+		//		SparseMatrixCV J[2];
+		//		compute_smoothcost_derivative_analitically(  lines[l1], lines[l2], 
+		//			dataPoints[site], dataPoints[site2], J[0], J[1] ); 
 
 
 
-				// compute derivatives numerically
-				// Setting up J
-				// Computing derivative of pair-wise smooth cost numerically
-				Mat JJ = Mat::zeros( 2, numOfParametersTotal, CV_64F ); 
-				for( int label = 0; label < lines.size(); label++ ) { // for each label
-					if( (l1==label) || (l2==label) ) {
-						for( int i=0; i < numOfParametersPerLine; i++ ) {
-							// if( label!=0 || i>2 ) continue;  // TODO: for debug
-							static const float delta = 0.01f; 
-							// compute derivatives
-							lines[label]->updateParameterWithDelta( i, delta ); 
-							double smoothcost_i_new = 0, smoothcost_j_new = 0;
-							compute_energy_smoothcost_for_pair( 
-								lines[l1], lines[l2], 
-								dataPoints[site], dataPoints[site2], 
-								smoothcost_i_new, smoothcost_j_new ); 
-							lines[label]->updateParameterWithDelta( i, -delta ); 
-							JJ.at<double>( 0, numOfParametersPerLine * label + i ) = 
-								1.0 / delta * ( sqrt(smoothcost_i_new) - sqrt(smoothcost_i_before) ); 
-							JJ.at<double>( 1, numOfParametersPerLine * label + i ) = 
-								1.0 / delta * ( sqrt(smoothcost_j_new) - sqrt(smoothcost_j_before) ); 
-						}	
-					}
-				}
+		//		// compute derivatives numerically
+		//		// Setting up J
+		//		// Computing derivative of pair-wise smooth cost numerically
+		//		Mat JJ = Mat::zeros( 2, numOfParametersTotal, CV_64F ); 
+		//		for( int label = 0; label < lines.size(); label++ ) { // for each label
+		//			if( (l1==label) || (l2==label) ) {
+		//				for( int i=0; i < numOfParametersPerLine; i++ ) {
+		//					// if( label!=0 || i>2 ) continue;  // TODO: for debug
+		//					static const float delta = 0.01f; 
+		//					// compute derivatives
+		//					lines[label]->updateParameterWithDelta( i, delta ); 
+		//					double smoothcost_i_new = 0, smoothcost_j_new = 0;
+		//					compute_energy_smoothcost_for_pair( 
+		//						lines[l1], lines[l2], 
+		//						dataPoints[site], dataPoints[site2], 
+		//						smoothcost_i_new, smoothcost_j_new ); 
+		//					lines[label]->updateParameterWithDelta( i, -delta ); 
+		//					JJ.at<double>( 0, numOfParametersPerLine * label + i ) = 
+		//						1.0 / delta * ( sqrt(smoothcost_i_new) - sqrt(smoothcost_i_before) ); 
+		//					JJ.at<double>( 1, numOfParametersPerLine * label + i ) = 
+		//						1.0 / delta * ( sqrt(smoothcost_j_new) - sqrt(smoothcost_j_before) ); 
+		//				}	
+		//			}
+		//		}
 
-				//int N;
-				//const double* non_zero_value = NULL;
-				//const int * column_index = NULL;
-				//const int* row_pointer = NULL; 
-				//J[0].getRowMatrixData( N, &non_zero_value, &column_index, &row_pointer ); 
-				//
-				//double scaleDiff = JJ.at<double>(0,0)/non_zero_value[0];
-				//J[0]*= scaleDiff;
-				//J[1]*= scaleDiff;
-				//cout << J[0] << endl; 
-				//cout << J[1] << endl;
-				//cout << JJ << endl;
-				//exit(0);
-				//
+		//		//int N;
+		//		//const double* non_zero_value = NULL;
+		//		//const int * column_index = NULL;
+		//		//const int* row_pointer = NULL; 
+		//		//J[0].getRowMatrixData( N, &non_zero_value, &column_index, &row_pointer ); 
+		//		//
+		//		//double scaleDiff = JJ.at<double>(0,0)/non_zero_value[0];
+		//		//J[0]*= scaleDiff;
+		//		//J[1]*= scaleDiff;
+		//		//cout << J[0] << endl; 
+		//		//cout << J[1] << endl;
+		//		//cout << JJ << endl;
+		//		//exit(0);
+		//		//
 
-				
-				for( int ji = 0; ji<1; ji++ ) {
-					int N;
-					const double* non_zero_value = NULL;
-					const int * column_index = NULL;
-					const int* row_pointer = NULL; 
-					J[ji].getRowMatrixData( N, &non_zero_value, &column_index, &row_pointer ); 
-					assert( J[ji].row()==1 && J[ji].col()==2*numOfParametersPerLine && "Number of row is not correct for Jacobian matrix" );
+		//		
+		//		for( int ji = 0; ji<1; ji++ ) {
+		//			int N;
+		//			const double* non_zero_value = NULL;
+		//			const int * column_index = NULL;
+		//			const int* row_pointer = NULL; 
+		//			J[ji].getRowMatrixData( N, &non_zero_value, &column_index, &row_pointer ); 
+		//			assert( J[ji].row()==1 && J[ji].col()==2*numOfParametersPerLine && "Number of row is not correct for Jacobian matrix" );
 
-					int n1; 
-					for( n1=0; n1<N && column_index[n1] < numOfParametersPerLine; n1++ ) {
-						Jacobian_nzv.push_back( non_zero_value[n1] );
-						Jacobian_colindx.push_back( column_index[n1] + site * numOfParametersPerLine ); 
-					}
-					Jacobian_rowptr.push_back( (int) Jacobian_nzv.size() ); 
-					int n2 = n1; 
-					for( ; n2<N; n2++ ) {
-						Jacobian_nzv.push_back( non_zero_value[n2] );
-						Jacobian_colindx.push_back( column_index[n2] + (site2-1) * numOfParametersPerLine ); 
-					}
-					Jacobian_rowptr.push_back( (int) Jacobian_nzv.size() ); 
-				}
-			} // for each pair of pi and pj
-		} // end of contruction of Jacobian Matrix
+		//			int n1; 
+		//			for( n1=0; n1<N && column_index[n1] < numOfParametersPerLine; n1++ ) {
+		//				Jacobian_nzv.push_back( non_zero_value[n1] );
+		//				Jacobian_colindx.push_back( column_index[n1] + site * numOfParametersPerLine ); 
+		//			}
+		//			Jacobian_rowptr.push_back( (int) Jacobian_nzv.size() ); 
+		//			int n2 = n1; 
+		//			for( ; n2<N; n2++ ) {
+		//				Jacobian_nzv.push_back( non_zero_value[n2] );
+		//				Jacobian_colindx.push_back( column_index[n2] + (site2-1) * numOfParametersPerLine ); 
+		//			}
+		//			Jacobian_rowptr.push_back( (int) Jacobian_nzv.size() ); 
+		//		}
+		//	} // for each pair of pi and pj
+		//} // end of contruction of Jacobian Matrix
 
 
 		SparseMatrixCV Jacobian = SparseMatrix(
