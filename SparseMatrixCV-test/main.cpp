@@ -97,16 +97,23 @@ int main( void ) {
 		SparseMatrixCV A(3, 3, non_zero_value_A, col_index_A, row_pointer_A, 9);
 
 		Mat_<double> B = (Mat_<double>(3,1) << 1, 3, 5 ); 
+
 		cv::Mat_<double> X;
+		
 		solve( A, B, X, SparseMatrixCV::SUPERLU ); 
-		cout << X << endl; 
-		cout << A * X << endl; 
+		cout << "X = " << endl << X << endl << endl; 
+		cout << "A * X = " << endl << A * X << endl << endl; 
 		
 		solve( A, B, X, SparseMatrixCV::BICGSQ );
-		cout << X << endl; 
-		cout << A * X << endl; 
+		cout << "X = " << endl << X << endl << endl; 
+		cout << "A * X = " << endl << A * X << endl << endl; 
 	}
 
+	cout << "############################ The End (^_^) ##########################" << endl << endl; 
+	return 0; 
+
+	// The following code is borrowed from SUPER_LU user manu. 
+	// The result of super_lu is incorrect. 
 	{
 		SuperMatrix A, L, U, B;
 		double *a, *rhs;

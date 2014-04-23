@@ -7,6 +7,9 @@
 class SparseMatrixCV : public SparseMatrix 
 {
 public:
+	/////////////////////////////////////////////////////////////////
+	// Constructors & Destructors 
+	// // // // // // // // // // // // // // // // // // // // // // 
 	SparseMatrixCV( void ) : SparseMatrix( 0, 0 ){ }
 	
 	SparseMatrixCV( int nrow, int ncol ) : SparseMatrix( nrow, ncol ){ }
@@ -20,11 +23,14 @@ public:
 
 	SparseMatrixCV( int nrow, int ncol, const int index[][2], const double value[], int N );
 
-	
-	~SparseMatrixCV( void ) { }
-
 	template <class _Tp>
 	SparseMatrixCV( const cv::Mat_<_Tp>& m );
+
+	~SparseMatrixCV( void ) { }
+
+	/////////////////////////////////////////////////////////////////
+	// Matrix manipulation functions
+	// // // // // // // // // // // // // // // // // // // // // // 
 
 	template <class _Tp, int m, int n>
 	SparseMatrixCV( const cv::Matx<_Tp, m, n>& vec );
@@ -34,24 +40,17 @@ public:
 	
 	friend const cv::Mat_<double> operator*( const SparseMatrixCV& m1, const cv::Mat_<double>& m2 );
 	
-	inline const SparseMatrixCV t() const {
-		return SparseMatrix::t(); 
-	}
+	inline const SparseMatrixCV t() const { return SparseMatrix::t(); }
 
-	void getRowMatrixData( int& N, double const** non_zero_value, int const** column_index, int const** row_pointer ) const 
-	{
-		if( const SparseMatrixDataRow* rowData = this->data->getRow() ) {
-			N = rowData->nnz();
-			*non_zero_value = rowData->nzvel(); 
-			*column_index = rowData->colinx(); 
-			*row_pointer = rowData->rowptr(); 
-		}
-	}
+	void getRowMatrixData( int& N, double const** non_zero_value, int const** column_index, 
+		int const** row_pointer ) const;
 
 	static SparseMatrixCV I( int rows );
 
 
-	// friends function for lsover
+	/////////////////////////////////////////////////////////////////
+	// friends function for liner sover
+	// // // // // // // // // // // // // // // // // // // // // // 
 	enum Options{ BICGSQ, SUPERLU };
 	friend void mult( const SparseMatrixCV &A, const double *v, double *w );
 	friend void solve( const SparseMatrixCV& A, const cv::Mat_<double>& B, cv::Mat_<double>& X, 
@@ -104,7 +103,8 @@ SparseMatrixCV::SparseMatrixCV( const cv::Mat_<_Tp>& m ){
 
 template <class _Tp, int m, int n>
 SparseMatrixCV operator*( const cv::Matx<_Tp,m,n>& vec, const SparseMatrixCV& sm ){
-	// TODO: this count be furture optimized
+	// TODO: this count be furture optimized by replacing the SparseMatrixCV( vec ) 
+	// with actual computing the maltiplication within this function
 	return SparseMatrixCV( vec ) * sm; 
 }
 
