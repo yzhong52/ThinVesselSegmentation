@@ -411,7 +411,7 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 	int numOfParametersPerLine = lines[0]->getNumOfParameters(); 
 
 
-	int JacobianRowsCount = (int) dataPoints.size(); 
+	int JacobianRowsCount = 0; // (int) dataPoints.size(); 
 	for( int site = 0; site < dataPoints.size(); site++ ) { // For each data point
 		for( int neibourIndex=0; neibourIndex<13; neibourIndex++ ) { // find it's neighbour
 			// the neighbour position
@@ -429,6 +429,9 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 	const int numOfParametersTotal = (int) lines.size() * lines[0]->getNumOfParameters(); 
 
 
+	
+
+
 	for( int lmiter = 0; lambda < 10e50 && lambda > 10e-100 && lmiter<230; lmiter++ ) { 
 
 		
@@ -441,7 +444,7 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 
 		// temp - for numerically compute Jacobian matrix
 		Mat_<double> JacobianA = Mat_<double>::zeros( JacobianRowsCount, numOfParametersTotal ); 
-
+		int offsetR = 0;
 
 		Mat_<double> energy_matrix = Mat_<double>( 0, 1 );
 
@@ -488,7 +491,7 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 		//	//exit(0);
 		//}
 
-
+		
 		// // // // // // // // // // // // // // // // // // 
 		// Construct Jacobian Matrix - for smooth cost
 		// // // // // // // // // // // // // // // // // // 
@@ -567,34 +570,43 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 								dataPoints[site], dataPoints[site2], 
 								smoothcost_i_new, smoothcost_j_new ); 
 							lines[label]->updateParameterWithDelta( i, -delta ); 
-							JJ.at<double>( 0, numOfParametersPerLine * label + i ) = 
-								1.0 / delta * ( sqrt(smoothcost_i_new) - sqrt(smoothcost_i_before) ); 
-							JJ.at<double>( 1, numOfParametersPerLine * label + i ) = 
-								1.0 / delta * ( sqrt(smoothcost_j_new) - sqrt(smoothcost_j_before) ); 
+							JJ.at<double>( 0, numOfParametersPerLine * label + i ) = 1.0 / delta * ( sqrt(smoothcost_i_new) - sqrt(smoothcost_i_before) ); 
+							JJ.at<double>( 1, numOfParametersPerLine * label + i ) = 1.0 / delta * ( sqrt(smoothcost_j_new) - sqrt(smoothcost_j_before) ); 
 						}	
 					}
 				}
 
-				int N;
-				const double* non_zero_value = NULL;
-				const int * column_index = NULL;
-				const int* row_pointer = NULL; 
-				J[0].getRowMatrixData( N, &non_zero_value, &column_index, &row_pointer ); 
-				
+				// TODO: to be optimized
+				for( int i=0; i<numOfParametersPerLine; i++ ) {
+					JacobianA.at<double>( offsetR,   i + numOfParametersPerLine * l1 ) =  JJ.at<double>( 0, i ); 
+					JacobianA.at<double>( offsetR,   i + numOfParametersPerLine * l2 ) =  JJ.at<double>( 0, i + numOfParametersPerLine ); 
+					JacobianA.at<double>( offsetR+1, i + numOfParametersPerLine * l1 ) =  JJ.at<double>( 1, i ); 
+					JacobianA.at<double>( offsetR+1, i + numOfParametersPerLine * l2 ) =  JJ.at<double>( 1, i + numOfParametersPerLine ); 
+				}
+				offsetR += 2; 
+/*
 				cout << J[0] << endl; 
 				cout << J[1] << endl;
 				cout << SparseMatrixCV( Mat_<double>(JJ) ) << endl;
-				exit(0);
+				exit(0);*/
 				
 
 			} // for each pair of pi and pj
 		} // end of contruction of Jacobian Matrix
 
+		
 
 		SparseMatrixCV Jacobian = SparseMatrix(
 			(int) Jacobian_rowptr.size() - 1, 
 			(int) lines.size() * numOfParametersPerLine, 
 			Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr );
+
+		//cout << JacobianA.rows << "," << JacobianA.cols << endl; 
+
+		//cout << JacobianA << endl; 
+		//cout << Jacobian << endl; 
+
+		Jacobian = SparseMatrixCV( JacobianA ); 
 
 		SparseMatrixCV A = Jacobian.t() * Jacobian + SparseMatrixCV::I( Jacobian.col() ) * lambda;
 
