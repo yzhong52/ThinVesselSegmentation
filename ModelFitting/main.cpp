@@ -35,7 +35,7 @@ typedef GCoptimization GC;
 #include <limits> 
 
 const double LOGLIKELIHOOD = 100.0; 
-const double PAIRWISESMOOTH = 1.0; 
+const double PAIRWISESMOOTH = 10000.0; 
 
 
 
