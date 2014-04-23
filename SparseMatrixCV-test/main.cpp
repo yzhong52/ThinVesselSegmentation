@@ -97,12 +97,13 @@ int main( void ) {
 		SparseMatrixCV A(3, 3, non_zero_value_A, col_index_A, row_pointer_A, 9);
 
 		Mat_<double> B = (Mat_<double>(3,1) << 1, 3, 5 ); 
-		cv::Mat_<double> X = A / B; 
-
-		cout << A << endl; 
-		cout << B << endl; 
+		cv::Mat_<double> X;
+		solve( A, B, X, SparseMatrixCV::SUPERLU ); 
 		cout << X << endl; 
-
+		cout << A * X << endl; 
+		
+		solve( A, B, X, SparseMatrixCV::BICGSQ );
+		cout << X << endl; 
 		cout << A * X << endl; 
 	}
 
@@ -114,7 +115,7 @@ int main( void ) {
 		int *perm_r; /* row permutations from partial pivoting */
 
 		int *perm_c; /* column permutation vector */
-		int nrhs, info, i, m, n, nnz, permc_spec;
+		int nrhs, info, i, m, n, nnz;
 		superlu_options_t options;
 		SuperLUStat_t stat;
 		/* Initialize matrix A. */

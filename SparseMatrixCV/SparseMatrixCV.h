@@ -33,8 +33,7 @@ public:
 	friend SparseMatrixCV operator*( const cv::Matx<_Tp,m,n>& vec, const SparseMatrixCV& sm );
 	
 	friend const cv::Mat_<double> operator*( const SparseMatrixCV& m1, const cv::Mat_<double>& m2 );
-	friend const cv::Mat_<double> operator/( const SparseMatrixCV& m1, const cv::Mat_<double>& m2 );
-
+	
 	inline const SparseMatrixCV t() const {
 		return SparseMatrix::t(); 
 	}
@@ -50,6 +49,13 @@ public:
 	}
 
 	static SparseMatrixCV I( int rows );
+
+
+	// friends function for lsover
+	enum Options{ BICGSQ, SUPERLU };
+	friend void mult( const SparseMatrixCV &A, const double *v, double *w );
+	friend void solve( const SparseMatrixCV& A, const cv::Mat_<double>& B, cv::Mat_<double>& X, 
+		Options o = BICGSQ );
 };
 
 

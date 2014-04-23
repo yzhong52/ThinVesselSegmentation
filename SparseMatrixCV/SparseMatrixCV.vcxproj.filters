@@ -13,15 +13,36 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="lsover">
+      <UniqueIdentifier>{09b797f6-bf0f-4136-9272-987da99fda33}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SparseMatrixCV.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SparseMatrixCV-lsover.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SparseMatrixCV.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lsolver\bicgsq.h">
+      <Filter>lsover</Filter>
+    </ClInclude>
+    <ClInclude Include="lsolver\bicgstab.h">
+      <Filter>lsover</Filter>
+    </ClInclude>
+    <ClInclude Include="lsolver\cblas.h">
+      <Filter>lsover</Filter>
+    </ClInclude>
+    <ClInclude Include="lsolver\cghs.h">
+      <Filter>lsover</Filter>
+    </ClInclude>
+    <ClInclude Include="lsolver\gmres.h">
+      <Filter>lsover</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

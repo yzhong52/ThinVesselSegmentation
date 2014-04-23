@@ -375,9 +375,10 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 
 		SparseMatrixCV A = Jacobian.t() * Jacobian + SparseMatrixCV::I( Jacobian.row() );
 
-		Mat B = Jacobian.t() * energy_matrix; 
+		Mat_<double> B = Jacobian.t() * energy_matrix; 
 
-		Mat X = A / B;
+		Mat_<double> X;
+		solve( A, B, X );
 		
 		X = -X; 
 		
