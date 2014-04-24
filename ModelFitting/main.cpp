@@ -84,7 +84,10 @@ int main(int argc, char* argv[])
 	
 	// Vesselness measure with sigma
 	Image3D<Vesselness_Sig> vn_sig;
+	Image3D<short> im_short;
 	vn_sig.load( "data/roi15.sigma_to8.vn_sig" ); 
+	/*im_short.load( "../data/roi15.data" ); 
+	return 0; */
 	vn_sig.remove_margin_to( Vec3i(50, 50, 50) );
 	
 	// Synthesic Data
@@ -127,12 +130,10 @@ int main(int argc, char* argv[])
 	
 	LevenburgMaquart lm;
 	
-	Timmer::begin();
 	lm.reestimate( dataPoints, labelings, lines, indeces ); 
-	Timmer::end(); 
-
+	
 	cout << "Main Thread is Done. " << endl; 
-	cout << Timmer::summery() << endl; 
+	cout << Timer::summery() << endl; 
 
 	WaitForSingleObject( thread_render, INFINITE);
 

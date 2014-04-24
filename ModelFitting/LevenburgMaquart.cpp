@@ -149,7 +149,7 @@ void  projection_jacobians(
 	const Vec3d& tildeP,           const SparseMatrixCV& nablaTildeP,      // a point, and the Jacobian of the point
 	Vec3d& P, SparseMatrixCV& nablaP )
 {	
-	Timmer::begin("Projection Jacobians");
+	Timer::begin("Projection Jacobians");
 	// Assume that: P = T * X1 + (1-T) * X2
 	Vec3d X1_X2 = X1 - X2;
 	const double A = ( tildeP - X2 ).dot( X1_X2 );
@@ -176,13 +176,13 @@ void  projection_jacobians(
 	const SparseMatrixCV MX2( X2 ); 
 	nablaP = MX1 * nablaT + nablaX1 * T + nablaX2 * (1-T) - MX2 * nablaT;
 
-	Timmer::end("Projection Jacobians");
+	Timer::end("Projection Jacobians");
 	
 }
 
 
 SparseMatrixCV compute_datacost_derivative_analytically( const Line3D* l,  const Vec3d tildeP ) {
-	Timmer::begin("Datacost Derivative");
+	Timer::begin("Datacost Derivative");
 	Vec3d X1, X2; 
 	l->getEndPoints( X1, X2 );
 
@@ -201,7 +201,7 @@ SparseMatrixCV compute_datacost_derivative_analytically( const Line3D* l,  const
 
 	SparseMatrixCV res = ( -1.0 / tildaP_P_lenght * LOGLIKELIHOOD ) * tildeP_P.t() * nablaP ; 
 
-	Timmer::end("Datacost Derivative");
+	Timer::end("Datacost Derivative");
 	return res; 
 }
 
@@ -209,7 +209,7 @@ SparseMatrixCV compute_datacost_derivative_analytically( const Line3D* l,  const
 void compute_smoothcost_derivative_analitically(  Line3D* li,   Line3D* lj, const Vec3d& tildePi, const Vec3d& tildePj,
 	SparseMatrixCV& nabla_smooth_cost_i, SparseMatrixCV& nabla_smooth_cost_j ) 
 {
-	Timmer::begin("Smoothcost Derivative");
+	Timer::begin("Smoothcost Derivative");
 	Vec3d Xi1, Xi2; 
 	li->getEndPoints( Xi1, Xi2 ); 
 
@@ -258,7 +258,7 @@ void compute_smoothcost_derivative_analitically(  Line3D* li,   Line3D* lj, cons
 	nabla_smooth_cost_i = ( nabla_pi_pi_prime * dist_pi_pj - nabla_pi_pj * dist_pi_pi_prime ) * (1.0 / dist_pi_pj2 * PAIRWISESMOOTH); 
 	nabla_smooth_cost_j = ( nabla_pj_pj_prime * dist_pi_pj - nabla_pi_pj * dist_pj_pj_prime ) * (1.0 / dist_pi_pj2 * PAIRWISESMOOTH); 
 
-	Timmer::end("Smoothcost Derivative");
+	Timer::end("Smoothcost Derivative");
 }
 
 void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
@@ -384,7 +384,6 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 
 		Mat_<double> X;
 		solve( A, B, X );
-
 		X = -X; 
 		
 		//for( int i=0; i<X.rows; i++ ) {
@@ -419,15 +418,16 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 					lines[label]->updateParameterWithDelta( i, -delta ); 
 				}
 			}
-			lambda *= 2.13; 
+			lambda *= 1.72; 
 			
 			// If energy_increase_count in three consecutive iterations
 			// then the nenergy is probabaly converged
-			if( ++energy_increase_count>=1 ) break; 
+			if( ++energy_increase_count>=2 ) break; 
 		}
 
 		// TODO: this might be time consuming
 		// update the end points of the line
+		Timer::begin( "Update End Points" ); 
 		vector<double> minT( (int) labelings.size(), (std::numeric_limits<double>::max)() );
 		vector<double> maxT( (int) labelings.size(), (std::numeric_limits<double>::min)() );
 		for( int site = 0; site < dataPoints.size(); site++ ) { // For each data point
@@ -454,5 +454,7 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 				lines[label]->setPositions( pos + dir * minT[label], pos + dir * maxT[label] ); 
 			}
 		}
+		Timer::end( "Update End Points" ); 
 	}
+
 }
