@@ -448,48 +448,48 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 
 		Mat_<double> energy_matrix = Mat_<double>( 0, 1 );
 
-		//// // // // // // // // // // // // // // // // // // 
-		//// Construct Jacobian Matrix - for data cost
-		//// // // // // // // // // // // // // // // // // // 
+		// // // // // // // // // // // // // // // // // // 
+		// Construct Jacobian Matrix - for data cost
+		// // // // // // // // // // // // // // // // // // 
 
-		//energy_matrix = compute_energy_matrix_datacost( dataPoints, labelings, lines ); 
-		//
-		//for( int site=0; site < dataPoints.size(); site++ ) {
-		//	int label = labelings[site]; 
+		energy_matrix = compute_energy_matrix_datacost( dataPoints, labelings, lines ); 
+		
+		for( int site=0; site < dataPoints.size(); site++ ) {
+			int label = labelings[site]; 
 
-		//	// Computing Derivative Analytically
-		//	SparseMatrixCV matrix = compute_datacost_derivative_analytically( lines[label], dataPoints[site] ); 
+			// Computing Derivative Analytically
+			SparseMatrixCV matrix = compute_datacost_derivative_analytically( lines[label], dataPoints[site] ); 
 
-		//	int N;
-		//	const double* non_zero_value = NULL;
-		//	const int * column_index = NULL;
-		//	const int* row_pointer = NULL; 
-		//	matrix.getRowMatrixData( N, &non_zero_value, &column_index, &row_pointer ); 
-		//	assert( matrix.row()==1 && matrix.col()==numOfParametersPerLine && "Number of row is not correct for Jacobian matrix" );
-		//	for( int i=0; i<N; i++ ) {
-		//		Jacobian_nzv.push_back( non_zero_value[i] );
-		//		Jacobian_colindx.push_back( column_index[i] + site * N ); 
-		//	}
-		//	Jacobian_rowptr.push_back( (int) Jacobian_nzv.size() ); 
-		//	
-		//	// Computing Derivative Nemerically
-		//	static const float delta = 0.03f; 
-		//	// compute the derivatives and construct Jacobian matrix
-		//	double datacost_before = compute_energy_datacost_for_one( lines[label], dataPoints[site] ); 
-		//	for( int i=0; i < numOfParametersPerLine; i++ ) {
-		//		lines[label]->updateParameterWithDelta( i, delta ); 
-		//		double datacost_new = compute_energy_datacost_for_one( lines[label], dataPoints[site] ); 
-		//		JacobianA.at<double>( site, 6*label+i ) = 1.0 / delta * ( sqrt(datacost_new) - sqrt(datacost_before) ); 
-		//		lines[label]->updateParameterWithDelta( i, -delta ); 
-		//	}
-		//	
-		//	//cout << JacobianA.t() << endl; 
-		//	//cout << SparseMatrix(
-		//	//	(int) Jacobian_rowptr.size() - 1, 
-		//	//	(int) lines.size() * numOfParametersPerLine, 
-		//	//	Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr ) << endl;
-		//	//exit(0);
-		//}
+			int N;
+			const double* non_zero_value = NULL;
+			const int * column_index = NULL;
+			const int* row_pointer = NULL; 
+			matrix.getRowMatrixData( N, &non_zero_value, &column_index, &row_pointer ); 
+			assert( matrix.row()==1 && matrix.col()==numOfParametersPerLine && "Number of row is not correct for Jacobian matrix" );
+			for( int i=0; i<N; i++ ) {
+				Jacobian_nzv.push_back( non_zero_value[i] );
+				Jacobian_colindx.push_back( column_index[i] + site * N ); 
+			}
+			Jacobian_rowptr.push_back( (int) Jacobian_nzv.size() ); 
+			
+			// Computing Derivative Nemerically
+			static const float delta = 0.03f; 
+			// compute the derivatives and construct Jacobian matrix
+			double datacost_before = compute_energy_datacost_for_one( lines[label], dataPoints[site] ); 
+			for( int i=0; i < numOfParametersPerLine; i++ ) {
+				lines[label]->updateParameterWithDelta( i, delta ); 
+				double datacost_new = compute_energy_datacost_for_one( lines[label], dataPoints[site] ); 
+				JacobianA.at<double>( site, 6*label+i ) = 1.0 / delta * ( sqrt(datacost_new) - sqrt(datacost_before) ); 
+				lines[label]->updateParameterWithDelta( i, -delta ); 
+			}
+			
+			//cout << JacobianA.t() << endl; 
+			//cout << SparseMatrix(
+			//	(int) Jacobian_rowptr.size() - 1, 
+			//	(int) lines.size() * numOfParametersPerLine, 
+			//	Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr ) << endl;
+			//exit(0);
+		}
 
 		
 		// // // // // // // // // // // // // // // // // // 
@@ -529,7 +529,8 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 				SparseMatrixCV J[2];
 				compute_smoothcost_derivative_analitically(  lines[l1], lines[l2], 
 					dataPoints[site], dataPoints[site2], J[0], J[1] ); 
-				for( int ji = 0; ji<1; ji++ ) {
+
+				for( int ji = 0; ji<2; ji++ ) {
 					int N;
 					const double* non_zero_value = NULL;
 					const int * column_index = NULL;
@@ -542,7 +543,6 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 						Jacobian_nzv.push_back( non_zero_value[n1] );
 						Jacobian_colindx.push_back( column_index[n1] + site * numOfParametersPerLine ); 
 					}
-					Jacobian_rowptr.push_back( (int) Jacobian_nzv.size() ); 
 					int n2 = n1; 
 					for( ; n2<N; n2++ ) {
 						Jacobian_nzv.push_back( non_zero_value[n2] );
@@ -600,25 +600,14 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 			(int) Jacobian_rowptr.size() - 1, 
 			(int) lines.size() * numOfParametersPerLine, 
 			Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr );
-
 		
-		cout << Jacobian << endl; 
-		for( int i=0; i<12; i++ ) {
-			cout << (&Jacobian_nzv[0])[i] << " " << " \t "; 
-			cout << Jacobian_nzv[i] << endl; 
-		}
-		//cout << JacobianA << endl; 
-		//cout << JacobianA.rows << "," << JacobianA.cols << endl; 
-		exit( 0 ); 
-
-		Jacobian = SparseMatrixCV( JacobianA ); 
-
 		SparseMatrixCV A = Jacobian.t() * Jacobian + SparseMatrixCV::I( Jacobian.col() ) * lambda;
 
 		Mat_<double> B = Jacobian.t() * energy_matrix; 
 
 		Mat_<double> X;
 		solve( A, B, X );
+
 		// cout << X << endl; 
 
 		//Mat_<double> DenseA; 
