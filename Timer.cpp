@@ -79,7 +79,7 @@ std::string Timer::summery( void ) {
 	static const int func_name_size    = max((int)func_name.length(),    22);
 	
 	static const string total_time   = "Total"; 
-	static const int total_time_size   = max((int)total_time.length(),   18);
+	static const int total_time_size   = max((int)total_time.length(),   17);
 	
 	static const string called_times = "Be Called"; 
 	const int called_times_size = max((int)called_times.length(), 18);

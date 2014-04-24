@@ -130,8 +130,10 @@ int main(int argc, char* argv[])
 	
 	LevenburgMaquart lm;
 	
+	Timer::begin( "Levenburg Maquart" ); 
 	lm.reestimate( dataPoints, labelings, lines, indeces ); 
-	
+	Timer::end( "Levenburg Maquart" ); 
+
 	cout << "Main Thread is Done. " << endl; 
 	cout << Timer::summery() << endl; 
 
