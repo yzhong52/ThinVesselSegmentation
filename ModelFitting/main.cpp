@@ -47,16 +47,19 @@ HANDLE thread_render = NULL;
 	// thread function for rendering
 	void visualization_func( void* data ) {
 		GLViwerModel& ver = *(GLViwerModel*) data; 
-		ver.go();
+		ver.go( 1280, 720, 2 );
 	}
 	template<class T>
-	void initViwer( const Image3D<T>& im_short, const vector<cv::Vec3i>& dataPoints, 
+	void initViwer( const Data3D<T>& im, const vector<cv::Vec3i>& dataPoints, 
 		const vector<Line3D*>& lines, const vector<int>& labelings )
 	{
-		GLViewer::GLLineModel *model = new GLViewer::GLLineModel( im_short.get_size() );
+		GLViewer::GLLineModel *model = new GLViewer::GLLineModel( im.get_size() );
 		model->updatePoints( dataPoints ); 
 		model->updateModel( lines, labelings ); 
 		ver.objs.push_back( model );
+
+		ver.addObject( im ); 
+
 		thread_render = (HANDLE) _beginthread( visualization_func, 0, (void*)&ver ); 
 		// Give myself sometime to decide whether we need to render a video
 		Sleep( 1000 ); 
@@ -74,7 +77,6 @@ HANDLE thread_render = NULL;
 #include "SparseMatrix\SparseMatrix.h"
 int main(int argc, char* argv[])
 {
-
 	srand( 3 ); 
 
 	// TODO: not compatible with MinGW? 
@@ -83,7 +85,7 @@ int main(int argc, char* argv[])
 	// Vesselness measure with sigma
 	Image3D<Vesselness_Sig> vn_sig;
 	vn_sig.load( "data/roi15.sigma_to8.vn_sig" ); 
-	vn_sig.remove_margin_to( Vec3i(10,10,10) );
+	vn_sig.remove_margin_to( Vec3i(70, 70, 70) );
 	
 	// Synthesic Data
 	//SyntheticData::Doughout( im_short ); 
@@ -92,10 +94,10 @@ int main(int argc, char* argv[])
 	// threshold the data and put the data points into a vector
 	Data3D<int> indeces;
 	vector<cv::Vec3i> dataPoints;
-	IP::threshold( vn_sig, indeces, dataPoints, Vesselness_Sig(0.9f) );
+	Data3D<float> vn = vn_sig; 
+	IP::normalize( vn, 1.0f ); 
 	
-	cout << "Number of data points: "  << dataPoints.size() << endl; 
-	return 0; 
+	IP::threshold( vn, indeces, dataPoints, 0.20f );
 	
 	//////////////////////////////////////////////////
 	// Line Fitting

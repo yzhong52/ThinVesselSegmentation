@@ -23,11 +23,15 @@ SparseMatrix::SparseMatrix( int num_rows, int num_cols,
 		const std::vector<int> row_pointer )
 {
 	assert( non_zero_value.size()==col_index.size() && row_pointer.size()==num_rows+1 && "Data size is invalid. " );
-	data = new SparseMatrixData( num_rows, num_cols, 
-		(const double*) &non_zero_value[0], 
-		(const int*)    &col_index[0], 
-		(const int*)    &row_pointer[0], 
-		(int) non_zero_value.size() );
+	if( non_zero_value.size()==0 ){
+		data = new SparseMatrixData( num_rows, num_cols ); 
+	} else { 
+		data = new SparseMatrixData( num_rows, num_cols, 
+			(const double*) &non_zero_value[0], 
+			(const int*)    &col_index[0], 
+			(const int*)    &row_pointer[0], 
+			(int) non_zero_value.size() );
+	}
 	rc = new RC(); 
 }
 
@@ -332,11 +336,7 @@ const SparseMatrix operator-( const SparseMatrix& m1, const SparseMatrix& m2 ){
 	}
 
 	// use (const T*) to force the constructor to make a deep copy of the data
-	SparseMatrix res( m1.row(), m2.col(),
-		(const double*) (&res_nzval[0]),
-		(const int*)    (&res_colidx[0]),
-		(const int*)    (&res_rowptr[0]), 
-		(int) res_nzval.size() );
+	SparseMatrix res( m1.row(), m2.col(), res_nzval, res_colidx, res_rowptr );
 
 	return res; 
 }

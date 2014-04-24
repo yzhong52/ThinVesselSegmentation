@@ -3,46 +3,42 @@
 #include "stdafx.h"
 
 
-class Vesselness_Data;
-class Vesselness_Sig_Data;
-class Vesselness_Nor_Data;
-class Vesselness_All_Data;
-
-class Vesselness_Base_Func;
+struct Vesselness_Data;
+struct Vesselness_Sig_Data;
+struct Vesselness_Nor_Data;
+struct Vesselness_All_Data;
 
 class Vesselness;
 class Vesselness_Sig;
 class Vesselness_Nor;
 class Vesselness_All;
 
-class Vesselness_Data {
-public:
+struct Vesselness_Data {
 	float rsp; // vesselness response
 	Vec3f dir; // vessel dirction	
+	Vesselness_Data( float s = 0.0f ) : rsp( s ) { }
 
-	bool operator>( const Vesselness_Data& right ) const {
-		return ( (this->rsp) > right.rsp );
-	}
-	bool operator<( const Vesselness_Data& right ) const {
-		return ( (this->rsp) < right.rsp );
-	}
+	bool operator>( const Vesselness_Data& right ) const { return ( (this->rsp) > right.rsp ); }
+	bool operator<( const Vesselness_Data& right ) const { return ( (this->rsp) < right.rsp ); }
 }; 
 
-class Vesselness_Sig_Data : public Vesselness_Data {
-public:
+struct Vesselness_Sig_Data : public Vesselness_Data {
+	Vesselness_Sig_Data( float s = 0.0f ) : Vesselness_Data ( s ) { } 
 	float sigma;	// relative size of the vessel
 };
 
-class Vesselness_Nor_Data : public Vesselness_Data {
-public:
+struct Vesselness_Nor_Data : public Vesselness_Data {
 	Vec3f normals[2];
 };
 
-class Vesselness_All_Data : public Vesselness_Data {
-public:
+struct Vesselness_All_Data : public Vesselness_Data {
 	float sigma;	// relative size of the vessel
 	Vec3f normals[2];
 };
+
+
+
+
 
 class Vesselness : public Vesselness_Data {
 public:
@@ -115,9 +111,14 @@ public:
 	static const int _size = sizeof(Vesselness_Sig_Data)/sizeof(float);
 
 	Vesselness_Sig() { }
-	Vesselness_Sig( float s ) {
-		sigma = s ;
-	} 
+	Vesselness_Sig( float s ) : Vesselness_Sig_Data( s ) { } 
+	operator Vesselness( ) {
+		Vesselness vn;
+		vn.rsp = this->rsp;
+		vn.dir = this->dir;
+		return vn; 
+	}
+	operator float() { return this->rsp; }
 
 	Vesselness_Sig( const Vesselness_All& src ) {
 		this->rsp   = src.rsp;
