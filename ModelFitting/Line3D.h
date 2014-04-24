@@ -1,6 +1,6 @@
 #pragma once
 #include "stdafx.h" 
-
+#include <iostream>
 
 // Line3D is a general abstract class
 // For a line in 3D, there are many different representations: 
@@ -39,5 +39,8 @@ public:
 	virtual void getEndPoints( Vec3d& p1, Vec3d& p2 ) const = 0; 
 
 	virtual void setPositions( const Vec3d& pos1, const Vec3d& pos2 ) = 0; 
+
+	virtual void serialize( std::ostream& out ) const = 0;
+	virtual void deserialize( std::istream& in ) = 0;
 };
 

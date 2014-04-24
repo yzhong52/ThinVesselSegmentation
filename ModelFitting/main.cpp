@@ -75,6 +75,8 @@ HANDLE thread_render = NULL;
 
 
 #include "SparseMatrix\SparseMatrix.h"
+#include "ModelSet.h"
+
 int main(int argc, char* argv[])
 {
 	srand( 3 ); 
@@ -107,17 +109,24 @@ int main(int argc, char* argv[])
 	//////////////////////////////////////////////////
 	// Initial Samplings
 	const int num_init_labels = (int) dataPoints.size(); 
-	vector<Line3D*> lines; 
+	ModelSet<Line3D> model; 
+	vector<Line3D*>& lines = model.models; 
 	for( int i=0; i<num_init_labels; i++ ) {
 		const Vec3i& dir = vn_sig.at( dataPoints[i] ).dir;
 		const double& sigma = vn_sig.at( dataPoints[i] ).sigma;
 
-		Line3DTwoPoint *line  = new ::Line3DTwoPoint();
+		Line3DTwoPoint *line  = new Line3DTwoPoint();
 		line->setPositions( dataPoints[i] - dir, dataPoints[i] + dir ); 
 		line->setSigma( sigma ); 
 		lines.push_back( line ); 
 	}
-	
+	model.deserialize<Line3DTwoPoint>( "output/Line3DTwoPoint.model" ); 
+	if( lines.size()!=dataPoints.size() ) {
+		cout << "Number of models is not corret. " << endl; 
+		cout << "Probably because of errors while deserializing the data. " << endl;
+		return 0; 
+	}
+
 	vector<int> labelings = vector<int>( dataPoints.size(), 0 ); 
 	// randomly assign label for each point separatedly 
 	for( int i=0; i<num_init_labels; i++ ) labelings[i] = i; 
@@ -137,12 +146,8 @@ int main(int argc, char* argv[])
 	cout << "Main Thread is Done. " << endl; 
 	cout << Timer::summery() << endl; 
 
+	model.serialize( "output/Line3DTwoPoint.model" ); 
+
 	WaitForSingleObject( thread_render, INFINITE);
-
-	for( int i=0; i<num_init_labels; i++ ){
-		delete lines[i]; 
-		lines[i] = NULL; 
-	}
-
 	return 0; 
 }

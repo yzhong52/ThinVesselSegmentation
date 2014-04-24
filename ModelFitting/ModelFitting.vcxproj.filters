@@ -96,6 +96,9 @@
     <ClInclude Include="GraphCut.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ModelSet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

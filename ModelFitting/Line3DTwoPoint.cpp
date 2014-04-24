@@ -52,3 +52,14 @@ void Line3DTwoPoint::getEndPoints( Vec3d& p1, Vec3d& p2 ) const{
 	p1 = Vec3d( &data[0] );
 	p2 = Vec3d( &data[3] ); 
 }
+
+void Line3DTwoPoint::serialize( std::ostream& out ) const{ 
+	out << this->sigma << " ";
+	for( int i=0; i<6; i++ ) out << this->data[i] << " ";
+	out << endl; 
+}
+
+void Line3DTwoPoint::deserialize( std::istream& in ) {
+	in >> this->sigma;
+	for( int i=0; i<6; i++ ) in >> data[i];
+}

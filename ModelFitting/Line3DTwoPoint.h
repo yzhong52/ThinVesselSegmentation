@@ -25,5 +25,8 @@ public:
 	virtual Vec3d getDirection( void ) const;
 
 	virtual void getEndPoints( Vec3d& p1, Vec3d& p2 ) const; 
+
+	virtual void serialize( std::ostream& out ) const;
+	virtual void deserialize( std::istream& in );
 };
 
