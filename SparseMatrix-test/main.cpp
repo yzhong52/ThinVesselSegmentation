@@ -23,6 +23,42 @@ int main( void ) {
 	cout << "############################ Constructor A  ############################" << endl << endl; 
 	cout << A << endl; 
 
+	cout << "############################ Transpose A.t() ############################" << endl << endl; 
+	{
+	
+		{
+			double non_zero_value_A[6] = { 1,  1,  1,  1,  1,  1 }; 
+			int    col_index_A[6] =      { 0,  1,  2,  1,  2,  2 }; 
+			int    row_pointer_A[6] =    { 0,          3,      5, 6, 6,6};
+			SparseMatrix A( 5, 6, non_zero_value_A, col_index_A, row_pointer_A, 6 );
+			cout << A << endl; 
+			cout << A.t() << endl; 
+		}
+		{
+			const int N = 1; 
+			const int rows = 8;
+			const int cols = 4; 
+			double non_zero_value_A[1] = { 1 }; 
+			int    col_index_A[1] =      { 3 }; 
+			int    row_pointer_A[rows+1] =    { 0,0,1,1,1,1,1,1,1};
+			SparseMatrix A( rows, cols, non_zero_value_A, col_index_A, row_pointer_A, 1 );
+			cout << A << endl; 
+			cout << A.t() << endl; 
+		}
+		{
+			const int N = 2; 
+			const int rows = 1;
+			const int cols = 12; 
+			double non_zero_value_A[N] = { 1, 1 }; 
+			int    col_index_A[N] =      { 0, 1 }; 
+			int    row_pointer_A[rows+1] =    { 0, 2 };
+			SparseMatrix A( rows, cols, non_zero_value_A, col_index_A, row_pointer_A, N );
+			cout << A << endl; 
+			cout << A.t() << endl; 
+		}
+		return 0; 
+	}
+
 	cout << "############################ A * 2 and A*=2 ############################" << endl << endl; 
 	cout << A * 2 << endl; 
 	cout << (A *= 2) << endl; 

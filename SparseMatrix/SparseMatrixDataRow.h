@@ -19,6 +19,7 @@ public:
 	inline double* const nzvel() const { return (double*) getData()->nzval; }
 	inline int* const    colinx() const { return getData()->colind; }
 	inline int* const    rowptr() const { return getData()->rowptr; }
+	inline const SuperMatrix* getSuperMatrix() const { return supermatrix; }
 
 private:
 

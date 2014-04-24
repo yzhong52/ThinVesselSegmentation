@@ -76,9 +76,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="SparseMatrixCV-lsover.cpp" />
     <ClCompile Include="SparseMatrixCV.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="lsolver\bicgsq.h" />
+    <ClInclude Include="lsolver\bicgstab.h" />
+    <ClInclude Include="lsolver\cblas.h" />
+    <ClInclude Include="lsolver\cghs.h" />
+    <ClInclude Include="lsolver\gmres.h" />
     <ClInclude Include="SparseMatrixCV.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

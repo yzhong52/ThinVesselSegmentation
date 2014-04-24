@@ -3,7 +3,7 @@
 // This class is build with SuperLU 4.3, referece can be found in the following lin: 
 // http://crd-legacy.lbl.gov/~xiaoye/SuperLU/
 
-#include <iostream>
+
 #include "SparseMatrixData.h"
 #include "RC.h"
 #include <vector>
@@ -19,6 +19,8 @@ protected:
 	SparseMatrixData *data; 
 	// for reference counting 
 	RC *rc; 
+
+	inline bool isZero(void) const{ return data->isZero(); };
 public:
 	// initialized a zero matrix
 	SparseMatrix( int num_rows, int num_cols ); 
@@ -69,8 +71,6 @@ public:
 	const SparseMatrix& operator*=( const double& value ); 
 	const SparseMatrix& operator/=( const double& value ); 
 	friend void solve( const SparseMatrix& A, const double* B, double* X ); 
-	//friend const SparseMatrix multiply( const SparseMatrix& m1, const SparseMatrix& m2 ); 
-	friend const SparseMatrix operator/( const SparseMatrix& m1, const SparseMatrix& m2 ); 
 	friend const SparseMatrix operator*( const SparseMatrix& m1, const SparseMatrix& m2 ); 
 	friend const SparseMatrix operator+( const SparseMatrix& m1, const SparseMatrix& m2 ); 
 	friend const SparseMatrix operator-( const SparseMatrix& m1, const SparseMatrix& m2 ); 

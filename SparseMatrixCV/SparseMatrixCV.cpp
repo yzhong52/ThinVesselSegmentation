@@ -76,3 +76,56 @@ const cv::Mat_<double> operator*( const SparseMatrixCV& m1, const cv::Mat_<doubl
 	}
 	return res; 
 }
+
+
+
+SparseMatrixCV SparseMatrixCV::I( int rows )
+{
+	double* nzv = new double[rows];
+	int* colind = new int[rows]; 
+	int* rowptr = new int[rows+1];
+	for( int i=0; i<rows; i++ ) {
+		nzv[i] = 1.0;
+		colind[i] = i; 
+		rowptr[i] = i; 
+	}
+	rowptr[rows] = rows; 
+
+	return SparseMatrixCV( rows, rows, nzv, colind, rowptr, rows ); 
+}
+
+void SparseMatrixCV::getRowMatrixData( int& N, double const** non_zero_value, int const** column_index, int const** row_pointer ) const 
+{
+	if( const SparseMatrixDataRow* rowData = this->data->getRow() ) {
+		N = rowData->nnz();
+		*non_zero_value = rowData->nzvel(); 
+		*column_index = rowData->colinx(); 
+		*row_pointer = rowData->rowptr(); 
+	} else {
+		N = 0;
+		*non_zero_value = 0; 
+		*column_index = 0; 
+		*row_pointer = 0; 
+	}
+}
+
+void SparseMatrixCV::convertTo( cv::Mat_<double>& m ){
+	m = cv::Mat_<double>::zeros( this->row(), this->col() ); 
+
+	if( this->data->getRow()==NULL ){
+		return; 
+	} 
+
+	const int& N              = this->data->getRow()->nnz(); 
+	const double* const nzval = this->data->getRow()->nzvel(); 
+	const int* const colidx   = this->data->getRow()->colinx(); 
+	const int* const rowptr   = this->data->getRow()->rowptr(); 
+	
+	int vi = 0; 
+	for( int r=0; r < this->row(); r++ ) {
+		for( int c=0; c < this->col(); c++ ) {
+			if( colidx[vi]==c && vi<rowptr[r+1] ) 
+				m(r,c) = nzval[vi++]; 
+		}
+	}
+}

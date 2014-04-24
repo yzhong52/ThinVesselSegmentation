@@ -38,7 +38,7 @@ namespace SyntheticData {
 
 	void Stick( Data3D<short>& im_short ) {
 		im_short.reset( Vec3i(20,20,20) ); 
-		for( int i=3; i<17; i++ ) {
+		for( int i=2; i<18; i++ ) {
 			im_short.at(i,  i,  i)   = 10000; 
 			im_short.at(i,  i,  i+1) = 10000; 
 			im_short.at(i,  i+1,i)   = 10000; 

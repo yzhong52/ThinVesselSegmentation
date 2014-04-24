@@ -34,8 +34,8 @@ typedef GCoptimization GC;
 #include <iostream>
 #include <limits> 
 
-const double LOGLIKELIHOOD = 1.15; 
-const double PAIRWISESMOOTH = 3.0; 
+const double LOGLIKELIHOOD = 1.0; 
+const double PAIRWISESMOOTH = 1.0; 
 
 
 
@@ -74,7 +74,6 @@ HANDLE thread_render = NULL;
 int main(int argc, char* argv[])
 {
 
-
 	srand( 3 ); 
 
 	// TODO: not compatible with MinGW? 
@@ -88,6 +87,8 @@ int main(int argc, char* argv[])
 	// Synthesic Data
 	//SyntheticData::Doughout( im_short ); 
 	SyntheticData::Stick( im_short ); 
+
+
 
 	// threshold the data and put the data points into a vector
 	Data3D<int> indeces;
@@ -110,7 +111,7 @@ int main(int argc, char* argv[])
 				// rand() % 100 + 10, 
 				rand() % 100 + 10, 
 				rand() % 100 + 10 ); 
-		line->setPositions( dataPoints[i] - randomDir, dataPoints[i] + randomDir ); 
+		line->setPositions( dataPoints[i] - randomDir +Vec3i(3,2,1), dataPoints[i] + randomDir +Vec3i(1,2,3)); 
 		lines.push_back( line ); 
 	}
 	
