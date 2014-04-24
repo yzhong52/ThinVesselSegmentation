@@ -601,10 +601,15 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 			(int) lines.size() * numOfParametersPerLine, 
 			Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr );
 
-		//cout << JacobianA.rows << "," << JacobianA.cols << endl; 
-
+		
+		cout << Jacobian << endl; 
+		for( int i=0; i<12; i++ ) {
+			cout << (&Jacobian_nzv[0])[i] << " " << " \t "; 
+			cout << Jacobian_nzv[i] << endl; 
+		}
 		//cout << JacobianA << endl; 
-		//cout << Jacobian << endl; 
+		//cout << JacobianA.rows << "," << JacobianA.cols << endl; 
+		exit( 0 ); 
 
 		Jacobian = SparseMatrixCV( JacobianA ); 
 
