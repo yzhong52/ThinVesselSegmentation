@@ -23,7 +23,7 @@ using namespace std;
 
 inline double compute_energy_datacost_for_one( 
 	const Line3D* line_i,
-	const Vec3f& pi )
+	const Vec3d& pi )
 {
 	return LOGLIKELIHOOD * LOGLIKELIHOOD * line_i->loglikelihood( pi );
 }
@@ -45,23 +45,23 @@ double compute_energy_datacost(
 void compute_energy_smoothcost_for_pair( 
 	const Line3D* line_i,
 	const Line3D* line_j,
-	const Vec3f& pi_tilde, 
-	const Vec3f& pj_tilde,
+	const Vec3d& pi_tilde, 
+	const Vec3d& pj_tilde,
 	double& smooth_cost_i, 
 	double& smooth_cost_j )
 {
 	// single projection
-	Vec3f pi = line_i->projection( pi_tilde ); 
-	Vec3f pj = line_j->projection( pj_tilde ); 
+	Vec3d pi = line_i->projection( pi_tilde ); 
+	Vec3d pj = line_j->projection( pj_tilde ); 
 
 	// double projection
-	Vec3f pi_prime = line_j->projection( pi ); 
-	Vec3f pj_prime = line_i->projection( pj ); 
+	Vec3d pi_prime = line_j->projection( pi ); 
+	Vec3d pj_prime = line_i->projection( pj ); 
 
 	// distance vector
-	Vec3f pi_pj       = pi - pj; 
-	Vec3f pi_pi_prime = pi - pi_prime; 
-	Vec3f pj_pj_prime = pj - pj_prime;
+	Vec3d pi_pj       = pi - pj; 
+	Vec3d pi_pi_prime = pi - pi_prime; 
+	Vec3d pj_pj_prime = pj - pj_prime;
 
 	// distance
 	double dist_pi_pj  = pi_pj.dot(pi_pj); 
@@ -144,14 +144,14 @@ Mat compute_energy_matrix_datacost(
 
 
 void  projection_jacobians( 
-	const Vec3f X1, const Vec3f X2,                                    // two end points of a line
+	const Vec3d& X1, const Vec3d& X2,                                    // two end points of a line
 	const SparseMatrixCV& nablaX1, const SparseMatrixCV& nablaX2,          // Jacobians of the end points of the line
-	const Vec3f& tildeP,           const SparseMatrixCV& nablaTildeP,      // a point, and the Jacobian of the point
-	Vec3f& P, SparseMatrixCV& nablaP )
+	const Vec3d& tildeP,           const SparseMatrixCV& nablaTildeP,      // a point, and the Jacobian of the point
+	Vec3d& P, SparseMatrixCV& nablaP )
 {	
 	Timmer::begin("Projection Jacobians");
 	// Assume that: P = T * X1 + (1-T) * X2
-	Vec3f X1_X2 = X1 - X2;
+	Vec3d X1_X2 = X1 - X2;
 	const double A = ( tildeP - X2 ).dot( X1_X2 );
 	const double B = ( X1_X2 ).dot( X1_X2 );
 	const double T = A / B;
@@ -181,9 +181,9 @@ void  projection_jacobians(
 }
 
 
-SparseMatrixCV compute_datacost_derivative_analytically( const Line3D* l,  const Vec3f tildeP ) {
+SparseMatrixCV compute_datacost_derivative_analytically( const Line3D* l,  const Vec3d tildeP ) {
 	Timmer::begin("Datacost Derivative");
-	Vec3f X1, X2; 
+	Vec3d X1, X2; 
 	l->getEndPoints( X1, X2 );
 
 	static const int indecesM1[][2] = { {0, 0}, {1, 1}, {2, 2} }; 
@@ -192,7 +192,7 @@ SparseMatrixCV compute_datacost_derivative_analytically( const Line3D* l,  const
 	static const SparseMatrixCV nablaX1( 3, 6, indecesM1, values, 3 );
 	static const SparseMatrixCV nablaX2( 3, 6, indecesM2, values, 3 );
 	
-	Vec3f P; 
+	Vec3d P; 
 	SparseMatrixCV nablaP; 
 	projection_jacobians( X1, X2, nablaX1, nablaX2, tildeP, SparseMatrixCV(3, 6), P, nablaP );
 	
@@ -206,14 +206,14 @@ SparseMatrixCV compute_datacost_derivative_analytically( const Line3D* l,  const
 }
 
 
-void compute_smoothcost_derivative_analitically(  Line3D* li,   Line3D* lj, const Vec3f& tildePi, const Vec3f& tildePj,
+void compute_smoothcost_derivative_analitically(  Line3D* li,   Line3D* lj, const Vec3d& tildePi, const Vec3d& tildePj,
 	SparseMatrixCV& nabla_smooth_cost_i, SparseMatrixCV& nabla_smooth_cost_j ) 
 {
 	Timmer::begin("Smoothcost Derivative");
-	Vec3f Xi1, Xi2; 
+	Vec3d Xi1, Xi2; 
 	li->getEndPoints( Xi1, Xi2 ); 
 
-	Vec3f Xj1, Xj2; 
+	Vec3d Xj1, Xj2; 
 	lj->getEndPoints( Xj1, Xj2 ); 
 
 	// Compute the derivatives of the end points over 
@@ -228,7 +228,7 @@ void compute_smoothcost_derivative_analitically(  Line3D* li,   Line3D* lj, cons
 	static const SparseMatrixCV nablaXj1(3, 12, indecesXj1, values, 3 );
 	static const SparseMatrixCV nablaXj2(3, 12, indecesXj2, values, 3 );
 	
-	Vec3f Pi, Pj, Pi_prime, Pj_prime;
+	Vec3d Pi, Pj, Pi_prime, Pj_prime;
 	SparseMatrixCV nablaPi, nablaPj, nablaPi_prime, nablaPj_prime; 
 
 	projection_jacobians( Xi1, Xi2, nablaXi1, nablaXi2, tildePi, SparseMatrixCV(3, 12), Pi,       nablaPi );
@@ -421,27 +421,27 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 
 		// TODO: this might be time consuming
 		// update the end points of the line
-		vector<float> minT( (int) labelings.size(), (std::numeric_limits<float>::max)() );
-		vector<float> maxT( (int) labelings.size(), (std::numeric_limits<float>::min)() );
+		vector<double> minT( (int) labelings.size(), (std::numeric_limits<double>::max)() );
+		vector<double> maxT( (int) labelings.size(), (std::numeric_limits<double>::min)() );
 		for( int site = 0; site < dataPoints.size(); site++ ) { // For each data point
 			int label = labelings[site]; 
-			Vec3f p1, p2;
+			Vec3d p1, p2;
 			lines[label]->getEndPoints( p1, p2 ); 
 
-			Vec3f& pos = p1;
-			Vec3f dir = p2 - p1; 
+			Vec3d& pos = p1;
+			Vec3d dir = p2 - p1; 
 			dir /= sqrt( dir.dot( dir ) ); // normalize the direction 
-			float t = ( Vec3f(dataPoints[site]) - pos ).dot( dir );
+			double t = ( Vec3d(dataPoints[site]) - pos ).dot( dir );
 			maxT[label] = max( t+1, maxT[label] );
 			minT[label] = min( t-1, minT[label] );
 		}
 		for( int label=0; label<labelings.size(); label++ ) {
 			if( minT[label] < maxT[label] ) {
-				Vec3f p1, p2;
+				Vec3d p1, p2;
 				lines[label]->getEndPoints( p1, p2 ); 
 
-				Vec3f& pos = p1;
-				Vec3f dir = p2 - p1; 
+				Vec3d& pos = p1;
+				Vec3d dir = p2 - p1; 
 				dir /= sqrt( dir.dot( dir ) ); // normalize the direction 
 				
 				lines[label]->setPositions( pos + dir * minT[label], pos + dir * maxT[label] ); 

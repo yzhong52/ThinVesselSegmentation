@@ -95,7 +95,6 @@
     <ClInclude Include="GraphCut.h" />
     <ClInclude Include="LevenburgMaquart.h" />
     <ClInclude Include="Line3D.h" />
-    <ClInclude Include="Line3DPointDir.h" />
     <ClInclude Include="Line3DTwoPoint.h" />
     <ClInclude Include="Neighbour26.h" />
     <ClInclude Include="nstdio.h" />
@@ -120,7 +119,6 @@
     <ClCompile Include="GraphCut.cpp" />
     <ClCompile Include="LevenburgMaquart.cpp" />
     <ClCompile Include="Line3D.cpp" />
-    <ClCompile Include="Line3DPointDir.cpp" />
     <ClCompile Include="Line3DTwoPoint.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="stdafx.cpp" />

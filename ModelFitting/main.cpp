@@ -38,7 +38,7 @@ const double LOGLIKELIHOOD = 1.0;
 const double PAIRWISESMOOTH = 7.0; 
 
 
-
+// if IS_PROFILING is defined, rendering is disabled
 //#define IS_PROFILING
 HANDLE thread_render = NULL; 
 #ifndef IS_PROFILING // NOT profiling, add visualization model
@@ -85,7 +85,7 @@ int main(int argc, char* argv[])
 	// Vesselness measure with sigma
 	Image3D<Vesselness_Sig> vn_sig;
 	vn_sig.load( "data/roi15.sigma_to8.vn_sig" ); 
-	vn_sig.remove_margin_to( Vec3i(70, 70, 70) );
+	vn_sig.remove_margin_to( Vec3i(50, 60, 50) );
 	
 	// Synthesic Data
 	//SyntheticData::Doughout( im_short ); 
@@ -107,13 +107,11 @@ int main(int argc, char* argv[])
 	vector<Line3D*> lines; 
 	for( int i=0; i<num_init_labels; i++ ) {
 		Line3DTwoPoint *line  = new ::Line3DTwoPoint();
-		Vec3i randomDir = Vec3i(
-				rand() % 200 - 100, 
-				rand() % 200 - 100, 
-				// rand() % 100 + 10, 
-				// rand() % 100 + 10, 
-				rand() % 100 + 10 ); 
-		line->setPositions( dataPoints[i] - randomDir, dataPoints[i] + randomDir ); 
+
+		const Vec3i& dir = vn_sig.at( dataPoints[i] ).dir;
+		const double& sigma = vn_sig.at( dataPoints[i] ).sigma;
+		line->setPositions( dataPoints[i] - dir, dataPoints[i] + dir ); 
+		line->setSigma( sigma ); 
 		lines.push_back( line ); 
 	}
 	

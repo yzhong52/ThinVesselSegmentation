@@ -84,9 +84,6 @@
     <ClInclude Include="Line3D.h">
       <Filter>Line3D</Filter>
     </ClInclude>
-    <ClInclude Include="Line3DPointDir.h">
-      <Filter>Line3D</Filter>
-    </ClInclude>
     <ClInclude Include="Neighbour26.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -145,9 +142,6 @@
     </ClCompile>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Line3DTwoPoint.cpp">
-      <Filter>Line3D</Filter>
-    </ClCompile>
-    <ClCompile Include="Line3DPointDir.cpp">
       <Filter>Line3D</Filter>
     </ClCompile>
     <ClCompile Include="Line3D.cpp">
