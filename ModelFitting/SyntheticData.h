@@ -36,24 +36,14 @@ namespace SyntheticData {
 		}
 	}
 
-
-
-	void DoughoutSparse( Data3D<short>& im_short ) {
-		im_short.reset( Vec3i(100,100,50) ); 
-		for( int i=0; i<360; i++ ) {
-			double x = 50 + 30 * cos( 1.0*i );
-			double y = 50 + 30 * sin( 1.0*i );
-			double z = 25; 
-			static std::default_random_engine generator;
-			static std::normal_distribution<double> distribution(0.0,2.0);
-			x += distribution(generator);
-			y += distribution(generator);
-			z += distribution(generator);
-
-			if( im_short.isValid((int)x,(int)y,(int)z) && im_short.at((int)x,(int)y,(int)z) != 10000 )
-				im_short.at((int)x,(int)y,(int)z) = 10000;
-			else
-				i--; 
+	void Stick( Data3D<short>& im_short ) {
+		im_short.reset( Vec3i(20,20,20) ); 
+		for( int i=2; i<18; i++ ) {
+			im_short.at(i,  i,  i)   = 10000; 
+			im_short.at(i,  i,  i+1) = 10000; 
+			im_short.at(i,  i+1,i)   = 10000; 
+			im_short.at(i+1,i,  i)   = 10000; 
+			im_short.at(i+1,i+1,i+1) = 10000; 
 		}
 	}
 }

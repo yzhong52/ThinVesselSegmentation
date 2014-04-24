@@ -19,7 +19,7 @@ public:
 	// Given a point calculate the negative log likihood of a point being asign to this line
 	virtual float loglikelihood( const Vec3f& point ) const = 0; 
 
-	virtual inline int getNumOfParameters( void ) = 0; 
+	virtual int getNumOfParameters( void ) = 0; 
 
 	virtual void updateParameterWithDelta( int i, double delta ) = 0; 
 
@@ -30,6 +30,6 @@ public:
 
 	virtual void getEndPoints( Vec3f& p1, Vec3f& p2 ) const = 0; 
 
-	virtual inline void setPositions( Vec3f pos1, Vec3f pos2 ) = 0; 
+	virtual void setPositions( Vec3f pos1, Vec3f pos2 ) = 0; 
 };
 
