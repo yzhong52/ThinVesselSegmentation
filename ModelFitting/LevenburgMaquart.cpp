@@ -404,11 +404,14 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 
 		// the smaller lambda is, the faster it converges
 		// the bigger lambda is, the slower it converges
-		if( new_energy <= energy_before ) { // if energy is decreasing 
+		static int energy_increase_count = 0; 
+		if( new_energy < energy_before ) { // if energy is decreasing 
 			cout << "- ";
 			energy_before = new_energy; 
 			lambda *= 0.71; 
+			energy_increase_count = 0; 
 		} else {
+			
 			cout << "+ ";
 			for( int label=0; label < lines.size(); label++ ) {
 				for( int i=0; i < numParamPerLine; i++ ) {
@@ -417,6 +420,10 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 				}
 			}
 			lambda *= 2.13; 
+			
+			// If energy_increase_count in three consecutive iterations
+			// then the nenergy is probabaly converged
+			if( ++energy_increase_count>=1 ) break; 
 		}
 
 		// TODO: this might be time consuming

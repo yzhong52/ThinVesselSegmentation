@@ -85,7 +85,7 @@ int main(int argc, char* argv[])
 	// Vesselness measure with sigma
 	Image3D<Vesselness_Sig> vn_sig;
 	vn_sig.load( "data/roi15.sigma_to8.vn_sig" ); 
-	vn_sig.remove_margin_to( Vec3i(50, 60, 50) );
+	vn_sig.remove_margin_to( Vec3i(50, 50, 50) );
 	
 	// Synthesic Data
 	//SyntheticData::Doughout( im_short ); 
@@ -106,10 +106,10 @@ int main(int argc, char* argv[])
 	const int num_init_labels = (int) dataPoints.size(); 
 	vector<Line3D*> lines; 
 	for( int i=0; i<num_init_labels; i++ ) {
-		Line3DTwoPoint *line  = new ::Line3DTwoPoint();
-
 		const Vec3i& dir = vn_sig.at( dataPoints[i] ).dir;
 		const double& sigma = vn_sig.at( dataPoints[i] ).sigma;
+
+		Line3DTwoPoint *line  = new ::Line3DTwoPoint();
 		line->setPositions( dataPoints[i] - dir, dataPoints[i] + dir ); 
 		line->setSigma( sigma ); 
 		lines.push_back( line ); 
