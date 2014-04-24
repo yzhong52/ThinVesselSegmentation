@@ -35,7 +35,7 @@ typedef GCoptimization GC;
 #include <limits> 
 
 const double LOGLIKELIHOOD = 1.0; 
-const double PAIRWISESMOOTH = 1.0; 
+const double PAIRWISESMOOTH = 7.0; 
 
 
 
@@ -85,8 +85,8 @@ int main(int argc, char* argv[])
 	//im_short.shrink_by_half();
 
 	// Synthesic Data
-	//SyntheticData::Doughout( im_short ); 
-	SyntheticData::Stick( im_short ); 
+	SyntheticData::Doughout( im_short ); 
+	//SyntheticData::Stick( im_short ); 
 
 
 
@@ -107,11 +107,11 @@ int main(int argc, char* argv[])
 		Line3DTwoPoint *line  = new ::Line3DTwoPoint();
 		Vec3i randomDir = Vec3i(
 				rand() % 200 - 100, 
-				//rand() % 200 - 100, 
+				rand() % 200 - 100, 
 				// rand() % 100 + 10, 
-				rand() % 100 + 10, 
+				// rand() % 100 + 10, 
 				rand() % 100 + 10 ); 
-		line->setPositions( dataPoints[i] - randomDir +Vec3i(3,2,1), dataPoints[i] + randomDir +Vec3i(1,2,3)); 
+		line->setPositions( dataPoints[i] - randomDir, dataPoints[i] + randomDir ); 
 		lines.push_back( line ); 
 	}
 	
