@@ -49,7 +49,8 @@ HANDLE thread_render = NULL;
 		GLViwerModel& ver = *(GLViwerModel*) data; 
 		ver.go();
 	}
-	void initViwer( const Image3D<short>& im_short, const vector<cv::Vec3i>& dataPoints, 
+	template<class T>
+	void initViwer( const Image3D<T>& im_short, const vector<cv::Vec3i>& dataPoints, 
 		const vector<Line3D*>& lines, const vector<int>& labelings )
 	{
 		GLViewer::GLLineModel *model = new GLViewer::GLLineModel( im_short.get_size() );
@@ -79,23 +80,22 @@ int main(int argc, char* argv[])
 	// TODO: not compatible with MinGW? 
 	// CreateDirectory(L"./output", NULL);
 	
-	Image3D<short> im_short;
-	//// Real data
-	//im_short.load( "../data/data15.data" );
-	//im_short.shrink_by_half();
-
+	// Vesselness measure with sigma
+	Image3D<Vesselness_Sig> vn_sig;
+	vn_sig.load( "data/roi15.sigma_to8.vn_sig" ); 
+	vn_sig.remove_margin_to( Vec3i(10,10,10) );
+	
 	// Synthesic Data
-	SyntheticData::Doughout( im_short ); 
+	//SyntheticData::Doughout( im_short ); 
 	//SyntheticData::Stick( im_short ); 
-
-
 
 	// threshold the data and put the data points into a vector
 	Data3D<int> indeces;
 	vector<cv::Vec3i> dataPoints;
-	IP::threshold( im_short, indeces, dataPoints, short(4500) );
+	IP::threshold( vn_sig, indeces, dataPoints, Vesselness_Sig(0.9f) );
 	
 	cout << "Number of data points: "  << dataPoints.size() << endl; 
+	return 0; 
 	
 	//////////////////////////////////////////////////
 	// Line Fitting
@@ -123,7 +123,7 @@ int main(int argc, char* argv[])
 	//////////////////////////////////////////////////
 	// create a thread for rendering
 	//////////////////////////////////////////////////
-	initViwer( im_short, dataPoints, lines, labelings);
+	initViwer( vn_sig, dataPoints, lines, labelings);
 	
 	LevenburgMaquart lm;
 	

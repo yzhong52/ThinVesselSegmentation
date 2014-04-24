@@ -300,7 +300,7 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 			const int * column_index = NULL;
 			const int* row_pointer = NULL; 
 			matrix.getRowMatrixData( N, &non_zero_value, &column_index, &row_pointer ); 
-			assert( matrix.row()==1 && matrix.col()==numOfParametersPerLine && "Number of row is not correct for Jacobian matrix" );
+			assert( matrix.row()==1 && matrix.col()==numParamPerLine && "Number of row is not correct for Jacobian matrix" );
 			for( int i=0; i<N; i++ ) {
 				Jacobian_nzv.push_back( non_zero_value[i] );
 				Jacobian_colindx.push_back( column_index[i] + site * N ); 
@@ -353,7 +353,7 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 					const int * column_index = NULL;
 					const int* row_pointer = NULL; 
 					J[ji].getRowMatrixData( N, &non_zero_value, &column_index, &row_pointer ); 
-					assert( J[ji].row()==1 && J[ji].col()==2*numOfParametersPerLine && "Number of row is not correct for Jacobian matrix" );
+					assert( J[ji].row()==1 && J[ji].col()==2*numParamPerLine && "Number of row is not correct for Jacobian matrix" );
 
 					int n1; 
 					for( n1=0; n1<N && column_index[n1] < numParamPerLine; n1++ ) {

@@ -60,56 +60,19 @@ namespace ImageProcessing
 	// threshold the data
 	// threshold the data and return a binary mask
 	template<typename T>
-	void threshold( const Data3D<T>& src, Data3D<unsigned char>& dst, T thresh ){
-		int x,y,z;
-		dst.reset( src.get_size() );
-		for(z=0;z<src.SZ();z++) for (y=0;y<src.SY();y++) for(x=0;x<src.SX();x++) {
-			dst.at(x,y,z) = src.at(x,y,z) > thresh ? 255 : 0;
-		}
-	}
+	void threshold( const Data3D<T>& src, Data3D<unsigned char>& dst, T thresh );
 	// threshold the data and return a binary mask and of a set of locations
 	template<typename T>
-	void threshold( const Data3D<T>& src, Data3D<unsigned char>& dst, vector<Vec3i>& pos, T thresh ){
-		int x,y,z;
-		dst.reset( src.get_size() );
-		for(z=0;z<src.SZ();z++) for (y=0;y<src.SY();y++) for(x=0;x<src.SX();x++) {
-			if( src.at(x,y,z) > thresh ) {
-				dst.at(x,y,z) = 255; 
-				pos.push_back( Vec3i(x,y,z) ); 
-			}
-		}
-	}
+	void threshold( const Data3D<T>& src, Data3D<unsigned char>& dst, vector<Vec3i>& pos, T thresh );
 	// threshold the data and return a index map (dst) and of a set of locations
 	template<typename T>
-	void threshold( const Data3D<T>& src, Data3D<int>& indeces, vector<Vec3i>& pos, T thresh ){
-		int x,y,z;
-		indeces.reset( src.get_size() );
-		for(z=0;z<src.SZ();z++) for (y=0;y<src.SY();y++) for(x=0;x<src.SX();x++) {
-			if( src.at(x,y,z) > thresh ) {
-				indeces.at(x,y,z) = (int) pos.size(); 
-				pos.push_back( Vec3i(x,y,z) ); 
-			} else {
-				indeces.at(x,y,z) = -1; 
-			}
-		}
-	}
+	void threshold( const Data3D<T>& src, Data3D<int>& indeces, vector<Vec3i>& pos, T thresh );
 	// threshold the data and suppress the point to zero if it is below threshold
 	template<typename T>
-	void threshold( const Data3D<T>& src, Data3D<T>& dst, T thresh ){
-		int x,y,z;
-		if( &src!=&dst ) dst.reset( src.get_size() );
-		for(z=0;z<src.SZ();z++) for (y=0;y<src.SY();y++) for(x=0;x<src.SX();x++) {
-			dst.at(x,y,z) = src.at(x,y,z) > thresh ? src.at(x,y,z) : 0;
-		}
-	}
+	void threshold( const Data3D<T>& src, Data3D<T>& dst, T thresh );
 	// threshold the data and suppress the point to zero if it is below threshold
 	template<typename T>
-	void threshold( Data3D<T>& src, T thresh ){
-		int x,y,z;
-		for(z=0;z<src.SZ();z++) for (y=0;y<src.SY();y++) for(x=0;x<src.SX();x++) {
-			if( src.at(x,y,z) < thresh ) memset( &src.at(x,y,z), 0, sizeof(T) );
-		}
-	}
+	void threshold( Data3D<T>& src, T thresh );
 
 	///////////////////////////////////////////////////////////////////////////
 	// Non-maximum suppression
@@ -381,3 +344,67 @@ void ImageProcessing::quad_normalize( Data3D<T>& data, T norm_max ){
 	}
 }
 
+
+
+
+
+
+
+
+
+
+
+///////////////////////////////////////////////////////////////////////////
+// threshold the data
+// threshold the data and return a binary mask
+template<typename T>
+void ImageProcessing::threshold( const Data3D<T>& src, Data3D<unsigned char>& dst, T thresh ){
+	int x,y,z;
+	dst.reset( src.get_size() );
+	for(z=0;z<src.SZ();z++) for (y=0;y<src.SY();y++) for(x=0;x<src.SX();x++) {
+		dst.at(x,y,z) = src.at(x,y,z) > thresh ? 255 : 0;
+	}
+}
+// threshold the data and return a binary mask and of a set of locations
+template<typename T>
+void ImageProcessing::threshold( const Data3D<T>& src, Data3D<unsigned char>& dst, vector<Vec3i>& pos, T thresh ){
+	int x,y,z;
+	dst.reset( src.get_size() );
+	for(z=0;z<src.SZ();z++) for (y=0;y<src.SY();y++) for(x=0;x<src.SX();x++) {
+		if( src.at(x,y,z) > thresh ) {
+			dst.at(x,y,z) = 255; 
+			pos.push_back( Vec3i(x,y,z) ); 
+		}
+	}
+}
+// threshold the data and return a index map (dst) and of a set of locations
+template<typename T>
+void ImageProcessing::threshold( const Data3D<T>& src, Data3D<int>& indeces, vector<Vec3i>& pos, T thresh ){
+	int x,y,z;
+	indeces.reset( src.get_size() );
+	for(z=0;z<src.SZ();z++) for (y=0;y<src.SY();y++) for(x=0;x<src.SX();x++) {
+		if( src.at(x,y,z) > thresh ) {
+			indeces.at(x,y,z) = (int) pos.size(); 
+			pos.push_back( Vec3i(x,y,z) ); 
+		} else {
+			indeces.at(x,y,z) = -1; 
+		}
+	}
+}
+// threshold the data and suppress the point to zero if it is below threshold
+template<typename T>
+void ImageProcessing::threshold( const Data3D<T>& src, Data3D<T>& dst, T thresh ){
+	int x,y,z;
+	if( &src!=&dst ) dst.reset( src.get_size() );
+	for(z=0;z<src.SZ();z++) for (y=0;y<src.SY();y++) for(x=0;x<src.SX();x++) {
+		dst.at(x,y,z) = src.at(x,y,z) > thresh ? src.at(x,y,z) : 0;
+	}
+}
+// threshold the data and suppress the point to zero if it is below threshold
+template<typename T>
+void ImageProcessing::threshold( Data3D<T>& src, T thresh ){
+	int x,y,z;
+	for(z=0;z<src.SZ();z++) for (y=0;y<src.SY();y++) for(x=0;x<src.SX();x++) {
+		if( src.at(x,y,z) < thresh ) memset( &src.at(x,y,z), 0, sizeof(T) );
+	}
+}
