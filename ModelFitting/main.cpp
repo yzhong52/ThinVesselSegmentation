@@ -82,7 +82,7 @@ int main(int argc, char* argv[])
 	srand( 3 ); 
 
 	// TODO: not compatible with MinGW? 
-	// CreateDirectory(L"./output", NULL);
+	CreateDirectory(L"./output", NULL);
 	
 	// Vesselness measure with sigma
 	Image3D<Vesselness_Sig> vn_sig;
@@ -120,7 +120,7 @@ int main(int argc, char* argv[])
 		line->setSigma( sigma ); 
 		lines.push_back( line ); 
 	}
-	model.deserialize<Line3DTwoPoint>( "output/Line3DTwoPoint.model" ); 
+	// model.deserialize<Line3DTwoPoint>( "output/Line3DTwoPoint.model" ); 
 	if( lines.size()!=dataPoints.size() ) {
 		cout << "Number of models is not corret. " << endl; 
 		cout << "Probably because of errors while deserializing the data. " << endl;
@@ -140,7 +140,7 @@ int main(int argc, char* argv[])
 	LevenburgMaquart lm;
 	
 	Timer::begin( "Levenburg Maquart" ); 
-	lm.reestimate( dataPoints, labelings, lines, indeces ); 
+	lm.reestimate( dataPoints, labelings, model, indeces ); 
 	Timer::end( "Levenburg Maquart" ); 
 
 	cout << "Main Thread is Done. " << endl; 

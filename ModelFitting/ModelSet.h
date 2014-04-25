@@ -11,7 +11,7 @@ public:
 	ModelSet(void);
 	virtual ~ModelSet(void);
 
-	void serialize( std::string file );
+	void serialize( std::string file ) const;
 
 	template< class AcutalType > 
 	void deserialize( std::string file ); 
@@ -35,7 +35,7 @@ ModelSet<T>::~ModelSet(void)
 
 
 template<class T>
-void ModelSet<T>::serialize( std::string file ){
+void ModelSet<T>::serialize( std::string file ) const {
 	std::ofstream fout( file ); 
 	fout << models.size() << endl;
 	for( int i=0; i<models.size(); i++ ) {

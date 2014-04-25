@@ -10,6 +10,7 @@ using namespace std;
 #include "Neighbour26.h"
 #include "Data3D.h"
 #include "Timer.h"
+#include "ModelSet.h"
 
 
 #include "../SparseMatrixCV/SparseMatrixCV.h"
@@ -249,11 +250,10 @@ void compute_smoothcost_derivative_analitically(  Line3D* li,   Line3D* lj, cons
 	const SparseMatrixCV MPi_prime( Pi_prime ); 
 	const SparseMatrixCV MPj_prime( Pj_prime ); 
 	
-	SparseMatrixCV nabla_pi_pi_prime = ( MPi - MPi_prime ).t() * ( nablaPi - nablaPi_prime ) ; 
-	nabla_pi_pi_prime = nabla_pi_pi_prime / dist_pi_pi_prime;
+	const SparseMatrixCV nabla_pi_pi_prime = ( MPi - MPi_prime ).t() * ( nablaPi - nablaPi_prime ) / dist_pi_pi_prime;
 
-	SparseMatrixCV nabla_pj_pj_prime = ( ( MPj - MPj_prime ).t() * ( nablaPj - nablaPj_prime ) ) / dist_pj_pj_prime; 
-	SparseMatrixCV nabla_pi_pj       = ( MPi - MPj ).t() * ( nablaPi - nablaPj ) / dist_pi_pj;  
+	const SparseMatrixCV nabla_pj_pj_prime = ( ( MPj - MPj_prime ).t() * ( nablaPj - nablaPj_prime ) ) / dist_pj_pj_prime; 
+	const SparseMatrixCV nabla_pi_pj       = ( MPi - MPj ).t() * ( nablaPi - nablaPj ) / dist_pi_pj;  
 	
 	nabla_smooth_cost_i = ( nabla_pi_pi_prime * dist_pi_pj - nabla_pi_pj * dist_pi_pi_prime ) * (1.0 / dist_pi_pj2 * PAIRWISESMOOTH); 
 	nabla_smooth_cost_j = ( nabla_pj_pj_prime * dist_pi_pj - nabla_pi_pj * dist_pj_pj_prime ) * (1.0 / dist_pi_pj2 * PAIRWISESMOOTH); 
@@ -263,9 +263,11 @@ void compute_smoothcost_derivative_analitically(  Line3D* li,   Line3D* lj, cons
 
 void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 	const vector<int>& labelings, 
-	const vector<Line3D*>& lines, 
+	const ModelSet<Line3D>& modelset, 
 	const Data3D<int>& indeces )
 {
+	const vector<Line3D*>& lines = modelset.models; 
+
 	double lambda = 1e2; 
 	
 	int numParamPerLine = lines[0]->getNumOfParameters(); 
@@ -382,9 +384,11 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 
 		Mat_<double> B = Jacobian.t() * energy_matrix; 
 
+		Timer::begin( "Linear Solver" ); 
 		Mat_<double> X;
 		solve( A, B, X );
 		X = -X; 
+		Timer::end( "Linear Solver" ); 
 		
 		//for( int i=0; i<X.rows; i++ ) {
 		//	std::cout << std::setw(14) << std::scientific << X.at<double>(i) << "  ";
@@ -455,6 +459,13 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 			}
 		}
 		Timer::end( "Update End Points" ); 
+
+		cout << endl;
+		for( int i=3; i>=0; i-- ){
+			cout << '\r' << "serializing models in " << i << " seconds... "; Sleep( 1000 ); 
+		}
+		modelset.serialize( "output/Line3DTwoPoint.model" ); 
+		cout << "Serialization done. " << endl;
 	}
 
 }
