@@ -114,11 +114,11 @@ int main(int argc, char* argv[])
 	ModelSet<Line3D> model; 
 	vector<Line3D*>& lines = model.models; 
 	for( int i=0; i<num_init_labels; i++ ) {
-		const Vec3i& dir = vn_sig.at( dataPoints[i] ).dir;
+		const Vec3d& dir = vn_sig.at( dataPoints[i] ).dir;
 		const double& sigma = vn_sig.at( dataPoints[i] ).sigma;
 		
 		Line3DTwoPoint *line  = new Line3DTwoPoint();
-		line->setPositions( dataPoints[i] - dir, dataPoints[i] + dir ); 
+		line->setPositions( (Vec3d) dataPoints[i] - dir, (Vec3d) dataPoints[i] + dir ); 
 		line->setSigma( sigma ); 
 		lines.push_back( line ); 
 	}
