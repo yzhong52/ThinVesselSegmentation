@@ -19,7 +19,7 @@ VesselNess/output
 */analysis.txt
 */log.txt
 */gmon.out
-
+*/*.exe
 
 ## Yuchen: The following is borrowed from:
 ##         https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
