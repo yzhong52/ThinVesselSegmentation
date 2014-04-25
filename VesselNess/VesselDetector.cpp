@@ -333,6 +333,7 @@ bool VesselDetector::hessien2( const Data3D<short>& src, Data3D<Vesselness_Nor>&
 					float S = sqrt( lmd1*lmd1 + lmd2*lmd2 + lmd3*lmd3 );
 					dst.at(x,y,z).rsp = ( 1.0f-exp(-A*A/alpha) )* exp( B*B/beta ) * ( 1-exp(-S*S/gamma) );
 
+					// TODO: how to get the corresponding vesselness direction
 				}
 			}
 		}

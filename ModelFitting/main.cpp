@@ -102,7 +102,7 @@ int main(int argc, char* argv[])
 	Data3D<float> vn = vn_sig; 
 	IP::normalize( vn, 1.0f ); 
 	
-	IP::threshold( vn, indeces, dataPoints, 0.20f );
+	IP::threshold( vn, indeces, dataPoints, 0.10f );
 	cout << "Number of data points: " << dataPoints.size() << endl;
 	
 
@@ -116,7 +116,7 @@ int main(int argc, char* argv[])
 	for( int i=0; i<num_init_labels; i++ ) {
 		const Vec3i& dir = vn_sig.at( dataPoints[i] ).dir;
 		const double& sigma = vn_sig.at( dataPoints[i] ).sigma;
-
+		
 		Line3DTwoPoint *line  = new Line3DTwoPoint();
 		line->setPositions( dataPoints[i] - dir, dataPoints[i] + dir ); 
 		line->setSigma( sigma ); 
@@ -137,6 +137,7 @@ int main(int argc, char* argv[])
 	//////////////////////////////////////////////////
 	// create a thread for rendering
 	//////////////////////////////////////////////////
+	cout << lines.size() << endl; 
 	initViwer( vn_sig, dataPoints, lines, labelings);
 	
 	LevenburgMaquart lm;
