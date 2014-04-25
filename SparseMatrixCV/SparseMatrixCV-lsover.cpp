@@ -28,7 +28,7 @@ void solve( const SparseMatrixCV& A, const cv::Mat_<double>& B, cv::Mat_<double>
 	X = cv::Mat_<double>::zeros( A.row(), 1 ); 
 	switch( o ) {
 		case SparseMatrixCV::BICGSQ:
-			bicgsq( A.row(), A, (double*)B.data, (double*)X.data, 1e-8 );
+			bicgsq( A.row(), A, (double*)B.data, (double*)X.data, 1e-3 );
 			break;
 		case SparseMatrixCV::SUPERLU:
 			X = cv::Mat_<double>::zeros( A.row(), 1 );

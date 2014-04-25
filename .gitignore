@@ -2,81 +2,23 @@
 ## Yuchen
 #################
 
-# temporary datas
-/temp/*
-temp.*
-*/output/*
+# Yuchen: Ignore Files
 
-# User-specific files
-*.suo
-*.user
+ModelFitting/*dll
+VesselNess/*dll
 
-# Build result
-/[Dd]ebug/
-/[Rr]elease/
-/x64/
-/ModelFitting/[Dd]ebug/
-/ModelFitting/[Rr]elease/
-/ModelFitting/x64/
-/ModelFitting/data/
-/VesselNess/output/
-/VesselNess/dependencies/*
-/VesselNess/data/
-/Vesselness/[Dd]ebug/
-/Vesselness/[Rr]elease/
-/Vesselness/x64/
-/Vesselness/*.exe
-/Visualization/[Dd]ebug/
-/Visualization/[Rr]elease/
-/Visualization/log.txt
-/VesselNess-cuda/Release/
-/VesselNess-cuda/Debug/
-/VesselNess-cuda/x64/
-Levenberg–Marquardt/x64/
-Levenberg–Marquardt/[Dd]ebug/
-Levenberg–Marquardt/[Rr]elease/
+ModelFitting/data
+VesselNess/data
 
+ModelFitting/output
+VesselNess/output
 
-
-
-# Visual C++ cache files
-ipch/
-*.aps
-*.ncb
-*.opensdf
-*.sdf
-*.cachefile
-*.pdb
-
-
-
-ModelFitting/*.o
-ModelFitting/gmon.out
-ModelFitting/executable.exe
-ModelFitting/analysis.txt
-ModelFitting/modelfitting.exe
-ModelFitting/profiling_analysis.txt
-ModelFitting/SparseMatrix/x64/*
-ModelFitting/SparseMatrix/x64/Debug/*
-*.tlog
-*.idb
-ModelFitting/analysis.png
-ModelFitting/analysis.dot
-
-
-x64/Debug/*
-x64/Release/*
-Debug/*
-Release/*
-
-
-
-
-
-
-
-
-
+*/temp
+/temp
+*/*.o
+*/analysis.txt
+*/log.txt
+*/gmon.out
 
 
 ## Yuchen: The following is borrowed from:
@@ -260,4 +202,5 @@ UpgradeLog*.htm
 
 # Microsoft Fakes
 FakesAssemblies/
+
 

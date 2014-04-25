@@ -125,21 +125,25 @@ double compute_energy(
 	const vector<Line3D*>& lines,
 	const Data3D<int>& indeces )
 {
+	Timer::begin("Compute Energy");
 	double datacost   = compute_energy_datacost( dataPoints, labelings, lines ); 
 	double smoothcost = compute_energy_smoothcost( dataPoints, labelings, lines, indeces ); 
+	Timer::end("Compute Energy");
 	return datacost + smoothcost; 
 }
 
-Mat compute_energy_matrix_datacost( 
+Mat compute_matrix_datacost( 
 	const vector<Vec3i>& dataPoints,
 	const vector<int>& labelings, 
 	const vector<Line3D*>& lines )
 {
+	Timer::begin("Matrix Datacost");
 	Mat eng( (int) dataPoints.size(), 1, CV_64F ); 
 	for( int site = 0; site < (int) dataPoints.size(); site++ ) {
 		int label = labelings[site];
 		eng.at<double>( site, 0 ) = sqrt( compute_energy_datacost_for_one( lines[label], dataPoints[site] ) ); 
 	}
+	Timer::begin("Matrix Datacost");
 	return eng; 
 }
 
@@ -268,13 +272,13 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 {
 	const vector<Line3D*>& lines = modelset.models; 
 
-	double lambda = 1e2; 
-	
 	int numParamPerLine = lines[0]->getNumOfParameters(); 
 	
 	double energy_before = compute_energy( dataPoints, labelings, lines, indeces );
 
-	for( int lmiter = 0; lambda < 10e50 && lambda > 10e-100 && lmiter<230; lmiter++ ) { 
+	double lambda = 1e2;
+	int lmiter = 0; 
+	for( lambda = 1e2, lmiter = 0; lambda < 10e50 && lambda > 10e-100 && lmiter<230; lmiter++ ) { 
 
 		// Data for Jacobian matrix
 		//  - # of cols: number of data points; 
@@ -289,7 +293,7 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 		// Construct Jacobian Matrix -  data cost
 		// // // // // // // // // // // // // // // // // // 
 
-		energy_matrix = compute_energy_matrix_datacost( dataPoints, labelings, lines ); 
+		energy_matrix = compute_matrix_datacost( dataPoints, labelings, lines ); 
 		
 		for( int site=0; site < dataPoints.size(); site++ ) {
 			int label = labelings[site]; 
@@ -373,19 +377,20 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 			} // for each pair of pi and pj
 		} // end of contruction of Jacobian Matrix
 
+
+
 		
 
 		SparseMatrixCV Jacobian = SparseMatrix(
 			(int) Jacobian_rowptr.size() - 1, 
 			(int) lines.size() * numParamPerLine, 
 			Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr );
-		
-		SparseMatrixCV A = Jacobian.t() * Jacobian + SparseMatrixCV::I( Jacobian.col() ) * lambda;
 
+		SparseMatrixCV A = Jacobian.t() * Jacobian + SparseMatrixCV::I( Jacobian.col() ) * lambda;
 		Mat_<double> B = Jacobian.t() * energy_matrix; 
+		Mat_<double> X;
 
 		Timer::begin( "Linear Solver" ); 
-		Mat_<double> X;
 		solve( A, B, X );
 		X = -X; 
 		Timer::end( "Linear Solver" ); 
@@ -460,12 +465,12 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 		}
 		Timer::end( "Update End Points" ); 
 
-		cout << endl;
-		for( int i=3; i>=0; i-- ){
-			cout << '\r' << "serializing models in " << i << " seconds... "; Sleep( 1000 ); 
-		}
-		modelset.serialize( "output/Line3DTwoPoint.model" ); 
-		cout << "Serialization done. " << endl;
+		//cout << endl;
+		//for( int i=2; i>=0; i-- ){
+		//	cout << '\r' << "serializing models in " << i << " seconds... "; Sleep( 100 ); 
+		//}
+		//modelset.serialize( "output/Line3DTwoPoint.model" ); 
+		//cout << "Serialization done. " << endl;
 	}
 
 }
