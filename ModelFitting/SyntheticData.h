@@ -2,6 +2,7 @@
 
 #include "Data3D.h" 
 #include <random> 
+#include <cmath>
 
 namespace SyntheticData {
 	void Doughout( Data3D<short>& im_short ) {
