@@ -85,6 +85,7 @@
     <ClInclude Include="..\VesselNess\GLViewer.h" />
     <ClInclude Include="..\VesselNess\GLViwerWrapper.h" />
     <ClInclude Include="..\VesselNess\GLVolumn.h" />
+    <ClInclude Include="EnergyFunctions.h" />
     <ClInclude Include="gco-v3.0\block.h" />
     <ClInclude Include="gco-v3.0\energy.h" />
     <ClInclude Include="gco-v3.0\GCoptimization.h" />
@@ -110,6 +111,7 @@
     <ClCompile Include="..\VesselNess\GLViewer.cpp" />
     <ClCompile Include="..\VesselNess\GLVolumn.cpp" />
     <ClCompile Include="..\VesselNess\MinSpanTree.cpp" />
+    <ClCompile Include="EnergyFunctions.cpp" />
     <ClCompile Include="gco-v3.0\example.cpp" />
     <ClCompile Include="gco-v3.0\GCoptimization.cpp" />
     <ClCompile Include="gco-v3.0\graph.cpp" />
