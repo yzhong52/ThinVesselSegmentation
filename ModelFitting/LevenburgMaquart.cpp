@@ -143,11 +143,13 @@ Mat compute_matrix_datacost(
 		int label = labelings[site];
 		eng.at<double>( site, 0 ) = sqrt( compute_energy_datacost_for_one( lines[label], dataPoints[site] ) ); 
 	}
-	Timer::begin("Matrix Datacost");
+	Timer::end("Matrix Datacost");
 	return eng; 
 }
 
-
+// X1, X2: 3 * 1, two end points of the line
+// nablaX: 3 * 12, 3 non-zero values
+// nablaP: 3 * 12
 void  projection_jacobians( 
 	const Vec3d& X1, const Vec3d& X2,                                    // two end points of a line
 	const SparseMatrixCV& nablaX1, const SparseMatrixCV& nablaX2,          // Jacobians of the end points of the line
@@ -162,7 +164,6 @@ void  projection_jacobians(
 	const double T = A / B;
 
 	// Compute the Jacobian matrix for Ai, Bi and Aj, Bj
-	//const SparseMatrix MX1_MX2 = MX1 - MX2; 
 	const SparseMatrixCV nablaX1_nablaX2 = nablaX1 - nablaX2; 
 
 	const SparseMatrixCV nablaA = X1_X2.t() * SparseMatrixCV( nablaTildeP - nablaX2 ) + (tildeP - X2).t() * nablaX1_nablaX2;
@@ -179,6 +180,7 @@ void  projection_jacobians(
 	// 3 * N matrices
 	const SparseMatrixCV MX1( X1 );
 	const SparseMatrixCV MX2( X2 ); 
+
 	nablaP = MX1 * nablaT + nablaX1 * T + nablaX2 * (1-T) - MX2 * nablaT;
 
 	Timer::end("Projection Jacobians");
@@ -238,6 +240,7 @@ void compute_smoothcost_derivative_analitically(  Line3D* li,   Line3D* lj, cons
 
 	projection_jacobians( Xi1, Xi2, nablaXi1, nablaXi2, tildePi, SparseMatrixCV(3, 12), Pi,       nablaPi );
 	projection_jacobians( Xj1, Xj2, nablaXj1, nablaXj2, tildePj, SparseMatrixCV(3, 12), Pj,       nablaPj );
+	
 	projection_jacobians( Xj1, Xj2, nablaXj1, nablaXj2, Pi,      nablaPi,             Pi_prime, nablaPi_prime );
 	projection_jacobians( Xi1, Xi2, nablaXi1, nablaXi2, Pj,      nablaPj,             Pj_prime, nablaPj_prime );
 
@@ -377,10 +380,6 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 			} // for each pair of pi and pj
 		} // end of contruction of Jacobian Matrix
 
-
-
-		
-
 		SparseMatrixCV Jacobian = SparseMatrix(
 			(int) Jacobian_rowptr.size() - 1, 
 			(int) lines.size() * numParamPerLine, 
@@ -431,7 +430,7 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 			
 			// If energy_increase_count in three consecutive iterations
 			// then the nenergy is probabaly converged
-			if( ++energy_increase_count>=2 ) break; 
+			if( ++energy_increase_count>=1 ) break; 
 		}
 
 		// TODO: this might be time consuming
@@ -467,7 +466,7 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 
 		//cout << endl;
 		//for( int i=2; i>=0; i-- ){
-		//	cout << '\r' << "serializing models in " << i << " seconds... "; Sleep( 100 ); 
+		//	cout << '\r' << "Serializing models in " << i << " seconds... "; Sleep( 100 ); 
 		//}
 		//modelset.serialize( "output/Line3DTwoPoint.model" ); 
 		//cout << "Serialization done. " << endl;
