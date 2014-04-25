@@ -87,7 +87,7 @@ int main(int argc, char* argv[])
 	// Vesselness measure with sigma
 	Image3D<Vesselness_Sig> vn_sig;
 	Image3D<short> im_short;
-	vn_sig.load( "data/roi15.sigma_to8.vn_sig" ); 
+	vn_sig.load( "../temp/roi15.vn_sig" ); 
 	/*im_short.load( "../data/roi15.data" ); 
 	return 0; */
 	vn_sig.remove_margin_to( Vec3i(50, 50, 50) );
@@ -103,7 +103,9 @@ int main(int argc, char* argv[])
 	IP::normalize( vn, 1.0f ); 
 	
 	IP::threshold( vn, indeces, dataPoints, 0.20f );
+	cout << "Number of data points: " << dataPoints.size() << endl;
 	
+
 	//////////////////////////////////////////////////
 	// Line Fitting
 	//////////////////////////////////////////////////
