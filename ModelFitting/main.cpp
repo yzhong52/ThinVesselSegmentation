@@ -140,10 +140,11 @@ int main(int argc, char* argv[])
 	cout << lines.size() << endl; 
 	initViwer( vn_sig, dataPoints, lines, labelings);
 	
-	LevenburgMaquart lm;
+	
 	
 	Timer::begin( "Levenburg Maquart" ); 
-	lm.reestimate( dataPoints, labelings, model, indeces ); 
+	LevenburgMaquart lm( dataPoints, labelings, model, indeces );
+	lm.reestimate(); 
 	Timer::end( "Levenburg Maquart" ); 
 
 	cout << "Main Thread is Done. " << endl; 

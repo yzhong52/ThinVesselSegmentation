@@ -15,13 +15,10 @@ using namespace std;
 using namespace cv;
 
 
-
-void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
-	const vector<int>& labelings, 
-	const ModelSet<Line3D>& modelset, 
-	const Data3D<int>& indeces )
+void LevenburgMaquart::reestimate( void )
 {
 	const vector<Line3D*>& lines = modelset.models; 
+	const Data3D<int>& indeces = labelIDs; 
 
 	int numParamPerLine = lines[0]->getNumOfParameters(); 
 	
@@ -65,7 +62,6 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 				Jacobian_colindx.push_back( column_index[i] + site * N ); 
 			}
 			Jacobian_rowptr.push_back( (int) Jacobian_nzv.size() ); 
-			
 		}
 
 		
@@ -224,3 +220,4 @@ void LevenburgMaquart::reestimate(const vector<Vec3i>& dataPoints,
 	}
 
 }
+

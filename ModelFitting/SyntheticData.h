@@ -55,7 +55,7 @@ namespace SyntheticData {
 		for( int z=0; z<im_short.SZ(); z++ ) {
 			
 			for( int y=0; y<SY; y++ ) for( int x=0; x<SX; x++ ) { 
-				float dz = z - cz + atan2( 1.0*(y-cy), 1.0*(x-cx) ); // difference in z
+				double dz = z - cz + atan2( 1.0*(y-cy), 1.0*(x-cx) ); // difference in z
 				// difference in x
 				float dx = x - cx; 
 				// difference in y
