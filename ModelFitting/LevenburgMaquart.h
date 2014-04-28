@@ -29,19 +29,19 @@ private:
 		vector<double>& Jacobian_nzv, 
 		vector<int>&    Jacobian_colindx, 
 		vector<int>&    Jacobian_rowptr,
-		Mat_<double>& energy_matrix );
+		vector<double>& energy_matrix );
 	
 	// Jacobian Matrix - smooth cost
 	void Jacobian_smoothcost( 
 		vector<double>& Jacobian_nzv, 
 		vector<int>&    Jacobian_colindx,  
 		vector<int>&    Jacobian_rowptr, 
-		Mat_<double>& energy_matrix );
+		vector<double>& energy_matrix );
 	// Jacobian Matrix - smooth cost
 	void Jacobian_smoothcost_openmp( 
 		vector<double>& Jacobian_nzv, 
 		vector<int>&    Jacobian_colindx,  
 		vector<int>&    Jacobian_rowptr, 
-		Mat_<double>& energy_matrix );
+		vector<double>& energy_matrix );
 };
 
