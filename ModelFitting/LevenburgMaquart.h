@@ -25,22 +25,17 @@ public:
 	void reestimate( void ); 
 private:
 	//// Jacobian Matrix - data cost
-	//void Jacobian_datacost( 
-	//	const vector<Vec3i>& dataPoints,
-	//	const vector<int>& labelings, 
-	//	const ModelSet<Line3D>& modelset, 
-	//	const Data3D<int>& indeces,
-	//	vector<double>& Jacobian_nzv, 
-	//	vector<int>&    Jacobian_colindx, 
-	//	vector<int>&    Jacobian_rowptr);
-	//// Jacobian Matrix - smooth cost
-	//void Jacobian_smoothcost( 
-	//	const vector<Vec3i>& dataPoints,
-	//	const vector<int>& labelings, 
-	//	const ModelSet<Line3D>& modelset, 
-	//	const Data3D<int>& indeces,
-	//	vector<double>& Jacobian_nzv, 
-	//	vector<int>&    Jacobian_colindx, 
-	//	vector<int>&    Jacobian_rowptr);
+	void datacost_jacobian(
+		vector<double>& Jacobian_nzv, 
+		vector<int>&    Jacobian_colindx, 
+		vector<int>&    Jacobian_rowptr,
+		Mat_<double>& energy_matrix );
+	
+	// Jacobian Matrix - smooth cost
+	void Jacobian_smoothcost( 
+		vector<double>& Jacobian_nzv, 
+		vector<int>&    Jacobian_colindx,  
+		vector<int>&    Jacobian_rowptr, 
+		Mat_<double>& energy_matrix );
 };
 

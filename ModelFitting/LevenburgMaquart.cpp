@@ -15,66 +15,57 @@ using namespace std;
 using namespace cv;
 
 
-void LevenburgMaquart::reestimate( void )
+void LevenburgMaquart::datacost_jacobian(
+	vector<double>& Jacobian_nzv, 
+	vector<int>&    Jacobian_colindx, 
+	vector<int>&    Jacobian_rowptr,
+	Mat_<double>& energy_matrix )
 {
 	const vector<Line3D*>& lines = modelset.models; 
-	const Data3D<int>& indeces = labelIDs; 
+	for( int site=0; site < dataPoints.size(); site++ ) {
+		const int& label = labelings[site]; 
 
-	int numParamPerLine = lines[0]->getNumOfParameters(); 
-	
-	double energy_before = compute_energy( dataPoints, labelings, lines, indeces );
+		// computing datacost 
+		const double datacost_i = compute_datacost_for_one( lines[label], dataPoints[site] ); 
 
-	double lambda = 1e2; // lamda - damping function for levenburg maquart
-	int lmiter = 0; // levenburg maquarit iteration count
-	for( lmiter = 0; lmiter<230; lmiter++ ) { 
+		// Computing derivative for data cost analytically
+		SparseMatrixCV J = compute_datacost_derivative( lines[label], dataPoints[site] ); 
 
-		// Data for Jacobian matrix
-		//  - # of cols: number of data points; 
-		//  - # of rows: number of parameters for all the line models
-		vector<double> Jacobian_nzv;
-		vector<int>    Jacobian_colindx;
-		vector<int>    Jacobian_rowptr(1, 0);
+		energy_matrix.push_back( sqrt(datacost_i) ); 
 
-		Mat_<double> energy_matrix = Mat_<double>( 0, 1 );
-
-		// // // // // // // // // // // // // // // // // // 
-		// Construct Jacobian Matrix -  data cost
-		// // // // // // // // // // // // // // // // // // 
-
-		for( int site=0; site < dataPoints.size(); site++ ) {
-			int label = labelings[site]; 
-
-			// computing datacost 
-			const double datacost_i = compute_datacost_for_one( lines[label], dataPoints[site] ); 
-			energy_matrix.push_back( sqrt(datacost_i) ); 
-			
-			// Computing derivative for data cost analytically
-			SparseMatrixCV J = compute_datacost_derivative( lines[label], dataPoints[site] ); 
-
-			int N;
-			const double* non_zero_value = NULL;
-			const int * column_index = NULL;
-			const int* row_pointer = NULL; 
-			J.getRowMatrixData( N, &non_zero_value, &column_index, &row_pointer ); 
-			assert( matrix.row()==1 && matrix.col()==numParamPerLine && "Number of row is not correct for Jacobian matrix" );
-			for( int i=0; i<N; i++ ) {
-				Jacobian_nzv.push_back( non_zero_value[i] );
-				Jacobian_colindx.push_back( column_index[i] + site * N ); 
-			}
-			Jacobian_rowptr.push_back( (int) Jacobian_nzv.size() ); 
+		int N;
+		const double* non_zero_value = NULL;
+		const int * column_index = NULL;
+		const int* row_pointer = NULL; 
+		J.getRowMatrixData( N, &non_zero_value, &column_index, &row_pointer ); 
+		assert( matrix.row()==1 && matrix.col()==numParamPerLine && "Number of row is not correct for Jacobian matrix" );
+		for( int i=0; i<N; i++ ) {
+			Jacobian_nzv.push_back( non_zero_value[i] );
+			Jacobian_colindx.push_back( column_index[i] + site * N ); 
 		}
+		Jacobian_rowptr.push_back( (int) Jacobian_nzv.size() ); 
+	}
+}
 
-		
-		// // // // // // // // // // // // // // // // // // 
-		// Construct Jacobian Matrix - smooth cost 
-		// // // // // // // // // // // // // // // // // // 
+
+void LevenburgMaquart::Jacobian_smoothcost(
+	vector<double>& Jacobian_nzv, 
+	vector<int>&    Jacobian_colindx, 
+	vector<int>&    Jacobian_rowptr,
+	Mat_<double>& energy_matrix )
+{
+	const vector<Line3D*>& lines = modelset.models; 
+	int numParamPerLine = lines[0]->getNumOfParameters(); 
+	const Data3D<int>& indeces = labelIDs; 
 
 		for( int site = 0; site < dataPoints.size(); site++ ) { // For each data point
 			for( int neibourIndex=0; neibourIndex<13; neibourIndex++ ) { // find it's neighbour
 				// the neighbour position
 				int x, y, z; 
 				Neighbour26::getNeigbour( neibourIndex, 
-					dataPoints[site][0], dataPoints[site][1], dataPoints[site][2], 
+					dataPoints[site][0], 
+					dataPoints[site][1], 
+					dataPoints[site][2], 
 					x, y, z ); 
 				if( !indeces.isValid(x,y,z) ) continue; // not a valid position
 				                                        // otherwise
@@ -125,6 +116,39 @@ void LevenburgMaquart::reestimate( void )
 
 			} // for each pair of pi and pj
 		} // end of contruction of Jacobian Matrix
+}
+
+void LevenburgMaquart::reestimate( void )
+{
+	const vector<Line3D*>& lines = modelset.models; 
+	const Data3D<int>& indeces = labelIDs; 
+
+	int numParamPerLine = lines[0]->getNumOfParameters(); 
+	
+	double energy_before = compute_energy( dataPoints, labelings, lines, indeces );
+
+	double lambda = 1e2; // lamda - damping function for levenburg maquart
+	int lmiter = 0; // levenburg maquarit iteration count
+	for( lmiter = 0; lmiter<230; lmiter++ ) { 
+
+		// Data for Jacobian matrix
+		//  - # of cols: number of data points; 
+		//  - # of rows: number of parameters for all the line models
+		vector<double> Jacobian_nzv;
+		vector<int>    Jacobian_colindx;
+		vector<int>    Jacobian_rowptr(1, 0);
+
+		Mat_<double> energy_matrix = Mat_<double>( 0, 1 );
+
+		// // // // // // // // // // // // // // // // // // 
+		// Construct Jacobian Matrix -  data cost
+		// // // // // // // // // // // // // // // // // // 
+		datacost_jacobian( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
+		
+		// // // // // // // // // // // // // // // // // // 
+		// Construct Jacobian Matrix - smooth cost 
+		// // // // // // // // // // // // // // // // // // 
+		Jacobian_smoothcost( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
 
 		// Construct Jacobian matrix
 		SparseMatrixCV Jacobian = SparseMatrix(
