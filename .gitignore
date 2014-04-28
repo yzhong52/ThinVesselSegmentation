@@ -21,6 +21,16 @@ VesselNess/output
 */gmon.out
 */*.exe
 
+
+# Vtune
+ModelFitting/My Amplifier XE Results - ModelFitting/*
+
+
+
+
+
+
+
 ## Yuchen: The following is borrowed from:
 ##         https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
@@ -202,5 +212,6 @@ UpgradeLog*.htm
 
 # Microsoft Fakes
 FakesAssemblies/
+
 
 
