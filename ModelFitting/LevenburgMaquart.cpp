@@ -207,47 +207,149 @@ void LevenburgMaquart::Jacobian_smoothcost_openmp(
 			} // for each pair of pi and pj
 		} // end of contruction of Jacobian Matrix
 
-		int tid = omp_get_thread_num(); // obtatin current thread id
+		// obtatin current thread id
+		int tid = omp_get_thread_num(); 
+		// copy the current number size to global vectors nzv_size and nzv
+		// 'global' here is with respect to 'non-local' for threads
 		nzv_size[tid] = (unsigned int) Jacobian_nzv_loc.size(); 
-		nzv_rows[tid] = (unsigned int) Jacobian_rowptr.size(); 
-#pragma omp barrier // wait for all thread to execute till this point 
+		nzv_rows[tid] = (unsigned int) Jacobian_rowptr_loc.size(); 
+		// original size of the global vectors
 		unsigned int old_nzv_size = (unsigned int) Jacobian_nzv.size();
-		unsigned int old_num_rows = (unsigned int) Jacobian_rowptr.size(); 
+		unsigned int old_num_rows = (unsigned int) energy_matrix.size(); 
 
-		if( tid == omp_get_num_threads()-1 ) {
+		smart_assert( Jacobian_nzv.size()==Jacobian_colindx.size(), "vector size mismatch. " ); 
+		smart_assert( Jacobian_rowptr.size()-1==energy_matrix.size(), "vector size mismatch. " ); 
+
+#pragma omp barrier // wait for all thread to execute till this point 
+		if( tid==0 ) {
+			int nThreads = omp_get_num_threads();
 			accumulate_nzv_size[0] = nzv_size[0]; 
 			accumulate_nzv_rows[0] = nzv_rows[0]; 
-			for( int i=1; i<=tid; i++ ) {
+			for( int i=1; i<nThreads; i++ ) {
 				accumulate_nzv_size[i] = nzv_size[i] + accumulate_nzv_size[i-1]; 
 				accumulate_nzv_rows[i] = nzv_rows[i] + accumulate_nzv_rows[i-1]; 
 			}
+			
 			// resize the result vector, make them bigger!
-			int nThreads = omp_get_num_threads();
-			Jacobian_nzv.resize( Jacobian_nzv.size() + accumulate_nzv_size[nThreads] ); 
-			Jacobian_colindx.resize( Jacobian_colindx.size() + accumulate_nzv_size[nThreads] ); 
-			Jacobian_rowptr.resize( Jacobian_rowptr.size() + accumulate_nzv_rows[nThreads] ); 
-			energy_matrix.resize( energy_matrix.size() + accumulate_nzv_rows[nThreads] );
+			Jacobian_nzv.resize(     old_nzv_size + accumulate_nzv_size[nThreads-1] ); 
+			Jacobian_colindx.resize( old_nzv_size + accumulate_nzv_size[nThreads-1] ); 
+			Jacobian_rowptr.resize(  old_num_rows + accumulate_nzv_rows[nThreads-1] + 1); 
+			energy_matrix.resize(    old_num_rows + accumulate_nzv_rows[nThreads-1] );
 		}
-		
+
 #pragma omp barrier // wait for all thread to execute till this point 
-		// copy data to result vector 
-		int offset = old_nzv_size + (tid>0) ? accumulate_nzv_size[tid-1] : 0; 
-		memcpy( &Jacobian_nzv[0] + offset, 
-			&Jacobian_nzv_loc[0], 
-			accumulate_nzv_size[tid] * sizeof(double) ); 
-		memcpy( &Jacobian_colindx[0] + offset, 
-			&Jacobian_colindx_loc[0], 
-			accumulate_nzv_size[tid] * sizeof(double) ); 
 
-		int offset_row = old_num_rows + (tid>0) ? accumulate_nzv_rows[tid-1] : 0; 
+		// copy data to result vector 
+		int nzv_offset = old_nzv_size; 
+		if(tid>0) nzv_offset += accumulate_nzv_size[tid-1];
+		// The following two memcpy is equivalent to the following for loop 
+		//for( unsigned int i=0; i<nzv_size[tid]; i++ ) {
+		//	Jacobian_nzv[nzv_offset + i] = Jacobian_colindx_loc[i]; 
+		//	Jacobian_colindx[nzv_offset+i] = Jacobian_colindx_loc[i];
+		//}
+		memcpy( &Jacobian_nzv[nzv_offset], &Jacobian_nzv_loc[0], nzv_size[tid] * sizeof(double) ); 
+		memcpy( &Jacobian_colindx[nzv_offset], &Jacobian_colindx_loc[0], nzv_size[tid] * sizeof(int) ); 
+
+		int row_offset = old_num_rows; 
+		if( tid>0 ) row_offset += accumulate_nzv_rows[tid-1]; 
+		int data_offset = old_nzv_size;
+		if( tid>0 ) data_offset += accumulate_nzv_size[tid-1]; 
 		for( int i=0; i<Jacobian_rowptr_loc.size(); i++ ) {
-			Jacobian_rowptr[i+offset_row] = Jacobian_rowptr_loc[i] + offset; 
+			Jacobian_rowptr[ i + row_offset + 1 ] = Jacobian_rowptr_loc[i] + data_offset; 
 		}
 
-		memcpy( &energy_matrix[tid*2 + old_num_rows],
+		memcpy( &energy_matrix[row_offset],
 			&energy_matrix_loc[0], 
-			accumulate_nzv_rows[tid] * sizeof(double) ); 
-/*
+			nzv_rows[tid] * sizeof(double) ); 
+	}
+}
+
+
+
+void LevenburgMaquart::Jacobian_smoothcost_openmp_critical_section(
+	vector<double>& Jacobian_nzv, 
+	vector<int>&    Jacobian_colindx, 
+	vector<int>&    Jacobian_rowptr,
+	vector<double>&	energy_matrix )
+{
+	// // // // // // // // // // // // // // // // // // 
+	// Construct Jacobian Matrix - smooth cost 
+	// // // // // // // // // // // // // // // // // // 
+	const vector<Line3D*>& lines = modelset.models; 
+	int numParamPerLine = lines[0]->getNumOfParameters(); 
+	const Data3D<int>& indeces = labelIDs; 
+
+	int max_num_threads = omp_get_max_threads(); // maximum number of thread
+	vector<unsigned int> nzv_size( max_num_threads, 0); 
+	vector<unsigned int> nzv_rows( max_num_threads, 0); 
+	vector<unsigned int> accumulate_nzv_size( max_num_threads, 0); 
+	vector<unsigned int> accumulate_nzv_rows( max_num_threads, 0); 
+#pragma omp parallel /* Fork a team of threads*/ 
+	{
+		// local variables for different processes
+		vector<double> Jacobian_nzv_loc;
+		vector<int>    Jacobian_colindx_loc;
+		vector<int>    Jacobian_rowptr_loc;
+		vector<double>   energy_matrix_loc;
+#pragma omp for
+		for( int site = 0; site < dataPoints.size(); site++ ) { // For each data point
+			for( int neibourIndex=0; neibourIndex<13; neibourIndex++ ) { // find it's neighbour
+				// the neighbour position
+				int x, y, z; 
+				Neighbour26::getNeigbour( neibourIndex, 
+					dataPoints[site][0], dataPoints[site][1], dataPoints[site][2], 
+					x, y, z ); 
+				if( !indeces.isValid(x,y,z) ) continue; // not a valid position
+				// otherwise
+
+				int site2 = indeces.at(x,y,z); 
+				if( site2==-1 ) continue ; // not a neighbour
+				// other wise, found a neighbour
+
+				int l1 = labelings[site];
+				int l2 = labelings[site2];
+
+				if( l1==l2 ) continue; // TODO
+
+				double smoothcost_i_before = 0, smoothcost_j_before = 0;
+				compute_smoothcost_for_pair( 
+					lines[l1], lines[l2], dataPoints[site], dataPoints[site2], 
+					smoothcost_i_before, smoothcost_j_before ); 
+
+				// add more rows to energy_matrix according to smooth cost 
+				energy_matrix_loc.push_back( sqrt( smoothcost_i_before ) ); 
+				energy_matrix_loc.push_back( sqrt( smoothcost_j_before ) ); 
+
+				////// Computing derivative of pair-wise smooth cost analytically
+				SparseMatrixCV J[2];
+				compute_smoothcost_derivative(  lines[l1], lines[l2], 
+					dataPoints[site], dataPoints[site2], J[0], J[1] ); 
+
+				for( int ji = 0; ji<2; ji++ ) {
+					int N;
+					const double* non_zero_value = NULL;
+					const int * column_index = NULL;
+					const int* row_pointer = NULL; 
+					J[ji].getRowMatrixData( N, &non_zero_value, &column_index, &row_pointer ); 
+					assert( J[ji].row()==1 && J[ji].col()==2*numParamPerLine && "Number of row is not correct for Jacobian matrix" );
+
+					int n1; 
+					for( n1=0; n1<N && column_index[n1] < numParamPerLine; n1++ ) {
+						Jacobian_nzv_loc.push_back( non_zero_value[n1] );
+						Jacobian_colindx_loc.push_back( column_index[n1] + site * numParamPerLine ); 
+					}
+					int n2 = n1; 
+					for( ; n2<N; n2++ ) {
+						Jacobian_nzv_loc.push_back( non_zero_value[n2] );
+						Jacobian_colindx_loc.push_back( column_index[n2] + (site2-1) * numParamPerLine ); 
+					}
+					Jacobian_rowptr_loc.push_back( (int) Jacobian_nzv_loc.size() ); 
+				}
+
+			} // for each pair of pi and pj
+		} // end of contruction of Jacobian Matrix
+
+
 #pragma omp critical 
 		{
 			Jacobian_nzv.insert( Jacobian_nzv.end(), Jacobian_nzv_loc.begin(), Jacobian_nzv_loc.end());
@@ -256,9 +358,10 @@ void LevenburgMaquart::Jacobian_smoothcost_openmp(
 			for( int i=0; i<Jacobian_rowptr_loc.size(); i++ ) {
 				Jacobian_rowptr.push_back( Jacobian_rowptr_loc[i] + offset ); 
 			}
-			energy_matrix.push_back( energy_matrix_loc ); 
+			energy_matrix.insert( energy_matrix.begin(), 
+				energy_matrix_loc.begin(), 
+				energy_matrix_loc.end() ); 
 		}
-*/
 
 	}
 }
@@ -274,7 +377,7 @@ void LevenburgMaquart::reestimate( void )
 
 	double lambda = 1e2; // lamda - damping function for levenburg maquart
 	int lmiter = 0; // levenburg maquarit iteration count
-	for( lmiter = 0; lmiter<1; lmiter++ ) { 
+	for( lmiter = 0; lmiter<5; lmiter++ ) { 
 
 		// Data for Jacobian matrix
 		//  - # of cols: number of data points; 
@@ -288,26 +391,43 @@ void LevenburgMaquart::reestimate( void )
 		// // // // // // // // // // // // // // // // // // 
 		// Construct Jacobian Matrix -  data cost
 		// // // // // // // // // // // // // // // // // // 
-		// datacost_jacobian( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
+		datacost_jacobian( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
 
 		// // // // // // // // // // // // // // // // // // 
 		// Construct Jacobian Matrix - smooth cost 
 		// // // // // // // // // // // // // // // // // // 
-		Timer::begin( "J smoothcost n m t" ); 
-		Jacobian_smoothcost( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
-		Timer::end( "J smoothcost n m t" ); 
-		//Timer::begin( "J smoothcost m t" ); 
-		//Jacobian_smoothcost_openmp( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
-		//Timer::end( "J smoothcost m t" ); 
+		//Timer::begin( "J smooth single" ); 
+		//Jacobian_smoothcost( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
+		//Timer::end( "J smooth single" ); 
+		// Timer::begin( "J smooth multi" ); 
+		
+		{
+			cout << "Jacobian_smoothcost" << endl;
+			vector<double> Jacobian_nzv;
+			vector<int>    Jacobian_colindx;
+			vector<int>    Jacobian_rowptr(1, 0);
+			vector<double> energy_matrix;
+			Jacobian_smoothcost( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
+		}
+		{
+			cout << "Jacobian_smoothcost_openmp" << endl;
+			vector<double> Jacobian_nzv;
+			vector<int>    Jacobian_colindx;
+			vector<int>    Jacobian_rowptr(1, 0);
+			vector<double> energy_matrix;
+			Jacobian_smoothcost( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
+			Jacobian_smoothcost_openmp( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
+		}
 
+		cout << "Jacobian_smoothcost_openmp_critical_section" << endl;
+		Jacobian_smoothcost_openmp_critical_section( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
+		
 		// Construct Jacobian matrix
 		SparseMatrixCV Jacobian = SparseMatrix(
 			(int) Jacobian_rowptr.size() - 1, 
 			(int) lines.size() * numParamPerLine, 
 			Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr );
 		
-		Jacobian.t() * Jacobian;
-		SparseMatrixCV::I( Jacobian.col() ) * lambda; 
 		SparseMatrixCV A = Jacobian.t() * Jacobian + SparseMatrixCV::I( Jacobian.col() ) * lambda;
 		// TODO: the following line need to be optimized
 		Mat_<double> B = Jacobian.t() * cv::Mat_<double>( (int) energy_matrix.size(), 1, &energy_matrix.front() ) ; 
@@ -337,12 +457,12 @@ void LevenburgMaquart::reestimate( void )
 		// the bigger lambda is, the slower it converges
 		static int energy_increase_count = 0; 
 		if( new_energy < energy_before ) { // if energy is decreasing 
-			cout << "- ";
+			cout << "- " << new_energy << endl;
 			energy_before = new_energy; 
 			lambda *= 0.71; 
 			energy_increase_count = 0; 
 		} else {
-			cout << "+ ";
+			cout << "+ " << new_energy << endl;
 			for( int label=0; label < lines.size(); label++ ) {
 				for( int i=0; i < numParamPerLine; i++ ) {
 					const double& delta = X.at<double>( label * numParamPerLine + i ); 

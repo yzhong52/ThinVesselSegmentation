@@ -43,5 +43,10 @@ private:
 		vector<int>&    Jacobian_colindx,  
 		vector<int>&    Jacobian_rowptr, 
 		vector<double>& energy_matrix );
+	void Jacobian_smoothcost_openmp_critical_section(
+		vector<double>& Jacobian_nzv, 
+		vector<int>&    Jacobian_colindx,  
+		vector<int>&    Jacobian_rowptr, 
+		vector<double>& energy_matrix );
 };
 

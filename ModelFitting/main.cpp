@@ -90,7 +90,7 @@ int main(int argc, char* argv[])
 	vn_sig.load( "../temp/roi15.vn_sig" ); 
 	/*im_short.load( "../data/roi15.data" ); 
 	return 0; */
-	vn_sig.remove_margin_to( Vec3i(50, 50, 50) );
+	vn_sig.remove_margin_to( Vec3i(30, 30, 30) );
 	
 	// Synthesic Data
 	//SyntheticData::Doughout( im_short ); 
@@ -102,12 +102,11 @@ int main(int argc, char* argv[])
 	Data3D<float> vn = vn_sig; 
 	IP::normalize( vn, 1.0f ); 
 	
-	IP::threshold( vn, indeces, dataPoints, 0.10f );
+	IP::threshold( vn, indeces, dataPoints, 0.20f );
 	cout << "Number of data points: " << dataPoints.size() << endl;
 	
-
 	//////////////////////////////////////////////////
-	// Line Fitting
+	// Line Fitting 
 	//////////////////////////////////////////////////
 	// Initial Samplings
 	const int num_init_labels = (int) dataPoints.size(); 
