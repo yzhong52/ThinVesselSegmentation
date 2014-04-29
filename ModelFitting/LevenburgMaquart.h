@@ -1,6 +1,7 @@
 #pragma once
 #include "SparseMatrixCV\SparseMatrixCV.h" 
 #include "opencv2\core\core.hpp"
+#include "ModelSet.h" 
 using namespace cv; 
 
 class Line3D; 
@@ -12,16 +13,21 @@ extern const double PAIRWISESMOOTH;
 
 class LevenburgMaquart
 {
-	
-	const vector<Vec3i>& dataPoints;
-	const vector<int>& labelings;
+	const vector<Vec3i>& tildaP;   // original points
+	const vector<int>& labelID;
+	const Data3D<int>& labelID3d;
+
 	const ModelSet<Line3D>& modelset;
-	const Data3D<int>& labelIDs;
+	const vector<Line3D*>& lines; 
+	
+	int numParamPerLine; 
+	int numParam; 
+
+	vector<Vec3d>  P;              // projection points of original points
+	vector<SparseMatrixCV> nablaP; // Jacobian matrix of the porjeciton points 
 public:
 	LevenburgMaquart( const vector<Vec3i>& dataPoints, const vector<int>& labelings, 
-		const ModelSet<Line3D>& modelset, const Data3D<int>& labelIDs ) 
-		: dataPoints( dataPoints ), labelings( labelings )
-		, modelset( modelset ), labelIDs( labelIDs ) { }
+		const ModelSet<Line3D>& modelset, const Data3D<int>& labelIDs ); 
 
 	void reestimate( void ); 
 private:
@@ -53,8 +59,8 @@ private:
 private:
 	// projections of datapoints & 
 	// the Jacobain matrix of the corresponding projection point 
-	vector<Vec3d> P;
-	vector<SparseMatrixCV> nablaP;
+	
+	
 	
 	// X1, X2: 3 * 1, two end points of the line
 	// nablaX: 3 * 12, 3 non-zero values
@@ -65,14 +71,10 @@ private:
 		const cv::Vec3d& tildeP,           const SparseMatrixCV& nablaTildeP,      // a point, and the Jacobian of the point
 		cv::Vec3d& P, SparseMatrixCV& nablaP );
 
-	SparseMatrixCV Jacobian_datacost_for_one( 
-		const Line3D* l, 
-		const cv::Vec3d tildeP, int site );
+	SparseMatrixCV Jacobian_datacost_for_one( const int& site );
 
-	void Jacobian_smoothcost_for_pair( const Line3D* li, const Line3D* lj, 
-		const cv::Vec3d& tildePi, const cv::Vec3d& tildePj,
+	void Jacobian_smoothcost_for_pair( const int& sitei, const int& sitej, 
 		SparseMatrixCV& nabla_smooth_cost_i,
-		SparseMatrixCV& nabla_smooth_cost_j,
-		int sitei_i, int site_j);
+		SparseMatrixCV& nabla_smooth_cost_j );
 };
 

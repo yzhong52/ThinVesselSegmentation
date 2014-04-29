@@ -90,7 +90,7 @@ int main(int argc, char* argv[])
 	vn_sig.load( "../temp/roi15.vn_sig" ); 
 	/*im_short.load( "../data/roi15.data" ); 
 	return 0; */
-	vn_sig.remove_margin_to( Vec3i(60, 60, 60) );
+	vn_sig.remove_margin_to( Vec3i(50, 50, 50) );
 	
 	// Synthesic Data
 	//SyntheticData::Doughout( im_short ); 
