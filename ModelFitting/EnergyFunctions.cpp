@@ -159,7 +159,7 @@ void  projection_jacobians(
 	const SparseMatrixCV MX1( X1 );
 	const SparseMatrixCV MX2( X2 ); 
 
-	nablaP = MX1 * nablaT + nablaX1 * T + nablaX2 * (1-T) - MX2 * nablaT;
+	nablaP = X1 * nablaT + nablaX1 * T + nablaX2 * (1-T) - X2 * nablaT;
 
 	Timer::end("Projection Jacobians");
 	
@@ -232,16 +232,9 @@ void compute_smoothcost_derivative( const Line3D* li, const Line3D* lj,
 	const double dist_pi_pi_prime  = sqrt( dist_pi_pi_prime2 ); 
 	const double dist_pj_pj_prime  = sqrt( dist_pj_pj_prime2 ); 
 
-	// Convert the end points into matrix form
-	const SparseMatrixCV MPi( Pi );
-	const SparseMatrixCV MPj( Pj ); 
-	const SparseMatrixCV MPi_prime( Pi_prime ); 
-	const SparseMatrixCV MPj_prime( Pj_prime ); 
-	
-	const SparseMatrixCV nabla_pi_pi_prime = ( MPi - MPi_prime ).t() * ( nablaPi - nablaPi_prime ) / dist_pi_pi_prime;
-
-	const SparseMatrixCV nabla_pj_pj_prime = ( ( MPj - MPj_prime ).t() * ( nablaPj - nablaPj_prime ) ) / dist_pj_pj_prime; 
-	const SparseMatrixCV nabla_pi_pj       = ( MPi - MPj ).t() * ( nablaPi - nablaPj ) / dist_pi_pj;  
+	const SparseMatrixCV nabla_pi_pi_prime = ( Pi - Pi_prime ).t() * ( nablaPi - nablaPi_prime ) / dist_pi_pi_prime;
+	const SparseMatrixCV nabla_pj_pj_prime = ( Pj - Pj_prime ).t() * ( nablaPj - nablaPj_prime ) / dist_pj_pj_prime; 
+	const SparseMatrixCV nabla_pi_pj       = ( Pi - Pj ).t() * ( nablaPi - nablaPj ) / dist_pi_pj;  
 	
 	// output result 
 	nabla_smooth_cost_i = ( nabla_pi_pi_prime * dist_pi_pj - nabla_pi_pj * dist_pi_pi_prime ) * (1.0 / dist_pi_pj2 * PAIRWISESMOOTH); 

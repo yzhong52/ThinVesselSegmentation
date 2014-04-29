@@ -371,10 +371,18 @@ void LevenburgMaquart::reestimate( void )
 	const vector<Line3D*>& lines = modelset.models; 
 	const Data3D<int>& indeces = labelIDs; 
 
+	if( lines.size()==0 ) {
+		cout << "No line models available" << endl;
+		return; 
+	}
 	int numParamPerLine = lines[0]->getNumOfParameters(); 
 
 	double energy_before = compute_energy( dataPoints, labelings, lines, indeces );
 
+	
+	P = vector<Vec3d>( dataPoints.size() );
+	nablaP = vector<SparseMatrixCV>( dataPoints.size() );
+	
 	double lambda = 1e2; // lamda - damping function for levenburg maquart
 	int lmiter = 0; // levenburg maquarit iteration count
 	for( lmiter = 0; lmiter<5; lmiter++ ) { 
@@ -396,31 +404,7 @@ void LevenburgMaquart::reestimate( void )
 		// // // // // // // // // // // // // // // // // // 
 		// Construct Jacobian Matrix - smooth cost 
 		// // // // // // // // // // // // // // // // // // 
-		//Timer::begin( "J smooth single" ); 
-		//Jacobian_smoothcost( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
-		//Timer::end( "J smooth single" ); 
-		// Timer::begin( "J smooth multi" ); 
-		
-		{
-			cout << "Jacobian_smoothcost" << endl;
-			vector<double> Jacobian_nzv;
-			vector<int>    Jacobian_colindx;
-			vector<int>    Jacobian_rowptr(1, 0);
-			vector<double> energy_matrix;
-			Jacobian_smoothcost( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
-		}
-		{
-			cout << "Jacobian_smoothcost_openmp" << endl;
-			vector<double> Jacobian_nzv;
-			vector<int>    Jacobian_colindx;
-			vector<int>    Jacobian_rowptr(1, 0);
-			vector<double> energy_matrix;
-			Jacobian_smoothcost( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
-			Jacobian_smoothcost_openmp( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
-		}
-
-		cout << "Jacobian_smoothcost_openmp_critical_section" << endl;
-		Jacobian_smoothcost_openmp_critical_section( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
+		Jacobian_smoothcost_openmp( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
 		
 		// Construct Jacobian matrix
 		SparseMatrixCV Jacobian = SparseMatrix(

@@ -47,7 +47,7 @@ HANDLE thread_render = NULL;
 	// thread function for rendering
 	void visualization_func( void* data ) {
 		GLViwerModel& ver = *(GLViwerModel*) data; 
-		ver.go( 1280, 720, 2 );
+		ver.go( 720, 480, 2 );
 	}
 	template<class T>
 	void initViwer( const Data3D<T>& im, const vector<cv::Vec3i>& dataPoints, 

@@ -1,5 +1,5 @@
 #pragma once
-
+#include "SparseMatrixCV\SparseMatrixCV.h" 
 #include "opencv2\core\core.hpp"
 using namespace cv; 
 
@@ -12,6 +12,11 @@ extern const double PAIRWISESMOOTH;
 
 class LevenburgMaquart
 {
+	// projections of datapoints & 
+	// the Jacobain matrix of the projections
+	vector<Vec3d> P;
+	vector<SparseMatrixCV> nablaP;
+
 	const vector<Vec3i>& dataPoints;
 	const vector<int>& labelings;
 	const ModelSet<Line3D>& modelset;
