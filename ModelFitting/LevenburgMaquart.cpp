@@ -98,10 +98,11 @@ SparseMatrixCV LevenburgMaquart::Jacobian_datacost_for_one( const int& site ) {
 }
 
 
+
 void LevenburgMaquart::Jacobian_smoothcost_for_pair( 
 	const int& sitei, const int& sitej, 
-		SparseMatrixCV& nabla_smooth_cost_i,
-		SparseMatrixCV& nabla_smooth_cost_j  ) 
+	SparseMatrixCV& nabla_smooth_cost_i,
+	SparseMatrixCV& nabla_smooth_cost_j  ) 
 {
 	int labeli = labelID[sitei];
 	int labelj = labelID[sitej];
@@ -211,68 +212,67 @@ void LevenburgMaquart::Jacobian_datacost(
 }
 
 
-void LevenburgMaquart::Jacobian_smoothcost(
-	vector<double>& Jacobian_nzv, 
-	vector<int>&    Jacobian_colindx, 
-	vector<int>&    Jacobian_rowptr,
-	vector<double>& energy_matrix )
+
+void LevenburgMaquart::Jacobian_smoothcost_thread_func(
+		vector<double>& Jacobian_nzv, 
+		vector<int>&    Jacobian_colindx,  
+		vector<int>&    Jacobian_rowptr, 
+		vector<double>& energy_matrix,
+		int site )
 {
-	const vector<Line3D*>& lines = modelset.models; 
-	int numParamPerLine = lines[0]->getNumOfParameters(); 
-	const Data3D<int>& indeces = labelID3d; 
+	for( int neibourIndex=0; neibourIndex<13; neibourIndex++ ) { // find it's neighbour
+		// the neighbour position
+		int x, y, z; 
+		Neighbour26::getNeigbour( neibourIndex, 
+			tildaP[site][0], 
+			tildaP[site][1], 
+			tildaP[site][2], 
+			x, y, z ); 
+		if( !labelID3d.isValid(x,y,z) ) continue; // not a valid position
+		// otherwise
 
-	for( int site = 0; site < tildaP.size(); site++ ) { // For each data point
-		for( int neibourIndex=0; neibourIndex<13; neibourIndex++ ) { // find it's neighbour
-			// the neighbour position
-			int x, y, z; 
-			Neighbour26::getNeigbour( neibourIndex, 
-				tildaP[site][0], 
-				tildaP[site][1], 
-				tildaP[site][2], 
-				x, y, z ); 
-			if( !indeces.isValid(x,y,z) ) continue; // not a valid position
-			// otherwise
+		int site2 = labelID3d.at(x,y,z); 
+		if( site2==-1 ) continue ; // not a neighbour
+		// other wise, found a neighbour
 
-			int site2 = indeces.at(x,y,z); 
-			if( site2==-1 ) continue ; // not a neighbour
-			// other wise, found a neighbour
+		int l1 = labelID[site];
+		int l2 = labelID[site2];
 
-			int l1 = labelID[site];
-			int l2 = labelID[site2];
+		if( l1==l2 ) continue; // TODO
 
-			if( l1==l2 ) continue; // TODO
+		double smoothcost_i_before = 0, smoothcost_j_before = 0;
+		compute_smoothcost_for_pair( lines[l1], lines[l2], 
+			tildaP[site], tildaP[site2], 
+			smoothcost_i_before, smoothcost_j_before ); 
 
-			double smoothcost_i_before = 0, smoothcost_j_before = 0;
-			compute_smoothcost_for_pair( lines[l1], lines[l2], 
-				tildaP[site], tildaP[site2], 
-				smoothcost_i_before, smoothcost_j_before ); 
+		// add more rows to energy_matrix according to smooth cost 
+		energy_matrix.push_back( sqrt( smoothcost_i_before ) ); 
+		energy_matrix.push_back( sqrt( smoothcost_j_before ) ); 
 
-			// add more rows to energy_matrix according to smooth cost 
-			energy_matrix.push_back( sqrt( smoothcost_i_before ) ); 
-			energy_matrix.push_back( sqrt( smoothcost_j_before ) ); 
+		////// Computing derivative of pair-wise smooth cost analytically
+		SparseMatrixCV J[2];
+		Jacobian_smoothcost_for_pair( site, site2, J[0], J[1] ); 
 
-			////// Computing derivative of pair-wise smooth cost analytically
-			SparseMatrixCV J[2];
-			Jacobian_smoothcost_for_pair( site, site2, J[0], J[1] ); 
+		for( int ji = 0; ji<2; ji++ ) {
+			int nnz;
+			const double* non_zero_value = NULL;
+			const int * column_index = NULL;
+			const int* row_pointer = NULL; 
+			J[ji].getRowMatrixData( nnz, &non_zero_value, &column_index, &row_pointer ); 
 
-			for( int ji = 0; ji<2; ji++ ) {
-				int N;
-				const double* non_zero_value = NULL;
-				const int * column_index = NULL;
-				const int* row_pointer = NULL; 
-				J[ji].getRowMatrixData( N, &non_zero_value, &column_index, &row_pointer ); 
-				smart_assert( J[ji].row()==1 && J[ji].col()==numParam, "Number of row is not correct for Jacobian matrix" );
+			smart_assert( J[ji].row()==1 && J[ji].col()==numParam, 
+				"Number of row is not correct for Jacobian matrix" );
 
-				for( int n1=0; n1<N; n1++ ) {
-					Jacobian_nzv.push_back( non_zero_value[n1] );
-					Jacobian_colindx.push_back( column_index[n1] ); 
-				}
-				Jacobian_rowptr.push_back( (int) Jacobian_nzv.size() ); 
+			for( int n1=0; n1 < nnz; n1++ ) {
+				Jacobian_nzv.push_back( non_zero_value[n1] );
+				Jacobian_colindx.push_back( column_index[n1] ); 
 			}
+			Jacobian_rowptr.push_back( (int) Jacobian_nzv.size() ); 
+		}
 
-		} // for each pair of pi and pj
-	} // end of contruction of Jacobian Matrix
+	} // for each pair of pi and pj
 }
+
 
 
 
@@ -294,6 +294,7 @@ void LevenburgMaquart::Jacobian_smoothcost_openmp(
 	vector<unsigned int> nzv_rows( max_num_threads, 0); 
 	vector<unsigned int> accumulate_nzv_size( max_num_threads, 0); 
 	vector<unsigned int> accumulate_nzv_rows( max_num_threads, 0); 
+
 #pragma omp parallel /* Fork a team of threads*/ 
 	{
 		// local variables for different processes
@@ -303,53 +304,8 @@ void LevenburgMaquart::Jacobian_smoothcost_openmp(
 		vector<double>   energy_matrix_loc;
 #pragma omp for
 		for( int site = 0; site < tildaP.size(); site++ ) { // For each data point
-			for( int neibourIndex=0; neibourIndex<13; neibourIndex++ ) { // find it's neighbour
-				// the neighbour position
-				int x, y, z; 
-				Neighbour26::getNeigbour( neibourIndex, 
-					tildaP[site][0], tildaP[site][1], tildaP[site][2], 
-					x, y, z ); 
-				if( !indeces.isValid(x,y,z) ) continue; // not a valid position
-				// otherwise
-
-				int site2 = indeces.at(x,y,z); 
-				if( site2==-1 ) continue ; // not a neighbour
-				// other wise, found a neighbour
-
-				int l1 = labelID[site];
-				int l2 = labelID[site2];
-
-				if( l1==l2 ) continue; // TODO
-
-				double smoothcost_i_before = 0, smoothcost_j_before = 0;
-				compute_smoothcost_for_pair( 
-					lines[l1], lines[l2], tildaP[site], tildaP[site2], 
-					smoothcost_i_before, smoothcost_j_before ); 
-
-				// add more rows to energy_matrix according to smooth cost 
-				energy_matrix_loc.push_back( sqrt( smoothcost_i_before ) ); 
-				energy_matrix_loc.push_back( sqrt( smoothcost_j_before ) ); 
-
-				////// Computing derivative of pair-wise smooth cost analytically
-				SparseMatrixCV J[2];
-				Jacobian_smoothcost_for_pair( site, site2, J[0], J[1] ); 
-
-				for( int ji = 0; ji<2; ji++ ) {
-					int N;
-					const double* non_zero_value = NULL;
-					const int * column_index = NULL;
-					const int* row_pointer = NULL; 
-					J[ji].getRowMatrixData( N, &non_zero_value, &column_index, &row_pointer ); 
-					assert( J[ji].row()==1 && J[ji].col()==numParam && "Number of row is not correct for Jacobian matrix" );
-
-					for( int n1=0; n1<N; n1++ ) {
-						Jacobian_nzv_loc.push_back( non_zero_value[n1] );
-						Jacobian_colindx_loc.push_back( column_index[n1] ); 
-					}
-					Jacobian_rowptr_loc.push_back( (int) Jacobian_nzv_loc.size() ); 
-				}
-
-			} // for each pair of pi and pj
+			Jacobian_smoothcost_thread_func( Jacobian_nzv_loc, Jacobian_colindx_loc, 
+				Jacobian_rowptr_loc, energy_matrix_loc, site ); 
 		} // end of contruction of Jacobian Matrix
 
 		// obtatin current thread id
@@ -413,80 +369,31 @@ void LevenburgMaquart::Jacobian_smoothcost_openmp(
 	}
 }
 
-
-
 void LevenburgMaquart::Jacobian_smoothcost_openmp_critical_section(
 	vector<double>& Jacobian_nzv, 
 	vector<int>&    Jacobian_colindx, 
 	vector<int>&    Jacobian_rowptr,
 	vector<double>&	energy_matrix )
 {
-	// // // // // // // // // // // // // // // // // // 
-	// Construct Jacobian Matrix - smooth cost 
-	// // // // // // // // // // // // // // // // // // 
-	
-	int max_num_threads = omp_get_max_threads(); // maximum number of thread
-	vector<unsigned int> nzv_size( max_num_threads, 0); 
-	vector<unsigned int> nzv_rows( max_num_threads, 0); 
-	vector<unsigned int> accumulate_nzv_size( max_num_threads, 0); 
-	vector<unsigned int> accumulate_nzv_rows( max_num_threads, 0); 
 #pragma omp parallel /* Fork a team of threads*/ 
 	{
 		// local variables for different processes
 		vector<double> Jacobian_nzv_loc;
 		vector<int>    Jacobian_colindx_loc;
 		vector<int>    Jacobian_rowptr_loc;
-		vector<double>   energy_matrix_loc;
+		vector<double> energy_matrix_loc;
+
 #pragma omp for
-		for( int site = 0; site < tildaP.size(); site++ ) { // For each data point
-			for( int neibourIndex=0; neibourIndex<13; neibourIndex++ ) { // find it's neighbour
-				// the neighbour position
-				int x, y, z; 
-				Neighbour26::getNeigbour( neibourIndex, 
-					tildaP[site][0], tildaP[site][1], tildaP[site][2], 
-					x, y, z ); 
-				if( !labelID3d.isValid(x,y,z) ) continue; // not a valid position
-				// otherwise
 
-				int site2 = labelID3d.at(x,y,z); 
-				if( site2==-1 ) continue ; // not a neighbour
-				// other wise, found a neighbour
-
-				int l1 = labelID[site];
-				int l2 = labelID[site2];
-
-				if( l1==l2 ) continue; // TODO
-
-				double smoothcost_i_before = 0, smoothcost_j_before = 0;
-				compute_smoothcost_for_pair( 
-					lines[l1], lines[l2], tildaP[site], tildaP[site2], 
-					smoothcost_i_before, smoothcost_j_before ); 
-
-				// add more rows to energy_matrix according to smooth cost 
-				energy_matrix_loc.push_back( sqrt( smoothcost_i_before ) ); 
-				energy_matrix_loc.push_back( sqrt( smoothcost_j_before ) ); 
-
-				////// Computing derivative of pair-wise smooth cost analytically
-				SparseMatrixCV J[2];
-				Jacobian_smoothcost_for_pair( site, site2, J[0], J[1] ); 
-				
-				for( int ji = 0; ji<2; ji++ ) {
-					int N;
-					const double* non_zero_value = NULL;
-					const int* column_index = NULL;
-					const int* row_pointer = NULL; 
-					J[ji].getRowMatrixData( N, &non_zero_value, &column_index, &row_pointer ); 
-					smart_assert( J[ji].row()==1 && J[ji].col()==numParam, "Number of row is not correct for Jacobian matrix" );
-
-					for( int n1=0; n1<N; n1++ ) {
-						Jacobian_nzv_loc.push_back( non_zero_value[n1] );
-						Jacobian_colindx_loc.push_back( column_index[n1] ); 
-					}
-					Jacobian_rowptr_loc.push_back( (int) Jacobian_nzv_loc.size() ); 
-				} 
-			} // for each pair of pi and pj
-		} // end of contruction of Jacobian Matrix
-
+		for( int site = 0; site < tildaP.size(); site++ ) { 
+			// For each data point, the following computation will 
+			// be splited into multiple thread 
+			Jacobian_smoothcost_thread_func( 
+				Jacobian_nzv_loc, 
+				Jacobian_colindx_loc, 
+				Jacobian_rowptr_loc, 
+				energy_matrix_loc, site ); 
+		}
 
 #pragma omp critical 
 		{
@@ -500,11 +407,30 @@ void LevenburgMaquart::Jacobian_smoothcost_openmp_critical_section(
 				Jacobian_rowptr.push_back( Jacobian_rowptr_loc[i] + offset ); 
 			}
 
-			energy_matrix.insert( energy_matrix.begin(), 
+			energy_matrix.insert( energy_matrix.end(), 
 				energy_matrix_loc.begin(), 
 				energy_matrix_loc.end() ); 
 		}
 	}
+}
+
+
+void LevenburgMaquart::Jacobian_smoothcost(
+	vector<double>& Jacobian_nzv, 
+	vector<int>&    Jacobian_colindx, 
+	vector<int>&    Jacobian_rowptr,
+	vector<double>& energy_matrix )
+{
+	for( int site = 0; site < tildaP.size(); site++ ) { 
+		// For each data point
+		// using only one thread for the computation 
+		Jacobian_smoothcost_thread_func( 
+			Jacobian_nzv, 
+			Jacobian_colindx, 
+			Jacobian_rowptr, 
+			energy_matrix, 
+			site ); 
+	} 
 }
 
 void LevenburgMaquart::reestimate( void )
@@ -534,7 +460,6 @@ void LevenburgMaquart::reestimate( void )
 		vector<double> Jacobian_nzv;
 		vector<int>    Jacobian_colindx;
 		vector<int>    Jacobian_rowptr(1, 0);
-
 		vector<double> energy_matrix;
 
 		// // // // // // // // // // // // // // // // // // 
@@ -545,9 +470,9 @@ void LevenburgMaquart::reestimate( void )
 		// // // // // // // // // // // // // // // // // // 
 		// Construct Jacobian Matrix - smooth cost 
 		// // // // // // // // // // // // // // // // // // 
-		// Jacobian_smoothcost_openmp_critical_section( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
-		// Jacobian_smoothcost_openmp( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
-		Jacobian_smoothcost( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
+		//Jacobian_smoothcost_openmp_critical_section( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
+		Jacobian_smoothcost_openmp( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
+		//Jacobian_smoothcost( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
 		
 		// Construct Jacobian matrix
 		SparseMatrixCV Jacobian = SparseMatrix(

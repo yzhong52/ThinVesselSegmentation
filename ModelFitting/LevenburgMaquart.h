@@ -55,6 +55,14 @@ private:
 		vector<int>&    Jacobian_colindx,  
 		vector<int>&    Jacobian_rowptr, 
 		vector<double>& energy_matrix );
+	// Jacobian Matrix - smooth cost
+	// each site one thread
+	void Jacobian_smoothcost_thread_func(
+		vector<double>& Jacobian_nzv, 
+		vector<int>&    Jacobian_colindx,  
+		vector<int>&    Jacobian_rowptr, 
+		vector<double>& energy_matrix,
+		int site );
 
 private:
 	// projections of datapoints & 
