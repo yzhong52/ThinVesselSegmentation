@@ -127,13 +127,13 @@ void LevenburgMaquart::Jacobian_smoothcost_for_pair(
 		{1, 4 + labeli * numParamPerLine}, 
 		{2, 5 + labeli * numParamPerLine}}; 
 	const int indecesXj1[][2] = { 
-		{0, 6 + labelj * numParamPerLine}, 
-		{1, 7 + labelj * numParamPerLine}, 
-		{2, 8 + labelj * numParamPerLine}}; 
+		{0, 0 + labelj * numParamPerLine}, 
+		{1, 1 + labelj * numParamPerLine}, 
+		{2, 2 + labelj * numParamPerLine}}; 
 	const int indecesXj2[][2] = { 
-		{0, 9  + labelj * numParamPerLine}, 
-		{1, 10 + labelj * numParamPerLine}, 
-		{2, 11 + labelj * numParamPerLine}}; 
+		{0, 3  + labelj * numParamPerLine}, 
+		{1, 4 + labelj * numParamPerLine}, 
+		{2, 5 + labelj * numParamPerLine}}; 
 	
 	static const double values[] = { 1.0, 1.0, 1.0 };
 	const SparseMatrixCV nablaXi1(3, numParam, indecesXi1, values, 3 );
@@ -154,12 +154,13 @@ void LevenburgMaquart::Jacobian_smoothcost_for_pair(
 	Jacobian_projection( Xj1, Xj2, nablaXj1, nablaXj2, tildePj, SparseMatrixCV(3, numParam), Pj,       nablaPj );
 	//cout << nablaPi.t() << endl; 
 	//cout << nablaP[sitei].t() << endl; 
+	//
 
 	Vec3d Pi_prime, Pj_prime;
 	SparseMatrixCV nablaPi_prime, nablaPj_prime; 
 	Jacobian_projection( Xj1, Xj2, nablaXj1, nablaXj2, Pi,      nablaPi,             Pi_prime, nablaPi_prime );
 	Jacobian_projection( Xi1, Xi2, nablaXi1, nablaXi2, Pj,      nablaPj,             Pj_prime, nablaPj_prime );
-
+	
 	const double dist_pi_pj2       = max(1e-27, double( (Pi-Pj).dot(Pi-Pj) ) ); 
 	const double dist_pi_pi_prime2 = max(1e-27, double( (Pi-Pi_prime).dot(Pi-Pi_prime) ) ); 
 	const double dist_pj_pj_prime2 = max(1e-27, double( (Pj-Pj_prime).dot(Pj-Pj_prime))  ); 
