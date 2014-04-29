@@ -321,9 +321,10 @@ void LevenburgMaquart::Jacobian_smoothcost_openmp(
 		smart_assert( Jacobian_nzv.size()==Jacobian_colindx.size(), "vector size mismatch. " ); 
 		smart_assert( Jacobian_rowptr.size()-1==energy_matrix.size(), "vector size mismatch. " ); 
 
-#pragma omp barrier // wait for all thread to execute till this point 
+#pragma omp barrier 
 
-		if( tid==0 ) {
+#pragma omp single // wait for all thread to execute till this point 
+		{
 			int nThreads = omp_get_num_threads();
 			accumulate_nzv_size[0] = nzv_size[0]; 
 			accumulate_nzv_rows[0] = nzv_rows[0]; 
@@ -470,8 +471,8 @@ void LevenburgMaquart::reestimate( void )
 		// // // // // // // // // // // // // // // // // // 
 		// Construct Jacobian Matrix - smooth cost 
 		// // // // // // // // // // // // // // // // // // 
-		//Jacobian_smoothcost_openmp_critical_section( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
-		Jacobian_smoothcost_openmp( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
+		Jacobian_smoothcost_openmp_critical_section( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
+		//Jacobian_smoothcost_openmp( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
 		//Jacobian_smoothcost( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
 		
 		// Construct Jacobian matrix
