@@ -79,4 +79,5 @@ public:
 
 	// utility functions
 	friend std::ostream& operator<<( std::ostream& out, const SparseMatrix& m );
+	SparseMatrix diag() const;
 };

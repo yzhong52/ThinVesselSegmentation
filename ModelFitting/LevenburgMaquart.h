@@ -72,6 +72,7 @@ private:
 	void Jacobian_smoothcost_for_pair( const Line3D* li, const Line3D* lj, 
 		const cv::Vec3d& tildePi, const cv::Vec3d& tildePj,
 		SparseMatrixCV& nabla_smooth_cost_i,
-		SparseMatrixCV& nabla_smooth_cost_j );
+		SparseMatrixCV& nabla_smooth_cost_j,
+		int sitei_i, int site_j);
 };
 

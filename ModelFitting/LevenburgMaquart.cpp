@@ -81,7 +81,8 @@ SparseMatrixCV LevenburgMaquart::Jacobian_datacost_for_one( const Line3D* l,  co
 void LevenburgMaquart::Jacobian_smoothcost_for_pair( const Line3D* li, const Line3D* lj, 
 	const Vec3d& tildePi, const Vec3d& tildePj,
 	SparseMatrixCV& nabla_smooth_cost_i, 
-	SparseMatrixCV& nabla_smooth_cost_j ) 
+	SparseMatrixCV& nabla_smooth_cost_j,
+	int site_i, int site_j ) 
 {
 	Timer::begin("Smoothcost Derivative");
 	Vec3d Xi1, Xi2; 
@@ -102,13 +103,25 @@ void LevenburgMaquart::Jacobian_smoothcost_for_pair( const Line3D* li, const Lin
 	static const SparseMatrixCV nablaXj1(3, 12, indecesXj1, values, 3 );
 	static const SparseMatrixCV nablaXj2(3, 12, indecesXj2, values, 3 );
 	
-	Vec3d Pi, Pj, Pi_prime, Pj_prime;
-	SparseMatrixCV nablaPi, nablaPj, nablaPi_prime, nablaPj_prime; 
-
+	Vec3d Pi, Pj;
+	//const Vec3d& Pi = P[site_i];
+	//const Vec3d& Pj = P[site_j];
+	Vec3d Pi_prime, Pj_prime;
+	//const SparseMatrixCV& nablaPi = nablaP[site_i];
+	//const SparseMatrixCV& nablaPj = nablaP[site_j];
+	SparseMatrixCV nablaPi, nablaPj; 
+	SparseMatrixCV nablaPi_prime, nablaPj_prime; 
 	// TODO be optimized 
 	Jacobian_projection( Xi1, Xi2, nablaXi1, nablaXi2, tildePi, SparseMatrixCV(3, 12), Pi,       nablaPi );
 	Jacobian_projection( Xj1, Xj2, nablaXj1, nablaXj2, tildePj, SparseMatrixCV(3, 12), Pj,       nablaPj );
-	
+	//cout << nablaPi.t() << endl; 
+	//cout << nablaP[site_i].t() << endl; 
+
+	//cout << nablaPj.t() << endl; 
+	//cout << nablaP[site_j].t() << endl; 
+	//
+
+
 	Jacobian_projection( Xj1, Xj2, nablaXj1, nablaXj2, Pi,      nablaPi,             Pi_prime, nablaPi_prime );
 	Jacobian_projection( Xi1, Xi2, nablaXi1, nablaXi2, Pj,      nablaPj,             Pj_prime, nablaPj_prime );
 
@@ -209,7 +222,7 @@ void LevenburgMaquart::Jacobian_smoothcost(
 			////// Computing derivative of pair-wise smooth cost analytically
 			SparseMatrixCV J[2];
 			Jacobian_smoothcost_for_pair(  lines[l1], lines[l2], 
-				dataPoints[site], dataPoints[site2], J[0], J[1] ); 
+				dataPoints[site], dataPoints[site2], J[0], J[1], site, site2 ); 
 
 			for( int ji = 0; ji<2; ji++ ) {
 				int N;
@@ -295,7 +308,7 @@ void LevenburgMaquart::Jacobian_smoothcost_openmp(
 				////// Computing derivative of pair-wise smooth cost analytically
 				SparseMatrixCV J[2];
 				Jacobian_smoothcost_for_pair(  lines[l1], lines[l2], 
-					dataPoints[site], dataPoints[site2], J[0], J[1] ); 
+					dataPoints[site], dataPoints[site2], J[0], J[1], site, site2 ); 
 
 				for( int ji = 0; ji<2; ji++ ) {
 					int N;
@@ -437,7 +450,7 @@ void LevenburgMaquart::Jacobian_smoothcost_openmp_critical_section(
 				////// Computing derivative of pair-wise smooth cost analytically
 				SparseMatrixCV J[2];
 				Jacobian_smoothcost_for_pair(  lines[l1], lines[l2], 
-					dataPoints[site], dataPoints[site2], J[0], J[1] ); 
+					dataPoints[site], dataPoints[site2], J[0], J[1], site, site2 ); 
 
 				for( int ji = 0; ji<2; ji++ ) {
 					int N;
@@ -518,7 +531,7 @@ void LevenburgMaquart::reestimate( void )
 		// // // // // // // // // // // // // // // // // // 
 		// Construct Jacobian Matrix - smooth cost 
 		// // // // // // // // // // // // // // // // // // 
-		Jacobian_smoothcost_openmp( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
+		Jacobian_smoothcost( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
 		
 		// Construct Jacobian matrix
 		SparseMatrixCV Jacobian = SparseMatrix(

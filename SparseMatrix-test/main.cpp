@@ -22,8 +22,10 @@ int main( void ) {
 	    12, 12,  0,  0, 18,  1]; */
 	cout << "############################ Constructor A  ############################" << endl << endl; 
 	cout << A << endl; 
+	
 
 	cout << "############################ Transpose A.t() ############################" << endl << endl; 
+	if( false ) 
 	{
 	
 		{
@@ -111,5 +113,8 @@ int main( void ) {
 	cout << A * A.t() << endl; 
 	cout << A.t() * A << endl; 
 
+	cout << (A.t() * A).diag() << endl; 
+	cout << (A * A.t()).diag() << endl; 
+	return 0; 
 }
 
