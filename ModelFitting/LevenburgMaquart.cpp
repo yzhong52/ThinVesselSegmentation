@@ -131,7 +131,7 @@ void LevenburgMaquart::Jacobian_smoothcost_for_pair(
 		{1, 1 + labelj * numParamPerLine}, 
 		{2, 2 + labelj * numParamPerLine}}; 
 	const int indecesXj2[][2] = { 
-		{0, 3  + labelj * numParamPerLine}, 
+		{0, 3 + labelj * numParamPerLine}, 
 		{1, 4 + labelj * numParamPerLine}, 
 		{2, 5 + labelj * numParamPerLine}}; 
 	
@@ -141,17 +141,17 @@ void LevenburgMaquart::Jacobian_smoothcost_for_pair(
 	const SparseMatrixCV nablaXj1(3, numParam, indecesXj1, values, 3 );
 	const SparseMatrixCV nablaXj2(3, numParam, indecesXj2, values, 3 );
 	
-	Vec3d Pi, Pj;
-	//const Vec3d& Pi = P[site_i];
-	//const Vec3d& Pj = P[site_j];
 	
-	//const SparseMatrixCV& nablaPi = nablaP[site_i];
-	//const SparseMatrixCV& nablaPj = nablaP[site_j];
-	SparseMatrixCV nablaPi, nablaPj; 
+	const Vec3d& Pi = P[sitei];
+	const Vec3d& Pj = P[sitej];
+	const SparseMatrixCV& nablaPi = nablaP[sitei];
+	const SparseMatrixCV& nablaPj = nablaP[sitej];
+	//Vec3d Pi, Pj;
+	//SparseMatrixCV nablaPi, nablaPj; 
 	
 	// TODO be optimized 
-	Jacobian_projection( Xi1, Xi2, nablaXi1, nablaXi2, tildePi, SparseMatrixCV(3, numParam), Pi,       nablaPi );
-	Jacobian_projection( Xj1, Xj2, nablaXj1, nablaXj2, tildePj, SparseMatrixCV(3, numParam), Pj,       nablaPj );
+	//Jacobian_projection( Xi1, Xi2, nablaXi1, nablaXi2, tildePi, SparseMatrixCV(3, numParam), Pi,       nablaPi );
+	//Jacobian_projection( Xj1, Xj2, nablaXj1, nablaXj2, tildePj, SparseMatrixCV(3, numParam), Pj,       nablaPj );
 	//cout << nablaPi.t() << endl; 
 	//cout << nablaP[sitei].t() << endl; 
 	//
@@ -540,7 +540,7 @@ void LevenburgMaquart::reestimate( void )
 	P = vector<Vec3d>( tildaP.size() );
 	nablaP = vector<SparseMatrixCV>( tildaP.size() );
 	
-	double lambda = 1e0; // lamda - damping function for levenburg maquart
+	double lambda = 1e2; // lamda - damping function for levenburg maquart
 	int lmiter = 0; // levenburg maquarit iteration count
 	for( lmiter = 0; lmiter<50; lmiter++ ) { 
 
