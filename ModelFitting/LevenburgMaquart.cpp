@@ -510,7 +510,7 @@ void LevenburgMaquart::reestimate( void )
 	P = vector<Vec3d>( dataPoints.size() );
 	nablaP = vector<SparseMatrixCV>( dataPoints.size() );
 	
-	double lambda = 1e2; // lamda - damping function for levenburg maquart
+	double lambda = 1e0; // lamda - damping function for levenburg maquart
 	int lmiter = 0; // levenburg maquarit iteration count
 	for( lmiter = 0; lmiter<50; lmiter++ ) { 
 
@@ -531,7 +531,7 @@ void LevenburgMaquart::reestimate( void )
 		// // // // // // // // // // // // // // // // // // 
 		// Construct Jacobian Matrix - smooth cost 
 		// // // // // // // // // // // // // // // // // // 
-		Jacobian_smoothcost( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
+		Jacobian_smoothcost_openmp( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
 		
 		// Construct Jacobian matrix
 		SparseMatrixCV Jacobian = SparseMatrix(
@@ -539,7 +539,10 @@ void LevenburgMaquart::reestimate( void )
 			(int) lines.size() * numParamPerLine, 
 			Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr );
 		
-		SparseMatrixCV A = Jacobian.t() * Jacobian + SparseMatrixCV::I( Jacobian.col() ) * lambda;
+		// SparseMatrixCV A = Jacobian.t() * Jacobian + SparseMatrixCV::I( Jacobian.col() ) * lambda;
+		SparseMatrixCV Jt_J = Jacobian.t() * Jacobian; 
+		SparseMatrixCV A = Jt_J + Jt_J.diag() * lambda;
+
 		// TODO: the following line need to be optimized
 		Mat_<double> B = Jacobian.t() * cv::Mat_<double>( (int) energy_matrix.size(), 1, &energy_matrix.front() ) ; 
 		Mat_<double> X;
