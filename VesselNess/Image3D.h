@@ -47,7 +47,7 @@ public:
 
 	// get a slice of data (with normalization)
 	inline Mat getByZ( const int& z, const T& min, const T& max ) const {
-		Mat mat_temp = _mat.row(z).reshape( 0, get_height() ).clone(); 
+		Mat mat_temp = this->_mat.row(z).reshape( 0, this->get_height() ).clone(); 
 		// change the data type from whatever dataype it is to float for computation
 		mat_temp.convertTo(mat_temp, CV_32F);
 		// normalize the data range from whatever it is to [0, 255];
@@ -60,7 +60,7 @@ public:
 
 	// get one slice of data
 	inline Mat getByZ( const int& z ) const { 
-		return getMat().row(z).reshape(0, get_height()).clone(); 
+		return this->getMat().row(z).reshape(0, this->get_height()).clone(); 
 	}
 
 	inline const Vec3i& get_roi_corner_0() const { return roi_corner[0]; }
@@ -88,7 +88,7 @@ bool Image3D<T>::loadData( const string& file_name,
 	const bool& isBigEndian, bool isLoadPartial )
 {
 	cout << "loading data from " << file_name << "..." << endl;
-	bool flag = load( file_name, size, isBigEndian, isLoadPartial );
+	bool flag = this->load( file_name, size, isBigEndian, isLoadPartial );
 	if( !flag ){ 
 		cout << "Load fail." << endl << endl;
 		return false;
@@ -102,7 +102,7 @@ template<typename T>
 bool Image3D<T>::saveData( const string& file_name, bool isBigEndian ){ 
 	cout << "Saving data..." << endl;
 	smart_return_value( this->_size_total, "Image data is not set. ", false);
-	bool flag = save(file_name, isBigEndian);
+	bool flag = this->save(file_name, isBigEndian);
 	cout << "done. " << endl << endl;
 	return flag;
 }
@@ -112,20 +112,20 @@ bool Image3D<T>::saveVideo( const string& file_name, Vec<T,2> min_max ) const {
 	cout << "Saving data as video... " << endl;
 
 	if( min_max == Vec<T,2>(0,0) ){
-		min_max = get_min_max_value();
+		min_max = this->get_min_max_value();
 		cout << "Normailizing data from " << min_max << " to " << Vec2i(0, 255) << endl;
 	}
 
 	VideoWriter outputVideo;
 	outputVideo.open( file_name, -1, 20.0, 
-		cv::Size( get_size(0), get_size(1) ), true);
+		cv::Size( this->get_size(0), this->get_size(1) ), true);
 	if (!outputVideo.isOpened())
     {
         cout  << "Could not open the output video for write: " << file_name << endl;
         return false;
     }
 
-	for( int i=0; i<get_size_z(); i++ ){
+	for( int i=0; i < this->get_size_z(); i++ ){
 		Mat im = getByZ(i, min_max[0], min_max[1]);
 		outputVideo << im;
 	}
@@ -226,13 +226,13 @@ void Image3D<T>::setROI(void){
 	// for the user to see. 
 	// find the maximum and minimum value (method3)
 	Point minLoc, maxLoc;
-	minMaxLoc( _mat, NULL, NULL, &minLoc, &maxLoc);
-	T max_value = _mat( maxLoc );
-	T min_value = _mat( minLoc );
+	minMaxLoc( Data3D<T>::_mat, NULL, NULL, &minLoc, &maxLoc);
+	T max_value = this->_mat( maxLoc );
+	T min_value = this->_mat( minLoc );
 
 	// displaying data
 	do {	
-		Mat mat_temp = _mat.row(current_slice).reshape( 0, get_height() ); 
+		Mat mat_temp = Data3D<T>::_mat.row(current_slice).reshape( 0, Data3D<T>::get_height() ); 
 		// change the data type from short to int for computation
 		mat_temp.convertTo(mat_temp, CV_32S);
 		mat_temp = 255 * ( mat_temp - min_value ) / (max_value - min_value);
@@ -265,7 +265,7 @@ void Image3D<T>::setROI(void){
 		} else if( key == '\r' ) { 
 			break;
 		} else if( key == 'n' ){
-			if( current_slice < get_depth()-1 ){
+			if( current_slice < Data3D<T>::get_depth()-1 ){
 				current_slice++;
 				cout << '\r' << "Displaying Slice #" << current_slice << "\t\t\t\t\t\t\t";
 			}
@@ -389,7 +389,7 @@ bool Image3D<T>::loadROI( const string& roi_file_name )
 
 template<typename T>
 void Image3D<T>::showSlice(int i, const string& name ){
-	Mat mat_temp = _mat.row(i).reshape( 0, get_height() ); 
+	Mat mat_temp = Data3D<T>::_mat.row(i).reshape( 0, Data3D<T>::get_height() ); 
 	cv::imshow( name.c_str(), mat_temp );
 	waitKey(0);
 }
@@ -398,26 +398,26 @@ template<typename T>
 void Image3D<T>::shrink_by_half(void){	
 	smart_return( this->_size_total, "Image data is not set. ");
 
-	Vec3i n_size = (_size - Vec3i(1,1,1)) / 2; // TODO: why do I have to minute Vec3i(1,1,1) here? 
+	Vec3i n_size = (Data3D<T>::_size - Vec3i(1,1,1)) / 2; // TODO: why do I have to minute Vec3i(1,1,1) here? 
 	int n_size_slice = n_size[0] * n_size[1];
 	int n_size_total = n_size_slice * n_size[2];
 
 	// We need to add two short number, which may result in overflow. 
 	// Therefore, we use CV_64S for safety
-	Mat n_mat = Mat( n_size[2], n_size_slice, _mat.type(), Scalar(0) );
+	Mat n_mat = Mat( n_size[2], n_size_slice, Data3D<T>::_mat.type(), Scalar(0) );
 	int i, j, k;
 	for( i=0; i<n_size[0]; i++ ) for( j=0; j<n_size[1]; j++ ) for( k=0; k<n_size[2]; k++ )
 	{
-		n_mat.at<T>(k, j*n_size[0]+i)  = T( 0.25 * _mat(2*k,     2*j*_size[0] + 2*i) );
-		n_mat.at<T>(k, j*n_size[0]+i) += T( 0.25 * _mat(2*k,     2*j*_size[0] + 2*i + 1) );
-		n_mat.at<T>(k, j*n_size[0]+i) += T( 0.25 * _mat(2*k + 1, 2*j*_size[0] + 2*i) );
-		n_mat.at<T>(k, j*n_size[0]+i) += T( 0.25 * _mat(2*k + 1, 2*j*_size[0] + 2*i + 1) );
+		n_mat.at<T>(k, j*n_size[0]+i)  = T( 0.25 * Data3D<T>::_mat(2*k,     2 * j * Data3D<T>::_size[0] + 2 * i) );
+		n_mat.at<T>(k, j*n_size[0]+i) += T( 0.25 * Data3D<T>::_mat(2*k,     2 * j * Data3D<T>::_size[0] + 2 * i + 1) );
+		n_mat.at<T>(k, j*n_size[0]+i) += T( 0.25 * Data3D<T>::_mat(2*k + 1, 2 * j * Data3D<T>::_size[0] + 2 * i) );
+		n_mat.at<T>(k, j*n_size[0]+i) += T( 0.25 * Data3D<T>::_mat(2*k + 1, 2 * j * Data3D<T>::_size[0] + 2 * i + 1) );
 	}
-	_mat = n_mat;
+	Data3D<T>::_mat = n_mat;
 
-	_size = n_size;
-	_size_slice = n_size_slice;
-	_size_total = n_size_total;
+	Data3D<T>::_size = n_size;
+	Data3D<T>::_size_slice = n_size_slice;
+	Data3D<T>::_size_total = n_size_total;
 }
 
 template<typename T>

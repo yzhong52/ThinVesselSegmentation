@@ -4,6 +4,9 @@
 #include <opencv2/core/core.hpp>
 #include "VesselNess.h"
 class Vesselness;
+class Vesselness_Sig;
+class Vesselness_Nor;
+class Vesselness_All;
 
 template <class T> struct TypeInfo { 
     static std::string str() { return "undefined"; }
@@ -42,7 +45,7 @@ template <> struct TypeInfo <unsigned char> {
 
 template <> struct TypeInfo <Vesselness> {
     static std::string str(){ 
-		stringstream ss;
+		std::stringstream ss;
 		ss << "float," << Vesselness::_size;
 		return ss.str();
 	}
@@ -51,23 +54,25 @@ template <> struct TypeInfo <Vesselness> {
 
 template <> struct TypeInfo <Vesselness_Sig> {
     static std::string str(){ 
-		stringstream ss;
+		std::stringstream ss;
 		ss << "float," << Vesselness_Sig::_size;
 		return ss.str();
 	}
 	static int CV_TYPE() { return CV_32FC( Vesselness_Sig::_size ); }
 };
+
 template <> struct TypeInfo <Vesselness_Nor> {
     static std::string str(){ 
-		stringstream ss;
+		std::stringstream ss;
 		ss << "float," << Vesselness_Nor::_size;
 		return ss.str();
 	}
 	static int CV_TYPE() { return CV_32FC( Vesselness_Nor::_size ); }
 };
+
 template <> struct TypeInfo <Vesselness_All> {
     static std::string str(){ 
-		stringstream ss;
+		std::stringstream ss;
 		ss << "float," << Vesselness_All::_size;
 		return ss.str();
 	}

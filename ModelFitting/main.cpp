@@ -15,7 +15,7 @@
 // This project is build after VesselNess. 
 // Some of the building blocks (Data3D, Visualization) are borrowed from VesselNess. 
 #include "Data3D.h" 
-#include "GLViwerModel.h"
+
 #include "MinSpanTree.h" 
 
 // For the use of graph cut
@@ -26,135 +26,131 @@ typedef GCoptimization GC;
 #include "LevenburgMaquart.h" 
 #include "GraphCut.h"
 #include "SyntheticData.h" 
-
-// for visualization
-GLViwerModel ver;
-// thread function for rendering
-void visualization_func( void* data ) {
-	GLViwerModel& ver = *(GLViwerModel*) data; 
-	ver.go();
-}
+#include "ImageProcessing.h"
+#include "Timer.h"
 
 
 #include <assert.h>
 #include <iostream>
 #include <limits> 
 
+const double LOGLIKELIHOOD = 1.0; 
+const double PAIRWISESMOOTH = 7.0; 
 
-const double LOGLIKELIHOOD = 1.15; 
-const double PAIRWISESMOOTH = 3.0; 
+
+// if IS_PROFILING is defined, rendering is disabled
+//#define IS_PROFILING
+HANDLE thread_render = NULL; 
+#ifndef IS_PROFILING // NOT profiling, add visualization model
+	#include "GLViwerModel.h"
+	GLViwerModel ver;
+	// thread function for rendering
+	void visualization_func( void* data ) {
+		GLViwerModel& ver = *(GLViwerModel*) data; 
+		ver.go( 720, 480, 2 );
+	}
+	template<class T>
+	void initViwer( const Data3D<T>& im, const vector<cv::Vec3i>& dataPoints, 
+		const vector<Line3D*>& lines, const vector<int>& labelings )
+	{
+		GLViewer::GLLineModel *model = new GLViewer::GLLineModel( im.get_size() );
+		model->updatePoints( dataPoints ); 
+		model->updateModel( lines, labelings ); 
+		ver.objs.push_back( model );
+
+		ver.addObject( im ); 
+
+		thread_render = (HANDLE) _beginthread( visualization_func, 0, (void*)&ver ); 
+		// Give myself sometime to decide whether we need to render a video
+		Sleep( 1000 ); 
+	}
+#else
+	void initViwer( const Image3D<short>& im_short, const vector<cv::Vec3i>& dataPoints, 
+		const vector<Line3D*>& lines, const vector<int>& labelings )
+	{
+
+	}
+#endif
+
+
+
+#include "SparseMatrix\SparseMatrix.h"
+#include "ModelSet.h"
 
 int main(int argc, char* argv[])
 {
 	srand( 3 ); 
 
+	// TODO: not compatible with MinGW? 
 	CreateDirectory(L"./output", NULL);
 	
-	Data3D<short> im_short;
-	//Synthesic Data
-	im_short.reset( Vec3i(20,20,20) ); 
-	for( int i=3; i<17; i++ ) {
-		im_short.at(i,  i,  i)   = 10000; 
-		im_short.at(i,  i,  i+1) = 10000; 
-		im_short.at(i,  i+1,i)   = 10000; 
-		im_short.at(i+1,i,  i)   = 10000; 
-		im_short.at(i+1,i+1,i+1) = 10000; 
-	}
-	//im_short.at(5, 5, 5) = 10000; 
-	//im_short.at(5, 5, 15) = 10000; 
-	//im_short.at(6, 5, 15) = 10000; 
-	//im_short.at(15, 16, 15) = 10000; 
-	// OR real data
-	//im_short.load( "../data/data15.data" );
-	// make a doghout
-	// SyntheticData::Doughout( im_short ); 
+	// Vesselness measure with sigma
+	Image3D<Vesselness_Sig> vn_sig;
+	Image3D<short> im_short;
+	vn_sig.load( "../temp/roi15.vn_sig" ); 
+	/*im_short.load( "../data/roi15.data" ); 
+	return 0; */
+	vn_sig.remove_margin_to( Vec3i(50, 50, 50) );
+	
+	// Synthesic Data
+	//SyntheticData::Doughout( im_short ); 
+	//SyntheticData::Stick( im_short ); 
 
 	// threshold the data and put the data points into a vector
 	Data3D<int> indeces;
 	vector<cv::Vec3i> dataPoints;
-	IP::threshold( im_short, indeces, dataPoints, short(4500) );
-	if( dataPoints.size()==0 ) return 0; 
-
-	GLViewer::GLLineModel *model = new GLViewer::GLLineModel( im_short.get_size() );
-	ver.objs.push_back( model );
-
-	//////////////////////////////////////////////////
-	// create a thread for rendering
-	//////////////////////////////////////////////////
-	HANDLE thread_render = NULL; 
-	thread_render = (HANDLE) _beginthread( visualization_func, 0, (void*)&ver ); 
+	Data3D<float> vn = vn_sig; 
+	IP::normalize( vn, 1.0f ); 
 	
-	model->updatePoints( dataPoints ); 
-
+	IP::threshold( vn, indeces, dataPoints, 0.10f );
+	cout << "Number of data points: " << dataPoints.size() << endl;
+	
 	//////////////////////////////////////////////////
-	// Line Fitting
+	// Line Fitting 
 	//////////////////////////////////////////////////
 	// Initial Samplings
 	const int num_init_labels = (int) dataPoints.size(); 
-	vector<Line3D*> lines; 
+	ModelSet<Line3D> model; 
+	vector<Line3D*>& lines = model.models; 
 	for( int i=0; i<num_init_labels; i++ ) {
-		Line3DTwoPoint *line  = new ::Line3DTwoPoint();
-		Vec3i randomDir = Vec3i(
-				rand() % 200 - 100, 
-				//rand() % 200 - 100, 
-				// rand() % 100 + 10, 
-				rand() % 100 + 10, 
-				rand() % 100 + 10 ); 
-		line->setPositions( dataPoints[i] - randomDir, dataPoints[i] + randomDir ); 
+		const Vec3d& dir = vn_sig.at( dataPoints[i] ).dir;
+		const double& sigma = vn_sig.at( dataPoints[i] ).sigma;
+		
+		Line3DTwoPoint *line  = new Line3DTwoPoint();
+		line->setPositions( (Vec3d) dataPoints[i] - dir, (Vec3d) dataPoints[i] + dir ); 
+		line->setSigma( sigma ); 
 		lines.push_back( line ); 
 	}
-	//((Line3DTwoPoint*)(lines[0]))->setPositions( 
-	//	(Vec3f)dataPoints[0] + Vec3f(-1, 0, 0), 
-	//	(Vec3f)dataPoints[0] + Vec3f( 0.5f, 0.5f, 0) ); 
-	//((Line3DTwoPoint*)(lines[1]))->setPositions( 
-	//	(Vec3f)dataPoints[1] + Vec3f(-0.5,  0.5f, 0), 
-	//	(Vec3f)dataPoints[1] + Vec3f( 1, 0, 0) ); 
-	
-	//for( int i=0; i<num_init_labels; i++ ) {
-	//	Line3DTwoPoint *line  = new ::Line3DTwoPoint();
-	//	line->setPositions( dataPoints[i], dataPoints[ (i+1)%dataPoints.size() ] ); 
-	//	lines.push_back( line ); 
-	//}
-	
+	// model.deserialize<Line3DTwoPoint>( "output/Line3DTwoPoint.model" ); 
+	if( lines.size()!=dataPoints.size() ) {
+		cout << "Number of models is not corret. " << endl; 
+		cout << "Probably because of errors while deserializing the data. " << endl;
+		return 0; 
+	}
+
 	vector<int> labelings = vector<int>( dataPoints.size(), 0 ); 
-	//// randomly assign label for each point separatedly 
+	// randomly assign label for each point separatedly 
 	for( int i=0; i<num_init_labels; i++ ) labelings[i] = i; 
-	// randomly assign label 1 or 2
-	//for( int i=0; i<num_init_labels; i++ ) {
-	//	labelings[i] = (rand() % 100) / 50; 
-	//}
-
-	model->updateModel( lines, labelings ); 
 	
-	// Give myself sometime to decide whether we need to render a video
-	// Sleep( 10000 ); 
-
-	cout << "Graph Cut Begin" << endl; 
-	try{
-		// keep track of energy in previous iteration
-		GC::EnergyType energy_before = -1;
-
-		// TODO: let's run the algorithm for only one iteration for now
-		for( int i=0; i<1; i++ ) { 
-			// TODO: let's not have background model for now. We will add background model later
-			
-			// GC::EnergyType energy = GraphCut::estimation( dataPoints, labelings, lines ); 
-			
-			model->updateModel( lines, labelings ); 
-			LevenburgMaquart::reestimate( dataPoints, labelings, lines, indeces ); 
-		}
-	}
-	catch (GCException e){
-		e.Report();
-	}
 	
+	//////////////////////////////////////////////////
+	// create a thread for rendering
+	//////////////////////////////////////////////////
+	cout << lines.size() << endl; 
+	initViwer( vn_sig, dataPoints, lines, labelings);
+	
+	
+	
+	Timer::begin( "Levenburg Maquart" ); 
+	LevenburgMaquart lm( dataPoints, labelings, model, indeces );
+	lm.reestimate(); 
+	Timer::end( "Levenburg Maquart" ); 
+
 	cout << "Main Thread is Done. " << endl; 
-	WaitForSingleObject( thread_render, INFINITE);
+	cout << Timer::summery() << endl; 
 
-	for( int i=0; i<num_init_labels; i++ ){
-		delete lines[i]; 
-		lines[i] = NULL; 
-	}
+	model.serialize( "output/Line3DTwoPoint.model" ); 
 
+	// WaitForSingleObject( thread_render, INFINITE);
 	return 0; 
 }

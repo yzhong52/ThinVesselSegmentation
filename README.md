@@ -1,14 +1,14 @@
-Note: I have finished the GPU version of vesselness measure. I will update it soon. 
-
-This is a cpp implementation of Vesselness Measure for 3D volume based on the following paper. 
-
-Frangi, Alejandro F., et al. "Multiscale vessel enhancement filtering." Medical Image Computing and Computer-Assisted Interventation—MICCAI’98. Springer Berlin Heidelberg, 1998. 130-137.
-
-
-Excutable Files are provided
+Model Fitting
 ========================
-Excutable files and example 3D volume are provided.
-The data and the result are visulized with maximum intensity projection. 
+
+Using Levenburg Maquart algorithm for energy minimization. 
+
+Enery contains two parts:
+
+1) data cost
+   Distance to the center of a line model
+2) Pair-wise Smooth Cost
+   Complicated. Please refer to this [paper](http://www.csd.uwo.ca/~yuri/Abstracts/cvpr12-abs.shtml)
 
 Requirements
 ========================
@@ -18,13 +18,13 @@ Requirements
 Before Compile
 ========================
 
-This project requires freeglut, glew and OpenCV. You do not have to install these packages because they are included in the project. But you do need to add the following to path: 
+This project requires freeglut 2.8.1, glew 1.10.0 and OpenCV 2.8.4. You have to add the following directories to PATH: 
 
-%CD%\dependencies\freeglut 2.8.1\lib\x64;
+%CD%\dependencies\freeglut 2.8.1\x64;
 
-%CD%\dependencies\glew-1.10.0\bin\Release\x64;
+%CD%\dependencies\glew-1.10.0\bin\x64;
 
-%CD%\dependencies\OpenCV 2.4.3\x64\vc10;
+%CD%\dependencies\OpenCV 2.4.3\x64-vc10;
 
 Note: %CD% above means the location where you save the files. 
 

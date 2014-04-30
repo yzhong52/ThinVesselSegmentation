@@ -3,37 +3,30 @@
 class Line3DTwoPoint :
 	public Line3D
 {
-	Vec6f data; 
+	Vec6d data; 
 public:
 	Line3DTwoPoint(void);
 	virtual ~Line3DTwoPoint(void);
 
 	// Give a point, calculat the distance from the point to the line 
-	virtual float distanceToLine( const Vec3f& point ) const; 
+	virtual double distanceToLine( const Vec3d& point ) const; 
 
 	// Given a point calculate the negative log likihood of a point being asign to this line
-	virtual float loglikelihood( const Vec3f& point ) const; 
+	virtual double loglikelihood( const Vec3d& point ) const; 
 	virtual inline int getNumOfParameters( void ) { return 6; }
 
 	// Given a point, return the projection point on the line
-	virtual Vec3f projection( const Vec3f& point ) const;
+	virtual Vec3d projection( const Vec3d& point ) const;
 	
-	virtual inline void setPositions( Vec3f pos1, Vec3f pos2 ) {
-		memcpy( &data[0], &pos1[0], sizeof(int) * 3 ); 
-		memcpy( &data[3], &pos2[0], sizeof(int) * 3 ); 
-	}
+	virtual inline void setPositions( const Vec3d& pos1, const Vec3d& pos2 );
 
 	virtual void updateParameterWithDelta( int i, double delta ); 
 	
-	virtual Vec3f getDirection( void ) const {
-		Vec3f dir = Vec3f( &data[0] ) - Vec3f( &data[3] ); 
-		dir /= sqrt( dir.dot( dir ) );
-		return dir; 
-	}
+	virtual Vec3d getDirection( void ) const;
 
-	virtual void getEndPoints( Vec3f& p1, Vec3f& p2 ) const{
-		p1 = Vec3f( &data[0] );
-		p2 = Vec3f( &data[3] ); 
-	}; 
+	virtual void getEndPoints( Vec3d& p1, Vec3d& p2 ) const; 
+
+	virtual void serialize( std::ostream& out ) const;
+	virtual void deserialize( std::istream& in );
 };
 

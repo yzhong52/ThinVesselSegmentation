@@ -19,10 +19,10 @@ public:
 	const int& min_pos(int i) const { return min_p[i]; }
 	const int& max_pos(int i) const { return max_p[i]; }
 	virtual const inline T& offset_at(const int& x, const int& y, const int& z) const { 
-		return at(x+center[0], y+center[1], z+center[2]);
+		return Data3D<T>::at(x+center[0], y+center[1], z+center[2]);
 	}
 	virtual inline T& offset_at(const int& x, const int& y, const int& z) { 
-		return at(x+center[0], y+center[1], z+center[2]);
+		return Data3D<T>::at(x+center[0], y+center[1], z+center[2]);
 	}
 
 	// setters

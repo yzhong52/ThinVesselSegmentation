@@ -23,29 +23,29 @@
 
 class GLViewerExt{
 public:
+	// a list of objects that to be rendered 
 	vector<GLViewer::Object*> objs;
 
 public:
 	~GLViewerExt() {
-		for( unsigned int i=0; i<objs.size(); i++ ) {
-			delete objs[i];
-			objs[i] = NULL; 
-		}
+		for( unsigned int i=0; i<objs.size(); i++ ) delete objs[i];
 	}
 
 	template<class T>
-	void addObject( Data3D<T>& im_data, GLViewer::Volumn::RenderMode mode = GLViewer::Volumn::MIP )
+	void addObject( const Data3D<T>& im_data, GLViewer::Volumn::RenderMode mode = GLViewer::Volumn::MIP )
 	{
 		if( im_data.get_size_total()==0 ) return; 
+		// normalized the data 
+		Data3D<T> im_copy = im_data; 
+		IP::normalize( im_copy, T(255) );
 		// change the data formate to unsigend char
 		Data3D<unsigned char> im_uchar;
-		IP::normalize( im_data, T(255) );
 		im_data.convertTo( im_uchar ); 
 		addObject( im_uchar, mode );
 	}
 	
 	template<>
-	void addObject( Data3D<unsigned char>& im_uchar, GLViewer::Volumn::RenderMode mode ) {
+	void addObject( const Data3D<unsigned char>& im_uchar, GLViewer::Volumn::RenderMode mode ) {
 		// copy the data
 		GLViewer::Volumn* vObj = new GLViewer::Volumn(
 			im_uchar.getMat().data,
@@ -57,25 +57,27 @@ public:
 	}
 
 	template<>
-	void addObject( Data3D<Vesselness_All>& vn_all, GLViewer::Volumn::RenderMode mode ) {
+	void addObject( const Data3D<Vesselness_All>& vn_all, GLViewer::Volumn::RenderMode mode ) {
 		Data3D<float> vn_float;
 		vn_all.copyDimTo( vn_float, 0 ); 
 		this->addObject( vn_float, mode );
 	}
 	
 	template<>
-	void addObject( Data3D<Vesselness_Sig>& vn_sig, GLViewer::Volumn::RenderMode mode ) {
+	void addObject( const Data3D<Vesselness_Sig>& vn_sig, GLViewer::Volumn::RenderMode mode ) {
 		Data3D<float> vn_float;
 		vn_sig.copyDimTo( vn_float, 0 ); 
 		this->addObject( vn_float, mode );
 	}
 	
 	template<>
-	void addObject( Data3D<Vesselness_Nor>& vn_nor, GLViewer::Volumn::RenderMode mode ) {
+	void addObject( const Data3D<Vesselness_Nor>& vn_nor, GLViewer::Volumn::RenderMode mode ) {
 		Data3D<float> vn_float;
 		vn_nor.copyDimTo( vn_float, 0 ); 
 		this->addObject( vn_float, mode );
 	}
+
+
 
 	template<class E, class N>
 	GLViewer::CenterLine<E, N>* addObject( MST::Graph< E, N >& tree ) {
