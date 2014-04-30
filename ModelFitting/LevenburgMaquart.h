@@ -37,7 +37,19 @@ private:
 		vector<int>&    Jacobian_colindx, 
 		vector<int>&    Jacobian_rowptr,
 		vector<double>& energy_matrix );
-	
+	// parallelized of the above function Jacobian_datacost
+	void Jacobian_datacost_openmp(
+		vector<double>& Jacobian_nzv, 
+		vector<int>&    Jacobian_colindx, 
+		vector<int>&    Jacobian_rowptr,
+		vector<double>& energy_matrix );
+	void Jacobian_datacost_thread_func(
+		vector<double>& Jacobian_nzv, 
+		vector<int>&    Jacobian_colindx,  
+		vector<int>&    Jacobian_rowptr, 
+		vector<double>& energy_matrix,
+		int site); 
+
 	// Jacobian Matrix - smooth cost
 	void Jacobian_smoothcost( 
 		vector<double>& Jacobian_nzv, 
