@@ -14,17 +14,17 @@ Enery contains two parts:
 Levenberg Marquart algorithm requires to compute the Jacobian matrix for both the data cost and the smooth cost. This computation is very time-consuming and the computation has been higly parallelized in this version. 
 
 Major Updates in current version
-========================
+--------
 - Parallelized computating the Jacobain matrix of both data cost and smooth cost
 - Profiling with Vtune
 
 Requirements
-========================
+--------
  - A graphic card which supports OpenGL 4.0
  - Microsoft Visual Studio 2010 (or higher) 
 
 Before Compile
-========================
+--------
 
 This project requires freeglut 2.8.1, glew 1.10.0 and OpenCV 2.8.4. You have to add the following directories to PATH: 
 
