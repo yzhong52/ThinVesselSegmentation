@@ -77,6 +77,9 @@ public:
 	friend const SparseMatrix operator/( const SparseMatrix& m1, const double& value ); 
 	friend const SparseMatrix operator*( const SparseMatrix& m1, const double& value ); 
 
+	// parallel function(s)
+	friend const SparseMatrix multiply_openmp( const SparseMatrix& m1, const SparseMatrix& m2 ); 
+	
 	// utility functions
 	friend std::ostream& operator<<( std::ostream& out, const SparseMatrix& m );
 	SparseMatrix diag() const;

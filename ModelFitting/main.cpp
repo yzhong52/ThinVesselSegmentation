@@ -151,8 +151,8 @@ int main(int argc, char* argv[])
 
 	model.serialize( "output/Line3DTwoPoint.model" ); 
 
-	cout << "exit(0) soon " << endl; 
-	exit( 0 ); 
+	//cout << "exit(0) soon " << endl; 
+	//TerminateThread( thread_render ); 
 	WaitForSingleObject( thread_render, INFINITE);
 	return 0; 
 }

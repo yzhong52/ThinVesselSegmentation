@@ -2,6 +2,7 @@
 #include "SparseMatrix.h"
 #include <vector>
 #include <iostream> 
+#include <omp.h>
 
 using namespace std;
 
@@ -463,4 +464,100 @@ SparseMatrix SparseMatrix::diag() const {
 		(const int*)    (&res_colidx[0]),
 		(const int*)    (&res_rowptr[0]), 
 		(int) res_nzval.size() );
+}
+
+const SparseMatrix multiply_openmp( const SparseMatrix& m1, const SparseMatrix& m2 ){
+	assert( m1.col()==m2.row() && "Matrix size does not match" ); 
+
+	if( m1.data->getRow()==NULL || m2.data->getCol()==NULL ){
+		// if either m1 or m2 is zero matrix, return a zero matrix
+		return SparseMatrix( m1.row(), m2.col() ); 
+	} 
+
+	
+	const double* const nzval1 = m1.data->getRow()->nzvel(); 
+	const int* const colidx1   = m1.data->getRow()->colinx(); 
+	const int* const rowptr1   = m1.data->getRow()->rowptr(); 
+	
+	const double* const nzval2 = m2.data->getCol()->nzvel(); 
+	const int* const rowidx2   = m2.data->getCol()->rowinx(); 
+	const int* const colptr2   = m2.data->getCol()->colptr(); 
+	
+	vector<double> res_nzval;
+	vector<int> res_colidx;
+	vector<int> res_rowptr = vector<int>( m1.row()+1, 0 );
+	
+	// maximum number of thread
+	int max_num_threads = omp_get_max_threads(); 
+	// number of non-zero value obtained by each thread
+	vector<unsigned int> thread_nzv_size( max_num_threads, 0); 
+	
+#pragma omp parallel 
+	{
+		// local variables 
+		vector<double> res_nzval_loc;
+		vector<int> res_colidx_loc;
+		
+#pragma omp for
+
+		for( int r=0; r < m1.row(); r++ ) {
+			int old_row_size = (int) res_nzval_loc.size(); 
+			for( int c=0; c < m2.col(); c++ ) {
+				int r1 = rowptr1[r];
+				int c2 = colptr2[c]; 
+				double v = 0.0; 
+				while( r1!=rowptr1[r+1] && c2!=colptr2[c+1] ) {
+					if( colidx1[r1]==rowidx2[c2] ) v += nzval1[r1++] * nzval2[c2++];
+					else if( colidx1[r1]<rowidx2[c2] ) r1++; 
+					else c2++; 
+				}
+				if( v!=0.0 ) { 
+					res_nzval_loc.push_back( v ); 
+					res_colidx_loc.push_back( c ); 
+				}
+			}
+			res_rowptr[r+1] = (int) res_nzval_loc.size() - old_row_size; 
+		}
+
+		// obtatin current thread id
+		int tid = omp_get_thread_num(); 
+		thread_nzv_size[tid] = (int) res_nzval_loc.size(); 
+
+#pragma omp barrier
+
+#pragma omp single 
+		{
+			// accumulate the size of each column 
+			for( int r=0; r < m1.row(); r++ ) {
+				res_rowptr[r+1] += res_rowptr[r]; 
+			}
+
+			// accumulate the size of each thread
+			int nThreads = omp_get_num_threads();
+			for( int i=1; i<nThreads; i++ ) {
+				thread_nzv_size[i] += thread_nzv_size[i-1]; 
+			}
+
+			// resize the result vector, make them bigger! 
+			res_nzval = vector<double>( res_rowptr.back() ); 
+			res_colidx = vector<int>( res_rowptr.back() ); 
+		}
+
+#pragma omp critical 
+		{
+			int nzv_offset = ( tid > 0 ) ? thread_nzv_size[tid-1] : 0;  
+			int data_size = thread_nzv_size[tid] - nzv_offset; 
+			memcpy( &res_nzval[nzv_offset], &res_nzval_loc[0], data_size*sizeof(double) ); 
+			memcpy( &res_colidx[nzv_offset], &res_colidx_loc[0], data_size*sizeof(int) ); 
+		}
+	}
+
+	// use (const T*) to force the constructor to make a deep copy of the data
+	SparseMatrix res( m1.row(), m2.col(),
+		(const double*) (&res_nzval[0]),
+		(const int*)    (&res_colidx[0]),
+		(const int*)    (&res_rowptr[0]), 
+		(int) res_nzval.size() );
+
+	return res; 
 }

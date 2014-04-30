@@ -319,9 +319,9 @@ void LevenburgMaquart::Jacobian_smoothcost_openmp(
 		smart_assert( Jacobian_nzv.size()==Jacobian_colindx.size(), "vector size mismatch. " ); 
 		smart_assert( Jacobian_rowptr.size()-1==energy_matrix.size(), "vector size mismatch. " ); 
 
-#pragma omp barrier 
+#pragma omp barrier // wait for all thread to execute till this point 
 
-#pragma omp single // wait for all thread to execute till this point 
+#pragma omp single
 		{
 			int nThreads = omp_get_num_threads();
 			accumulate_nzv_size[0] = nzv_size[0]; 
@@ -334,7 +334,7 @@ void LevenburgMaquart::Jacobian_smoothcost_openmp(
 			// resize the result vector, make them bigger!
 			Jacobian_nzv.resize(     old_nzv_size + accumulate_nzv_size[nThreads-1] ); 
 			Jacobian_colindx.resize( old_nzv_size + accumulate_nzv_size[nThreads-1] ); 
-			Jacobian_rowptr.resize(  old_num_rows + accumulate_nzv_rows[nThreads-1] + 1); 
+			Jacobian_rowptr.resize(  old_num_rows + accumulate_nzv_rows[nThreads-1]+1 ); 
 			energy_matrix.resize(    old_num_rows + accumulate_nzv_rows[nThreads-1] );
 		}
 
@@ -432,26 +432,70 @@ void LevenburgMaquart::Jacobian_smoothcost(
 	} 
 }
 
+
+void LevenburgMaquart::adjust_endpoints( void )
+{
+	// update the end points of the line
+	vector<double> minT( (int) labelID.size(), (std::numeric_limits<double>::max)() );
+	vector<double> maxT( (int) labelID.size(), (std::numeric_limits<double>::min)() );
+	for( int site = 0; site < tildaP.size(); site++ ) { // For each data point
+		int label = labelID[site]; 
+		Vec3d p1, p2;
+		lines[label]->getEndPoints( p1, p2 ); 
+
+		Vec3d& pos = p1;
+		Vec3d dir = p2 - p1; 
+		dir /= sqrt( dir.dot( dir ) ); // normalize the direction 
+		double t = ( Vec3d(tildaP[site]) - pos ).dot( dir );
+		maxT[label] = max( t+1, maxT[label] );
+		minT[label] = min( t-1, minT[label] );
+	}
+	for( int label=0; label < labelID.size(); label++ ) {
+		if( minT[label] < maxT[label] ) {
+			Vec3d p1, p2;
+			lines[label]->getEndPoints( p1, p2 ); 
+
+			Vec3d& pos = p1;
+			Vec3d dir = p2 - p1; 
+			dir /= sqrt( dir.dot( dir ) ); // normalize the direction 
+
+			lines[label]->setPositions( pos + dir * minT[label], pos + dir * maxT[label] ); 
+		}
+	}
+}
+
+void LevenburgMaquart::update_lines( const Mat_<double>& delta )
+{
+	for( int label=0; label < lines.size(); label++ ) {
+		for( int i=0; i < numParamPerLine; i++ ) {
+			const double& d = delta.at<double>( label * numParamPerLine + i ); 
+			lines[label]->updateParameterWithDelta( i, d ); 
+		}
+	}
+}
+
 void LevenburgMaquart::reestimate( void )
 {
 	const vector<Line3D*>& lines = modelset.models; 
-	const Data3D<int>& indeces = labelID3d; 
-
+	
 	if( lines.size()==0 ) {
 		cout << "No line models available" << endl;
 		return; 
 	}
 	int numParamPerLine = lines[0]->getNumOfParameters(); 
 
-	double energy_before = compute_energy( tildaP, labelID, lines, indeces );
+	double energy_before = compute_energy( tildaP, labelID, lines, labelID3d );
 
 	
 	P = vector<Vec3d>( tildaP.size() );
 	nablaP = vector<SparseMatrixCV>( tildaP.size() );
 	
-	double lambda = 1e2; // lamda - damping function for levenburg maquart
-	int lmiter = 0; // levenburg maquarit iteration count
-	for( lmiter = 0; lmiter<50; lmiter++ ) { 
+	// lamda - damping function for levenburg maquart
+	// the smaller lambda is, the faster it converges
+	// the bigger lambda is, the slower it converges
+	double lambda = 1e2; 
+
+	for( int lmiter = 0; lmiter<10; lmiter++ ) { 
 
 		// Data for Jacobian matrix
 		//  - # of cols: number of data points; 
@@ -480,94 +524,58 @@ void LevenburgMaquart::reestimate( void )
 			Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr );
 		
 		SparseMatrixCV I  = SparseMatrixCV::I( Jacobian.col() ) * lambda; 
-		SparseMatrixCV Jt_J = Jacobian.t() * Jacobian; 
+		//SparseMatrixCV Jt_J = Jacobian.t() * Jacobian; 
+		SparseMatrixCV Jt_J = multiply_openmp( Jacobian.t(), Jacobian ); 
+		
 		// SparseMatrixCV A = Jt_J + Jt_J.diag() * lambda;
 		SparseMatrixCV A = Jt_J + I * lambda;
 
-		// TODO: the following line need to be optimized
+		// TODO: the following line could be optimized
 		Mat_<double> B = Jacobian.t() * cv::Mat_<double>( (int) energy_matrix.size(), 1, &energy_matrix.front() ) ; 
+		
 		Mat_<double> X;
 
-		Timer::begin( "Linear Solver" ); 
 		solve( A, B, X );
-		X = -X; 
-		Timer::end( "Linear Solver" ); 
-
-		//for( int i=0; i<X.rows; i++ ) {
-		//	std::cout << std::setw(14) << std::scientific << X.at<double>(i) << "  ";
-		//}
-		//cout << endl;
-		//Sleep(500);
-
-		for( int label=0; label < lines.size(); label++ ) {
-			for( int i=0; i < numParamPerLine; i++ ) {
-				const double& delta = X.at<double>( label * numParamPerLine + i ); 
-				lines[label]->updateParameterWithDelta( i, delta ); 
-			}
-		}
-
-		double new_energy = compute_energy( tildaP, labelID, lines, indeces );
-
-		// the smaller lambda is, the faster it converges
-		// the bigger lambda is, the slower it converges
+		
+		update_lines( -X ); 
+		
+		double new_energy = compute_energy( tildaP, labelID, lines, labelID3d );
+		cout << new_energy;
 		static int energy_increase_count = 0; 
-		if( new_energy < energy_before ) { // if energy is decreasing 
-			cout << "- " << new_energy << endl;
+		if( new_energy < energy_before ) { 
+			// if energy is decreasing 
+			// adjust the endpoints of the lines
+			adjust_endpoints();
+			cout << " - " << endl; 
 			energy_before = new_energy; 
 			lambda *= 0.71; 
 			energy_increase_count = 0; 
-		} else {
-			cout << "+ " << new_energy << endl;
-			for( int label=0; label < lines.size(); label++ ) {
-				for( int i=0; i < numParamPerLine; i++ ) {
-					const double& delta = X.at<double>( label * numParamPerLine + i ); 
-					lines[label]->updateParameterWithDelta( i, -delta ); 
-				}
-			}
+		} else {  
+			// if energy is encreasing
+			// reverse the result of this iteration
+			update_lines( X ); 	
+			cout << " + " << endl;
 			lambda *= 1.72; 
-
-			// If energy_increase_count in three consecutive iterations
-			// then the nenergy is probabaly converged
-			if( ++energy_increase_count>=2 ) break; 
-		}
-
-		// TODO: this might be time consuming
-		// update the end points of the line
-		Timer::begin( "Update End Points" ); 
-		vector<double> minT( (int) labelID.size(), (std::numeric_limits<double>::max)() );
-		vector<double> maxT( (int) labelID.size(), (std::numeric_limits<double>::min)() );
-		for( int site = 0; site < tildaP.size(); site++ ) { // For each data point
-			int label = labelID[site]; 
-			Vec3d p1, p2;
-			lines[label]->getEndPoints( p1, p2 ); 
-
-			Vec3d& pos = p1;
-			Vec3d dir = p2 - p1; 
-			dir /= sqrt( dir.dot( dir ) ); // normalize the direction 
-			double t = ( Vec3d(tildaP[site]) - pos ).dot( dir );
-			maxT[label] = max( t+1, maxT[label] );
-			minT[label] = min( t-1, minT[label] );
-		}
-		for( int label=0; label < labelID.size(); label++ ) {
-			if( minT[label] < maxT[label] ) {
-				Vec3d p1, p2;
-				lines[label]->getEndPoints( p1, p2 ); 
-
-				Vec3d& pos = p1;
-				Vec3d dir = p2 - p1; 
-				dir /= sqrt( dir.dot( dir ) ); // normalize the direction 
-
-				lines[label]->setPositions( pos + dir * minT[label], pos + dir * maxT[label] ); 
+			if( ++energy_increase_count>=2 ) {
+				// If energy_increase_count in three consecutive iterations
+				// then the nenergy is probabaly converged
+				break; 
 			}
 		}
-		Timer::end( "Update End Points" ); 
 
 		//cout << endl;
 		//for( int i=2; i>=0; i-- ){
-		//	cout << '\r' << "Serializing models in " << i << " seconds... "; Sleep( 100 ); 
+		//	cout << '\r' << "Serializing models in " << i << " seconds... "; Sleep( 1000 ); 
 		//}
 		//modelset.serialize( "output/Line3DTwoPoint.model" ); 
 		//cout << "Serialization done. " << endl;
 	}
 
 }
+
+
+//for( int i=0; i<X.rows; i++ ) {
+//	std::cout << std::setw(14) << std::scientific << X.at<double>(i) << "  ";
+//}
+//cout << endl;
+//Sleep(500);

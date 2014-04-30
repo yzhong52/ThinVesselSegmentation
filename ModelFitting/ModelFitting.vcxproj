@@ -69,6 +69,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(ProjectDir)../VesselNess;$(ProjectDir)../dependencies/opencv2.4.8/include;$(ProjectDir)../dependencies/freeglut 2.8.1/include;$(ProjectDir)../dependencies/glew-1.10.0/include;$(ProjectDir)gco-v3.0;$(ProjectDir)../</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

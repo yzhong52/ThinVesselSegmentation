@@ -68,8 +68,6 @@ private:
 	// projections of datapoints & 
 	// the Jacobain matrix of the corresponding projection point 
 	
-	
-	
 	// X1, X2: 3 * 1, two end points of the line
 	// nablaX: 3 * 12, 3 non-zero values
 	// nablaP: 3 * 12
@@ -84,5 +82,12 @@ private:
 	void Jacobian_smoothcost_for_pair( const int& sitei, const int& sitej, 
 		SparseMatrixCV& nabla_smooth_cost_i,
 		SparseMatrixCV& nabla_smooth_cost_j );
+
+	// update model according to delta (delta can be consider as the gradient 
+	// computed with levenberg marquart 
+	void update_lines( const Mat_<double>& delta ); 
+
+	// adjust the end points of the lines so that they don't shirt away from the data 
+	void adjust_endpoints( void ); 
 };
 
