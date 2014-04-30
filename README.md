@@ -11,12 +11,12 @@ Enery contains two parts:
 - Pair-wise smooth cost
   Complicated. Please refer to this [paper](http://www.csd.uwo.ca/~yuri/Abstracts/cvpr12-abs.shtml) for more details
 
-Levenberg Marquart algorithm requires to compute the Jacobian matrix for both the data cost and the smooth cost. This computation is very time-consuming and the computation has been higly parallelized. 
+Levenberg Marquart algorithm requires to compute the Jacobian matrix for both the data cost and the smooth cost. This computation is very time-consuming and the computation has been higly parallelized in this version. 
 
 Major Updates in current version
 ========================
-1) Parallelized computating the Jacobain matrix of both data cost and smooth cost
-2) Profiling with Vtune
+- Parallelized computating the Jacobain matrix of both data cost and smooth cost
+- Profiling with Vtune
 
 Requirements
 ========================
@@ -28,11 +28,10 @@ Before Compile
 
 This project requires freeglut 2.8.1, glew 1.10.0 and OpenCV 2.8.4. You have to add the following directories to PATH: 
 
-%CD%\dependencies\freeglut 2.8.1\x64;
-
-%CD%\dependencies\glew-1.10.0\bin\x64;
-
-%CD%\dependencies\OpenCV 2.4.3\x64-vc10;
+ - %CD%\dependencies\freeglut 2.8.1\x64;
+ - %CD%\dependencies\glew-1.10.0\bin\x64;
+ - %CD%\dependencies\OpenCV 2.4.3\x64-vc10;
 
 Note: %CD% above means the location where you save the files. 
 
+Or you can copy the dlls in their bin folders to the project directory either manually or excute the bat file `set-up-dlls.bat`. 
