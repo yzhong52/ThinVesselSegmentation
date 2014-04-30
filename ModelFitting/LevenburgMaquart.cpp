@@ -59,9 +59,7 @@ void  LevenburgMaquart::Jacobian_projection(
 	
 	// And the Jacobian matrix of the projection point
 	// 3 * N matrices
-	const SparseMatrixCV MX1( X1 );
-	const SparseMatrixCV MX2( X2 ); 
-
+	
 	nablaP = X1 * nablaT + nablaX1 * T + nablaX2 * (1-T) - X2 * nablaT;
 }
 
@@ -481,9 +479,10 @@ void LevenburgMaquart::reestimate( void )
 			(int) lines.size() * numParamPerLine, 
 			Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr );
 		
-		// SparseMatrixCV A = Jacobian.t() * Jacobian + SparseMatrixCV::I( Jacobian.col() ) * lambda;
+		SparseMatrixCV I  = SparseMatrixCV::I( Jacobian.col() ) * lambda; 
 		SparseMatrixCV Jt_J = Jacobian.t() * Jacobian; 
-		SparseMatrixCV A = Jt_J + Jt_J.diag() * lambda;
+		// SparseMatrixCV A = Jt_J + Jt_J.diag() * lambda;
+		SparseMatrixCV A = Jt_J + I * lambda;
 
 		// TODO: the following line need to be optimized
 		Mat_<double> B = Jacobian.t() * cv::Mat_<double>( (int) energy_matrix.size(), 1, &energy_matrix.front() ) ; 
