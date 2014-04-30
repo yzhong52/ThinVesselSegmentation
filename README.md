@@ -1,14 +1,22 @@
 Model Fitting
 ========================
 
-Using Levenburg Maquart algorithm for energy minimization. 
+Using Levenberg Marquart algorithm for energy minimization. 
 
 Enery contains two parts:
 
-1) data cost
-   Distance to the center of a line model
-2) Pair-wise Smooth Cost
-   Complicated. Please refer to this [paper](http://www.csd.uwo.ca/~yuri/Abstracts/cvpr12-abs.shtml)
+- Data cost
+  Distance to the center of a line model
+   
+- Pair-wise smooth cost
+  Complicated. Please refer to this [paper](http://www.csd.uwo.ca/~yuri/Abstracts/cvpr12-abs.shtml) for more details
+
+Levenberg Marquart algorithm requires to compute the Jacobian matrix for both the data cost and the smooth cost. This computation is very time-consuming and the computation has been higly parallelized. 
+
+Major Updates in current version
+========================
+1) Parallelized computating the Jacobain matrix of both data cost and smooth cost
+2) Profiling with Vtune
 
 Requirements
 ========================
