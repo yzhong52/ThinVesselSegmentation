@@ -22,6 +22,8 @@ int main( void ) {
 	    12, 12,  0,  0, 18,  1]; */
 	cout << "############################ Constructor A  ############################" << endl << endl; 
 	cout << A << endl; 
+	A.print( cout ); 
+	return 0; 
 	
 
 	cout << "############################ Transpose A.t() ############################" << endl << endl; 
