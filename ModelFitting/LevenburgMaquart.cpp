@@ -548,18 +548,16 @@ void LevenburgMaquart::reestimate( void )
 		cout << "No line models available" << endl;
 		return; 
 	}
-	int numParamPerLine = lines[0]->getNumOfParameters(); 
-
+	
 	double energy_before = compute_energy( tildaP, labelID, lines, labelID3d );
 	cout << "[" << energy_before; 
 	
-	P = vector<Vec3d>( tildaP.size() );
-	nablaP = vector<SparseMatrixCV>( tildaP.size() );
-	
+	SparseMatrixCV I  = SparseMatrixCV::I( numParam ); 
+
 	// lamda - damping function for levenburg maquart
 	// the smaller lambda is, the faster it converges
 	// the bigger lambda is, the slower it converges
-	double lambda = 1e1; 
+	double lambda = 1e2; 
 
 	for( int lmiter = 0; lmiter<50; lmiter++ ) { 
 
@@ -590,17 +588,15 @@ void LevenburgMaquart::reestimate( void )
 			(int) lines.size() * numParamPerLine, 
 			Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr );
 		
-		SparseMatrixCV I  = SparseMatrixCV::I( Jacobian.col() ) * lambda; 
-		//SparseMatrixCV Jt_J = Jacobian.t() * Jacobian; 
-		SparseMatrixCV Jt_J = multiply_openmp( Jacobian.t(), Jacobian ); 
 		
-		SparseMatrixCV A = Jt_J + Jt_J.diag() * lambda;
-		// SparseMatrixCV A = Jt_J + I * lambda;
-		//(Jt_J.diag() * lambda).print( cout );
-		//return; 
-
+		SparseMatrixCV Jt = Jacobian.t(); 
+		SparseMatrixCV Jt_J = multiply_openmp( Jt, Jacobian ); 
+		
+		// SparseMatrixCV A = Jt_J + Jt_J.diag() * lambda;
+		SparseMatrixCV A = Jt_J + I * lambda;
+		
 		// TODO: the following line could be optimized
-		Mat_<double> B = Jacobian.t() * cv::Mat_<double>( (int) energy_matrix.size(), 1, &energy_matrix.front() ) ; 
+		Mat_<double> B = Jt * cv::Mat_<double>( (int) energy_matrix.size(), 1, &energy_matrix.front() ) ; 
 		
 		Mat_<double> X;
 
@@ -616,14 +612,14 @@ void LevenburgMaquart::reestimate( void )
 			// adjust the endpoints of the lines
 			adjust_endpoints();
 			 energy_before = new_energy;
-			lambda *= 0.71; 
+			lambda *= 0.50; 
 			energy_increase_count = 0; 
 		} else {  
 			// if energy is encreasing
 			// reverse the result of this iteration
 			update_lines( X ); 	
 			// cout << " + " << endl;
-			lambda *= 1.72; 
+			lambda *= 2.12; 
 			if( ++energy_increase_count>=3 ) {
 				// If energy_increase_count in three consecutive iterations
 				// then the nenergy is probabaly converged

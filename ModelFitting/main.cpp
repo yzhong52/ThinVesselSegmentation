@@ -88,7 +88,7 @@ int main(int argc, char* argv[])
 	Image3D<Vesselness_Sig> vn_sig;
 	Image3D<short> im_short;
 	vn_sig.load( "../temp/roi15.vn_sig" ); 
-	vn_sig.remove_margin_to( Vec3i(60, 60, 60) );
+	vn_sig.remove_margin_to( Vec3i(50, 50, 50) );
 	
 	// threshold the data and put the data points into a vector
 	Data3D<int> indeces;
@@ -118,12 +118,12 @@ int main(int argc, char* argv[])
 	//////////////////////////////////////////////////
 	// Loading serialized data
 	//////////////////////////////////////////////////
-	model.deserialize<Line3DTwoPoint>( "output/Line3DTwoPoint.model" ); 
-	if( lines.size()!=dataPoints.size() ) {
-		cout << "Number of models is not corret. " << endl; 
-		cout << "Probably because of errors while deserializing the data. " << endl;
-		return 0; 
-	}
+	//model.deserialize<Line3DTwoPoint>( "output/Line3DTwoPoint.model" ); 
+	//if( lines.size()!=dataPoints.size() ) {
+	//	cout << "Number of models is not corret. " << endl; 
+	//	cout << "Probably because of errors while deserializing the data. " << endl;
+	//	return 0; 
+	//}
 
 	vector<int> labelings = vector<int>( dataPoints.size(), 0 ); 
 	// randomly assign label for each point separatedly 
