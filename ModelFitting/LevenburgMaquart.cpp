@@ -551,7 +551,7 @@ void LevenburgMaquart::reestimate( void )
 	int numParamPerLine = lines[0]->getNumOfParameters(); 
 
 	double energy_before = compute_energy( tildaP, labelID, lines, labelID3d );
-
+	cout << "[" << energy_before; 
 	
 	P = vector<Vec3d>( tildaP.size() );
 	nablaP = vector<SparseMatrixCV>( tildaP.size() );
@@ -561,7 +561,7 @@ void LevenburgMaquart::reestimate( void )
 	// the bigger lambda is, the slower it converges
 	double lambda = 1e1; 
 
-	for( int lmiter = 0; lmiter<10; lmiter++ ) { 
+	for( int lmiter = 0; lmiter<50; lmiter++ ) { 
 
 		// Data for Jacobian matrix
 		//  - # of cols: number of data points; 
@@ -609,21 +609,20 @@ void LevenburgMaquart::reestimate( void )
 		update_lines( -X ); 
 		
 		double new_energy = compute_energy( tildaP, labelID, lines, labelID3d );
-		cout << new_energy;
+		
 		static int energy_increase_count = 0; 
 		if( new_energy < energy_before ) { 
 			// if energy is decreasing 
 			// adjust the endpoints of the lines
 			adjust_endpoints();
-			cout << " - " << endl; 
-			energy_before = new_energy; 
+			 energy_before = new_energy;
 			lambda *= 0.71; 
 			energy_increase_count = 0; 
 		} else {  
 			// if energy is encreasing
 			// reverse the result of this iteration
 			update_lines( X ); 	
-			cout << " + " << endl;
+			// cout << " + " << endl;
 			lambda *= 1.72; 
 			if( ++energy_increase_count>=3 ) {
 				// If energy_increase_count in three consecutive iterations
@@ -631,16 +630,18 @@ void LevenburgMaquart::reestimate( void )
 				break; 
 			}
 		}
-
 		
-
-		cout << endl;
-		for( int i=2; i>=0; i-- ){
-			cout << '\r' << "Serializing models in " << i << " seconds... "; Sleep( 1000 ); 
-		}
-		modelset.serialize( "output/Line3DTwoPoint.model" ); 
-		cout << "Serialization done. " << endl;
+		cout << ", " << energy_before;
+		
+		//cout << endl;
+		//for( int i=2; i>=0; i-- ){
+		//	cout << '\r' << "Serializing models in " << i << " seconds... "; Sleep( 1000 ); 
+		//}
+		//modelset.serialize( "output/Line3DTwoPoint.model" ); 
+		//cout << "Serialization done. " << endl;
 	}
+
+	cout << "]; " << endl; 
 
 }
 
