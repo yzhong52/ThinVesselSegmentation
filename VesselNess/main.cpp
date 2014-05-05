@@ -48,8 +48,9 @@ namespace sample_code{
 			sigma_from, sigma_to, sigma_step,
 			alpha, beta, gamma );
 		viewer.addObject( vn_all0, GLViewer::Volumn::MIP );
-		Data3D<Vesselness_Sig> vn_sig( vn_all0 );
-		vn_sig.save( "../temp/roi15.vn_sig" ); 
+		Data3D<Vesselness_Sig> vn_sig0( vn_all0 );
+		vn_sig0.save( "../temp/roi15.vn_sig" );
+		vn_all0.save( "../temp/roi15.vn_all" ); 
 
 		// 2. new, faster 
 		Data3D<Vesselness_All> vn_all; 

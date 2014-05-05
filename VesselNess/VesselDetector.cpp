@@ -206,7 +206,7 @@ bool VesselDetector::hessien2( const Data3D<short>& src, Data3D<Vesselness_Nor>&
 	float alpha, float beta, float gamma )
 {
 	if( ksize!=0 && sigma<1e-3 ) {
-		// sigma is unset
+		// sigma is note set
 		sigma = 0.15f * ksize + 0.35f;
 	} else if ( ksize==0 && sigma>1e-3 ) {
 		// size is unset
@@ -227,12 +227,12 @@ bool VesselDetector::hessien2( const Data3D<short>& src, Data3D<Vesselness_Nor>&
 	dst.reset( im_blur.get_size(), temp ); 
 
 	int x, y, z; 
-	for( z=2; z<src.get_size_z()-2; z++ ) {
-		for( y=2; y<src.get_size_y()-2; y++ ) {
-			for( x=2; x<src.get_size_x()-2; x++ ) {
-
+	for( z = 2; z < src.get_size_z()-2; z++ ) {
+		for( y = 2; y < src.get_size_y()-2; y++ ) {
+			for( x = 2; x < src.get_size_x()-2; x++ ) {
 				Data3D<float>& src = im_blur;
 
+				////////////////////////////////////////////////////////////////////
 				// The following are being computed in this function
 				// 1) derivative of images; 
 				// 2) Hessian matrix; 
@@ -264,7 +264,7 @@ bool VesselDetector::hessien2( const Data3D<short>& src, Data3D<Vesselness_Nor>&
 
 
 				// 3) eigenvalue decomposition
-				// http://en.wikipedia.org/wiki/Eigenvalue_algorithm#3.C3.973_matrices
+				// Reference: http://en.wikipedia.org/wiki/Eigenvalue_algorithm#3.C3.973_matrices
 
 				// Given a real symmetric 3x3 matrix A, compute the eigenvalues
 				const float& A11 = im_dx2;
@@ -275,18 +275,18 @@ bool VesselDetector::hessien2( const Data3D<short>& src, Data3D<Vesselness_Nor>&
 				const float& A23 = im_dydz;
 
 				float eig1, eig2, eig3;
-				float p1 = A12*A12 + A13*A13 + A23*A23;
-				if( p1 < 1e-6 ) {
-					// A is diagonal.
+				float p1 = A12 * A12 + A13 * A13 + A23 * A23;
+				if( p1 < 1e-6 ) { // if A is diagonal
 					eig1 = A11;
 					eig2 = A22;
 					eig3 = A33;
-				}
-				else{
-					float q = ( A11 + A22 + A33 ) / 3; // trace(A)/3
+				} else { // if A is not diagonal 
+					// Compute 1/3 of the trace of matrix A: trace(A)/3
+					float q = ( A11 + A22 + A33 ) / 3; 
 					float p2 = (A11-q)*(A11-q) + (A22-q)*(A22-q) + (A33-q)*(A33-q) + 2 * p1; 
 					float p = sqrt(p2 / 6);
 
+					// Construct matrix B
 					// B = (1 / p) * (A - q * I), where I is the identity matrix
 					float B11 = (1 / p) * (A11-q); 
 					float B12 = (1 / p) * (A12-q); float& B21 = B12;
@@ -294,8 +294,9 @@ bool VesselDetector::hessien2( const Data3D<short>& src, Data3D<Vesselness_Nor>&
 					float B22 = (1 / p) * (A22-q); 
 					float B23 = (1 / p) * (A23-q); float& B32 = B23;
 					float B33 = (1 / p) * (A33-q); 
-					// Determinant of a 3 by 3 matrix
-					// http://www.mathworks.com/help/aeroblks/determinantof3x3matrix.html
+
+					// Determinant of a 3 by 3 matrix B
+					// Reference: http://www.mathworks.com/help/aeroblks/determinantof3x3matrix.html
 					float detB = B11*(B22*B33-B23*B32) - B12*(B21*B33-B23*B31) + B13*(B21*B32-B22*B31); 
 					             
 					// In exact arithmetic for a symmetric matrix  -1 <= r <= 1
@@ -311,17 +312,30 @@ bool VesselDetector::hessien2( const Data3D<short>& src, Data3D<Vesselness_Nor>&
 						phi = acos(r) / 3; 
 					}
 
-					// the eigenvalues satisfy eig3 <= eig2 <= eig1
+					// The eigenvalues satisfy eig3 <= eig2 <= eig1
+					// Notice that: trace(A) = eig1 + eig2 + eig3
 					eig1 = q + 2 * p * cos( phi );
 					eig3 = q + 2 * p * cos( phi + 2 * M_PI3 );
-					eig2 = 3 * q - eig1 - eig3; // % since trace(A) = eig1 + eig2 + eig3
+					eig2 = 3 * q - eig1 - eig3; 
+				}
+
+				// Compute the corresponding eigenvectors
+				// Reference: [Cayley-Hamilton_theorem](http://en.wikipedia.org/wiki/Cayley-Hamilton_theorem)
+				// If eig1, eig2, eig3 are the distinct eigenvalues of the matrix A; 
+				// that is: eig1 != eig2 != eig3. Then 
+				// (A - eig1 * I)(A - eig2 * I)(A - eig3 * I) = 0
+				// Thus the columns of the product of any two of these matrices 
+				// will contain an eigenvector for the third eigenvalue. 
+				if( eig1!=eig2 && eig2!=eig3 && eig1!=eig3 ) {
+					
 				}
 
 				if( abs(eig1) > abs(eig2) ) std::swap( eig1, eig2 );
 				if( abs(eig2) > abs(eig3) ) std::swap( eig2, eig3 );
 				if( abs(eig1) > abs(eig2) ) std::swap( eig1, eig2 );
 
-				// vesselness value
+				////////////////////////////////////////////////////
+				// compute vesselness response from eigenvalues
 				if( eig2 > 0 || eig3 > 0 ) {
 					dst.at(x,y,z).rsp = 0.0f;
 				} else {
@@ -332,9 +346,8 @@ bool VesselDetector::hessien2( const Data3D<short>& src, Data3D<Vesselness_Nor>&
 					float B = (lmd2*lmd3>1e-5) ? lmd1 / sqrt( lmd2*lmd3 ) : 0;
 					float S = sqrt( lmd1*lmd1 + lmd2*lmd2 + lmd3*lmd3 );
 					dst.at(x,y,z).rsp = ( 1.0f-exp(-A*A/alpha) )* exp( B*B/beta ) * ( 1-exp(-S*S/gamma) );
-
-					// TODO: how to get the corresponding vesselness direction
 				}
+
 			}
 		}
 	}
@@ -352,10 +365,13 @@ int VesselDetector::compute_vesselness2(
 	cout << "Vesselness will be computed from sigma = " << sigma_from << " to sigma = " << sigma_to << endl;
 	
 	Data3D<Vesselness_Nor> vn;
-	dst.reset( src.get_size() ); // data will be clear to zero
+	dst.reset( src.get_size() ); // reszie data, and it will also be clear to zero
 
-	smart_return_value( sigma_from < sigma_to, "sigma_from should be smaller than sigma_to ", 0 );
-	smart_return_value( sigma_step > 0, "sigma_step should be greater than 0 ", 0 );
+	// Error for input parameters
+	smart_return_value( sigma_from < sigma_to, 
+		"sigma_from should be smaller than sigma_to ", 0 );
+	smart_return_value( sigma_step > 0, 
+		"sigma_step should be greater than 0 ", 0 );
 
 	int x,y,z;
 	float max_sigma = sigma_from;
