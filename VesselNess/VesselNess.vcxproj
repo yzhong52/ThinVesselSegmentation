@@ -284,7 +284,7 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="VesselDetector.h" />
-    <ClInclude Include="Vesselness.h" />
+    <ClInclude Include="VesselnessTypes.h" />
     <ClInclude Include="GLVolumn.h" />
   </ItemGroup>
   <ItemGroup>
@@ -300,7 +300,7 @@
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="VesselDetector.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Vesselness.cpp" />
+    <ClCompile Include="VesselnessTypes.cpp" />
     <ClCompile Include="GLVideoSaver.cpp" />
     <ClCompile Include="Viewer.cpp" />
     <ClCompile Include="GLVolumn.cpp" />

@@ -1,6 +1,6 @@
 #include "Viewer.h"
 #include "Image3D.h"
-#include "Vesselness.h"
+#include "VesselNessTypes.h"
 
 namespace Viewer{ 
 	

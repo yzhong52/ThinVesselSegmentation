@@ -1,5 +1,5 @@
 #include "ImageProcessing.h"
-#include "Vesselness.h"
+#include "VesselNessTypes.h"
 #include <queue>
 
 void ImageProcessing::histogram( Data3D<short>& data, 

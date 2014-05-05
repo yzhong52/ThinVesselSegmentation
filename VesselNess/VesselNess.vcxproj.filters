@@ -81,9 +81,6 @@
     <ClInclude Include="Graph.h">
       <Filter>MinSpanTree</Filter>
     </ClInclude>
-    <ClInclude Include="Vesselness.h">
-      <Filter>Vesselness</Filter>
-    </ClInclude>
     <ClInclude Include="VesselDetector.h">
       <Filter>Vesselness</Filter>
     </ClInclude>
@@ -113,6 +110,9 @@
     </ClInclude>
     <ClInclude Include="nstdio.h">
       <Filter>others</Filter>
+    </ClInclude>
+    <ClInclude Include="VesselnessTypes.h">
+      <Filter>Vesselness</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -146,9 +146,6 @@
     <ClCompile Include="VesselDetector.cpp">
       <Filter>Vesselness</Filter>
     </ClCompile>
-    <ClCompile Include="Vesselness.cpp">
-      <Filter>Vesselness</Filter>
-    </ClCompile>
     <ClCompile Include="GLCamera.cpp">
       <Filter>Visualization</Filter>
     </ClCompile>
@@ -161,6 +158,9 @@
     </ClCompile>
     <ClCompile Include="GLVideoSaver.cpp">
       <Filter>Visualization</Filter>
+    </ClCompile>
+    <ClCompile Include="VesselnessTypes.cpp">
+      <Filter>Vesselness</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

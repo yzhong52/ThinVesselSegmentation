@@ -2,6 +2,16 @@
 
 #include "stdafx.h"
 
+// VesselnessTypes.h
+// Define 4 different vesselness data types
+// 1) class Vesselness
+//		vesselness response (rsp) + vessel orientation (dir)
+// 2) class Vesselness_Sig
+//		vesselness response (rsp) + vessel orientation (dir) + vessel size (sigma)
+// 3) class Vesselness_Nor
+//		vesselness response (rsp) + vessel orientation (dir) + vessel orientations normals (normals)
+// 4) class Vesselness_All
+//		vesselness response (rsp) + vessel orientation (dir) + vessel orientations normals (normals)
 
 struct Vesselness_Data;
 struct Vesselness_Sig_Data;
@@ -14,26 +24,27 @@ class Vesselness_Nor;
 class Vesselness_All;
 
 struct Vesselness_Data {
-	float rsp; // vesselness response
-	Vec3f dir; // vessel dirction	
-	Vesselness_Data( float s = 0.0f ) : rsp( s ) { }
+	float rsp;			// vesselness response
+	Vec3f dir;			// vessel dirction	
 
+	Vesselness_Data( float s = 0.0f ) : rsp( s ) { }
 	bool operator>( const Vesselness_Data& right ) const { return ( (this->rsp) > right.rsp ); }
 	bool operator<( const Vesselness_Data& right ) const { return ( (this->rsp) < right.rsp ); }
 }; 
 
 struct Vesselness_Sig_Data : public Vesselness_Data {
+	float sigma;		// relative size of the vessel
+
 	Vesselness_Sig_Data( float s = 0.0f ) : Vesselness_Data ( s ) { } 
-	float sigma;	// relative size of the vessel
 };
 
 struct Vesselness_Nor_Data : public Vesselness_Data {
-	Vec3f normals[2];
+	Vec3f normals[2];	// normals of vessel orientation
 };
 
 struct Vesselness_All_Data : public Vesselness_Data {
-	float sigma;	// relative size of the vessel
-	Vec3f normals[2];
+	float sigma;		// relative size of the vessel
+	Vec3f normals[2];	// normals of vessel orientation
 };
 
 
@@ -157,24 +168,9 @@ namespace cv{
 	template< > class DataType< Vesselness_All > : public DataType< Vec<float, Vesselness_All::_size> > { };
 }
 
-// This one below works as well 
-// template< > class DataType< Vesselness_Sig  > : public DataType< Vec<float,5> >{
-//public:
-//    typedef Vesselness_Sig value_type;
-//    typedef Vesselness_Sig work_type;
-//    typedef float channel_type;
-//    typedef value_type vec_type;
-//    enum { 
-//		generic_type = 0, 
-//		depth = DataDepth<channel_type>::value, 
-//		channels = 5,
-//        fmt = ((channels-1)<<8) + DataDepth<channel_type>::fmt,
-//        type = CV_MAKETYPE(depth, channels)
-//	};
-//};;
 
 /////////////////////////////////////////////////////////////////////////////////////////
-// These following are defined in <core.hpp>
+// Refrence: These following are defined in <core.hpp>
 //
 //template<> class DataType<int>
 //{

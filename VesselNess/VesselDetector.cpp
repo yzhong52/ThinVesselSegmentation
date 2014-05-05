@@ -2,7 +2,7 @@
 #include "Image3D.h"
 #include "Kernel3D.h"
 #include "ImageProcessing.h"
-#include "Vesselness.h"
+#include "VesselNessTypes.h"
 
 #define _CRT_SECURE_NO_DEPRECATE
 #include <opencv2\core\core.hpp>
