@@ -7,7 +7,7 @@
 // TODO: reference any additional headers you need in STDAFX.H
 // and not in this file
 
-#include "Vesselness.h"
+#include "VesselnessTypes.h"
 
 int CV_TYPE(const type_info& type){
 	if( type==typeid(short) ) {
