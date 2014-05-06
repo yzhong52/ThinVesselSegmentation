@@ -42,15 +42,15 @@ namespace sample_code{
 		
 		// Two different ways of computing Vesselness measure
 		
-		// 1. old, slower 
-		Data3D<Vesselness_All> vn_all0;
-		VesselDetector::compute_vesselness( im_short, vn_all0, 
-			sigma_from, sigma_to, sigma_step,
-			alpha, beta, gamma );
-		viewer.addObject( vn_all0, GLViewer::Volumn::MIP );
-		Data3D<Vesselness_Sig> vn_sig0( vn_all0 );
-		vn_sig0.save( "../temp/roi15.vn_sig" );
-		vn_all0.save( "../temp/roi15.vn_all" ); 
+		//// 1. old, slower 
+		//Data3D<Vesselness_All> vn_all0;
+		//VesselDetector::compute_vesselness( im_short, vn_all0, 
+		//	sigma_from, sigma_to, sigma_step,
+		//	alpha, beta, gamma );
+		//viewer.addObject( vn_all0, GLViewer::Volumn::MIP );
+		//Data3D<Vesselness_Sig> vn_sig0( vn_all0 );
+		//vn_sig0.save( "../temp/roi15.vn_sig" );
+		//vn_all0.save( "../temp/roi15.vn_all" ); 
 
 		// 2. new, faster 
 		Data3D<Vesselness_All> vn_all; 
@@ -58,12 +58,11 @@ namespace sample_code{
 			sigma_from, sigma_to, sigma_step,
 			alpha, beta, gamma );
 		viewer.addObject( vn_all,  GLViewer::Volumn::MIP );
+		Data3D<Vesselness_Sig> vn_sig( vn_all );
+		viewer.addDiretionObject( vn_sig ); 
 		
-		// Visualize result with maximum intensity projection (MIP)
-		viewer.addObject( im_short, GLViewer::Volumn::MIP );
-
 		// visualize the data in thre viewports
-		viewer.go(600, 200, 3);
+		viewer.go(600, 400, 2);
 
 		return 0;
 	}

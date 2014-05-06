@@ -3,6 +3,7 @@
 #include "Kernel3D.h"
 #include "ImageProcessing.h"
 #include "VesselNessTypes.h"
+#include "../EigenDecomp/eigen_decomp.h"
 
 #define _CRT_SECURE_NO_DEPRECATE
 #include <opencv2\core\core.hpp>
@@ -265,89 +266,43 @@ bool VesselDetector::hessien2( const Data3D<short>& src, Data3D<Vesselness_Nor>&
 
 				// 3) eigenvalue decomposition
 				// Reference: http://en.wikipedia.org/wiki/Eigenvalue_algorithm#3.C3.973_matrices
-
 				// Given a real symmetric 3x3 matrix A, compute the eigenvalues
-				const float& A11 = im_dx2;
-				const float& A22 = im_dy2;
-				const float& A33 = im_dz2;
-				const float& A12 = im_dxdy;
-				const float& A13 = im_dxdz;
-				const float& A23 = im_dydz;
+				const float A[6] = {im_dx2, im_dxdy, im_dxdz, im_dy2, im_dydz, im_dz2}; 
 
-				float eig1, eig2, eig3;
-				float p1 = A12 * A12 + A13 * A13 + A23 * A23;
-				if( p1 < 1e-6 ) { // if A is diagonal
-					eig1 = A11;
-					eig2 = A22;
-					eig3 = A33;
-				} else { // if A is not diagonal 
-					// Compute 1/3 of the trace of matrix A: trace(A)/3
-					float q = ( A11 + A22 + A33 ) / 3; 
-					float p2 = (A11-q)*(A11-q) + (A22-q)*(A22-q) + (A33-q)*(A33-q) + 2 * p1; 
-					float p = sqrt(p2 / 6);
+				float eigenvalues[3]; 
+				float eigenvectors[3][3]; 
+				eigen_decomp( A, eigenvalues, eigenvectors );
 
-					// Construct matrix B
-					// B = (1 / p) * (A - q * I), where I is the identity matrix
-					float B11 = (1 / p) * (A11-q); 
-					float B12 = (1 / p) * (A12-q); float& B21 = B12;
-					float B13 = (1 / p) * (A13-q); float& B31 = B13;
-					float B22 = (1 / p) * (A22-q); 
-					float B23 = (1 / p) * (A23-q); float& B32 = B23;
-					float B33 = (1 / p) * (A33-q); 
-
-					// Determinant of a 3 by 3 matrix B
-					// Reference: http://www.mathworks.com/help/aeroblks/determinantof3x3matrix.html
-					float detB = B11*(B22*B33-B23*B32) - B12*(B21*B33-B23*B31) + B13*(B21*B32-B22*B31); 
-					             
-					// In exact arithmetic for a symmetric matrix  -1 <= r <= 1
-					// but computation error can leave it slightly outside this range.
-					float r = detB / 2;
-					float phi; 
-					const float M_PI3 = 3.14159265f / 3;
-					if( r <= -1.0f ) {
-						phi = M_PI3; 
-					} else if (r >= 1.0f)
-						phi = 0; 
-					else {
-						phi = acos(r) / 3; 
-					}
-
-					// The eigenvalues satisfy eig3 <= eig2 <= eig1
-					// Notice that: trace(A) = eig1 + eig2 + eig3
-					eig1 = q + 2 * p * cos( phi );
-					eig3 = q + 2 * p * cos( phi + 2 * M_PI3 );
-					eig2 = 3 * q - eig1 - eig3; 
-				}
-
-				// Compute the corresponding eigenvectors
-				// Reference: [Cayley-Hamilton_theorem](http://en.wikipedia.org/wiki/Cayley-Hamilton_theorem)
-				// If eig1, eig2, eig3 are the distinct eigenvalues of the matrix A; 
-				// that is: eig1 != eig2 != eig3. Then 
-				// (A - eig1 * I)(A - eig2 * I)(A - eig3 * I) = 0
-				// Thus the columns of the product of any two of these matrices 
-				// will contain an eigenvector for the third eigenvalue. 
-				if( eig1!=eig2 && eig2!=eig3 && eig1!=eig3 ) {
-					
-				}
-
-				if( abs(eig1) > abs(eig2) ) std::swap( eig1, eig2 );
-				if( abs(eig2) > abs(eig3) ) std::swap( eig2, eig3 );
-				if( abs(eig1) > abs(eig2) ) std::swap( eig1, eig2 );
-
-				////////////////////////////////////////////////////
-				// compute vesselness response from eigenvalues
-				if( eig2 > 0 || eig3 > 0 ) {
-					dst.at(x,y,z).rsp = 0.0f;
+				// order eigenvalues so that |lambda1| < |lambda2| < |lambda3| 
+				int i=0, j=1, k=2;
+				if( abs(eigenvalues[i]) > abs(eigenvalues[j]) ) std::swap( i, j );
+				if( abs(eigenvalues[i]) > abs(eigenvalues[k]) ) std::swap( i, k );
+				if( abs(eigenvalues[j]) > abs(eigenvalues[k]) ) std::swap( j, k );
+				
+				Vesselness_Nor vn_Nor; 
+				// vesselness value
+				if( eigenvalues[j] > 0 || eigenvalues[k] > 0 ) {
+					vn_Nor.rsp = 0.0f;
 				} else {
-					float lmd1 = abs( eig1 );
-					float lmd2 = abs( eig2 );
-					float lmd3 = abs( eig3 );
+					float lmd1 = abs( eigenvalues[i] );
+					float lmd2 = abs( eigenvalues[j] );
+					float lmd3 = abs( eigenvalues[k] );
+					
 					float A = (lmd3>1e-5) ? lmd2/lmd3 : 0;
 					float B = (lmd2*lmd3>1e-5) ? lmd1 / sqrt( lmd2*lmd3 ) : 0;
 					float S = sqrt( lmd1*lmd1 + lmd2*lmd2 + lmd3*lmd3 );
-					dst.at(x,y,z).rsp = ( 1.0f-exp(-A*A/alpha) )* exp( B*B/beta ) * ( 1-exp(-S*S/gamma) );
+					vn_Nor.rsp = ( 1.0f-exp(-A*A/alpha) )* exp( B*B/beta ) * ( 1-exp(-S*S/gamma) );
 				}
-
+				
+				// orientation of vesselness
+				for( int d=0; d<3; d++ ) {
+					vn_Nor.dir[d]        = eigenvectors[i][d];
+					vn_Nor.normals[0][d] = eigenvectors[j][d];
+					vn_Nor.normals[1][d] = eigenvectors[k][d];
+				}
+				
+				// copy the value to our dst matrix
+				dst.at(x, y, z) = vn_Nor; 
 			}
 		}
 	}

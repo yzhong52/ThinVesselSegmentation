@@ -116,7 +116,7 @@ void eigen_decomp( const T A[6], T eigenvalues[3], T eigenvectors[3][3] )
 		// but computation error can leave it slightly outside this range.
 		T r = detB / 2;
 		T phi; 
-		const T M_PI3 = 3.14159265 / 3;
+		const T M_PI3 = T(3.14159265 / 3);
 		if( r <= -1.0f ) {
 			phi = M_PI3; 
 		} else if (r >= 1.0f)
