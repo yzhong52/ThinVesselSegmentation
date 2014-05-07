@@ -11,7 +11,7 @@ using namespace cv;
 #include "VesselDetector.h"
 #include "Data3D.h"
 #include "nstdio.h"
-#include "VesselNess.h"
+#include "VesselNessTypes.h"
 #include "TypeInfo.h"
 #include "GLViwerWrapper.h" // For visualization
 
@@ -28,6 +28,8 @@ GLViewerExt viewer;
 #include "VesselDetector.h"
 
 
+#define INPUT_DIR "./data/"
+#define OUTPUT_DIR "../temp/"
 
 int main()
 {
@@ -35,7 +37,7 @@ int main()
 
 	bool flag; 
 	Image3D<short> im_short;
-	flag = im_short.load( "../temp/vessel3d.mmrd.17.data" ); 
+	flag = im_short.load( "../Vesselness/data/vessel3d.rd.19.data" ); 
 	//flag = im_short.load( "../temp/roi20.data" ); 
 	//flag = im_short.load( "../temp/roi21.data" ); 
 	//flag = im_short.load( "../temp/data/roi16.partial.data" ); 

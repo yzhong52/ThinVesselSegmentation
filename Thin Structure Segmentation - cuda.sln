@@ -13,7 +13,6 @@ Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{8C1B273B-B6D3-44B9-84EB-F0A1E33F3CED}.Debug|x64-cuda.ActiveCfg = Debug|x64
 		{8C1B273B-B6D3-44B9-84EB-F0A1E33F3CED}.Release|x64-cuda.ActiveCfg = Release|x64
-		{8C1B273B-B6D3-44B9-84EB-F0A1E33F3CED}.Release|x64-cuda.Build.0 = Release|x64
 		{BF0F3497-4CF1-469C-ADF4-92AE1829118D}.Debug|x64-cuda.ActiveCfg = Debug|x64
 		{BF0F3497-4CF1-469C-ADF4-92AE1829118D}.Debug|x64-cuda.Build.0 = Debug|x64
 		{BF0F3497-4CF1-469C-ADF4-92AE1829118D}.Release|x64-cuda.ActiveCfg = Release|x64

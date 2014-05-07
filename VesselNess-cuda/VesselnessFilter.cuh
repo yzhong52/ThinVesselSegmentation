@@ -5,6 +5,7 @@
 #include "Data3D.h"
 #include "ImageProcessing.h"
 #include "Ooops.h"
+#include "../EigenDecomp/eigen_decomp.h"
 
 
 namespace VesselnessFilterGPU{
@@ -204,58 +205,16 @@ __global__ void VesselnessFilterGPU::vesselness(
 						 - get( src,i,sx,sy,sz, 0,-1, 1 )) * 0.25f;
 
 		// 2) eigenvalue decomposition of Hessian matrix (a real symmetric 3x3 matrix A)
-		// http://en.wikipedia.org/wiki/Eigenvalue_algorithm#3.C3.973_matrices
-		const float& A11 = im_dx2;
-		const float& A22 = im_dy2;
-		const float& A33 = im_dz2;
-		const float& A12 = im_dxdy;
-		const float& A13 = im_dxdz;
-		const float& A23 = im_dydz;
+		const float Hessian[6] = { im_dx2, im_dxdy, im_dxdz, im_dy2, im_dydz, im_dz2 };
+		float eigenvalues[3];
+		float eigenvectors[3][3]; 
+		eigen_decomp( Hessian, eigenvalues, eigenvectors ); 
 
-		float eig1, eig2, eig3;
-		float p1 = A12*A12 + A13*A13 + A23*A23;
-		if( p1 < 1e-7f ) {
-			// A is diagonal.
-			eig1 = A11;
-			eig2 = A22;
-			eig3 = A33;
-		}
-		else{
-			float q = (A11+A22+A33)/3; // trace(A)/3
-			float p2 = (A11-q)*(A11-q) + (A22-q)*(A22-q) + (A33-q)*(A33-q) + 2 * p1; 
-			float p = sqrt(p2 / 6);
+		float& eig1 = eigenvalues[0];
+		float& eig2 = eigenvalues[1];
+		float& eig3 = eigenvalues[2];
 
-			// B = (1 / p) * (A - q * I), where I is the identity matrix
-			float B11 = (1 / p) * (A11-q); 
-			float B12 = (1 / p) * (A12-q); float& B21 = B12;
-			float B13 = (1 / p) * (A13-q); float& B31 = B13;
-			float B22 = (1 / p) * (A22-q); 
-			float B23 = (1 / p) * (A23-q); float& B32 = B23;
-			float B33 = (1 / p) * (A33-q); 
-			// Determinant of a 3 by 3 matrix B
-			// http://www.mathworks.com/help/aeroblks/determinantof3x3matrix.html
-			float detB = B11*(B22*B33-B23*B32) - B12*(B21*B33-B23*B31) + B13*(B21*B32-B22*B31); 
-
-			// In exact arithmetic for a symmetric matrix  -1 <= r <= 1
-			// but computation error can leave it slightly outside this range.
-			float r = detB/2;
-			float phi; 
-			const float M_PI3 = 3.14159265f / 3;
-			if( r <= -1.0f ) {
-				phi = M_PI3; 
-			} else if (r >= 1.0f )
-				phi = 0; 
-			else {
-				phi = acos(r) / 3; 
-			}
-
-			// the eigenvalues satisfy eig3 <= eig2 <= eig1
-			eig1 = q + 2 * p * cos(phi);
-			eig3 = q + 2 * p * cos(phi + 2 * M_PI3);
-			eig2 = 3 * q - eig1 - eig3; // % since trace(A) = eig1 + eig2 + eig3
-		}
-
-		// so that abs(eig1) < abs(eig2) < abs(eig3)
+		// sort eig1, eig2, eig3, so that abs(eig1) < abs(eig2) < abs(eig3)
 		if( abs(eig1) > abs(eig2) ) {
 			float temp = eig2;
 			eig2 = eig1; 

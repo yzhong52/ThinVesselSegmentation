@@ -47,7 +47,7 @@ namespace GLViewer
 		void takeScreenShot( int w, int h); 
 
 		inline const bool& isAutoRotate( void ) const { return autoRotate; } 
-		inline const void setAutoRotate( bool flag ) { autoRotate = flag; } 
+		inline void setAutoRotate( bool flag ) { autoRotate = flag; } 
 	};
 }
 

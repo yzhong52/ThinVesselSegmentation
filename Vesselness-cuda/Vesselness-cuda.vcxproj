@@ -134,15 +134,15 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\VesselNess;$(ProjectDir)..\dependencies\OpenCV 2.4.8\include;$(ProjectDir)..\dependencies\glew-1.10.0\include;$(ProjectDir)..\dependencies\freeglut 2.8.1\include;$(CudaToolkitIncludeDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\VesselNess;$(ProjectDir)..\dependencies\OpenCV2.4.8\include;$(ProjectDir)..\dependencies\glew-1.10.0\include;$(ProjectDir)..\dependencies\freeglut 2.8.1\include;$(CudaToolkitIncludeDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>opencv_core248.lib;opencv_highgui248.lib;opencv_imgproc248.lib;opencv_video248.lib;freeglut.lib;cudart.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(ProjectDir)..\dependencies\OpenCV 2.4.8\x64\vc10\lib;$(ProjectDir)..\dependencies\freeglut 2.8.1\lib\x64;$(ProjectDir)..\dependencies\glew-1.10.0\lib\Release\x64;$(CudaToolkitLibDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opencv_core248.lib;opencv_highgui248.lib;opencv_imgproc248.lib;freeglut.lib;cudart.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)..\dependencies\OpenCV2.4.8\x64-vc10;$(ProjectDir)..\dependencies\freeglut 2.8.1\x64;$(ProjectDir)..\dependencies\glew-1.10.0\x64;$(CudaToolkitLibDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>echo copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"
