@@ -16,8 +16,8 @@ namespace sample_code{
 
 int main(int argc, char* argv[])
 {
-	// sample_code::vesselness(false);
-	sample_code::centreline(true); 
+	sample_code::vesselness(false);
+	sample_code::centreline(false); 
 	return 0;
 }
 

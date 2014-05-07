@@ -6,6 +6,81 @@
 #include "../EigenDecomp/eigen_decomp.h"
 
 
+Vesselness hessien_thread_func( const Data3D<float>& src, 
+	const int& x, const int& y, const int& z, 
+	const float& alpha, const float& beta, const float& gamma )
+{
+
+	////////////////////////////////////////////////////////////////////
+	// The following are being computed in this function
+	// 1) derivative of images; 
+	// 2) Hessian matrix; 
+	// 3) eigenvalue decomposition; 
+	// 4) vesselness measure. 
+
+	// 1) derivative of the image		
+	float im_dx2 = -2.0f * src.at(x,y,z) + src.at(x-1,y,z) + src.at(x+1,y,z);
+	float im_dy2 = -2.0f * src.at(x,y,z) + src.at(x,y-1,z) + src.at(x,y+1,z);
+	float im_dz2 = -2.0f * src.at(x,y,z) + src.at(x,y,z-1) + src.at(x,y,z+1);
+	// 1) derivative of the image (alternative approach, the one above is more accurate) 		
+	//float im_dx2 = -0.5f * src.at(x,y,z) + 0.25f * src.at(x-2,y,z) + 0.25f * src.at(x+2,y,z);
+	//float im_dy2 = -0.5f * src.at(x,y,z) + 0.25f * src.at(x,y-2,z) + 0.25f * src.at(x,y+2,z);
+	//float im_dz2 = -0.5f * src.at(x,y,z) + 0.25f * src.at(x,y,z-2) + 0.25f * src.at(x,y,z+2);
+
+	float im_dxdy = ( 
+		+ src.at(x-1, y-1, z) 
+		+ src.at(x+1, y+1, z) 
+		- src.at(x-1, y+1, z) 
+		- src.at(x+1, y-1, z) ) * 0.25f; 
+	float im_dxdz = ( 
+		+ src.at(x-1, y, z-1) 
+		+ src.at(x+1, y, z+1)
+		- src.at(x+1, y, z-1) 
+		- src.at(x-1, y, z+1) ) * 0.25f; 
+	float im_dydz = ( 
+		+ src.at(x, y-1, z-1) 
+		+ src.at(x, y+1, z+1)
+		- src.at(x, y+1, z-1) 
+		- src.at(x, y-1, z+1) ) * 0.25f; 
+
+	// 3) eigenvalue decomposition
+	// Reference: http://en.wikipedia.org/wiki/Eigenvalue_algorithm#3.C3.973_matrices
+	// Given a real symmetric 3x3 matrix Hessian, compute the eigenvalues
+	const float Hessian[6] = {im_dx2, im_dxdy, im_dxdz, im_dy2, im_dydz, im_dz2}; 
+
+	float eigenvalues[3]; 
+	float eigenvectors[3][3]; 
+	eigen_decomp( Hessian, eigenvalues, eigenvectors );
+
+	// order eigenvalues so that |lambda1| < |lambda2| < |lambda3| 
+	int i=0, j=1, k=2;
+	if( abs(eigenvalues[i]) > abs(eigenvalues[j]) ) std::swap( i, j );
+	if( abs(eigenvalues[i]) > abs(eigenvalues[k]) ) std::swap( i, k );
+	if( abs(eigenvalues[j]) > abs(eigenvalues[k]) ) std::swap( j, k );
+
+	Vesselness vn; 
+	// vesselness value
+	if( eigenvalues[j] > 0 || eigenvalues[k] > 0 ) {
+		vn.rsp = 0.0f;
+	} else {
+		float lmd1 = abs( eigenvalues[i] );
+		float lmd2 = abs( eigenvalues[j] );
+		float lmd3 = abs( eigenvalues[k] );
+
+		float A = (lmd3>1e-5) ? lmd2/lmd3 : 0;
+		float B = (lmd2*lmd3>1e-5) ? lmd1 / sqrt( lmd2*lmd3 ) : 0;
+		float S = sqrt( lmd1*lmd1 + lmd2*lmd2 + lmd3*lmd3 );
+		vn.rsp = ( 1.0f-exp(-A*A/alpha) )* exp( B*B/beta ) * ( 1-exp(-S*S/gamma) );
+	}
+
+	// orientation of vesselness
+	for( int d=0; d<3; d++ ) {
+		vn.dir[d]        = eigenvectors[i][d];
+	}
+
+	return vn; 
+}
+
 
 bool VesselDetector::hessien( const Data3D<short>& src, Data3D<Vesselness>& dst, 
 	int ksize, float sigma, 
@@ -29,87 +104,20 @@ bool VesselDetector::hessien( const Data3D<short>& src, Data3D<Vesselness>& dst,
 	smart_return_value( flag, "Gaussian Blur Failed.", false );
 	im_blur *= sigma; //Normalizing for different scale
 
-
 	dst.reset( im_blur.get_size(), Vesselness(0.0f) ); 
 
-	int x, y, z; 
-	for( z = 2; z < src.get_size_z()-2; z++ ) {
-		for( y = 2; y < src.get_size_y()-2; y++ ) {
-			for( x = 2; x < src.get_size_x()-2; x++ ) {
-				Data3D<float>& src = im_blur;
-
-				////////////////////////////////////////////////////////////////////
-				// The following are being computed in this function
-				// 1) derivative of images; 
-				// 2) Hessian matrix; 
-				// 3) eigenvalue decomposition; 
-				// 4) vesselness measure. 
-				
-				// 1) derivative of the image		
-				float im_dx2 = -2.0f * src.at(x,y,z) + src.at(x-1,y,z) + src.at(x+1,y,z);
-				float im_dy2 = -2.0f * src.at(x,y,z) + src.at(x,y-1,z) + src.at(x,y+1,z);
-				float im_dz2 = -2.0f * src.at(x,y,z) + src.at(x,y,z-1) + src.at(x,y,z+1);
-				// 1) derivative of the image (alternative approach, the one above is more accurate) 		
-				//float im_dx2 = -0.5f * src.at(x,y,z) + 0.25f * src.at(x-2,y,z) + 0.25f * src.at(x+2,y,z);
-				//float im_dy2 = -0.5f * src.at(x,y,z) + 0.25f * src.at(x,y-2,z) + 0.25f * src.at(x,y+2,z);
-				//float im_dz2 = -0.5f * src.at(x,y,z) + 0.25f * src.at(x,y,z-2) + 0.25f * src.at(x,y,z+2);
-
-				float im_dxdy = ( 
-					+ src.at(x-1, y-1, z) 
-					+ src.at(x+1, y+1, z) 
-					- src.at(x-1, y+1, z) 
-					- src.at(x+1, y-1, z) ) * 0.25f; 
-				float im_dxdz = ( 
-					+ src.at(x-1, y, z-1) 
-					+ src.at(x+1, y, z+1)
-					- src.at(x+1, y, z-1) 
-					- src.at(x-1, y, z+1) ) * 0.25f; 
-				float im_dydz = ( 
-					+ src.at(x, y-1, z-1) 
-					+ src.at(x, y+1, z+1)
-					- src.at(x, y+1, z-1) 
-					- src.at(x, y-1, z+1) ) * 0.25f; 
-
-				// 3) eigenvalue decomposition
-				// Reference: http://en.wikipedia.org/wiki/Eigenvalue_algorithm#3.C3.973_matrices
-				// Given a real symmetric 3x3 matrix Hessian, compute the eigenvalues
-				const float Hessian[6] = {im_dx2, im_dxdy, im_dxdz, im_dy2, im_dydz, im_dz2}; 
-
-				float eigenvalues[3]; 
-				float eigenvectors[3][3]; 
-				eigen_decomp( Hessian, eigenvalues, eigenvectors );
-
-				// order eigenvalues so that |lambda1| < |lambda2| < |lambda3| 
-				int i=0, j=1, k=2;
-				if( abs(eigenvalues[i]) > abs(eigenvalues[j]) ) std::swap( i, j );
-				if( abs(eigenvalues[i]) > abs(eigenvalues[k]) ) std::swap( i, k );
-				if( abs(eigenvalues[j]) > abs(eigenvalues[k]) ) std::swap( j, k );
-				
-				Vesselness vn; 
-				// vesselness value
-				if( eigenvalues[j] > 0 || eigenvalues[k] > 0 ) {
-					vn.rsp = 0.0f;
-				} else {
-					float lmd1 = abs( eigenvalues[i] );
-					float lmd2 = abs( eigenvalues[j] );
-					float lmd3 = abs( eigenvalues[k] );
-					
-					float A = (lmd3>1e-5) ? lmd2/lmd3 : 0;
-					float B = (lmd2*lmd3>1e-5) ? lmd1 / sqrt( lmd2*lmd3 ) : 0;
-					float S = sqrt( lmd1*lmd1 + lmd2*lmd2 + lmd3*lmd3 );
-					vn.rsp = ( 1.0f-exp(-A*A/alpha) )* exp( B*B/beta ) * ( 1-exp(-S*S/gamma) );
+#pragma omp parallel
+	{
+#pragma omp for
+		for( int z = 2; z < src.get_size_z()-2; z++ ) {
+			for( int y = 2; y < src.get_size_y()-2; y++ ) {
+				for( int x = 2; x < src.get_size_x()-2; x++ ) {
+					dst.at(x, y, z) = hessien_thread_func( im_blur, x, y, z, alpha, beta, gamma); 
 				}
-				
-				// orientation of vesselness
-				for( int d=0; d<3; d++ ) {
-					vn.dir[d]        = eigenvectors[i][d];
-				}
-				
-				// copy the value to our dst matrix
-				dst.at(x, y, z) = vn; 
 			}
 		}
 	}
+
 	return true;
 }
 

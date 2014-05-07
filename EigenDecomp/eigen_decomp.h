@@ -219,7 +219,7 @@ inline void eigenvector_from_value( const T A[6],
 	// TODO: for debuging 
 	if( length < SmallEpsilon ) {
 		cout << "Lenght of vector is too small. Maybe problematic. " << endl; 
-		system("puase");
+		system("pause");
 	}
 
 	// nromailized the vector
