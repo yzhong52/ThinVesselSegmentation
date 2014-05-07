@@ -125,7 +125,7 @@ void ImageProcessing::histogram_for_slice( Image3D<short>& data ){
 
 
 
-void ImageProcessing::non_max_suppress( const Data3D<Vesselness_All>& src, Data3D<Vesselness_Sig>& dst ){
+void ImageProcessing::non_max_suppress( const Data3D<Vesselness_Sig>& src, Data3D<Vesselness_Sig>& dst ){
 	dst.reset( src.get_size() );
 
 	// sqrt(2) and sqrt(3)
@@ -217,7 +217,6 @@ void ImageProcessing::non_max_suppress( const Data3D<Vesselness_All>& src, Data3
 
 				if( isMaximum ) {
 					dst.at(x,y,z) = src.at(x,y,z);
-					// dst.at(x,y,z).rsp = sqrt( dst.at(x,y,z).rsp ); 
 				}
 			}
 		}
