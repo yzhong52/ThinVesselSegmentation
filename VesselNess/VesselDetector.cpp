@@ -5,12 +5,9 @@
 #include "VesselNessTypes.h"
 #include "../EigenDecomp/eigen_decomp.h"
 
-#define _CRT_SECURE_NO_DEPRECATE
-#include <opencv2\core\core.hpp>
 
 
-
-bool VesselDetector::hessien2( const Data3D<short>& src, Data3D<Vesselness_Nor>& dst, 
+bool VesselDetector::hessien( const Data3D<short>& src, Data3D<Vesselness>& dst, 
 	int ksize, float sigma, 
 	float alpha, float beta, float gamma )
 {
@@ -30,13 +27,10 @@ bool VesselDetector::hessien2( const Data3D<short>& src, Data3D<Vesselness_Nor>&
 	Image3D<float> im_blur;
 	bool flag = ImageProcessing::GaussianBlur3D( src, im_blur, ksize, sigma );
 	smart_return_value( flag, "Gaussian Blur Failed.", false );
-	
-	//Normalizing for different scale
-	im_blur *= sigma;
+	im_blur *= sigma; //Normalizing for different scale
 
-	Vesselness_Nor temp; 
-	temp.rsp = 0.0f; 
-	dst.reset( im_blur.get_size(), temp ); 
+
+	dst.reset( im_blur.get_size(), Vesselness(0.0f) ); 
 
 	int x, y, z; 
 	for( z = 2; z < src.get_size_z()-2; z++ ) {
@@ -55,7 +49,7 @@ bool VesselDetector::hessien2( const Data3D<short>& src, Data3D<Vesselness_Nor>&
 				float im_dx2 = -2.0f * src.at(x,y,z) + src.at(x-1,y,z) + src.at(x+1,y,z);
 				float im_dy2 = -2.0f * src.at(x,y,z) + src.at(x,y-1,z) + src.at(x,y+1,z);
 				float im_dz2 = -2.0f * src.at(x,y,z) + src.at(x,y,z-1) + src.at(x,y,z+1);
-				// 1) derivative of the image (alternative) 		
+				// 1) derivative of the image (alternative approach, the one above is more accurate) 		
 				//float im_dx2 = -0.5f * src.at(x,y,z) + 0.25f * src.at(x-2,y,z) + 0.25f * src.at(x+2,y,z);
 				//float im_dy2 = -0.5f * src.at(x,y,z) + 0.25f * src.at(x,y-2,z) + 0.25f * src.at(x,y+2,z);
 				//float im_dz2 = -0.5f * src.at(x,y,z) + 0.25f * src.at(x,y,z-2) + 0.25f * src.at(x,y,z+2);
@@ -78,12 +72,12 @@ bool VesselDetector::hessien2( const Data3D<short>& src, Data3D<Vesselness_Nor>&
 
 				// 3) eigenvalue decomposition
 				// Reference: http://en.wikipedia.org/wiki/Eigenvalue_algorithm#3.C3.973_matrices
-				// Given a real symmetric 3x3 matrix A, compute the eigenvalues
-				const float A[6] = {im_dx2, im_dxdy, im_dxdz, im_dy2, im_dydz, im_dz2}; 
+				// Given a real symmetric 3x3 matrix Hessian, compute the eigenvalues
+				const float Hessian[6] = {im_dx2, im_dxdy, im_dxdz, im_dy2, im_dydz, im_dz2}; 
 
 				float eigenvalues[3]; 
 				float eigenvectors[3][3]; 
-				eigen_decomp( A, eigenvalues, eigenvectors );
+				eigen_decomp( Hessian, eigenvalues, eigenvectors );
 
 				// order eigenvalues so that |lambda1| < |lambda2| < |lambda3| 
 				int i=0, j=1, k=2;
@@ -91,10 +85,10 @@ bool VesselDetector::hessien2( const Data3D<short>& src, Data3D<Vesselness_Nor>&
 				if( abs(eigenvalues[i]) > abs(eigenvalues[k]) ) std::swap( i, k );
 				if( abs(eigenvalues[j]) > abs(eigenvalues[k]) ) std::swap( j, k );
 				
-				Vesselness_Nor vn_Nor; 
+				Vesselness vn; 
 				// vesselness value
 				if( eigenvalues[j] > 0 || eigenvalues[k] > 0 ) {
-					vn_Nor.rsp = 0.0f;
+					vn.rsp = 0.0f;
 				} else {
 					float lmd1 = abs( eigenvalues[i] );
 					float lmd2 = abs( eigenvalues[j] );
@@ -103,18 +97,16 @@ bool VesselDetector::hessien2( const Data3D<short>& src, Data3D<Vesselness_Nor>&
 					float A = (lmd3>1e-5) ? lmd2/lmd3 : 0;
 					float B = (lmd2*lmd3>1e-5) ? lmd1 / sqrt( lmd2*lmd3 ) : 0;
 					float S = sqrt( lmd1*lmd1 + lmd2*lmd2 + lmd3*lmd3 );
-					vn_Nor.rsp = ( 1.0f-exp(-A*A/alpha) )* exp( B*B/beta ) * ( 1-exp(-S*S/gamma) );
+					vn.rsp = ( 1.0f-exp(-A*A/alpha) )* exp( B*B/beta ) * ( 1-exp(-S*S/gamma) );
 				}
 				
 				// orientation of vesselness
 				for( int d=0; d<3; d++ ) {
-					vn_Nor.dir[d]        = eigenvectors[i][d];
-					vn_Nor.normals[0][d] = eigenvectors[j][d];
-					vn_Nor.normals[1][d] = eigenvectors[k][d];
+					vn.dir[d]        = eigenvectors[i][d];
 				}
 				
 				// copy the value to our dst matrix
-				dst.at(x, y, z) = vn_Nor; 
+				dst.at(x, y, z) = vn; 
 			}
 		}
 	}
@@ -123,16 +115,16 @@ bool VesselDetector::hessien2( const Data3D<short>& src, Data3D<Vesselness_Nor>&
 
 
 
-int VesselDetector::compute_vesselness2( 
+int VesselDetector::compute_vesselness( 
 	const Data3D<short>& src,							// INPUT
-	Data3D<Vesselness_All>& dst,						// OUTPUT
+	Data3D<Vesselness_Sig>& dst,						// OUTPUT
 	float sigma_from, float sigma_to, float sigma_step, // INPUT 
 	float alpha, float beta, float gamma )				// INPUT
 {
 	cout << "Computing Vesselness, it will take a while... " << endl;
 	cout << "Vesselness will be computed from sigma = " << sigma_from << " to sigma = " << sigma_to << endl;
 	
-	Data3D<Vesselness_Nor> vn;
+	
 	dst.reset( src.get_size() ); // reszie data, and it will also be clear to zero
 
 	// Error for input parameters
@@ -145,17 +137,20 @@ int VesselDetector::compute_vesselness2(
 	float max_sigma = sigma_from;
 	float min_sigma = sigma_to;
 
+	Data3D<Vesselness> vn;
 	for( float sigma = sigma_from; sigma < sigma_to; sigma += sigma_step ){
 		cout << '\r' << "Vesselness for sigma = " << sigma << "         ";
-		VesselDetector::hessien2( src, vn, 0, sigma, alpha, beta, gamma );
+		VesselDetector::hessien( src, vn, 0, sigma, alpha, beta, gamma );
 		// compare the response, if it is greater, copy it to our dst
-		int margin = 1; // int( ceil(3 * sigma) );
+		const int margin = 1; // int( ceil(3 * sigma) );
 		//if( margin % 2 == 0 )  margin++;
 		for( z=margin; z<src.get_size_z()-margin; z++ ) {
 			for( y=margin; y<src.get_size_y()-margin; y++ ) {
 				for( x=margin; x<src.get_size_x()-margin; x++ ) {
 					if( dst.at(x, y, z).rsp < vn.at(x, y, z).rsp ) {
-						dst.at(x, y, z) = Vesselness_All( vn.at(x, y, z), sigma );
+						dst.at(x, y, z).rsp = vn.at(x, y, z).rsp;
+						dst.at(x, y, z).dir = vn.at(x, y, z).dir;
+						dst.at(x, y, z).sigma = sigma; 
 						max_sigma = max( sigma, max_sigma );
 						min_sigma = min( sigma, min_sigma );
 					}

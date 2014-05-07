@@ -27,7 +27,7 @@ struct Vesselness_Data {
 	float rsp;			// vesselness response
 	Vec3f dir;			// vessel dirction	
 
-	Vesselness_Data( float s = 0.0f ) : rsp( s ) { }
+	Vesselness_Data( float s = 0.0f ) : rsp( s ), dir( Vec3f(1,0,0) ) { }
 	bool operator>( const Vesselness_Data& right ) const { return ( (this->rsp) > right.rsp ); }
 	bool operator<( const Vesselness_Data& right ) const { return ( (this->rsp) < right.rsp ); }
 }; 
@@ -53,6 +53,8 @@ struct Vesselness_All_Data : public Vesselness_Data {
 
 class Vesselness : public Vesselness_Data {
 public:
+	Vesselness( const float& val = 0 ) : Vesselness_Data( val ){ }
+ 
 	// Size tells us how much number of float we are using in the structure. 
 	// The returned value should be: 
 	//  4 for Vesselness;

@@ -13,14 +13,14 @@ class Vesselness_All;
 
 namespace VesselDetector
 {	
-	bool hessien2( 
-		const Data3D<short>& src, Data3D<Vesselness_Nor>& dst, 
+	bool hessien( 
+		const Data3D<short>& src, Data3D<Vesselness>& dst, 
 		int ksize, float sigma, 
 		float alpha, float beta, float gamma ); 
 	
-	int compute_vesselness2( 
+	int compute_vesselness( 
 		const Data3D<short>& src,                           // INPUT
-		Data3D<Vesselness_All>& dst,                        // OUTPUT
+		Data3D<Vesselness_Sig>& dst,                        // OUTPUT
 		float sigma_from, float sigma_to, float sigma_step, // INPUT 
 		float alpha = 1.0e-1f,	                            // INPUT 
 		float beta  = 5.0e0f,	                            // INPUT 

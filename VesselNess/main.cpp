@@ -40,12 +40,11 @@ namespace sample_code{
 		bool falg = im_short.load( "../data/" + dataname + ".data" );
 		if(!falg) return 0;
 		
-		Data3D<Vesselness_All> vn_all; 
-		VesselDetector::compute_vesselness2( im_short, vn_all, 
+		Data3D<Vesselness_Sig> vn_sig; 
+		VesselDetector::compute_vesselness( im_short, vn_sig, 
 			sigma_from, sigma_to, sigma_step,
 			alpha, beta, gamma );
-		viewer.addObject( vn_all,  GLViewer::Volumn::MIP );
-		Data3D<Vesselness_Sig> vn_sig( vn_all ); 
+		viewer.addObject( vn_sig,  GLViewer::Volumn::MIP );
 		viewer.addDiretionObject( vn_sig );
 
 		// visualize the data in thre viewports
