@@ -3,7 +3,7 @@
 #include "MinSpanTree.h"
 
 #include "Data3D.h"
-#include "Vesselness.h"
+#include "VesselNessTypes.h"
 #include "ImageProcessing.h"
 
 namespace MinSpanTree {

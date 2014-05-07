@@ -548,20 +548,18 @@ void LevenburgMaquart::reestimate( void )
 		cout << "No line models available" << endl;
 		return; 
 	}
-	int numParamPerLine = lines[0]->getNumOfParameters(); 
-
+	
 	double energy_before = compute_energy( tildaP, labelID, lines, labelID3d );
+	cout << "[" << energy_before; 
+	
+	SparseMatrixCV I  = SparseMatrixCV::I( numParam ); 
 
-	
-	P = vector<Vec3d>( tildaP.size() );
-	nablaP = vector<SparseMatrixCV>( tildaP.size() );
-	
 	// lamda - damping function for levenburg maquart
 	// the smaller lambda is, the faster it converges
 	// the bigger lambda is, the slower it converges
 	double lambda = 1e2; 
 
-	for( int lmiter = 0; lmiter<10; lmiter++ ) { 
+	for( int lmiter = 0; lmiter<50; lmiter++ ) { 
 
 		// Data for Jacobian matrix
 		//  - # of cols: number of data points; 
@@ -590,15 +588,15 @@ void LevenburgMaquart::reestimate( void )
 			(int) lines.size() * numParamPerLine, 
 			Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr );
 		
-		SparseMatrixCV I  = SparseMatrixCV::I( Jacobian.col() ) * lambda; 
-		//SparseMatrixCV Jt_J = Jacobian.t() * Jacobian; 
-		SparseMatrixCV Jt_J = multiply_openmp( Jacobian.t(), Jacobian ); 
+		
+		SparseMatrixCV Jt = Jacobian.t(); 
+		SparseMatrixCV Jt_J = multiply_openmp( Jt, Jacobian ); 
 		
 		// SparseMatrixCV A = Jt_J + Jt_J.diag() * lambda;
 		SparseMatrixCV A = Jt_J + I * lambda;
-
+		
 		// TODO: the following line could be optimized
-		Mat_<double> B = Jacobian.t() * cv::Mat_<double>( (int) energy_matrix.size(), 1, &energy_matrix.front() ) ; 
+		Mat_<double> B = Jt * cv::Mat_<double>( (int) energy_matrix.size(), 1, &energy_matrix.front() ) ; 
 		
 		Mat_<double> X;
 
@@ -607,31 +605,30 @@ void LevenburgMaquart::reestimate( void )
 		update_lines( -X ); 
 		
 		double new_energy = compute_energy( tildaP, labelID, lines, labelID3d );
-		cout << new_energy;
+		
 		static int energy_increase_count = 0; 
 		if( new_energy < energy_before ) { 
 			// if energy is decreasing 
 			// adjust the endpoints of the lines
 			adjust_endpoints();
-			cout << " - " << endl; 
-			energy_before = new_energy; 
-			lambda *= 0.71; 
+			 energy_before = new_energy;
+			lambda *= 0.50; 
 			energy_increase_count = 0; 
 		} else {  
 			// if energy is encreasing
 			// reverse the result of this iteration
 			update_lines( X ); 	
-			cout << " + " << endl;
-			lambda *= 1.72; 
-			if( ++energy_increase_count>=2 ) {
+			// cout << " + " << endl;
+			lambda *= 2.12; 
+			if( ++energy_increase_count>=3 ) {
 				// If energy_increase_count in three consecutive iterations
 				// then the nenergy is probabaly converged
 				break; 
 			}
 		}
-
 		
-
+		cout << ", " << energy_before;
+		
 		//cout << endl;
 		//for( int i=2; i>=0; i-- ){
 		//	cout << '\r' << "Serializing models in " << i << " seconds... "; Sleep( 1000 ); 
@@ -639,6 +636,8 @@ void LevenburgMaquart::reestimate( void )
 		//modelset.serialize( "output/Line3DTwoPoint.model" ); 
 		//cout << "Serialization done. " << endl;
 	}
+
+	cout << "]; " << endl; 
 
 }
 

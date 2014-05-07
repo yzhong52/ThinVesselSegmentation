@@ -76,7 +76,7 @@ namespace ImageProcessing
 
 	///////////////////////////////////////////////////////////////////////////
 	// Non-maximum suppression
-	void non_max_suppress( const Data3D<Vesselness_All>& src, Data3D<Vesselness_Sig>& dst );
+	void non_max_suppress( const Data3D<Vesselness_Sig>& src, Data3D<Vesselness_Sig>& dst );
 	void edge_tracing( Data3D<Vesselness_Sig>& src, Data3D<Vesselness_Sig>& dst, const float& thres1 = 0.85f, const float& thres2 = 0.10f );
 	void dir_tracing( Data3D<Vesselness_All>& src, Data3D<Vesselness_Sig>& res_dt );
 	void edge_tracing_mst( Data3D<Vesselness_All>& src, Data3D<Vesselness_Sig>& dst, const float& thres1 = 0.85f, const float& thres2 = 0.10f );

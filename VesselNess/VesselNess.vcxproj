@@ -206,6 +206,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN64;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(ProjectDir)..\dependencies\OpenCV2.4.8\include;$(ProjectDir)..\dependencies\glew-1.10.0\include;$(ProjectDir)..\dependencies\freeglut 2.8.1\include</AdditionalIncludeDirectories>
+      <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -284,7 +285,7 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="VesselDetector.h" />
-    <ClInclude Include="Vesselness.h" />
+    <ClInclude Include="VesselnessTypes.h" />
     <ClInclude Include="GLVolumn.h" />
   </ItemGroup>
   <ItemGroup>
@@ -297,10 +298,9 @@
     <ClCompile Include="MinSpanTree.cpp" />
     <ClCompile Include="Neigbour3D.cpp" />
     <ClCompile Include="RingsDeduction.cpp" />
-    <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="VesselDetector.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Vesselness.cpp" />
+    <ClCompile Include="VesselnessTypes.cpp" />
     <ClCompile Include="GLVideoSaver.cpp" />
     <ClCompile Include="Viewer.cpp" />
     <ClCompile Include="GLVolumn.cpp" />

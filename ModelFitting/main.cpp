@@ -88,14 +88,8 @@ int main(int argc, char* argv[])
 	Image3D<Vesselness_Sig> vn_sig;
 	Image3D<short> im_short;
 	vn_sig.load( "../temp/roi15.vn_sig" ); 
-	/*im_short.load( "../data/roi15.data" ); 
-	return 0; */
 	vn_sig.remove_margin_to( Vec3i(50, 50, 50) );
 	
-	// Synthesic Data
-	//SyntheticData::Doughout( im_short ); 
-	//SyntheticData::Stick( im_short ); 
-
 	// threshold the data and put the data points into a vector
 	Data3D<int> indeces;
 	vector<cv::Vec3i> dataPoints;
@@ -106,9 +100,8 @@ int main(int argc, char* argv[])
 	cout << "Number of data points: " << dataPoints.size() << endl;
 	
 	//////////////////////////////////////////////////
-	// Line Fitting 
-	//////////////////////////////////////////////////
 	// Initial Samplings
+	//////////////////////////////////////////////////
 	const int num_init_labels = (int) dataPoints.size(); 
 	ModelSet<Line3D> model; 
 	vector<Line3D*>& lines = model.models; 
@@ -121,25 +114,26 @@ int main(int argc, char* argv[])
 		line->setSigma( sigma ); 
 		lines.push_back( line ); 
 	}
-	// model.deserialize<Line3DTwoPoint>( "output/Line3DTwoPoint.model" ); 
-	if( lines.size()!=dataPoints.size() ) {
-		cout << "Number of models is not corret. " << endl; 
-		cout << "Probably because of errors while deserializing the data. " << endl;
-		return 0; 
-	}
+
+	//////////////////////////////////////////////////
+	// Loading serialized data
+	//////////////////////////////////////////////////
+	//model.deserialize<Line3DTwoPoint>( "output/Line3DTwoPoint.model" ); 
+	//if( lines.size()!=dataPoints.size() ) {
+	//	cout << "Number of models is not corret. " << endl; 
+	//	cout << "Probably because of errors while deserializing the data. " << endl;
+	//	return 0; 
+	//}
 
 	vector<int> labelings = vector<int>( dataPoints.size(), 0 ); 
 	// randomly assign label for each point separatedly 
 	for( int i=0; i<num_init_labels; i++ ) labelings[i] = i; 
-	
 	
 	//////////////////////////////////////////////////
 	// create a thread for rendering
 	//////////////////////////////////////////////////
 	cout << lines.size() << endl; 
 	initViwer( vn_sig, dataPoints, lines, labelings);
-	
-	
 	
 	Timer::begin( "Levenburg Maquart" ); 
 	LevenburgMaquart lm( dataPoints, labelings, model, indeces );
@@ -151,6 +145,6 @@ int main(int argc, char* argv[])
 
 	model.serialize( "output/Line3DTwoPoint.model" ); 
 
-	// WaitForSingleObject( thread_render, INFINITE);
+	WaitForSingleObject( thread_render, INFINITE);
 	return 0; 
 }

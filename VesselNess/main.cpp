@@ -7,28 +7,31 @@
 GLViewerExt viewer;
 
 namespace sample_code{
-	int vesselness(void);
+	// Compute vesselness measure
+	int vesselness( bool isDisplay, string dataname = "data15" );
+
+	// Extract Vessel centrelines with non-maximum suppression 
+	int centreline( bool isDisplay, string dataname = "data15" ); 
 }
 
 int main(int argc, char* argv[])
 {
-	sample_code::vesselness();
+	sample_code::vesselness(false);
+	sample_code::centreline(true); 
 	return 0;
 }
 
 
 namespace sample_code{
-	int vesselness(void){
+	int vesselness( bool isDisplay, string dataname ){
 		// create output folders if it does not exist
 		CreateDirectory(L"../temp", NULL);
 
 		bool flag = false;
 
-		// Original data name
-		string dataname = "data15";
 		// Parameters for Vesselness
 		float sigma_from = 1.0f;
-		float sigma_to = 8.0f;
+		float sigma_to = 8.10f;
 		float sigma_step = 0.5f;
 		// Parameters for vesselness
 		float alpha = 1.0e-1f;	
@@ -38,32 +41,42 @@ namespace sample_code{
 		// laoding data
 		Data3D<short> im_short;
 		bool falg = im_short.load( "../data/" + dataname + ".data" );
+		
 		if(!falg) return 0;
 		
-		// Two different ways of computing Vesselness measure
-		
-		// 1. old, slower 
-		Data3D<Vesselness_All> vn_all0;
-		VesselDetector::compute_vesselness( im_short, vn_all0, 
+		Data3D<Vesselness_Sig> vn_sig; 
+		VesselDetector::compute_vesselness( im_short, vn_sig, 
 			sigma_from, sigma_to, sigma_step,
 			alpha, beta, gamma );
-		viewer.addObject( vn_all0, GLViewer::Volumn::MIP );
-		Data3D<Vesselness_Sig> vn_sig( vn_all0 );
-		vn_sig.save( "../temp/roi15.vn_sig" ); 
+		vn_sig.save( "../temp/" + dataname + ".vn_sig" );
 
-		// 2. new, faster 
-		Data3D<Vesselness_All> vn_all; 
-		VesselDetector::compute_vesselness2( im_short, vn_all, 
-			sigma_from, sigma_to, sigma_step,
-			alpha, beta, gamma );
-		viewer.addObject( vn_all,  GLViewer::Volumn::MIP );
-		
-		// Visualize result with maximum intensity projection (MIP)
-		viewer.addObject( im_short, GLViewer::Volumn::MIP );
-
-		// visualize the data in thre viewports
-		viewer.go(600, 200, 3);
+		// If you want to visulize the data
+		if( isDisplay ) {
+			viewer.addObject( vn_sig,  GLViewer::Volumn::MIP );
+			viewer.addDiretionObject( vn_sig );
+			viewer.go(600, 400, 2);
+		}
 
 		return 0;
 	}
+
+
+	int centreline( bool isDisplay, string dataname ) {
+		Data3D<Vesselness_Sig> vn_sig; 
+		Data3D<Vesselness_Sig> vn_sig_nms; 
+		vn_sig.load( "../temp/" + dataname + ".vn_sig" );
+		IP::non_max_suppress( vn_sig, vn_sig_nms );
+
+		if( isDisplay ) {
+			viewer.addObject( vn_sig,  GLViewer::Volumn::MIP );
+			viewer.addDiretionObject( vn_sig );
+			viewer.addObject( vn_sig_nms,  GLViewer::Volumn::MIP );
+			viewer.addDiretionObject( vn_sig_nms );
+		
+			viewer.go(600, 400, 4);
+		}
+		return 0;
+	}
 }
+
+

@@ -407,7 +407,7 @@ ostream& operator<<( ostream& out, const SparseMatrix& m ){
 	cout << "Size: " << m.row() << " x " << m.col() << endl; 
 
 	if( m.data->getRow()==NULL ){
-		cout << "  ...This is a zero matrix." << endl;
+		out << "  ...This is a zero matrix." << endl;
 		return out; 
 	} 
 
@@ -419,16 +419,39 @@ ostream& operator<<( ostream& out, const SparseMatrix& m ){
 	int vi = 0; 
 	for( int r=0; r<m.row(); r++ ) {
 		for( int c=0; c<m.col(); c++ ) {
-			cout.width( 4 ); 
-			if( colidx[vi]==c && vi<rowptr[r+1] ) cout << nzval[vi++] << " "; 
-			else cout << 0 << " ";
+			out.width( 4 ); 
+			if( colidx[vi]==c && vi<rowptr[r+1] ) out << nzval[vi++] << " "; 
+			else out << 0 << " ";
 		}
-		cout << endl; 
+		out << endl; 
 	}
 
 	return out; 
 }
 
+void SparseMatrix::print( ostream& out ) const{
+	out << "Size: " << this->row() << " x " << this->col() << endl; 
+
+	if( this->data->getRow()==NULL ){
+		out << "  ...This is a zero matrix." << endl;
+	} 
+
+	const int& N              = this->data->getRow()->nnz(); 
+	const double* const nzval = this->data->getRow()->nzvel(); 
+	const int* const colidx   = this->data->getRow()->colinx(); 
+	const int* const rowptr   = this->data->getRow()->rowptr(); 
+	
+	int vi = 0; 
+	int r = 0; 
+	for( int i = 0; i<N; i++ ) { 
+		if( i >= rowptr[r+1] ) r++; 
+		out << "[";
+		out << std::left << r << ", ";
+		out << colidx[i] << "]: "; 
+		out << nzval[vi++] << " "; 
+		out << endl; 
+	}
+}
 
 SparseMatrix SparseMatrix::diag() const {
 	assert( this->row()==this->col() && "Matrix size does not match" ); 

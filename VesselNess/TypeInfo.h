@@ -2,7 +2,7 @@
 
 #include <string>
 #include <opencv2/core/core.hpp>
-#include "VesselNess.h"
+#include "VesselNessTypes.h"
 class Vesselness;
 class Vesselness_Sig;
 class Vesselness_Nor;
