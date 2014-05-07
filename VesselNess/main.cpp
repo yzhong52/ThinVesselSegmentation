@@ -16,7 +16,7 @@ namespace sample_code{
 
 int main(int argc, char* argv[])
 {
-	sample_code::vesselness(false);
+	// sample_code::vesselness(false);
 	sample_code::centreline(true); 
 	return 0;
 }
@@ -66,6 +66,7 @@ namespace sample_code{
 		Data3D<Vesselness_Sig> vn_sig_nms; 
 		vn_sig.load( "../temp/" + dataname + ".vn_sig" );
 		IP::non_max_suppress( vn_sig, vn_sig_nms );
+		vn_sig_nms.save( "../temp/" + dataname + ".nms.vn_sig" );
 
 		if( isDisplay ) {
 			viewer.addObject( vn_sig,  GLViewer::Volumn::MIP );

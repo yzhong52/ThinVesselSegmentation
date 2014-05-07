@@ -22,6 +22,8 @@ LevenburgMaquart::LevenburgMaquart( const vector<Vec3i>& dataPoints, const vecto
 	, modelset( modelset ), labelID3d( labelIDs )
 	, lines( modelset.models )
 {
+	smart_assert( lines.size()!=0, "Error: model set is empty" ); 
+		
 	numParamPerLine = lines[0]->getNumOfParameters(); 
 	numParam = numParamPerLine * (int) lines.size(); 
 
@@ -542,8 +544,6 @@ void LevenburgMaquart::update_lines( const Mat_<double>& delta )
 
 void LevenburgMaquart::reestimate( void )
 {
-	const vector<Line3D*>& lines = modelset.models; 
-	
 	if( lines.size()==0 ) {
 		cout << "No line models available" << endl;
 		return; 
