@@ -7,20 +7,23 @@
 GLViewerExt viewer;
 
 namespace sample_code{
-	int vesselness( string dataname = "data15" );
-	int centreline( string dataname = "data15" ); 
+	// Compute vesselness measure
+	int vesselness( bool isDisplay, string dataname = "data15" );
+
+	// Extract Vessel centrelines with non-maximum suppression 
+	int centreline( bool isDisplay, string dataname = "data15" ); 
 }
 
 int main(int argc, char* argv[])
 {
-	// sample_code::vesselness();
-	sample_code::centreline(); 
+	sample_code::vesselness(false);
+	sample_code::centreline(true); 
 	return 0;
 }
 
 
 namespace sample_code{
-	int vesselness( string dataname ){
+	int vesselness( bool isDisplay, string dataname ){
 		// create output folders if it does not exist
 		CreateDirectory(L"../temp", NULL);
 
@@ -46,27 +49,32 @@ namespace sample_code{
 			sigma_from, sigma_to, sigma_step,
 			alpha, beta, gamma );
 		vn_sig.save( "../temp/" + dataname + ".vn_sig" );
-		viewer.addObject( vn_sig,  GLViewer::Volumn::MIP );
-		viewer.addDiretionObject( vn_sig );
 
-		viewer.go(600, 400, 2);
+		// If you want to visulize the data
+		if( isDisplay ) {
+			viewer.addObject( vn_sig,  GLViewer::Volumn::MIP );
+			viewer.addDiretionObject( vn_sig );
+			viewer.go(600, 400, 2);
+		}
 
 		return 0;
 	}
 
 
-	int centreline( string dataname ) {
+	int centreline( bool isDisplay, string dataname ) {
 		Data3D<Vesselness_Sig> vn_sig; 
 		Data3D<Vesselness_Sig> vn_sig_nms; 
 		vn_sig.load( "../temp/" + dataname + ".vn_sig" );
 		IP::non_max_suppress( vn_sig, vn_sig_nms );
 
-		viewer.addObject( vn_sig,  GLViewer::Volumn::MIP );
-		viewer.addDiretionObject( vn_sig );
-		viewer.addObject( vn_sig_nms,  GLViewer::Volumn::MIP );
-		viewer.addDiretionObject( vn_sig_nms );
+		if( isDisplay ) {
+			viewer.addObject( vn_sig,  GLViewer::Volumn::MIP );
+			viewer.addDiretionObject( vn_sig );
+			viewer.addObject( vn_sig_nms,  GLViewer::Volumn::MIP );
+			viewer.addDiretionObject( vn_sig_nms );
 		
-		viewer.go(600, 400, 4);
+			viewer.go(600, 400, 4);
+		}
 		return 0;
 	}
 }
