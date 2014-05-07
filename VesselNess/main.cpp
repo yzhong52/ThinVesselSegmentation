@@ -28,7 +28,7 @@ namespace sample_code{
 		string dataname = "data15";
 		// Parameters for Vesselness
 		float sigma_from = 1.0f;
-		float sigma_to = 8.0f;
+		float sigma_to = 8.10f;
 		float sigma_step = 0.5f;
 		// Parameters for vesselness
 		float alpha = 1.0e-1f;	
@@ -40,29 +40,16 @@ namespace sample_code{
 		bool falg = im_short.load( "../data/" + dataname + ".data" );
 		if(!falg) return 0;
 		
-		// Two different ways of computing Vesselness measure
-		
-		//// 1. old, slower 
-		//Data3D<Vesselness_All> vn_all0;
-		//VesselDetector::compute_vesselness( im_short, vn_all0, 
-		//	sigma_from, sigma_to, sigma_step,
-		//	alpha, beta, gamma );
-		//viewer.addObject( vn_all0, GLViewer::Volumn::MIP );
-		//Data3D<Vesselness_Sig> vn_sig0( vn_all0 );
-		//vn_sig0.save( "../temp/roi15.vn_sig" );
-		//vn_all0.save( "../temp/roi15.vn_all" ); 
-
-		// 2. new, faster 
 		Data3D<Vesselness_All> vn_all; 
 		VesselDetector::compute_vesselness2( im_short, vn_all, 
 			sigma_from, sigma_to, sigma_step,
 			alpha, beta, gamma );
 		viewer.addObject( vn_all,  GLViewer::Volumn::MIP );
-		Data3D<Vesselness_Sig> vn_sig( vn_all );
-		viewer.addDiretionObject( vn_sig ); 
-		
+		Data3D<Vesselness_Sig> vn_sig( vn_all ); 
+		viewer.addDiretionObject( vn_sig );
+
 		// visualize the data in thre viewports
-		viewer.go(600, 400, 2);
+		viewer.go(600, 400, 3);
 
 		return 0;
 	}

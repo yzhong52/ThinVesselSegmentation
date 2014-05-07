@@ -122,9 +122,6 @@
     <ClCompile Include="Kernel3D.cpp">
       <Filter>3D Data Structures</Filter>
     </ClCompile>
-    <ClCompile Include="stdafx.cpp">
-      <Filter>others</Filter>
-    </ClCompile>
     <ClCompile Include="Neigbour3D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
