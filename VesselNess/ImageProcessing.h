@@ -337,7 +337,7 @@ bool ImageProcessing::filter3D_Z( const Data3D<T1>& src, Data3D<T2>& dst, const 
 template<typename T>
 void ImageProcessing::normalize( Data3D<T>& data, T norm_max ){
 	Vec<T, 2> min_max = data.get_min_max_value();
-	data.getMat() = norm_max / (min_max[1]-min_max[0]) * (data.getMat() - min_max[0]);
+	data.getMat() = 1.0 * norm_max / (min_max[1]-min_max[0]) * (data.getMat() - min_max[0]);
 }
 
 // normalize the data
