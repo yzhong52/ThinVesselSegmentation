@@ -3,11 +3,14 @@ Thin Vessels Segmentation
 
 Vesselness
 ---------------
-Compute vesselness measure using [Frangi](http://link.springer.com/chapter/10.1007/BFb0056195#page-1)'s method. Please refer to `/Thin_Vessel_Segmentation/VesselNess` for more details. 
+Compute vesselness measure using [Frangi](http://link.springer.com/chapter/10.1007/BFb0056195#page-1)'s method. 
+Please refer to `/Thin_Vessel_Segmentation/VesselNess` for more details. 
 
 ModelFitting
 ---------------
-Fitting geometric models (lines) to the 3D vessel data. Please refer to `/Thin_Vessel_Segmentation/ModelFitting` for more details. 
+Fitting geometric models (lines) to the 3D vessel data. 
+Please refer to `/Thin_Vessel_Segmentation/ModelFitting` for more details. 
+
 Others
 ---------------
 The following are important components using in the projects:
@@ -29,6 +32,6 @@ Requirements
  - `%CD%\dependencies\glew-1.10.0\bin\x64;`
  - `%CD%\dependencies\OpenCV 2.4.3\x64-vc10;`
 
-Note: %CD% above means the location where you save the files. 
+Note: `%CD%` above means the location where you save the files. 
 
 Or you can copy the dlls in their bin folders to the project directory either manually or excute the bat file `set-up-dlls.bat`. 
