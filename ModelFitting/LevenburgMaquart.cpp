@@ -542,7 +542,7 @@ void LevenburgMaquart::update_lines( const Mat_<double>& delta )
 	}
 }
 
-void LevenburgMaquart::reestimate( void )
+void LevenburgMaquart::reestimate( double lambda )
 {
 	if( lines.size()==0 ) {
 		cout << "No line models available" << endl;
@@ -554,10 +554,7 @@ void LevenburgMaquart::reestimate( void )
 	
 	SparseMatrixCV I  = SparseMatrixCV::I( numParam ); 
 
-	// lamda - damping function for levenburg maquart
-	// the smaller lambda is, the faster it converges
-	// the bigger lambda is, the slower it converges
-	double lambda = 1e2; 
+	
 
 	for( int lmiter = 0; lmiter<50; lmiter++ ) { 
 

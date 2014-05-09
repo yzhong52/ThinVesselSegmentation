@@ -14,10 +14,6 @@ using namespace std;
 
 namespace GLViewer{ 
 	// This class is thread safe
-	// This class is thread safe
-	// This class is thread safe
-	// This class is thread safe
-	// This class is thread safe
 	class GLLineModel : public GLViewer::Object {	
 		HANDLE hMutex; 
 		cv::Vec3i size; 
@@ -32,6 +28,7 @@ namespace GLViewer{
 		vector<cv::Vec3i> dataPoints; 
 		vector<int> labelings;
 		
+		char render_mode; 
 	public:
 		GLLineModel( cv::Vec3i size ); 
 
@@ -47,5 +44,7 @@ namespace GLViewer{
 		virtual unsigned int size_z(void) const { return size[2]; }
 
 		void init(void);
+
+		virtual void keyboard( unsigned char key ); 
 	};
 }

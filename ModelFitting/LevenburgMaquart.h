@@ -13,6 +13,16 @@ extern const double PAIRWISESMOOTH;
 
 class LevenburgMaquart
 {
+public:
+	LevenburgMaquart( const vector<Vec3i>& dataPoints, const vector<int>& labelings, 
+		const ModelSet<Line3D>& modelset, const Data3D<int>& labelIDs ); 
+
+	// lamda - damping function for levenburg maquart
+	//    the smaller lambda is, the faster it converges
+	//    the bigger lambda is, the slower it converges
+	void reestimate( double lambda = 1e2  ); 
+
+private:
 	const vector<Vec3i>& tildaP;   // original points
 	const vector<int>& labelID;
 	const Data3D<int>& labelID3d;
@@ -25,11 +35,7 @@ class LevenburgMaquart
 
 	vector<Vec3d>  P;              // projection points of original points
 	vector<SparseMatrixCV> nablaP; // Jacobian matrix of the porjeciton points 
-public:
-	LevenburgMaquart( const vector<Vec3i>& dataPoints, const vector<int>& labelings, 
-		const ModelSet<Line3D>& modelset, const Data3D<int>& labelIDs ); 
 
-	void reestimate( void ); 
 private:
 	//// Jacobian Matrix - data cost
 	void Jacobian_datacost(

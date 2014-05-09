@@ -211,7 +211,7 @@ namespace GLViewer
 			// toggle on/off the axis
 			isAxis = !isAxis;
 			break;
-		//case '\t': // Bug: Fix it before you uncommend this block of code
+		//case '\t': // TODO: Fix it before you uncommend this block of code
 		//	numViewports = (numViewports+1) % maxNumViewports; 
 		//	reset_projection();
 		//	break;

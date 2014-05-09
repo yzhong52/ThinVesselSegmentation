@@ -97,6 +97,7 @@
     <ClInclude Include="GLLineModel.h" />
     <ClInclude Include="GLViwerModel.h" />
     <ClInclude Include="GraphCut.h" />
+    <ClInclude Include="init_models.h" />
     <ClInclude Include="LevenburgMaquart.h" />
     <ClInclude Include="Line3D.h" />
     <ClInclude Include="Line3DTwoPoint.h" />
@@ -123,6 +124,7 @@
     <ClCompile Include="GLLineModel.cpp" />
     <ClCompile Include="GLViwerModel.cpp" />
     <ClCompile Include="GraphCut.cpp" />
+    <ClCompile Include="init_models.cpp" />
     <ClCompile Include="LevenburgMaquart.cpp" />
     <ClCompile Include="Line3D.cpp" />
     <ClCompile Include="Line3DTwoPoint.cpp" />

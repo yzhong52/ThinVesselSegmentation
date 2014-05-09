@@ -4,7 +4,7 @@ using namespace GLViewer;
 
 
 
-GLLineModel::GLLineModel( cv::Vec3i size ) : size( size ) {
+GLLineModel::GLLineModel( cv::Vec3i size ) : size( size ), render_mode(1) {
 	// creat a mutex 
 	hMutex = CreateMutex( NULL, false, NULL );
 }
@@ -19,41 +19,43 @@ void GLLineModel::render(void){
 	// in case there is any previously bind texture, you need to unbind them
 	glBindTexture( GL_TEXTURE_3D, NULL );
 
-	/////////////////////////////////////////////////
-	// Draw the axis
-	/////////////////////////////////////////////////
-	glBegin( GL_LINES );
-	// x-axis
-	glColor3f(  1.0f, 0.0f, 0.0f ); 
-	glVertex3i( 0, 0, 0 ); 
-	glVertex3i( size[0], 0, 0 ); 
-	// y-axis
-	glColor3f(  0.0f, 1.0f, 0.0f ); 
-	glVertex3i( 0, 0, 0 ); 
-	glVertex3i( 0, size[1], 0 ); 
-	// z-axis
-	glColor3f(  0.0f, 0.0f, 1.0f ); 
-	glVertex3i( 0, 0, 0 ); 
-	glVertex3i( 0, 0, size[2] ); 
-	glEnd();
+	///////////////////////////////////////////////////
+	//// Draw the axis
+	///////////////////////////////////////////////////
+	//	glBegin( GL_LINES );
+	//	// x-axis
+	//	glColor3f(  1.0f, 0.0f, 0.0f ); 
+	//	glVertex3i( 0, 0, 0 ); 
+	//	glVertex3i( size[0], 0, 0 ); 
+	//	// y-axis
+	//	glColor3f(  0.0f, 1.0f, 0.0f ); 
+	//	glVertex3i( 0, 0, 0 ); 
+	//	glVertex3i( 0, size[1], 0 ); 
+	//	// z-axis
+	//	glColor3f(  0.0f, 0.0f, 1.0f ); 
+	//	glVertex3i( 0, 0, 0 ); 
+	//	glVertex3i( 0, 0, size[2] ); 
+	//	glEnd();
 
 	WaitForSingleObject( hMutex, INFINITE );
 
 	/////////////////////////////////////////////////
 	// draw the data points 
 	/////////////////////////////////////////////////
-	glPointSize( 3.0 );
-	glBegin( GL_POINTS );
-	for( int i=0; i < (int) dataPoints.size(); i++ ) {
-		const int& lineID = labelings[i]; 
-		Vec3f prj = lines[lineID]->projection( dataPoints[i] ); 
-		glColor3ubv( &lineColors[lineID][0] ); 
-		glVertex3fv( &prj[0] ); 
-		// drawing data points
-		//glColor3f( 0.1f, 0.1f, 0.1f ); 
-		//glVertex3iv( &dataPoints[i][0] ); 
-	} 
-	glEnd();
+	if( render_mode & 4 ){
+		glPointSize( 3.0 );
+		glBegin( GL_POINTS );
+		for( int i=0; i < (int) dataPoints.size(); i++ ) {
+			const int& lineID = labelings[i]; 
+			Vec3f prj = lines[lineID]->projection( dataPoints[i] ); 
+			glColor3ubv( &lineColors[lineID][0] ); 
+			glVertex3fv( &prj[0] ); 
+			// drawing data points
+			//glColor3f( 0.1f, 0.1f, 0.1f ); 
+			//glVertex3iv( &dataPoints[i][0] ); 
+		} 
+		glEnd();
+	}
 
 	/////////////////////////////////////////////////
 	// draw the end points of the lines
@@ -70,32 +72,44 @@ void GLLineModel::render(void){
 	//} 
 	//glEnd();
 
-	
-	glBegin( GL_LINES );
-	for( int i=0; i < (int) dataPoints.size(); i++ ) {
-		// label id
-		const int lineID = labelings[i]; 
-		// actual position
-		Vec3f prj = lines[lineID]->projection( dataPoints[i] ); 
+	if( render_mode & 1 ) {
+		glBegin( GL_LINES );
+		for( int i=0; i < (int) dataPoints.size(); i++ ) {
+			// label id
+			const int lineID = labelings[i]; 
+			// actual position
+			Vec3f prj = lines[lineID]->projection( dataPoints[i] ); 
 
-		/////////////////////////////////////////////////
-		// draw the lines of the projection direction
-		/////////////////////////////////////////////////
-		// projection point 
-		glColor3ubv( &lineColors[lineID][0] );  glVertex3fv( &prj[0] ); 
-		// data points
-		glColor3f( 0.1f, 0.1f, 0.1f );          glVertex3iv( &dataPoints[i][0] ); 
+			/////////////////////////////////////////////////
+			// draw a short line alond the line model
+			/////////////////////////////////////////////////
+			glColor3f( 0.3f, 0.3f, 0.3f ); 
+			// direction of the line
+			Vec3f dir = lines[lineID]->getDirection(); 
+			glVertex3fv( &(prj + dir * 0.5 )[0] ); 
+			glVertex3fv( &(prj - dir * 0.5 )[0] ); 
+		} 
+		glEnd();
+	}
 
-		/////////////////////////////////////////////////
-		// draw a short line alond the line model
-		/////////////////////////////////////////////////
-		glColor3f( 0.3f, 0.3f, 0.3f ); 
-		// direction of the line
-		Vec3f dir = lines[lineID]->getDirection(); 
-		glVertex3fv( &(prj + dir * 0.5 )[0] ); 
-		glVertex3fv( &(prj - dir * 0.5 )[0] ); 
-	} 
-	glEnd();
+	if( render_mode & 2 ) {
+		glBegin( GL_LINES );
+		for( int i=0; i < (int) dataPoints.size(); i++ ) {
+			// label id
+			const int lineID = labelings[i]; 
+			// actual position
+			Vec3f prj = lines[lineID]->projection( dataPoints[i] ); 
+
+			/////////////////////////////////////////////////
+			// draw the lines of the projection direction
+			/////////////////////////////////////////////////
+			// projection point 
+			glColor3ubv( &lineColors[lineID][0] );  glVertex3fv( &prj[0] ); 
+			// data points
+			glColor3f( 0.1f, 0.1f, 0.1f );          glVertex3iv( &dataPoints[i][0] ); 
+		} 
+		glEnd();
+	}
 
 	ReleaseMutex( hMutex );
 	
@@ -159,4 +173,9 @@ void GLLineModel::init(void){
     glEnable( GL_BLEND );
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
     
+}
+
+void GLLineModel::keyboard( unsigned char key ){
+	render_mode++; 
+	if( render_mode==0 ) render_mode = 1; 
 }
