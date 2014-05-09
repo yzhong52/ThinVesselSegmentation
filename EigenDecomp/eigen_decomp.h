@@ -16,21 +16,38 @@ Reference: http://en.wikipedia.org/wiki/Eigenvalue_algorithm#3.C3.973_matrices
 
 
 #if !defined(SmallEpsilon) && !defined(BigEpsilon)
-#define SmallEpsilon 1e-15 
-#define BigEpsilon 1e-5 
+	#define SmallEpsilon 1e-15 
+	#define BigEpsilon 1e-5 
 #endif
 
 /////////////////////////////////////////////////////////////////
 // Definitions
 // // // // // // // // // // // // // // // // // // // // // //
 
+// eigenvalue decomposiiton of a three by three symmetric matrix 
 template<class T>
-void eigen_decomp( const T A[6], T eigenvalues[3], 
-	T eigenvectors[3][3] );
+void eigen_decomp( const T A[6], T eigenvalues[3], T eigenvectors[3][3] );
 
+// give a 3 by 3 symetric matrix and its eigenvalues, compute the corresponding eigenvectors 
 template<class T>
-inline void eigenvector_from_value( const T A[6], 
-	const T& eig1, const T& eig2, T eigenvector[3] ); 
+inline void eigenvector_from_value( const T A[6], const T& eig1, const T& eig2, T eigenvector[3] ); 
+
+// normalize a vector
+template<class T>
+inline void normalize( T v[3] );
+
+// compute the cross product of two vectors
+template<class T>
+inline void cross_product( const T v1[3], const T v2[3], T v3[3] );
+
+// given a vector v1, compute two arbitratry normal vectors v2 and v3
+template<class T>
+void normal_vectors(  const T v1[3], T v2[3], T v3[3] ) ;
+
+
+/////////////////////////////////////////////////////////////////
+// Implementations
+// // // // // // // // // // // // // // // // // // // // // // 
 
 
 template<class T>
@@ -58,19 +75,28 @@ inline void cross_product( const T v1[3], const T v2[3], T v3[3] )
 
 template<class T>
 void normal_vectors(  const T v1[3], T v2[3], T v3[3] ) {
-	v2[0] =  v1[1]; 
-	v2[1] = -v1[0]; 
-	v2[2] = 0;
+	// an arbitrary combination of the following two vectors
+	// is a normal to v1
+	// alpha * (-v1[1], v1[0], 0) + beta * (0, -v1[2], v[1]) 
+
+	if( abs(v1[0])>BigEpsilon && abs(v1[1])>BigEpsilon ) {
+		v2[0] = -v1[1]; 
+		v2[1] =  v1[0]; 
+		v2[2] =  0;
+	} else {
+		v2[0] =  0; 
+		v2[1] = -v1[2]; 
+		v2[2] =  v1[1];
+	}
+
+
+
 	normalize( v2 ); 
+	
 
 	cross_product( v1, v2, v3 ); 
 }
 
-
-
-/////////////////////////////////////////////////////////////////
-// Implementations
-// // // // // // // // // // // // // // // // // // // // // // 
 
 template<class T>
 void eigen_decomp( const T A[6], T eigenvalues[3], T eigenvectors[3][3] )

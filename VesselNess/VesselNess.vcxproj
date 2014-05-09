@@ -277,7 +277,6 @@
     <ClInclude Include="Kernel3D.h" />
     <ClInclude Include="MinSpanTree.h" />
     <ClInclude Include="MinSpanTreeWrapper.h" />
-    <ClInclude Include="Neigbour3D.h" />
     <ClInclude Include="nstdio.h" />
     <ClInclude Include="Ooops.h" />
     <ClInclude Include="RingsDeduction.h" />
@@ -296,7 +295,6 @@
     <ClCompile Include="ImageProcessor.cpp" />
     <ClCompile Include="Kernel3D.cpp" />
     <ClCompile Include="MinSpanTree.cpp" />
-    <ClCompile Include="Neigbour3D.cpp" />
     <ClCompile Include="RingsDeduction.cpp" />
     <ClCompile Include="VesselDetector.cpp" />
     <ClCompile Include="main.cpp" />
