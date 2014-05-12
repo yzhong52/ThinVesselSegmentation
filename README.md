@@ -4,11 +4,13 @@ Thin Vessels Segmentation
 Vesselness
 ---------------
 Compute vesselness measure using [Frangi](http://link.springer.com/chapter/10.1007/BFb0056195#page-1)'s method. 
+
 Please refer to `/Thin_Vessel_Segmentation/VesselNess` for more details. 
 
 ModelFitting
 ---------------
 Fitting geometric models (lines) to the 3D vessel data. 
+
 Please refer to `/Thin_Vessel_Segmentation/ModelFitting` for more details. 
 
 Others
