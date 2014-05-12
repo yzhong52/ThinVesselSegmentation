@@ -79,11 +79,11 @@ namespace SyntheticData {
 		}
 	}
 
-	void Yes( Data3D<short>& im_short ) {
-		const int SX = 50; 
-		const int SY = 50; 
-		const int SZ = 50; 
-		const float radius = 4.0f; 
+	void Yes( Data3D<short>& im_short, const float radius = 3.0f ) {
+		const int SX = 30; 
+		const int SY = 30; 
+		const int SZ = 30; 
+		
 		std::vector<cv::Vec6f> intervals; 
 		intervals.push_back( Vec6f(SX*0.5f, SY*0.5f, SZ*0.0f, SX*0.5f, SY*0.5f, SZ*0.5f) ); 
 		intervals.push_back( Vec6f(SX*0.0f, SY*0.5f, SZ*1.0f, SX*0.5f, SY*0.5f, SZ*0.5f) ); 

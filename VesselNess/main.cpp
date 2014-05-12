@@ -3,6 +3,7 @@
 #include <time.h>
 #include "VesselDetector.h" // For computing vesselness
 #include "GLViwerWrapper.h" // For visualization
+#include "../ModelFitting/SyntheticData.h"
 
 GLViewerExt viewer;
 
@@ -19,8 +20,12 @@ namespace sample_code{
 
 int main(int argc, char* argv[])
 {
-	sample_code::vesselness( false );
-	sample_code::centreline( false ); 
+	Data3D<short> im_short; 
+	SyntheticData::Yes( im_short ); 
+	im_short.save( "../temp/yes.data" ); 
+
+	sample_code::vesselness( false, "../temp/yes" );
+	sample_code::centreline( true, "../temp/yes" ); 
 	return 0;
 }
 
@@ -35,7 +40,7 @@ namespace sample_code{
 		// sigma_step: precision of computation
 		float sigma_from = 1.0f;
 		float sigma_to = 8.10f;
-		float sigma_step = 0.5f;
+		float sigma_step = 0.3f;
 		// Parameters for vesselness, please refer to Frangi's papaer 
 		// or this [blog](http://yzhong.co/?p=351)
 		float alpha = 1.0e-1f;	

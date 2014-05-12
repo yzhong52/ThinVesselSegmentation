@@ -79,12 +79,6 @@ void initViwer( const Image3D<T>& im_short, const vector<cv::Vec3i>& dataPoints,
 
 int main(int argc, char* argv[])
 {
-	Data3D<short> im_short; 
-	SyntheticData::Yes( im_short ); 
-	ver.addObject( im_short ); 
-	ver.go(); 
-	return 0; 
-
 	srand( 3 ); 
 
 	// TODO: not compatible with MinGW? 
@@ -94,8 +88,9 @@ int main(int argc, char* argv[])
 	Image3D<Vesselness_Sig> vn_sig;
 	// Image3D<Vesselness_Sig> vn_sig_nms;
 	
-	vn_sig.load( "../temp/data15.vn_sig" ); 
-	vn_sig.remove_margin_to( Vec3i(50, 50, 50) );
+	// vn_sig.load( "../temp/data15.vn_sig" ); 
+	vn_sig.load( "../temp/yes.vn_sig" ); 
+	// vn_sig.remove_margin_to( Vec3i(50, 50, 50) );
 
 	// threshold the data and put the data points into a vector
 	Data3D<int> labelID3d; 

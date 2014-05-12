@@ -34,7 +34,7 @@ namespace GLViewer
 		}
 		void render(void){
 			glBegin( GL_LINES );
-			int gap = 2;
+			int gap = 1;
 			for( int z=0; z<ptrVnSig->SZ(); z+=gap ) {
 				for( int y=0; y<ptrVnSig->SY(); y+=gap ) {
 					for( int x=0; x<ptrVnSig->SX(); x+=gap ) {
