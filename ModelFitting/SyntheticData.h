@@ -90,7 +90,7 @@ namespace SyntheticData {
 		intervals.push_back( Vec6f(SX*1.0f, SY*0.5f, SZ*1.0f, SX*0.5f, SY*0.5f, SZ*0.5f) ); 
 
 		im_short.reset( Vec3i(SX, SY, SZ), 0 ); 
-		for( int z=2; z<im_short.SZ(); z++ ) for( int y=0; y<SY; y++ ) for( int x=0; x<SX; x++ ) {
+		for( int z=0; z<im_short.SZ(); z++ ) for( int y=0; y<SY; y++ ) for( int x=0; x<SX; x++ ) {
 			Vec3f point( 1.0f*x, 1.0f*y, 1.0f*z ); 
 			for( int i=0; i<intervals.size(); i++ ) {
 				// distant from line to point

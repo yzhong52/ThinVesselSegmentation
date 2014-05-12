@@ -16,8 +16,8 @@ Reference: http://en.wikipedia.org/wiki/Eigenvalue_algorithm#3.C3.973_matrices
 
 
 #if !defined(SmallEpsilon) && !defined(BigEpsilon)
-	#define SmallEpsilon 1e-15 
-	#define BigEpsilon 1e-5 
+	#define SmallEpsilon 1e-18 
+	#define BigEpsilon 1e-4 
 #endif
 
 /////////////////////////////////////////////////////////////////
@@ -79,7 +79,7 @@ void normal_vectors(  const T v1[3], T v2[3], T v3[3] ) {
 	// is a normal to v1
 	// alpha * (-v1[1], v1[0], 0) + beta * (0, -v1[2], v[1]) 
 
-	if( abs(v1[0])>BigEpsilon && abs(v1[1])>BigEpsilon ) {
+	if( abs(v1[0])>BigEpsilon || abs(v1[1])>BigEpsilon ) {
 		v2[0] = -v1[1]; 
 		v2[1] =  v1[0]; 
 		v2[2] =  0;
@@ -89,10 +89,7 @@ void normal_vectors(  const T v1[3], T v2[3], T v3[3] ) {
 		v2[2] =  v1[1];
 	}
 
-
-
 	normalize( v2 ); 
-	
 
 	cross_product( v1, v2, v3 ); 
 }
@@ -157,6 +154,17 @@ void eigen_decomp( const T A[6], T eigenvalues[3], T eigenvectors[3][3] )
 		eig3 = q + 2 * p * cos( phi + 2 * M_PI3 );
 		eig2 = 3 * q - eig1 - eig3; 
 		
+		// make sure that |eig1| >= |eig2| >= |eig3| 
+		if( abs(eig1) < abs(eig2) ) swap(eig1, eig2); 
+		if( abs(eig2) < abs(eig3) ) swap(eig2, eig3); 
+		if( abs(eig1) < abs(eig2) ) swap(eig1, eig2); 
+
+		// If eig1 is too small, it is not worth to compute the eigenvectors
+		if( abs(eig1) < BigEpsilon ) {
+			memset( eigenvectors, 0, sizeof(T) * 9 ); 
+			eigenvectors[0][0] = eigenvectors[1][1] = eigenvectors[2][2] = 1; 
+		}
+
 		// Compute the corresponding eigenvectors
 		// Reference: [Cayley-Hamilton_theorem](http://en.wikipedia.org/wiki/Cayley-Hamilton_theorem)
 		// If eig1, eig2, eig3 are the distinct eigenvalues of the matrix A; 
@@ -164,7 +172,7 @@ void eigen_decomp( const T A[6], T eigenvalues[3], T eigenvectors[3][3] )
 		// (A - eig1 * I)(A - eig2 * I)(A - eig3 * I) = 0
 		// Thus the columns of the product of any two of these matrices 
 		// will contain an eigenvector for the third eigenvalue. 
-		if( abs(eig1-eig2)<BigEpsilon && abs(eig2-eig3)<BigEpsilon ) {
+		else if( abs(eig1-eig2)<BigEpsilon && abs(eig2-eig3)<BigEpsilon ) {
 			memset( eigenvectors, 0, sizeof(T) * 9 ); 
 			eigenvectors[0][0] = eigenvectors[1][1] = eigenvectors[2][2] = 1; 
 		} else if ( abs(eig1-eig2)<BigEpsilon ) {
@@ -175,10 +183,8 @@ void eigen_decomp( const T A[6], T eigenvalues[3], T eigenvectors[3][3] )
 			// tested
 			eigenvector_from_value( A, eig2, eig3, eigenvectors[0] ); 
 			normal_vectors( eigenvectors[0], eigenvectors[1], eigenvectors[2] );
-		} else if ( abs(eig1-eig3)<BigEpsilon ) {
-			eigenvector_from_value( A, eig1, eig3, eigenvectors[1] ); 
-			normal_vectors( eigenvectors[1], eigenvectors[0], eigenvectors[2] );
-		} else { // eig1!=eig2 && eig2!=eig3 && eig1!=eig3 
+		} else { 
+			// eig1!=eig2 && eig2!=eig3 && eig1!=eig3 
 			// tested
 			eigenvector_from_value( A, eig2, eig3, eigenvectors[0] ); 
 			eigenvector_from_value( A, eig1, eig3, eigenvectors[1] ); 
