@@ -12,9 +12,9 @@
 #include "SparseMatrixCV\SparseMatrixCV.h" 
 #include <omp.h>
 
-
 using namespace std; 
 using namespace cv;
+
 
 LevenburgMaquart::LevenburgMaquart( const vector<Vec3i>& dataPoints, const vector<int>& labelings, 
 	const ModelSet<Line3D>& modelset, const Data3D<int>& labelIDs ) 
@@ -31,47 +31,44 @@ LevenburgMaquart::LevenburgMaquart( const vector<Vec3i>& dataPoints, const vecto
 	nablaP = vector<SparseMatrixCV>( tildaP.size() ); // Jacobian matrix of the porjeciton points 
 }
 
-// X1, X2: 3 * 1, two end points of the line
-// nablaX: 3 * N, 3 non-zero values
-// nablaP: 3 * N
+
 void  LevenburgMaquart::Jacobian_projection( 
-	const Vec3d& X1, const Vec3d& X2,                                    // two end points of a line
-	const SparseMatrixCV& nablaX1, const SparseMatrixCV& nablaX2,          // Jacobians of the end points of the line
-	const Vec3d& tildeP,           const SparseMatrixCV& nablaTildeP,      // a point, and the Jacobian of the point
+	const Vec3d& X1, const Vec3d& X2,
+	const SparseMatrixCV& nablaX1, const SparseMatrixCV& nablaX2,
+	const Vec3d& tildeP,           const SparseMatrixCV& nablaTildeP,
 	Vec3d& P, SparseMatrixCV& nablaP )
-{	
-	// Assume that: P = T * X1 + (1-T) * X2
+{
+	// Assume that the projection point P = T * X1 + (1-T) * X2 
 	Vec3d X1_X2 = X1 - X2;
 	const double A = ( tildeP - X2 ).dot( X1_X2 );
 	const double B = ( X1_X2 ).dot( X1_X2 );
 	const double T = A / B;
 
-	// Compute the Jacobian matrix for Ai, Bi and Aj, Bj
+	// Compute the Jacobian matrix for A and B
 	const SparseMatrixCV nablaX1_nablaX2 = nablaX1 - nablaX2; 
-
 	const SparseMatrixCV nablaA = X1_X2.t() * SparseMatrixCV( nablaTildeP - nablaX2 ) + (tildeP - X2).t() * nablaX1_nablaX2;
 	const SparseMatrixCV nablaB = X1_X2.t() * 2 * nablaX1_nablaX2; 
 
-	// Compute the Jacobian matrix for Ti and Tj
-	// 1 * N matrices
+	// Compute the Jacobian matrix for T (1 by N matrix)
 	const SparseMatrixCV nablaT = ( nablaA * B - nablaB * A ) / ( B * B );
 
-	// Compute the projection point
+	// Compute the projection point (3 by 1 vector)
 	P = T * X1 + (1-T) * X2; 
 	
-	// And the Jacobian matrix of the projection point
-	// 3 * N matrices
+	// And the Jacobian matrix of the projection point (3 by N matrix) 
 	nablaP = X1 * nablaT + nablaX1 * T + nablaX2 * (1-T) - X2 * nablaT;
 }
 
 
 SparseMatrixCV LevenburgMaquart::Jacobian_datacost_for_one( const int& site ) {
-	int label = labelID[site];
+	const int label = labelID[site];
 	const Line3D* line = lines[label]; 
 
+	// end points of the line
 	Vec3d X1, X2; 
 	line->getEndPoints( X1, X2 );
 
+	// jacobian matrix of the end points of the line
 	const int indecesM1[][2] = { 
 		{0, 0 + label * numParamPerLine}, 
 		{1, 1 + label * numParamPerLine}, 
@@ -84,16 +81,15 @@ SparseMatrixCV LevenburgMaquart::Jacobian_datacost_for_one( const int& site ) {
 	const SparseMatrixCV nablaX1( 3, numParam, indecesM1, values, 3 );
 	const SparseMatrixCV nablaX2( 3, numParam, indecesM2, values, 3 );
 	
-	Jacobian_projection( X1, X2, nablaX1, nablaX2, tildaP[site], SparseMatrixCV(3, numParam), 
-		P[site],
-		nablaP[site] );
+	static const SparseMatrixCV zero_matrix(3, numParam); 
+	Jacobian_projection( X1, X2, nablaX1, nablaX2,
+		tildaP[site], zero_matrix, 
+		P[site], nablaP[site] );
 	
 	const Vec3d tildeP_P = Vec3d(tildaP[site]) - P[site]; 
-	const double tildaP_P_lenght = max( 1e-20, sqrt( tildeP_P.dot(tildeP_P) ) ); // l->distanceToLine( tildeP );
+	const double tildaP_P_lenght = max( 1e-20, sqrt( tildeP_P.dot(tildeP_P) ) ); 
 
-	const SparseMatrixCV res = ( -1.0/tildaP_P_lenght*LOGLIKELIHOOD ) * tildeP_P.t() * nablaP[site]; 
-
-	return res; 
+	return ( -1.0/tildaP_P_lenght*LOGLIKELIHOOD ) * tildeP_P.t() * nablaP[site]; 
 }
 
 
@@ -103,21 +99,21 @@ void LevenburgMaquart::Jacobian_smoothcost_for_pair(
 	SparseMatrixCV& nabla_smooth_cost_i,
 	SparseMatrixCV& nabla_smooth_cost_j  ) 
 {
-	int labeli = labelID[sitei];
-	int labelj = labelID[sitej];
+	const int labeli = labelID[sitei];
+	const int labelj = labelID[sitej];
 	const Line3D* linei = lines[labeli]; 
 	const Line3D* linej = lines[labelj]; 
 
-	Vec3d Xi1, Xi2; 
+	// end points of the lines
+	Vec3d Xi1, Xi2, Xj1, Xj2; 
 	linei->getEndPoints( Xi1, Xi2 ); 
-	Vec3d Xj1, Xj2; 
 	linej->getEndPoints( Xj1, Xj2 ); 
 
+	// original points
 	const Vec3d tildePi = tildaP[sitei]; 
 	const Vec3d tildePj = tildaP[sitej]; 
 
-	// Compute the derivatives of the end points over 
-	// the 12 parameters
+	// Jacobian matrix of the end points of the line
 	const int indecesXi1[][2] = { 
 		{0, 0 + labeli * numParamPerLine}, 
 		{1, 1 + labeli * numParamPerLine}, 
@@ -134,7 +130,6 @@ void LevenburgMaquart::Jacobian_smoothcost_for_pair(
 		{0, 3 + labelj * numParamPerLine}, 
 		{1, 4 + labelj * numParamPerLine}, 
 		{2, 5 + labelj * numParamPerLine}}; 
-	
 	static const double values[] = { 1.0, 1.0, 1.0 };
 	const SparseMatrixCV nablaXi1(3, numParam, indecesXi1, values, 3 );
 	const SparseMatrixCV nablaXi2(3, numParam, indecesXi2, values, 3 );
@@ -165,7 +160,6 @@ void LevenburgMaquart::Jacobian_smoothcost_for_pair(
 	// output result 
 	nabla_smooth_cost_i = ( nabla_pi_pi_prime * dist_pi_pj - nabla_pi_pj * dist_pi_pi_prime ) * (1.0 / dist_pi_pj2 * PAIRWISESMOOTH); 
 	nabla_smooth_cost_j = ( nabla_pj_pj_prime * dist_pi_pj - nabla_pi_pj * dist_pj_pj_prime ) * (1.0 / dist_pi_pj2 * PAIRWISESMOOTH); 
-
 }
 
 void LevenburgMaquart::Jacobian_datacost_thread_func(
@@ -173,7 +167,7 @@ void LevenburgMaquart::Jacobian_datacost_thread_func(
 		vector<int>&    Jacobian_colindx,  
 		vector<int>&    Jacobian_rowptr, 
 		vector<double>& energy_matrix,
-		int site )
+		const int site )
 {
 	// For each data point, the following computation will 
 	// be splited into multiple thread 
@@ -181,11 +175,11 @@ void LevenburgMaquart::Jacobian_datacost_thread_func(
 
 	// computing datacost 
 	const double datacost_i = compute_datacost_for_one( lines[label], tildaP[site] ); 
+	
+	energy_matrix.push_back( sqrt(datacost_i) ); 
 
 	// Computing derivative for data cost analytically
-	SparseMatrixCV J_datacost = Jacobian_datacost_for_one( site ); 
-
-	energy_matrix.push_back( sqrt(datacost_i) ); 
+	const SparseMatrixCV J_datacost = Jacobian_datacost_for_one( site ); 
 
 	int nnz;
 	const double* non_zero_value = NULL;
@@ -280,11 +274,11 @@ void LevenburgMaquart::Jacobian_datacost(
 
 
 void LevenburgMaquart::Jacobian_smoothcost_thread_func(
-		vector<double>& Jacobian_nzv, 
-		vector<int>&    Jacobian_colindx,  
-		vector<int>&    Jacobian_rowptr, 
-		vector<double>& energy_matrix,
-		int site )
+	vector<double>& Jacobian_nzv, 
+	vector<int>&    Jacobian_colindx,  
+	vector<int>&    Jacobian_rowptr, 
+	vector<double>& energy_matrix,
+	const int site )
 {
 	for( int neibourIndex=0; neibourIndex<13; neibourIndex++ ) { // find it's neighbour
 		// the neighbour position

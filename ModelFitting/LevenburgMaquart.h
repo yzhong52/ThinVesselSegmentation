@@ -20,7 +20,7 @@ public:
 	// lamda - damping function for levenburg maquart
 	//    the smaller lambda is, the faster it converges
 	//    the bigger lambda is, the slower it converges
-	void reestimate( double lambda = 1e2  ); 
+	void reestimate( double lambda = 1e2 ); 
 
 private:
 	const vector<Vec3i>& tildaP;   // original points
@@ -37,24 +37,25 @@ private:
 	vector<SparseMatrixCV> nablaP; // Jacobian matrix of the porjeciton points 
 
 private:
-	//// Jacobian Matrix - data cost
+	// Jacobian Matrix - data cost
 	void Jacobian_datacost(
 		vector<double>& Jacobian_nzv, 
 		vector<int>&    Jacobian_colindx, 
 		vector<int>&    Jacobian_rowptr,
 		vector<double>& energy_matrix );
-	// parallelized of the above function Jacobian_datacost
+	// Jacobian Matrix - data cost
 	void Jacobian_datacost_openmp(
 		vector<double>& Jacobian_nzv, 
 		vector<int>&    Jacobian_colindx, 
 		vector<int>&    Jacobian_rowptr,
 		vector<double>& energy_matrix );
+	// Jacobian Matrix - data cost - thread func
 	void Jacobian_datacost_thread_func(
 		vector<double>& Jacobian_nzv, 
 		vector<int>&    Jacobian_colindx,  
 		vector<int>&    Jacobian_rowptr, 
 		vector<double>& energy_matrix,
-		int site); 
+		const int site); 
 
 	// Jacobian Matrix - smooth cost
 	void Jacobian_smoothcost( 
@@ -68,27 +69,25 @@ private:
 		vector<int>&    Jacobian_colindx,  
 		vector<int>&    Jacobian_rowptr, 
 		vector<double>& energy_matrix );
+	// Jacobian Matrix - smooth cost
 	void Jacobian_smoothcost_openmp_critical_section(
 		vector<double>& Jacobian_nzv, 
 		vector<int>&    Jacobian_colindx,  
 		vector<int>&    Jacobian_rowptr, 
 		vector<double>& energy_matrix );
-	// Jacobian Matrix - smooth cost
-	// each site one thread
+	// Jacobian Matrix - smooth cost - thread func
 	void Jacobian_smoothcost_thread_func(
 		vector<double>& Jacobian_nzv, 
 		vector<int>&    Jacobian_colindx,  
 		vector<int>&    Jacobian_rowptr, 
 		vector<double>& energy_matrix,
-		int site );
+		const int site );
 
 private:
-	// projections of datapoints & 
-	// the Jacobain matrix of the corresponding projection point 
-	
-	// X1, X2: 3 * 1, two end points of the line
-	// nablaX: 3 * 12, 3 non-zero values
-	// nablaP: 3 * 12
+	// X1, X2: 3 by 1 vector, end point of the lines
+	// nablaX1, nablaX2: 3 * numParam, 3 non-zero values, Jacobian matrix of the end points of the line
+	// P: 3 by 1, OUTPUT, projection point
+	// nablaP: 1 by N, OUTPUT, jacobian matrix of the projection point
 	void  Jacobian_projection( 
 		const cv::Vec3d& X1, const cv::Vec3d& X2,                                    // two end points of a line
 		const SparseMatrixCV& nablaX1, const SparseMatrixCV& nablaX2,          // Jacobians of the end points of the line
@@ -101,11 +100,11 @@ private:
 		SparseMatrixCV& nabla_smooth_cost_i,
 		SparseMatrixCV& nabla_smooth_cost_j );
 
-	// update model according to delta (delta can be consider as the gradient 
-	// computed with levenberg marquart 
+	// Update model according to delta 
+	// (delta can be consider as the gradient computed with levenberg marquart) 
 	void update_lines( const Mat_<double>& delta ); 
 
-	// adjust the end points of the lines so that they don't shirt away from the data 
+	// adjust the end points of the lines so that they don't shift away from the data 
 	void adjust_endpoints( void ); 
 };
 
