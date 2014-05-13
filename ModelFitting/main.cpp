@@ -38,7 +38,7 @@ typedef GCoptimization GC;
 #include <limits> 
 
 const double LOGLIKELIHOOD = 1.0; 
-const double PAIRWISESMOOTH = 7.0; 
+const double PAIRWISESMOOTH = 49.0; 
 
 
 // if IS_PROFILING is defined, rendering is disabled

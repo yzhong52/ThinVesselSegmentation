@@ -28,7 +28,7 @@ LevenburgMaquart::LevenburgMaquart( const vector<Vec3i>& dataPoints, const vecto
 	numParamPerLine = lines[0]->getNumOfParameters(); 
 	numParam = numParamPerLine * (int) lines.size(); 
 
-	P = vector<Vec3d>( tildaP.size() );              // projection points of original points
+	P = vector<Vec3d>( tildaP.size() );               // projection points of original points
 	nablaP = vector<SparseMatrixCV>( tildaP.size() ); // Jacobian matrix of the porjeciton points 
 }
 
@@ -170,7 +170,7 @@ void LevenburgMaquart::Jacobian_datacost_thread_func(
 		vector<double>& energy_matrix,
 		const int site )
 {
-	// For each data point, the following computation will 
+	// For each data point, the following computation could
 	// be splited into multiple thread 
 	const int& label = labelID[site]; 
 
@@ -187,7 +187,10 @@ void LevenburgMaquart::Jacobian_datacost_thread_func(
 	const int* column_index = NULL;
 	const int* row_pointer = NULL; 
 	J_datacost.getRowMatrixData( nnz, &non_zero_value, &column_index, &row_pointer ); 
-	smart_assert( J_datacost.row()==1 && J_datacost.col()==numParam, "Number of row is not correct for Jacobian matrix" );
+
+	smart_assert( J_datacost.row()==1 && J_datacost.col()==numParam, 
+		"Number of row is not correct for Jacobian matrix" );
+	
 	for( int i=0; i<nnz; i++ ) {
 		Jacobian_nzv.push_back( non_zero_value[i] );
 		Jacobian_colindx.push_back( column_index[i] ); 
@@ -263,7 +266,10 @@ void LevenburgMaquart::Jacobian_datacost(
 		const int* column_index = NULL;
 		const int* row_pointer = NULL; 
 		J_datacost.getRowMatrixData( nnz, &non_zero_value, &column_index, &row_pointer ); 
-		smart_assert( J_datacost.row()==1 && J_datacost.col()==numParam, "Number of row is not correct for Jacobian matrix" );
+
+		smart_assert( J_datacost.row()==1 && J_datacost.col()==numParam, 
+			"Number of row is not correct for Jacobian matrix" );
+
 		for( int i=0; i<nnz; i++ ) {
 			Jacobian_nzv.push_back( non_zero_value[i] );
 			Jacobian_colindx.push_back( column_index[i] ); 
@@ -282,23 +288,15 @@ void LevenburgMaquart::Jacobian_smoothcost_thread_func(
 	const int site )
 {
 	for( int neibourIndex=0; neibourIndex<13; neibourIndex++ ) { // find it's neighbour
-		// the neighbour position
-		int x, y, z; 
-		Neighbour26::getNeigbour( neibourIndex, 
-			tildaP[site][0], 
-			tildaP[site][1], 
-			tildaP[site][2], 
-			x, y, z ); 
-		if( !labelID3d.isValid(x,y,z) ) continue; // not a valid position
-		// otherwise
+		Vec3i neig;  // the neighbour position
+		Neighbour26::getNeigbour( neibourIndex, tildaP[site], neig ); 
+		if( !labelID3d.isValid(neig) ) continue; // not a valid position
 
-		int site2 = labelID3d.at(x,y,z); 
+		const int site2 = labelID3d.at(neig); 
 		if( site2==-1 ) continue ; // not a neighbour
-		// other wise, found a neighbour
-
-		int l1 = labelID[site];
-		int l2 = labelID[site2];
-
+		
+		const int l1 = labelID[site];
+		const int l2 = labelID[site2];
 		if( l1==l2 ) continue; // TODO
 
 		double smoothcost_i_before = 0, smoothcost_j_before = 0;
@@ -330,12 +328,8 @@ void LevenburgMaquart::Jacobian_smoothcost_thread_func(
 			}
 			Jacobian_rowptr.push_back( (int) Jacobian_nzv.size() ); 
 		}
-
-	} // for each pair of pi and pj
+	} // end of - for each pair of pi and pj
 }
-
-
-
 
 void LevenburgMaquart::Jacobian_smoothcost_openmp(
 	vector<double>& Jacobian_nzv, 
@@ -484,14 +478,9 @@ void LevenburgMaquart::Jacobian_smoothcost(
 	vector<double>& energy_matrix )
 {
 	for( int site = 0; site < tildaP.size(); site++ ) { 
-		// For each data point
-		// using only one thread for the computation 
-		Jacobian_smoothcost_thread_func( 
-			Jacobian_nzv, 
-			Jacobian_colindx, 
-			Jacobian_rowptr, 
-			energy_matrix, 
-			site ); 
+		// For each data point, using only one thread for the computation 
+		Jacobian_smoothcost_thread_func( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, 
+			energy_matrix, site ); 
 	} 
 }
 
@@ -502,11 +491,11 @@ void LevenburgMaquart::adjust_endpoints( void )
 	vector<double> minT( (int) labelID.size(), (std::numeric_limits<double>::max)() );
 	vector<double> maxT( (int) labelID.size(), (std::numeric_limits<double>::min)() );
 	for( int site = 0; site < tildaP.size(); site++ ) { // For each data point
-		int label = labelID[site]; 
+		const int label = labelID[site]; 
 		Vec3d p1, p2;
 		lines[label]->getEndPoints( p1, p2 ); 
 
-		Vec3d& pos = p1;
+		const Vec3d& pos = p1;
 		Vec3d dir = p2 - p1; 
 		dir /= sqrt( dir.dot( dir ) ); // normalize the direction 
 		double t = ( Vec3d(tildaP[site]) - pos ).dot( dir );
@@ -518,7 +507,7 @@ void LevenburgMaquart::adjust_endpoints( void )
 			Vec3d p1, p2;
 			lines[label]->getEndPoints( p1, p2 ); 
 
-			Vec3d& pos = p1;
+			const Vec3d& pos = p1;
 			Vec3d dir = p2 - p1; 
 			dir /= sqrt( dir.dot( dir ) ); // normalize the direction 
 
@@ -559,7 +548,7 @@ void LevenburgMaquart::reestimate( double lambda )
 		// // // // // // // // // // // // // // // // // // 
 		// Construct Jacobian Matrix -  data cost
 		// // // // // // // // // // // // // // // // // // 
-		// Jacobian_datacost( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
+		//Jacobian_datacost( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
 		Jacobian_datacost_openmp( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
 
 		// // // // // // // // // // // // // // // // // // 
@@ -603,7 +592,7 @@ void LevenburgMaquart::reestimate( double lambda )
 		} else {  
 			// if energy is encreasing, reverse the result of this iteration
 			update_lines( X ); 	
-			lambda *= 2.12; 
+			lambda *= 4.12; 
 			if( ++energy_increase_count>=3 ) {
 				// If energy_increase_count in three consecutive iterations
 				// then the nenergy is probabaly converged

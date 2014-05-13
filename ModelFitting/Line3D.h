@@ -18,8 +18,9 @@ public:
 	Line3D(void);
 	virtual ~Line3D(void); 
 
-	// setters 
+	// setters & getters
 	inline void setSigma( const double& s ){ sigma = s; }
+	inline const double& getSigma(void) const { return sigma; }
 
 	// Give a point, calculat the distance from the point to the line 
 	virtual double distanceToLine( const Vec3d& point ) const = 0;

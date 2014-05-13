@@ -21,6 +21,7 @@ namespace sample_code{
 int main(int argc, char* argv[])
 {
 	Data3D<short> im_short; 
+	
 	SyntheticData::Yes( im_short ); 
 	im_short.save( "../temp/yes.data" ); 
 

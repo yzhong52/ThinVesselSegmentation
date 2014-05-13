@@ -4,7 +4,9 @@ using namespace GLViewer;
 
 
 
-GLLineModel::GLLineModel( cv::Vec3i size ) : size( size ), render_mode(1) {
+GLLineModel::GLLineModel( cv::Vec3i size ) 
+	: size( size ), render_mode(7) 
+{
 	// creat a mutex 
 	hMutex = CreateMutex( NULL, false, NULL );
 }

@@ -22,20 +22,11 @@ const double epsilon_double = 1e-50;
 
 inline double compute_datacost_for_one( const Line3D* line_i, const Vec3d& pi )
 {
-	return LOGLIKELIHOOD * LOGLIKELIHOOD * line_i->loglikelihood( pi );
-}
-
-double compute_datacost( 
-	const vector<Vec3i>& dataPoints,
-	const vector<int>& labelings, 
-	const vector<Line3D*>& lines )
-{
-	double energy = 0; 
-	for( int site = 0; site < (int) dataPoints.size(); site++ ) {
-		const int& label = labelings[site];
-		energy += compute_datacost_for_one( lines[label], dataPoints[site] ); 
-	}
-	return energy; 
+	const Vec3d proj_point = line_i->projection( pi );
+	const Vec3d dir = proj_point - pi;
+	const double dist2 = dir.dot(dir);
+	const double sigma2 = line_i->getSigma() * line_i->getSigma(); 
+	return LOGLIKELIHOOD * LOGLIKELIHOOD * dist2 / sigma2;
 }
 
 
@@ -57,15 +48,29 @@ void compute_smoothcost_for_pair(
 	const Vec3d pi_pi_prime = pi - pi_prime; 
 	const Vec3d pj_pj_prime = pj - pj_prime;
 
-	// distance
-	double dist_pi_pj2       = pi_pj.dot(pi_pj);
-	double dist_pi_pi_prime2 = pi_pi_prime.dot(pi_pi_prime); 
-	double dist_pj_pj_prime2 = pj_pj_prime.dot(pj_pj_prime); 
+	// distances
+	const double dist_pi_pi_prime2 = pi_pi_prime.dot(pi_pi_prime); 
+	const double dist_pj_pj_prime2 = pj_pj_prime.dot(pj_pj_prime); 
+	const double dist_pi_pj2       = max( pi_pj.dot(pi_pj), epsilon_double );
 
-	dist_pi_pj2 = max( dist_pi_pj2, epsilon_double );
 	smooth_cost_i = PAIRWISESMOOTH * PAIRWISESMOOTH * dist_pi_pi_prime2 / dist_pi_pj2; 
 	smooth_cost_j = PAIRWISESMOOTH * PAIRWISESMOOTH * dist_pj_pj_prime2 / dist_pi_pj2; 
 }
+
+
+double compute_datacost( 
+	const vector<Vec3i>& dataPoints,
+	const vector<int>& labelings, 
+	const vector<Line3D*>& lines )
+{
+	double energy = 0; 
+	for( int site = 0; site < (int) dataPoints.size(); site++ ) {
+		const int& label = labelings[site];
+		energy += compute_datacost_for_one( lines[label], dataPoints[site] ); 
+	}
+	return energy; 
+}
+
 
 double compute_smoothcost( 
 	const vector<Vec3i>& dataPoints,
