@@ -13,9 +13,13 @@ extern const double PAIRWISESMOOTH;
 
 class LevenburgMaquart
 {
+	// TODO: implement different smooth cost type
+	enum SmoothCostType {
+		Quadratic, Linear
+	} smooth_cost_type;
 public:
 	LevenburgMaquart( const vector<Vec3i>& dataPoints, const vector<int>& labelings, 
-		const ModelSet<Line3D>& modelset, const Data3D<int>& labelIDs ); 
+		const ModelSet<Line3D>& modelset, const Data3D<int>& labelIDs, SmoothCostType smooth_cost_type = Quadratic ); 
 
 	// lamda - damping function for levenburg maquart
 	//    the smaller lambda is, the faster it converges

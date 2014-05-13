@@ -5,12 +5,8 @@
 #include "Neighbour26.h"
 #include "Data3D.h" 
 #include "Timer.h"
-#include "SparseMatrixCV\SparseMatrixCV.h"
-
-using namespace std;
-using namespace cv; 
-
 #include "../SparseMatrixCV/SparseMatrixCV.h"
+
 #ifdef _DEBUG
 	#pragma comment(lib,"../x64/Debug/SparseMatrixCV.lib")
 	#pragma comment(lib,"../x64/Debug/SparseMatrix.lib")
@@ -18,6 +14,11 @@ using namespace cv;
 	#pragma comment(lib,"../x64/Release/SparseMatrixCV.lib")
 	#pragma comment(lib,"../x64/Release/SparseMatrix.lib")
 #endif
+
+using namespace std;
+using namespace cv; 
+
+const double epsilon_double = 1e-50; 
 
 inline double compute_datacost_for_one( const Line3D* line_i, const Vec3d& pi )
 {
@@ -31,7 +32,7 @@ double compute_datacost(
 {
 	double energy = 0; 
 	for( int site = 0; site < (int) dataPoints.size(); site++ ) {
-		int label = labelings[site];
+		const int& label = labelings[site];
 		energy += compute_datacost_for_one( lines[label], dataPoints[site] ); 
 	}
 	return energy; 
@@ -57,17 +58,13 @@ void compute_smoothcost_for_pair(
 	const Vec3d pj_pj_prime = pj - pj_prime;
 
 	// distance
-	double dist_pi_pj  = pi_pj.dot(pi_pj); 
-	double dist_pi_pi_prime = pi_pi_prime.dot(pi_pi_prime); 
-	double dist_pj_pj_prime = pj_pj_prime.dot(pj_pj_prime); 
+	double dist_pi_pj2       = pi_pj.dot(pi_pj);
+	double dist_pi_pi_prime2 = pi_pi_prime.dot(pi_pi_prime); 
+	double dist_pj_pj_prime2 = pj_pj_prime.dot(pj_pj_prime); 
 
-	if( dist_pi_pj < 1e-20 ) dist_pi_pj = 1e-20; 
-	
-	if( dist_pi_pi_prime < 1e-20 ) smooth_cost_i = 0; 
-	else smooth_cost_i = PAIRWISESMOOTH * PAIRWISESMOOTH * dist_pi_pi_prime / dist_pi_pj; 
-	
-	if( dist_pj_pj_prime < 1e-20 ) smooth_cost_j = 0; 
-	else smooth_cost_j = PAIRWISESMOOTH * PAIRWISESMOOTH * dist_pj_pj_prime / dist_pi_pj; 
+	dist_pi_pj2 = max( dist_pi_pj2, epsilon_double );
+	smooth_cost_i = PAIRWISESMOOTH * PAIRWISESMOOTH * dist_pi_pi_prime2 / dist_pi_pj2; 
+	smooth_cost_j = PAIRWISESMOOTH * PAIRWISESMOOTH * dist_pj_pj_prime2 / dist_pi_pj2; 
 }
 
 double compute_smoothcost( 
@@ -75,27 +72,23 @@ double compute_smoothcost(
 	const vector<int>& labelings, 
 	const vector<Line3D*>& lines,
 	const Data3D<int>& indeces )
-{
+{	
 	double energy = 0; 
-
 	for( int site = 0; site < dataPoints.size(); site++ ) { // For each data point
 
 		// iterate through all its neighbours
 		for( int neibourIndex=0; neibourIndex<13; neibourIndex++ ) { 
-			// the neighbour position
-			int x, y, z; 
-			Neighbour26::getNeigbour( neibourIndex, 
-				dataPoints[site][0], dataPoints[site][1], dataPoints[site][2], 
-				x, y, z ); 
-			if( !indeces.isValid(x,y,z) ) continue; // not a valid position
-			                                        // otherwise
+			// neighbour position
+			Vec3i neig;  
+			Neighbour26::getNeigbour( neibourIndex, dataPoints[site], neig ); 
+			
+			if( !indeces.isValid(neig) ) continue; // not a valid position, otherwise
 
-			int site2 = indeces.at(x,y,z); 
-			if( site2==-1 ) continue ; // not a neighbour
-			                           // other wise, found a neighbour
+			const int site2 = indeces.at(neig); 
+			if( site2==-1 ) continue ; // not a neighbour, other wise, found a neighbour
 
-			const int l1 = labelings[site];
-			const int l2 = labelings[site2];
+			const int l1 = labelings[site]; 
+			const int l2 = labelings[site2]; 
 
 			if( l1==l2 ) continue; 
 
@@ -116,11 +109,7 @@ double compute_energy(
 	const vector<Line3D*>& lines,
 	const Data3D<int>& indeces )
 {
-	Timer::begin("Compute Energy");
-
 	double datacost   = compute_datacost( dataPoints, labelings, lines ); 
 	double smoothcost = compute_smoothcost( dataPoints, labelings, lines, indeces ); 
-
-	Timer::end("Compute Energy");
 	return datacost + smoothcost; 
 }

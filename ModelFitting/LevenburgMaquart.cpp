@@ -17,10 +17,11 @@ using namespace cv;
 
 
 LevenburgMaquart::LevenburgMaquart( const vector<Vec3i>& dataPoints, const vector<int>& labelings, 
-	const ModelSet<Line3D>& modelset, const Data3D<int>& labelIDs ) 
+	const ModelSet<Line3D>& modelset, const Data3D<int>& labelIDs, SmoothCostType smooth_cost_type ) 
 	: tildaP( dataPoints ), labelID( labelings )
 	, modelset( modelset ), labelID3d( labelIDs )
 	, lines( modelset.models )
+	, smooth_cost_type( smooth_cost_type )
 {
 	smart_assert( lines.size()!=0, "Error: model set is empty" ); 
 		
@@ -538,18 +539,13 @@ void LevenburgMaquart::update_lines( const Mat_<double>& delta )
 
 void LevenburgMaquart::reestimate( double lambda )
 {
-	if( lines.size()==0 ) {
-		cout << "No line models available" << endl;
-		return; 
-	}
+	smart_assert( lines.size()!=0, "No line models available" ); 
 	
 	double energy_before = compute_energy( tildaP, labelID, lines, labelID3d );
-	cout << "[" << energy_before; 
-	
-	SparseMatrixCV I  = SparseMatrixCV::I( numParam ); 
+	const SparseMatrixCV I  = SparseMatrixCV::I( numParam ); 
 
-	
-
+	int energy_increase_count = 0; 
+	cout << energy_before << endl; 
 	for( int lmiter = 0; lmiter<50; lmiter++ ) { 
 
 		// Data for Jacobian matrix
@@ -574,20 +570,20 @@ void LevenburgMaquart::reestimate( double lambda )
 		//Jacobian_smoothcost( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
 		
 		// Construct Jacobian matrix
-		SparseMatrixCV Jacobian = SparseMatrix(
+		const SparseMatrixCV Jacobian = SparseMatrix(
 			(int) Jacobian_rowptr.size() - 1, 
 			(int) lines.size() * numParamPerLine, 
 			Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr );
 		
 		
-		SparseMatrixCV Jt = Jacobian.t(); 
-		SparseMatrixCV Jt_J = multiply_openmp( Jt, Jacobian ); 
+		const SparseMatrixCV Jt = Jacobian.t(); 
+		const SparseMatrixCV Jt_J = multiply_openmp( Jt, Jacobian ); 
 		
 		// SparseMatrixCV A = Jt_J + Jt_J.diag() * lambda;
-		SparseMatrixCV A = Jt_J + I * lambda;
+		const SparseMatrixCV A = Jt_J + I * lambda;
 		
 		// TODO: the following line could be optimized
-		Mat_<double> B = Jt * cv::Mat_<double>( (int) energy_matrix.size(), 1, &energy_matrix.front() ) ; 
+		const Mat_<double> B = Jt * cv::Mat_<double>( (int) energy_matrix.size(), 1, &energy_matrix.front() ) ; 
 		
 		Mat_<double> X;
 
@@ -597,19 +593,16 @@ void LevenburgMaquart::reestimate( double lambda )
 		
 		double new_energy = compute_energy( tildaP, labelID, lines, labelID3d );
 		
-		static int energy_increase_count = 0; 
 		if( new_energy < energy_before ) { 
 			// if energy is decreasing 
 			// adjust the endpoints of the lines
 			adjust_endpoints();
-			 energy_before = new_energy;
+			energy_before = new_energy;
 			lambda *= 0.50; 
 			energy_increase_count = 0; 
 		} else {  
-			// if energy is encreasing
-			// reverse the result of this iteration
+			// if energy is encreasing, reverse the result of this iteration
 			update_lines( X ); 	
-			// cout << " + " << endl;
 			lambda *= 2.12; 
 			if( ++energy_increase_count>=3 ) {
 				// If energy_increase_count in three consecutive iterations
@@ -618,20 +611,16 @@ void LevenburgMaquart::reestimate( double lambda )
 			}
 		}
 		
-		cout << ", " << energy_before;
-		
-		//cout << endl;
-		//for( int i=2; i>=0; i-- ){
-		//	cout << '\r' << "Serializing models in " << i << " seconds... "; Sleep( 1000 ); 
-		//}
-		//modelset.serialize( "output/Line3DTwoPoint.model" ); 
-		//cout << "Serialization done. " << endl;
+		cout << energy_before << endl;
 	}
-
-	cout << "]; " << endl; 
-
 }
 
+
+//for( int i=2; i>=0; i-- ){
+//	cout << '\r' << "Serializing models in " << i << " seconds... "; Sleep( 1000 ); 
+//}
+//modelset.serialize( "output/Line3DTwoPoint.model" ); 
+//cout << "Serialization done. " << endl;
 
 //for( int i=0; i<X.rows; i++ ) {
 //	std::cout << std::setw(14) << std::scientific << X.at<double>(i) << "  ";

@@ -65,8 +65,6 @@ void initViwer( const Data3D<T>& im, const vector<cv::Vec3i>& dataPoints,
 	ver.addObject( im ); 
 
 	thread_render = (HANDLE) _beginthread( visualization_func, 0, (void*)&ver ); 
-	// Give myself sometime to decide whether we need to render a video
-	Sleep( 1000 ); 
 }
 #else
 template<class T>
