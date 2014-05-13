@@ -8,8 +8,8 @@ class Line3D;
 template <typename T> class Data3D; 
 template <typename T> class ModelSet; 
 
-extern const double LOGLIKELIHOOD;
-extern const double PAIRWISESMOOTH; 
+extern const double DATA_COST;
+extern const double PAIRWISE_SMOOTH; 
 
 class LevenburgMaquart
 {

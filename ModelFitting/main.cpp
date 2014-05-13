@@ -32,14 +32,16 @@ typedef GCoptimization GC;
 #include "SparseMatrix\SparseMatrix.h"
 #include "ModelSet.h"
 #include "init_models.h" 
+#include "EnergyFunctions.h" 
 
 #include <assert.h>
 #include <iostream>
 #include <limits> 
 
-const double LOGLIKELIHOOD = 1.0; 
-const double PAIRWISESMOOTH = 49.0; 
-
+const double DATA_COST = 1.0; 
+const double PAIRWISE_SMOOTH = 49.0; 
+const double DATA_COST2 = DATA_COST * DATA_COST; 
+const double PAIRWISE_SMOOTH2 = PAIRWISE_SMOOTH * PAIRWISE_SMOOTH; 
 
 // if IS_PROFILING is defined, rendering is disabled
 //#define IS_PROFILING

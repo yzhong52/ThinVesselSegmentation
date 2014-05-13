@@ -1,11 +1,11 @@
 #include "EnergyFunctions.h"
-#include <vector>
 #include "opencv2\core\core.hpp"
 #include "Line3D.h"
 #include "Neighbour26.h"
 #include "Data3D.h" 
 #include "Timer.h"
 #include "../SparseMatrixCV/SparseMatrixCV.h"
+#include <vector>
 
 #ifdef _DEBUG
 	#pragma comment(lib,"../x64/Debug/SparseMatrixCV.lib")
@@ -18,7 +18,8 @@
 using namespace std;
 using namespace cv; 
 
-const double epsilon_double = 1e-50; 
+
+static const double epsilon_double = 1e-50; 
 
 inline double compute_datacost_for_one( const Line3D* line_i, const Vec3d& pi )
 {
@@ -26,7 +27,7 @@ inline double compute_datacost_for_one( const Line3D* line_i, const Vec3d& pi )
 	const Vec3d dir = proj_point - pi;
 	const double dist2 = dir.dot(dir);
 	const double sigma2 = line_i->getSigma() * line_i->getSigma(); 
-	return LOGLIKELIHOOD * LOGLIKELIHOOD * dist2 / sigma2;
+	return DATA_COST2 * dist2 / sigma2;
 }
 
 
@@ -53,8 +54,8 @@ void compute_smoothcost_for_pair(
 	const double dist_pj_pj_prime2 = pj_pj_prime.dot(pj_pj_prime); 
 	const double dist_pi_pj2       = max( pi_pj.dot(pi_pj), epsilon_double );
 
-	smooth_cost_i = PAIRWISESMOOTH * PAIRWISESMOOTH * dist_pi_pi_prime2 / dist_pi_pj2; 
-	smooth_cost_j = PAIRWISESMOOTH * PAIRWISESMOOTH * dist_pj_pj_prime2 / dist_pi_pj2; 
+	smooth_cost_i = PAIRWISE_SMOOTH2 * dist_pi_pi_prime2 / dist_pi_pj2; 
+	smooth_cost_j = PAIRWISE_SMOOTH2 * dist_pj_pj_prime2 / dist_pi_pj2; 
 }
 
 

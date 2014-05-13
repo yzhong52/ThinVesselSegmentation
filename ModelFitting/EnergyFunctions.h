@@ -4,11 +4,13 @@
 #include "opencv2\core\core.hpp"
 
 class Line3D; 
-template<class T> class Data3D;
+template<class T> 
+class Data3D;
 class SparseMatrixCV; 
 
-extern const double LOGLIKELIHOOD; 
-extern const double PAIRWISESMOOTH; 
+extern const double DATA_COST2; 
+extern const double PAIRWISE_SMOOTH2; 
+
 
 // compute datacost for asigning a data point to a line
 inline double compute_datacost_for_one( 

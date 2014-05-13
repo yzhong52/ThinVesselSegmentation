@@ -90,7 +90,7 @@ SparseMatrixCV LevenburgMaquart::Jacobian_datacost_for_one( const int& site ) {
 	const Vec3d tildeP_P = Vec3d(tildaP[site]) - P[site]; 
 	const double tildaP_P_lenght = max( 1e-20, sqrt( tildeP_P.dot(tildeP_P) ) ); 
 
-	return ( -1.0/tildaP_P_lenght*LOGLIKELIHOOD ) * tildeP_P.t() * nablaP[site]; 
+	return ( -1.0/tildaP_P_lenght*DATA_COST ) * tildeP_P.t() * nablaP[site]; 
 }
 
 
@@ -159,8 +159,8 @@ void LevenburgMaquart::Jacobian_smoothcost_for_pair(
 	const SparseMatrixCV nabla_pi_pj       = ( Pi - Pj ).t() * ( nablaPi - nablaPj ) / dist_pi_pj;  
 	
 	// output result 
-	nabla_smooth_cost_i = ( nabla_pi_pi_prime * dist_pi_pj - nabla_pi_pj * dist_pi_pi_prime ) * (1.0 / dist_pi_pj2 * PAIRWISESMOOTH); 
-	nabla_smooth_cost_j = ( nabla_pj_pj_prime * dist_pi_pj - nabla_pi_pj * dist_pj_pj_prime ) * (1.0 / dist_pi_pj2 * PAIRWISESMOOTH); 
+	nabla_smooth_cost_i = ( nabla_pi_pi_prime * dist_pi_pj - nabla_pi_pj * dist_pi_pi_prime ) * (1.0 / dist_pi_pj2 * PAIRWISE_SMOOTH); 
+	nabla_smooth_cost_j = ( nabla_pj_pj_prime * dist_pi_pj - nabla_pi_pj * dist_pj_pj_prime ) * (1.0 / dist_pi_pj2 * PAIRWISE_SMOOTH); 
 }
 
 void LevenburgMaquart::Jacobian_datacost_thread_func(
@@ -251,30 +251,8 @@ void LevenburgMaquart::Jacobian_datacost(
 	vector<double>& energy_matrix )
 {
 	for( int site=0; site < tildaP.size(); site++ ) {
-		const int& label = labelID[site]; 
-
-		// computing datacost 
-		const double datacost_i = compute_datacost_for_one( lines[label], tildaP[site] ); 
-
-		// Computing derivative for data cost analytically
-		SparseMatrixCV J_datacost = Jacobian_datacost_for_one( site ); 
-
-		energy_matrix.push_back( sqrt(datacost_i) ); 
-
-		int nnz;
-		const double* non_zero_value = NULL;
-		const int* column_index = NULL;
-		const int* row_pointer = NULL; 
-		J_datacost.getRowMatrixData( nnz, &non_zero_value, &column_index, &row_pointer ); 
-
-		smart_assert( J_datacost.row()==1 && J_datacost.col()==numParam, 
-			"Number of row is not correct for Jacobian matrix" );
-
-		for( int i=0; i<nnz; i++ ) {
-			Jacobian_nzv.push_back( non_zero_value[i] );
-			Jacobian_colindx.push_back( column_index[i] ); 
-		}
-		Jacobian_rowptr.push_back( (int) Jacobian_nzv.size() ); 
+		Jacobian_datacost_thread_func( Jacobian_nzv, Jacobian_colindx, 
+			Jacobian_rowptr, energy_matrix, site ); 
 	}
 }
 
@@ -548,8 +526,8 @@ void LevenburgMaquart::reestimate( double lambda )
 		// // // // // // // // // // // // // // // // // // 
 		// Construct Jacobian Matrix -  data cost
 		// // // // // // // // // // // // // // // // // // 
-		//Jacobian_datacost( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
-		Jacobian_datacost_openmp( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
+		Jacobian_datacost( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
+		//Jacobian_datacost_openmp( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
 
 		// // // // // // // // // // // // // // // // // // 
 		// Construct Jacobian Matrix - smooth cost 

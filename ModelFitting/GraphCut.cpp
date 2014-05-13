@@ -25,7 +25,7 @@ double GraphCut::estimation(  const vector<Vec3i>& dataPoints,
 		for( int label = 0; label < lines.size(); label++ ){
 			const Line3D* line = lines[label];
 			GC::EnergyTermType loglikelihood = line->loglikelihood( dataPoints[site] ); 
-			gc.setDataCost( site, label, LOGLIKELIHOOD * loglikelihood );
+			gc.setDataCost( site, label, DATA_COST * loglikelihood );
 		}
 	}
 

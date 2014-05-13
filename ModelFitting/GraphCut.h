@@ -4,7 +4,7 @@
 using namespace cv; 
 
 class Line3D; 
-extern const double LOGLIKELIHOOD;
+extern const double DATA_COST;
 
 class GraphCut
 {
