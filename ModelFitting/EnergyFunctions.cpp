@@ -84,10 +84,10 @@ void smoothcost_func_abs_eps(
 
 	std::pair<double,double>& oldsmoothcost = *((std::pair<double,double>*)func_data); 
 
-	smooth_cost_i = PAIRWISE_SMOOTH2 * dist_pi_pi_prime2 / dist_pi_pj2 * oldsmoothcost.first; 
-	smooth_cost_j = PAIRWISE_SMOOTH2 * dist_pj_pj_prime2 / dist_pi_pj2 * oldsmoothcost.second; 
+	smooth_cost_i = PAIRWISE_SMOOTH2 * sqrt(dist_pi_pi_prime2) / sqrt(dist_pi_pj2); 
+	smooth_cost_j = PAIRWISE_SMOOTH2 * sqrt(dist_pj_pj_prime2) / sqrt(dist_pi_pj2); 
 
-	static const double eps = 0.5e-2; 
+	static const double eps = 0.0;// 0.5e-2; 
 	double temp = sqrt(dist_pi_pj2) + eps; 
 	oldsmoothcost.first  = temp / ( sqrt(dist_pj_pj_prime2) + eps ); 
 	oldsmoothcost.second = temp / ( sqrt(dist_pi_pi_prime2) + eps ); 

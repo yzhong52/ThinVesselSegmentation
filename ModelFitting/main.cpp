@@ -108,7 +108,7 @@ void experiment1( void ) {
 	LevenburgMaquart lm( tildaP, labelID, model, labelID3d );
 
 	cout << "LevenburgMaquart::Quadratic" << endl; 
-	lm.reestimate( 4000,LevenburgMaquart::Quadratic ); 
+	lm.reestimate( 1000,LevenburgMaquart::Quadratic ); 
 
 	system( "pause" ); 
 
@@ -229,13 +229,13 @@ void experiment4( void ) {
 int main(int argc, char* argv[])
 {
 	// wtih linear smooth cost 
-	//experiment1(); 
+	// experiment1(); 
 	// with linear smooth cost (only on centreline) 
-	//experiment2(); 
+	experiment2(); 
 	// grouping with non-maximum suppresion 
 	//experiment3(); 
 	// centerline of the vessels
-	experiment4(); 
+	//experiment4(); 
 	return 0; 
 }
 
