@@ -93,52 +93,6 @@ void smoothcost_func_abs_eps(
 	oldsmoothcost.first  = temp / ( sqrt(dist_pj_pj_prime2) + eps ); 
 	oldsmoothcost.second = temp / ( sqrt(dist_pi_pi_prime2) + eps ); 
 }
-//
-//double compute_energy( 
-//	const vector<Vec3i>& dataPoints,
-//	const vector<int>& labelings, 
-//	const vector<Line3D*>& lines,
-//	const Data3D<int>& indeces, void* func_data )
-//{
-//	double energy = 0.0;
-//
-//	// computer data cost 
-//	for( int site = 0; site < (int) dataPoints.size(); site++ ) {
-//		const int& label = labelings[site];
-//		energy += compute_datacost_for_one( lines[label], dataPoints[site] ); 
-//	}
-//
-//	// compute smooth cost 
-//
-//	for( int site = 0; site < dataPoints.size(); site++ ) { // For each data point
-//		for( int neibourIndex=0; neibourIndex<13; neibourIndex++ ) { 
-//			// neighbour position
-//			Vec3i neig;  
-//			Neighbour26::getNeigbour( neibourIndex, dataPoints[site], neig ); 
-//
-//			if( !indeces.isValid(neig) ) continue; // not a valid position, otherwise
-//
-//			const int site2 = indeces.at(neig); 
-//			if( site2==-1 ) continue ; // not a neighbour, other wise, found a neighbour
-//
-//			const int l1 = labelings[site]; 
-//			const int l2 = labelings[site2]; 
-//
-//			if( l1==l2 ) continue; 
-//
-//			double energy_smoothness_i = 0, energy_smoothness_j = 0; 
-//			smoothcost_func_quadratic( lines[l1], lines[l2], 
-//				dataPoints[site], dataPoints[site2], 
-//				energy_smoothness_i, energy_smoothness_j ); 
-//
-//			energy += energy_smoothness_i + energy_smoothness_j; 
-//		}
-//	}
-//
-//	return energy; 
-//}
-
-
 
 // compute total energy: smoothcost + datacost
 double compute_energy( 
