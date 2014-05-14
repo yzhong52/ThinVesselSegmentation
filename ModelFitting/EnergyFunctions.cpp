@@ -78,17 +78,16 @@ void smoothcost_func_abs_eps(
 	const Vec3d pj_pj_prime = pj - pj_prime;
 
 	// distances
-	const double dist_pi_pi_prime2 = pi_pi_prime.dot(pi_pi_prime); 
-	const double dist_pj_pj_prime2 = pj_pj_prime.dot(pj_pj_prime); 
-	const double dist_pi_pj2       = max( pi_pj.dot(pi_pj), epsilon_double );
+	const double dist_pi_pi_prime2 = max( pi_pi_prime.dot(pi_pi_prime), epsilon_double );
+	const double dist_pj_pj_prime2 = max( pj_pj_prime.dot(pj_pj_prime), epsilon_double );
+	const double dist_pi_pj2       = max( pi_pj.dot(pi_pj),             epsilon_double );
 
-	
 	std::pair<double,double>& oldsmoothcost = *((std::pair<double,double>*)func_data); 
 
 	smooth_cost_i = PAIRWISE_SMOOTH2 * dist_pi_pi_prime2 / dist_pi_pj2 * oldsmoothcost.first; 
 	smooth_cost_j = PAIRWISE_SMOOTH2 * dist_pj_pj_prime2 / dist_pi_pj2 * oldsmoothcost.second; 
 
-	static const double eps = 1e-50; 
+	static const double eps = 0.5e-2; 
 	double temp = sqrt(dist_pi_pj2) + eps; 
 	oldsmoothcost.first  = temp / ( sqrt(dist_pj_pj_prime2) + eps ); 
 	oldsmoothcost.second = temp / ( sqrt(dist_pi_pi_prime2) + eps ); 
@@ -99,10 +98,11 @@ double compute_energy(
 	const std::vector<cv::Vec3i>& dataPoints,
 	const std::vector<int>& labelings, 
 	const std::vector<Line3D*>& lines,
-	const Data3D<int>& indeces, void *func_data )
+	const Data3D<int>& indeces, 
+	SmoothCostFunc using_smoothcost_func, void *func_data )
 {
 	smart_assert( func_data, "function data could not be null. " ); 
-
+	smart_assert( using_smoothcost_func, "Please define what smooth cost energy function you want to you. " ); 
 	double energy = 0.0;
 
 	// computer data cost 

@@ -33,6 +33,7 @@ typedef GCoptimization GC;
 #include "ModelSet.h"
 #include "init_models.h" 
 #include "EnergyFunctions.h" 
+#include "opencv2\core\core.hpp" 
 
 #include <assert.h>
 #include <iostream>
@@ -108,13 +109,17 @@ int main(int argc, char* argv[])
 	//////////////////////////////////////////////////
 	// Levenberg-Marquart
 	//////////////////////////////////////////////////
-	Timer::begin( "Levenberg Marquart" ); 
 	cout << "Number of data points: " << tildaP.size() << endl;
+
+	Timer::begin( "Levenberg Marquart" ); 
+
 	LevenburgMaquart lm( tildaP, labelID, model, labelID3d );
-	
-	lm.reestimate( 4000,  LevenburgMaquart::Quadratic ); 
-	// lm.reestimate( 40000, LevenburgMaquart::Linear ); 
-	
+
+	cout << "LevenburgMaquart::Quadratic" << endl; 
+	lm.reestimate( 4000,LevenburgMaquart::Quadratic ); 
+
+	cout << "LevenburgMaquart::Linear" << endl; 
+	lm.reestimate( 400, LevenburgMaquart::Linear ); 
 
 	Timer::end( "Levenberg Marquart" ); 
 

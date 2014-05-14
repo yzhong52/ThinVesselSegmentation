@@ -38,7 +38,6 @@ private:
 	const ModelSet<Line3D>& modelset;
 	const vector<Line3D*>& lines; 
 	
-	vector<SmoothcostCoefficient> smoothcost_coefficient_new; 
 	vector<SmoothcostCoefficient> smoothcost_coefficient_old; 
 
 	int numParamPerLine; 
@@ -46,6 +45,8 @@ private:
 
 	vector<Vec3d>  P;              // projection points of original points
 	vector<SparseMatrixCV> nablaP; // Jacobian matrix of the porjeciton points 
+
+	SmoothCostFunc using_smoothcost_func; 
 
 private:
 	// Jacobian Matrix - data cost

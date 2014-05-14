@@ -10,12 +10,12 @@ class Neighbour26
 	Vec3f offset_f[26]; 
 	std::vector<cv::Vec3i> cross_section[13];
 
-	inline Neighbour26(void);
-
 	virtual ~Neighbour26(void) { }
 
 	inline static Neighbour26& getInstance(); 
 public:
+	inline Neighbour26(void);
+
 	inline static const Vec3i& at( int index ); 
 	inline static const vector<Vec3i>& getCrossSection( int index ); 
 
@@ -97,5 +97,5 @@ inline void Neighbour26::getNeigbour( int index, const int& old_x, const int& ol
 
 	x = getInstance().offset[index][0] + old_x; 
 	y = getInstance().offset[index][1] + old_y; 
-	z = getInstance().offset[index][2] + old_z; 
+	z = getInstance().offset[index][2] + old_z;
 }

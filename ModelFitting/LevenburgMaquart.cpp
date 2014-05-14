@@ -36,7 +36,8 @@ LevenburgMaquart::LevenburgMaquart( const vector<Vec3i>& dataPoints, const vecto
 	SmoothcostCoefficient temp; 
 	for( int j=0; j<temp.size(); j++ ) temp[j].first = temp[j].second = 1.0; 
 	smoothcost_coefficient_old.resize( P.size(), temp );  
-	smoothcost_coefficient_new.resize( P.size(), temp );  
+
+	using_smoothcost_func = NULL; 
 }
 
 
@@ -354,9 +355,9 @@ void LevenburgMaquart::Jacobian_smoothcost_thread_func(
 		if( l1==l2 ) continue; // TODO
 
 		double smoothcost_i_before = 0, smoothcost_j_before = 0;
-		smoothcost_func_quadratic( lines[l1], lines[l2], 
+		using_smoothcost_func( lines[l1], lines[l2], 
 			tildaP[site], tildaP[site2], 
-			smoothcost_i_before, smoothcost_j_before ); 
+			smoothcost_i_before, smoothcost_j_before, &smoothcost_coefficient_old[site][neibourIndex] ); 
 
 		// add more rows to energy_matrix according to smooth cost 
 		energy_matrix.push_back( sqrt( smoothcost_i_before ) ); 
@@ -598,10 +599,13 @@ void LevenburgMaquart::reestimate( double lambda, SmoothCostType whatSmoothCost 
 		break; 
 	}
 
-	double energy_before = compute_energy( tildaP, labelID, lines, labelID3d, 
-		&smoothcost_coefficient_old );
-	smoothcost_coefficient_old = smoothcost_coefficient_new; 
-
+	double energy_before = 0; 
+	energy_before = compute_energy( tildaP, labelID, lines, labelID3d, 
+		using_smoothcost_func, &smoothcost_coefficient_old ); 
+	
+	energy_before = compute_energy( tildaP, labelID, lines, labelID3d, 
+		using_smoothcost_func, &smoothcost_coefficient_old ); 
+	
 	const SparseMatrixCV I  = SparseMatrixCV::I( numParam ); 
 
 	int energy_increase_count = 0; 
@@ -650,33 +654,16 @@ void LevenburgMaquart::reestimate( double lambda, SmoothCostType whatSmoothCost 
 		
 		update_lines( -X ); 
 		
+		vector<SmoothcostCoefficient> smoothcost_coefficient_new = 
+			smoothcost_coefficient_old; 
+
 		double new_energy = compute_energy( tildaP, labelID, lines, labelID3d, 
-			&smoothcost_coefficient_new );
-		
-		// debuging 
-		for( int i=0; i<smoothcost_coefficient_old.size(); i+=5 ) {
-			for( int j=0; j<smoothcost_coefficient_old[i].size(); j++ ) {
-				if( abs(smoothcost_coefficient_old[i][j].first-1) > 1e-3 ) {
-					cout << smoothcost_coefficient_old[i][j].first << "," 
-						<< smoothcost_coefficient_old[i][j].second << "\t"; 
-				}
-			}
-		}
+			using_smoothcost_func, &smoothcost_coefficient_new );
 
 		if( new_energy < energy_before ) { 
 			// if energy is decreasing 
 			// adjust the endpoints of the lines
 			smoothcost_coefficient_old = smoothcost_coefficient_new; 
-
-			// debuging 
-			for( int i=0; i<smoothcost_coefficient_old.size(); i+=5 ) {
-				for( int j=0; j<smoothcost_coefficient_old[i].size(); j++ ) {
-					if( abs(smoothcost_coefficient_old[i][j].first-1) > 1e-3 ) {
-						cout << smoothcost_coefficient_old[i][j].first << "," 
-							<< smoothcost_coefficient_old[i][j].second << "\t"; 
-					}
-				}
-			}
 
 			adjust_endpoints(); 
 			energy_before = new_energy;
