@@ -2,6 +2,10 @@
 #include "SparseMatrixCV\SparseMatrixCV.h" 
 #include "opencv2\core\core.hpp"
 #include "ModelSet.h" 
+#include "EnergyFunctions.h" 
+#include <array> 
+#include <vector> 
+
 using namespace cv; 
 
 class Line3D; 
@@ -10,6 +14,8 @@ template <typename T> class ModelSet;
 
 extern const double DATA_COST;
 extern const double PAIRWISE_SMOOTH; 
+
+
 
 class LevenburgMaquart
 {
@@ -25,6 +31,9 @@ public:
 	//    the smaller lambda is, the faster it converges
 	//    the bigger lambda is, the slower it converges
 	void reestimate( double lambda = 1e2 ); 
+	
+	// TODO: rename this to something more meaningfull 
+	void reestimate_abs_esp( double lambda = 1e2 ); 
 
 private:
 	const vector<Vec3i>& tildaP;   // original points
@@ -34,6 +43,9 @@ private:
 	const ModelSet<Line3D>& modelset;
 	const vector<Line3D*>& lines; 
 	
+	vector<SmoothcostCoefficient> smoothcost_coefficient_new; 
+	vector<SmoothcostCoefficient> smoothcost_coefficient_old; 
+
 	int numParamPerLine; 
 	int numParam; 
 
@@ -42,13 +54,13 @@ private:
 
 private:
 	// Jacobian Matrix - data cost
-	void Jacobian_datacost(
+	void Jacobian_datacosts(
 		vector<double>& Jacobian_nzv, 
 		vector<int>&    Jacobian_colindx, 
 		vector<int>&    Jacobian_rowptr,
 		vector<double>& energy_matrix );
 	// Jacobian Matrix - data cost
-	void Jacobian_datacost_openmp(
+	void Jacobian_datacosts_openmp(
 		vector<double>& Jacobian_nzv, 
 		vector<int>&    Jacobian_colindx, 
 		vector<int>&    Jacobian_rowptr,
@@ -62,19 +74,19 @@ private:
 		const int site); 
 
 	// Jacobian Matrix - smooth cost
-	void Jacobian_smoothcost( 
+	void Jacobian_smoothcosts( 
 		vector<double>& Jacobian_nzv, 
 		vector<int>&    Jacobian_colindx,  
 		vector<int>&    Jacobian_rowptr, 
 		vector<double>& energy_matrix );
 	// Jacobian Matrix - smooth cost
-	void Jacobian_smoothcost_openmp( 
+	void Jacobian_smoothcosts_openmp( 
 		vector<double>& Jacobian_nzv, 
 		vector<int>&    Jacobian_colindx,  
 		vector<int>&    Jacobian_rowptr, 
 		vector<double>& energy_matrix );
 	// Jacobian Matrix - smooth cost
-	void Jacobian_smoothcost_openmp_critical_section(
+	void Jacobian_smoothcosts_openmp_critical_section(
 		vector<double>& Jacobian_nzv, 
 		vector<int>&    Jacobian_colindx,  
 		vector<int>&    Jacobian_rowptr, 
@@ -100,9 +112,17 @@ private:
 
 	SparseMatrixCV Jacobian_datacost_for_one( const int& site );
 
-	void Jacobian_smoothcost_for_pair( const int& sitei, const int& sitej, 
+	void (LevenburgMaquart::*using_Jacobian_smoothcost_for_pair)( const int& sitei, const int& sitej, 
 		SparseMatrixCV& nabla_smooth_cost_i,
-		SparseMatrixCV& nabla_smooth_cost_j );
+		SparseMatrixCV& nabla_smooth_cost_j, void* func_data );
+
+	// for two different type of smooth cost 
+	void Jacobian_smoothcost_abs_esp( const int& sitei, const int& sitej, 
+		SparseMatrixCV& nabla_smooth_cost_i,
+		SparseMatrixCV& nabla_smooth_cost_j, void* func_data = NULL );
+	void Jacobian_smoothcost_quadratic( const int& sitei, const int& sitej, 
+		SparseMatrixCV& nabla_smooth_cost_i,
+		SparseMatrixCV& nabla_smooth_cost_j, void* func_data = NULL );
 
 	// Update model according to delta 
 	// (delta can be consider as the gradient computed with levenberg marquart) 

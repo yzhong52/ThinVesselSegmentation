@@ -11,6 +11,8 @@
 #include "EnergyFunctions.h"
 #include "SparseMatrixCV\SparseMatrixCV.h" 
 #include <omp.h>
+#include <array>
+#include <vector> 
 
 using namespace std; 
 using namespace cv;
@@ -30,6 +32,14 @@ LevenburgMaquart::LevenburgMaquart( const vector<Vec3i>& dataPoints, const vecto
 
 	P = vector<Vec3d>( tildaP.size() );               // projection points of original points
 	nablaP = vector<SparseMatrixCV>( tildaP.size() ); // Jacobian matrix of the porjeciton points 
+	
+	// initialized all of them to be 1s
+	SmoothcostCoefficient temp; 
+	for( int j=0; j<temp.size(); j++ ) temp[j].first = temp[j].second = 1.0; 
+	smoothcost_coefficient_old.resize( P.size(), temp );  
+	smoothcost_coefficient_new.resize( P.size(), temp );  
+
+	using_Jacobian_smoothcost_for_pair = &LevenburgMaquart::Jacobian_smoothcost_quadratic; 
 }
 
 
@@ -95,10 +105,10 @@ SparseMatrixCV LevenburgMaquart::Jacobian_datacost_for_one( const int& site ) {
 
 
 
-void LevenburgMaquart::Jacobian_smoothcost_for_pair( 
+void LevenburgMaquart::Jacobian_smoothcost_quadratic( 
 	const int& sitei, const int& sitej, 
 	SparseMatrixCV& nabla_smooth_cost_i,
-	SparseMatrixCV& nabla_smooth_cost_j  ) 
+	SparseMatrixCV& nabla_smooth_cost_j, void* func_data  ) 
 {
 	const int labeli = labelID[sitei];
 	const int labelj = labelID[sitej];
@@ -163,6 +173,75 @@ void LevenburgMaquart::Jacobian_smoothcost_for_pair(
 	nabla_smooth_cost_j = ( nabla_pj_pj_prime * dist_pi_pj - nabla_pi_pj * dist_pj_pj_prime ) * (1.0 / dist_pi_pj2 * PAIRWISE_SMOOTH); 
 }
 
+
+void LevenburgMaquart::Jacobian_smoothcost_abs_esp( const int& sitei, const int& sitej, 
+	SparseMatrixCV& nabla_smooth_cost_i,
+	SparseMatrixCV& nabla_smooth_cost_j, void* func_data )
+{
+	const int labeli = labelID[sitei];
+	const int labelj = labelID[sitej];
+	const Line3D* linei = lines[labeli]; 
+	const Line3D* linej = lines[labelj]; 
+
+	// end points of the lines
+	Vec3d Xi1, Xi2, Xj1, Xj2; 
+	linei->getEndPoints( Xi1, Xi2 ); 
+	linej->getEndPoints( Xj1, Xj2 ); 
+
+	// original points
+	const Vec3d tildePi = tildaP[sitei]; 
+	const Vec3d tildePj = tildaP[sitej]; 
+
+	// Jacobian matrix of the end points of the line
+	const int indecesXi1[][2] = { 
+		{0, 0 + labeli * numParamPerLine}, 
+		{1, 1 + labeli * numParamPerLine}, 
+		{2, 2 + labeli * numParamPerLine}}; 
+	const int indecesXi2[][2] = { 
+		{0, 3 + labeli * numParamPerLine}, 
+		{1, 4 + labeli * numParamPerLine}, 
+		{2, 5 + labeli * numParamPerLine}}; 
+	const int indecesXj1[][2] = { 
+		{0, 0 + labelj * numParamPerLine}, 
+		{1, 1 + labelj * numParamPerLine}, 
+		{2, 2 + labelj * numParamPerLine}}; 
+	const int indecesXj2[][2] = { 
+		{0, 3 + labelj * numParamPerLine}, 
+		{1, 4 + labelj * numParamPerLine}, 
+		{2, 5 + labelj * numParamPerLine}}; 
+	static const double values[] = { 1.0, 1.0, 1.0 };
+	const SparseMatrixCV nablaXi1(3, numParam, indecesXi1, values, 3 );
+	const SparseMatrixCV nablaXi2(3, numParam, indecesXi2, values, 3 );
+	const SparseMatrixCV nablaXj1(3, numParam, indecesXj1, values, 3 );
+	const SparseMatrixCV nablaXj2(3, numParam, indecesXj2, values, 3 );
+	
+	const Vec3d& Pi = P[sitei];
+	const Vec3d& Pj = P[sitej];
+	const SparseMatrixCV& nablaPi = nablaP[sitei];
+	const SparseMatrixCV& nablaPj = nablaP[sitej];
+	
+	Vec3d Pi_prime, Pj_prime;
+	SparseMatrixCV nablaPi_prime, nablaPj_prime; 
+	Jacobian_projection( Xj1, Xj2, nablaXj1, nablaXj2, Pi,      nablaPi,             Pi_prime, nablaPi_prime );
+	Jacobian_projection( Xi1, Xi2, nablaXi1, nablaXi2, Pj,      nablaPj,             Pj_prime, nablaPj_prime );
+	
+	const double dist_pi_pj2       = max(1e-27, double( (Pi-Pj).dot(Pi-Pj) ) ); 
+	const double dist_pi_pi_prime2 = max(1e-27, double( (Pi-Pi_prime).dot(Pi-Pi_prime) ) ); 
+	const double dist_pj_pj_prime2 = max(1e-27, double( (Pj-Pj_prime).dot(Pj-Pj_prime))  ); 
+	const double dist_pi_pj        = sqrt( dist_pi_pj2 );
+	const double dist_pi_pi_prime  = sqrt( dist_pi_pi_prime2 ); 
+	const double dist_pj_pj_prime  = sqrt( dist_pj_pj_prime2 ); 
+
+	const SparseMatrixCV nabla_pi_pi_prime = ( Pi - Pi_prime ).t() * ( nablaPi - nablaPi_prime ) / dist_pi_pi_prime;
+	const SparseMatrixCV nabla_pj_pj_prime = ( Pj - Pj_prime ).t() * ( nablaPj - nablaPj_prime ) / dist_pj_pj_prime; 
+	const SparseMatrixCV nabla_pi_pj       = ( Pi - Pj ).t() * ( nablaPi - nablaPj ) / dist_pi_pj;  
+	
+	// output result 
+	std::pair<double,double>& oldsmoothcost = *((std::pair<double,double>*)func_data); 
+	nabla_smooth_cost_i = ( nabla_pi_pi_prime * dist_pi_pj - nabla_pi_pj * dist_pi_pi_prime ) * (1.0 / dist_pi_pj2 * PAIRWISE_SMOOTH * sqrt(oldsmoothcost.first) ); 
+	nabla_smooth_cost_j = ( nabla_pj_pj_prime * dist_pi_pj - nabla_pi_pj * dist_pj_pj_prime ) * (1.0 / dist_pi_pj2 * PAIRWISE_SMOOTH * sqrt(oldsmoothcost.second) ); 
+}
+
 void LevenburgMaquart::Jacobian_datacost_thread_func(
 		vector<double>& Jacobian_nzv, 
 		vector<int>&    Jacobian_colindx,  
@@ -199,7 +278,7 @@ void LevenburgMaquart::Jacobian_datacost_thread_func(
 }
 
 
-void LevenburgMaquart::Jacobian_datacost_openmp(
+void LevenburgMaquart::Jacobian_datacosts_openmp(
 	vector<double>& Jacobian_nzv, 
 	vector<int>&    Jacobian_colindx, 
 	vector<int>&    Jacobian_rowptr,
@@ -244,7 +323,7 @@ void LevenburgMaquart::Jacobian_datacost_openmp(
 	}
 }
 
-void LevenburgMaquart::Jacobian_datacost(
+void LevenburgMaquart::Jacobian_datacosts(
 	vector<double>& Jacobian_nzv, 
 	vector<int>&    Jacobian_colindx, 
 	vector<int>&    Jacobian_rowptr,
@@ -288,7 +367,7 @@ void LevenburgMaquart::Jacobian_smoothcost_thread_func(
 
 		////// Computing derivative of pair-wise smooth cost analytically
 		SparseMatrixCV J[2];
-		Jacobian_smoothcost_for_pair( site, site2, J[0], J[1] ); 
+		(this->*using_Jacobian_smoothcost_for_pair)( site, site2, J[0], J[1], &smoothcost_coefficient_old[site][neibourIndex] ); 
 
 		for( int ji = 0; ji<2; ji++ ) {
 			int nnz;
@@ -309,7 +388,9 @@ void LevenburgMaquart::Jacobian_smoothcost_thread_func(
 	} // end of - for each pair of pi and pj
 }
 
-void LevenburgMaquart::Jacobian_smoothcost_openmp(
+
+
+void LevenburgMaquart::Jacobian_smoothcosts_openmp(
 	vector<double>& Jacobian_nzv, 
 	vector<int>&    Jacobian_colindx, 
 	vector<int>&    Jacobian_rowptr,
@@ -403,7 +484,7 @@ void LevenburgMaquart::Jacobian_smoothcost_openmp(
 	}
 }
 
-void LevenburgMaquart::Jacobian_smoothcost_openmp_critical_section(
+void LevenburgMaquart::Jacobian_smoothcosts_openmp_critical_section(
 	vector<double>& Jacobian_nzv, 
 	vector<int>&    Jacobian_colindx, 
 	vector<int>&    Jacobian_rowptr,
@@ -449,7 +530,7 @@ void LevenburgMaquart::Jacobian_smoothcost_openmp_critical_section(
 }
 
 
-void LevenburgMaquart::Jacobian_smoothcost(
+void LevenburgMaquart::Jacobian_smoothcosts(
 	vector<double>& Jacobian_nzv, 
 	vector<int>&    Jacobian_colindx, 
 	vector<int>&    Jacobian_rowptr,
@@ -526,15 +607,15 @@ void LevenburgMaquart::reestimate( double lambda )
 		// // // // // // // // // // // // // // // // // // 
 		// Construct Jacobian Matrix -  data cost
 		// // // // // // // // // // // // // // // // // // 
-		Jacobian_datacost( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
-		//Jacobian_datacost_openmp( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
+		Jacobian_datacosts( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
+		Jacobian_datacosts_openmp( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
 
 		// // // // // // // // // // // // // // // // // // 
 		// Construct Jacobian Matrix - smooth cost 
 		// // // // // // // // // // // // // // // // // // 
-		Jacobian_smoothcost_openmp_critical_section( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
-		//Jacobian_smoothcost_openmp( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
-		//Jacobian_smoothcost( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
+		Jacobian_smoothcosts_openmp_critical_section( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
+		//Jacobian_smoothcosts_openmp( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
+		//Jacobian_smoothcosts( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
 		
 		// Construct Jacobian matrix
 		const SparseMatrixCV Jacobian = SparseMatrix(
@@ -582,8 +663,107 @@ void LevenburgMaquart::reestimate( double lambda )
 	}
 }
 
+void LevenburgMaquart::reestimate_abs_esp( double lambda )
+{
+	// using the Jacobian functin for abs_esp smoothcost energy 
+	using_Jacobian_smoothcost_for_pair = &LevenburgMaquart::Jacobian_smoothcost_abs_esp; 
 
-//for( int i=2; i>=0; i-- ){
+	smart_assert( lines.size()!=0, "No line models available" ); 
+	
+	double energy_before = compute_energy_abs_esp( tildaP, labelID, lines, labelID3d, &smoothcost_coefficient_old );
+	smoothcost_coefficient_old = smoothcost_coefficient_new; 
+
+	const SparseMatrixCV I  = SparseMatrixCV::I( numParam ); 
+
+	int energy_increase_count = 0; 
+	cout << energy_before << endl; 
+	for( int lmiter = 0; lmiter<50; lmiter++ ) { 
+
+		// Data for Jacobian matrix
+		//  - # of cols: number of data points; 
+		//  - # of rows: number of parameters for all the line models
+		vector<double> Jacobian_nzv;
+		vector<int>    Jacobian_colindx;
+		vector<int>    Jacobian_rowptr(1, 0);
+		vector<double> energy_matrix;
+
+		// // // // // // // // // // // // // // // // // // 
+		// Construct Jacobian Matrix -  data cost
+		// // // // // // // // // // // // // // // // // // 
+		Jacobian_datacosts( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
+		// Jacobian_datacosts_openmp( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
+
+		// // // // // // // // // // // // // // // // // // 
+		// Construct Jacobian Matrix - smooth cost 
+		// // // // // // // // // // // // // // // // // // 
+		// Jacobian_smoothcost_openmp_critical_section( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
+		//Jacobian_smoothcost_openmp( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
+		Jacobian_smoothcosts( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
+		
+		// Construct Jacobian matrix
+		const SparseMatrixCV Jacobian = SparseMatrix(
+			(int) Jacobian_rowptr.size() - 1, 
+			(int) lines.size() * numParamPerLine, 
+			Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr );
+		
+		
+		const SparseMatrixCV Jt = Jacobian.t(); 
+		const SparseMatrixCV Jt_J = multiply_openmp( Jt, Jacobian ); 
+		
+		// SparseMatrixCV A = Jt_J + Jt_J.diag() * lambda;
+		const SparseMatrixCV A = Jt_J + I * lambda;
+		
+		// TODO: the following line could be optimized
+		const Mat_<double> B = Jt * cv::Mat_<double>( (int) energy_matrix.size(), 1, &energy_matrix.front() ) ; 
+		
+		Mat_<double> X;
+
+		solve( A, B, X );
+		
+		update_lines( -X ); 
+		
+		double new_energy = compute_energy_abs_esp( tildaP, labelID, lines, labelID3d, &smoothcost_coefficient_new );
+		
+		// debuging 
+		for( int i=0; i<smoothcost_coefficient_old.size(); i+=5 ) {
+			for( int j=0; j<smoothcost_coefficient_old[i].size(); j++ ) {
+				cout << smoothcost_coefficient_old[i][j].first << "," << smoothcost_coefficient_old[i][j].second << "\t"; 
+			}
+		}
+
+		if( new_energy < energy_before ) { 
+			// if energy is decreasing 
+			// adjust the endpoints of the lines
+			smoothcost_coefficient_old = smoothcost_coefficient_new; 
+
+			// debuging 
+			for( int i=0; i<smoothcost_coefficient_old.size(); i+=5 ) {
+				for( int j=0; j<smoothcost_coefficient_old[i].size(); j++ ) {
+					cout << smoothcost_coefficient_old[i][j].first << "," << smoothcost_coefficient_old[i][j].second << "\t\t"; 
+				}
+			}
+
+			adjust_endpoints(); 
+			energy_before = new_energy;
+			lambda *= 0.50; 
+			energy_increase_count = 0; 
+		} else {  
+			// if energy is encreasing, reverse the result of this iteration
+			update_lines( X ); 	
+			lambda *= 4.12; 
+			if( ++energy_increase_count>=3 ) {
+				// If energy_increase_count in three consecutive iterations
+				// then the nenergy is probabaly converged
+				break; 
+			}
+		}
+		
+		cout << energy_before << endl;
+	}
+}
+
+
+//for( int i=2; i>=0; i-- ){ 
 //	cout << '\r' << "Serializing models in " << i << " seconds... "; Sleep( 1000 ); 
 //}
 //modelset.serialize( "output/Line3DTwoPoint.model" ); 

@@ -239,13 +239,16 @@ const SparseMatrix operator*( const SparseMatrix& m1, const SparseMatrix& m2 ){
 	}
 
 	// use (const T*) to force the constructor to make a deep copy of the data
-	SparseMatrix res( m1.row(), m2.col(),
-		(const double*) (&res_nzval[0]),
-		(const int*)    (&res_colidx[0]),
-		(const int*)    (&res_rowptr[0]), 
-		(int) res_nzval.size() );
-
-	return res; 
+	if( res_nzval.size()==0 )  {
+		return SparseMatrix( m1.row(), m2.col() ); 
+	} else {
+		SparseMatrix res( m1.row(), m2.col(),
+			(const double*) (&res_nzval[0]),
+			(const int*)    (&res_colidx[0]),
+			(const int*)    (&res_rowptr[0]), 
+			(int) res_nzval.size() );
+		return res; 
+	}
 }
 
 const SparseMatrix operator-( const SparseMatrix& m1, const SparseMatrix& m2 ){

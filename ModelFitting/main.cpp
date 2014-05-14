@@ -39,7 +39,7 @@ typedef GCoptimization GC;
 #include <limits> 
 
 const double DATA_COST = 1.0; 
-const double PAIRWISE_SMOOTH = 49.0; 
+const double PAIRWISE_SMOOTH = 7.0; 
 const double DATA_COST2 = DATA_COST * DATA_COST; 
 const double PAIRWISE_SMOOTH2 = PAIRWISE_SMOOTH * PAIRWISE_SMOOTH; 
 
@@ -90,7 +90,7 @@ int main(int argc, char* argv[])
 	
 	// vn_sig.load( "../temp/data15.vn_sig" ); 
 	vn_sig.load( "../temp/yes.vn_sig" ); 
-	// vn_sig.remove_margin_to( Vec3i(50, 50, 50) );
+	vn_sig.remove_margin_to( Vec3i(20, 10, 10) );
 
 	// threshold the data and put the data points into a vector
 	Data3D<int> labelID3d; 
@@ -111,7 +111,11 @@ int main(int argc, char* argv[])
 	Timer::begin( "Levenberg Marquart" ); 
 	cout << "Number of data points: " << tildaP.size() << endl;
 	LevenburgMaquart lm( tildaP, labelID, model, labelID3d );
+	
 	lm.reestimate( 4000 ); 
+	system( "pause" ); 
+	lm.reestimate_abs_esp( 40000 ); 
+
 	Timer::end( "Levenberg Marquart" ); 
 
 	cout << Timer::summery() << endl; 
