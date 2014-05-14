@@ -19,7 +19,7 @@ double compute_datacost_for_one(
 	const Line3D* line_i, const cv::Vec3d& pi, void* func_data = NULL );
 
 // compute smoothcost for a pair of neighbouring pixels
-void compute_smoothcost_for_pair( 
+void smoothcost_func_quadratic( 
 	const Line3D* line_i, const Line3D* line_j,
 	const cv::Vec3d& pi_tilde, const cv::Vec3d& pj_tilde,
 	double& smooth_cost_i, double& smooth_cost_j, void* func_data = NULL );
@@ -30,16 +30,13 @@ void smoothcost_func_abs_eps(
 	const cv::Vec3d& pi_tilde, const cv::Vec3d& pj_tilde,
 	double& smooth_cost_i, double& smooth_cost_j, void* func_data = NULL );
 
+static void (*using_smoothcost_func)(
+	const Line3D* line_i, const Line3D* line_j,
+	const cv::Vec3d& pi_tilde, const cv::Vec3d& pj_tilde,
+	double& smooth_cost_i, double& smooth_cost_j, void* func_data ) = &smoothcost_func_quadratic; 
+
 // compute total energy: smoothcost + datacost
 double compute_energy( 
-	const std::vector<cv::Vec3i>& dataPoints,
-	const std::vector<int>& labelings, 
-	const std::vector<Line3D*>& lines,
-	const Data3D<int>& indeces, void *func_data = NULL );
-
-
-// compute total energy: smoothcost + datacost
-double compute_energy_abs_esp( 
 	const std::vector<cv::Vec3i>& dataPoints,
 	const std::vector<int>& labelings, 
 	const std::vector<Line3D*>& lines,

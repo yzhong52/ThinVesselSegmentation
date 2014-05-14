@@ -23,7 +23,6 @@ LevenburgMaquart::LevenburgMaquart( const vector<Vec3i>& dataPoints, const vecto
 	: tildaP( dataPoints ), labelID( labelings )
 	, modelset( modelset ), labelID3d( labelIDs )
 	, lines( modelset.models )
-	, smooth_cost_type( smooth_cost_type )
 {
 	smart_assert( lines.size()!=0, "Error: model set is empty" ); 
 		
@@ -38,8 +37,6 @@ LevenburgMaquart::LevenburgMaquart( const vector<Vec3i>& dataPoints, const vecto
 	for( int j=0; j<temp.size(); j++ ) temp[j].first = temp[j].second = 1.0; 
 	smoothcost_coefficient_old.resize( P.size(), temp );  
 	smoothcost_coefficient_new.resize( P.size(), temp );  
-
-	using_Jacobian_smoothcost_for_pair = &LevenburgMaquart::Jacobian_smoothcost_quadratic; 
 }
 
 
@@ -357,7 +354,7 @@ void LevenburgMaquart::Jacobian_smoothcost_thread_func(
 		if( l1==l2 ) continue; // TODO
 
 		double smoothcost_i_before = 0, smoothcost_j_before = 0;
-		compute_smoothcost_for_pair( lines[l1], lines[l2], 
+		smoothcost_func_quadratic( lines[l1], lines[l2], 
 			tildaP[site], tildaP[site2], 
 			smoothcost_i_before, smoothcost_j_before ); 
 
@@ -367,7 +364,8 @@ void LevenburgMaquart::Jacobian_smoothcost_thread_func(
 
 		////// Computing derivative of pair-wise smooth cost analytically
 		SparseMatrixCV J[2];
-		(this->*using_Jacobian_smoothcost_for_pair)( site, site2, J[0], J[1], &smoothcost_coefficient_old[site][neibourIndex] ); 
+		(this->*using_Jacobian_smoothcost_for_pair)( site, site2, J[0], J[1], 
+			&smoothcost_coefficient_old[site][neibourIndex] ); 
 
 		for( int ji = 0; ji<2; ji++ ) {
 			int nnz;
@@ -587,10 +585,15 @@ void LevenburgMaquart::update_lines( const Mat_<double>& delta )
 
 void LevenburgMaquart::reestimate( double lambda )
 {
+	using_Jacobian_smoothcost_for_pair = &LevenburgMaquart::Jacobian_smoothcost_quadratic; 
+	using_smoothcost_func = &smoothcost_func_quadratic; 
+
 	smart_assert( lines.size()!=0, "No line models available" ); 
 	
-	double energy_before = compute_energy( tildaP, labelID, lines, labelID3d );
+	double energy_before = compute_energy( tildaP, labelID, lines, labelID3d, &smoothcost_coefficient_old );
 	const SparseMatrixCV I  = SparseMatrixCV::I( numParam ); 
+
+	smoothcost_coefficient_old = smoothcost_coefficient_new; 
 
 	int energy_increase_count = 0; 
 	cout << energy_before << endl; 
@@ -608,14 +611,14 @@ void LevenburgMaquart::reestimate( double lambda )
 		// Construct Jacobian Matrix -  data cost
 		// // // // // // // // // // // // // // // // // // 
 		Jacobian_datacosts( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
-		Jacobian_datacosts_openmp( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
+		//Jacobian_datacosts_openmp( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
 
 		// // // // // // // // // // // // // // // // // // 
 		// Construct Jacobian Matrix - smooth cost 
 		// // // // // // // // // // // // // // // // // // 
-		Jacobian_smoothcosts_openmp_critical_section( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
+		//Jacobian_smoothcosts_openmp_critical_section( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
 		//Jacobian_smoothcosts_openmp( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
-		//Jacobian_smoothcosts( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
+		Jacobian_smoothcosts( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
 		
 		// Construct Jacobian matrix
 		const SparseMatrixCV Jacobian = SparseMatrix(
@@ -639,7 +642,8 @@ void LevenburgMaquart::reestimate( double lambda )
 		
 		update_lines( -X ); 
 		
-		double new_energy = compute_energy( tildaP, labelID, lines, labelID3d );
+		double new_energy = compute_energy( tildaP, labelID, lines, labelID3d, 
+			&smoothcost_coefficient_old  );
 		
 		if( new_energy < energy_before ) { 
 			// if energy is decreasing 
@@ -663,14 +667,23 @@ void LevenburgMaquart::reestimate( double lambda )
 	}
 }
 
-void LevenburgMaquart::reestimate_abs_esp( double lambda )
+void LevenburgMaquart::reestimate_abs_esp( double lambda, SmoothCostType whatSmoothCost )
 {
-	// using the Jacobian functin for abs_esp smoothcost energy 
-	using_Jacobian_smoothcost_for_pair = &LevenburgMaquart::Jacobian_smoothcost_abs_esp; 
-
 	smart_assert( lines.size()!=0, "No line models available" ); 
-	
-	double energy_before = compute_energy_abs_esp( tildaP, labelID, lines, labelID3d, &smoothcost_coefficient_old );
+
+	switch( whatSmoothCost ) {
+	case Linear:
+		using_Jacobian_smoothcost_for_pair = &LevenburgMaquart::Jacobian_smoothcost_abs_esp; 
+		using_smoothcost_func = &smoothcost_func_abs_eps; 
+		break; 
+	case Quadratic:
+		using_Jacobian_smoothcost_for_pair = &LevenburgMaquart::Jacobian_smoothcost_quadratic; 
+		using_smoothcost_func = &smoothcost_func_quadratic; 
+		break; 
+	}
+
+	double energy_before = compute_energy( tildaP, labelID, lines, labelID3d, 
+		&smoothcost_coefficient_old );
 	smoothcost_coefficient_old = smoothcost_coefficient_new; 
 
 	const SparseMatrixCV I  = SparseMatrixCV::I( numParam ); 
@@ -706,7 +719,6 @@ void LevenburgMaquart::reestimate_abs_esp( double lambda )
 			(int) lines.size() * numParamPerLine, 
 			Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr );
 		
-		
 		const SparseMatrixCV Jt = Jacobian.t(); 
 		const SparseMatrixCV Jt_J = multiply_openmp( Jt, Jacobian ); 
 		
@@ -722,12 +734,16 @@ void LevenburgMaquart::reestimate_abs_esp( double lambda )
 		
 		update_lines( -X ); 
 		
-		double new_energy = compute_energy_abs_esp( tildaP, labelID, lines, labelID3d, &smoothcost_coefficient_new );
+		double new_energy = compute_energy( tildaP, labelID, lines, labelID3d, 
+			&smoothcost_coefficient_new );
 		
 		// debuging 
 		for( int i=0; i<smoothcost_coefficient_old.size(); i+=5 ) {
 			for( int j=0; j<smoothcost_coefficient_old[i].size(); j++ ) {
-				cout << smoothcost_coefficient_old[i][j].first << "," << smoothcost_coefficient_old[i][j].second << "\t"; 
+				if( abs(smoothcost_coefficient_old[i][j].first-1) > 1e-3 ) {
+					cout << smoothcost_coefficient_old[i][j].first << "," 
+						<< smoothcost_coefficient_old[i][j].second << "\t"; 
+				}
 			}
 		}
 
@@ -739,7 +755,10 @@ void LevenburgMaquart::reestimate_abs_esp( double lambda )
 			// debuging 
 			for( int i=0; i<smoothcost_coefficient_old.size(); i+=5 ) {
 				for( int j=0; j<smoothcost_coefficient_old[i].size(); j++ ) {
-					cout << smoothcost_coefficient_old[i][j].first << "," << smoothcost_coefficient_old[i][j].second << "\t\t"; 
+					if( abs(smoothcost_coefficient_old[i][j].first-1) > 1e-3 ) {
+						cout << smoothcost_coefficient_old[i][j].first << "," 
+							<< smoothcost_coefficient_old[i][j].second << "\t"; 
+					}
 				}
 			}
 

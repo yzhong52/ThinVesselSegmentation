@@ -19,11 +19,9 @@ extern const double PAIRWISE_SMOOTH;
 
 class LevenburgMaquart
 {
-	// TODO: implement different smooth cost type
-	enum SmoothCostType {
-		Quadratic, Linear
-	} smooth_cost_type;
 public:
+	enum SmoothCostType { Quadratic, Linear };
+	
 	LevenburgMaquart( const vector<Vec3i>& dataPoints, const vector<int>& labelings, 
 		const ModelSet<Line3D>& modelset, const Data3D<int>& labelIDs, SmoothCostType smooth_cost_type = Quadratic ); 
 
@@ -33,7 +31,7 @@ public:
 	void reestimate( double lambda = 1e2 ); 
 	
 	// TODO: rename this to something more meaningfull 
-	void reestimate_abs_esp( double lambda = 1e2 ); 
+	void reestimate_abs_esp( double lambda = 1e2, SmoothCostType whatSmoothCost = Linear ); 
 
 private:
 	const vector<Vec3i>& tildaP;   // original points

@@ -112,9 +112,10 @@ int main(int argc, char* argv[])
 	cout << "Number of data points: " << tildaP.size() << endl;
 	LevenburgMaquart lm( tildaP, labelID, model, labelID3d );
 	
-	lm.reestimate( 4000 ); 
-	system( "pause" ); 
-	lm.reestimate_abs_esp( 40000 ); 
+	//lm.reestimate( 4000 ); 
+	//system( "pause" ); 
+	lm.reestimate_abs_esp( 4000, LevenburgMaquart::Quadratic ); 
+	
 
 	Timer::end( "Levenberg Marquart" ); 
 
