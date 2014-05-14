@@ -78,20 +78,14 @@ void initViwer( const Image3D<T>& im_short, const vector<cv::Vec3i>& dataPoints,
 }
 #endif
 
-int main(int argc, char* argv[])
-{
-	srand( 3 ); 
 
-	// TODO: not compatible with MinGW? 
-	CreateDirectory(L"./output", NULL);
-
+void experiment1( void ) {
 	// Vesselness measure with sigma
 	Image3D<Vesselness_Sig> vn_sig;
-	// Image3D<Vesselness_Sig> vn_sig_nms;
 	
 	// vn_sig.load( "../temp/data15.vn_sig" ); 
 	vn_sig.load( "../temp/yes.vn_sig" ); 
-	vn_sig.remove_margin_to( Vec3i(20, 10, 10) );
+	vn_sig.remove_margin_to( Vec3i(12, 12, 12) );
 
 	// threshold the data and put the data points into a vector
 	Data3D<int> labelID3d; 
@@ -111,27 +105,143 @@ int main(int argc, char* argv[])
 	//////////////////////////////////////////////////
 	cout << "Number of data points: " << tildaP.size() << endl;
 
-	Timer::begin( "Levenberg Marquart" ); 
+	LevenburgMaquart lm( tildaP, labelID, model, labelID3d );
+
+	cout << "LevenburgMaquart::Quadratic" << endl; 
+	lm.reestimate( 4000,LevenburgMaquart::Quadratic ); 
+
+	system( "pause" ); 
+
+	cout << "LevenburgMaquart::Linear" << endl; 
+	lm.reestimate( 4000, LevenburgMaquart::Linear ); 
+
+	cout << "Main Thread is Done. " << endl; 
+	WaitForSingleObject( thread_render, INFINITE);
+}
+
+
+void experiment2( void ) {
+	// Vesselness measure with sigma
+	Image3D<Vesselness_Sig> vn_sig;
+	vn_sig.load( "../temp/yes.nms.vn_sig" ); 
+	vn_sig.remove_margin_to( Vec3i(12, 12, 12) );
+
+	// threshold the data and put the data points into a vector
+	Data3D<int> labelID3d; 
+	vector<cv::Vec3i> tildaP; 
+	ModelSet<Line3D> model; 
+	vector<int> labelID; 
+	each_model_per_point( vn_sig, labelID3d, tildaP, model, labelID ); 
+	// each_model_per_local_maximum( vn_sig, labelID3d, tildaP, model, labelID ); 
+
+	//////////////////////////////////////////////////
+	// create a thread for rendering
+	//////////////////////////////////////////////////
+	initViwer( vn_sig, tildaP, model.models, labelID );
+
+	//////////////////////////////////////////////////
+	// Levenberg-Marquart
+	//////////////////////////////////////////////////
+	cout << "Number of data points: " << tildaP.size() << endl;
 
 	LevenburgMaquart lm( tildaP, labelID, model, labelID3d );
 
 	cout << "LevenburgMaquart::Quadratic" << endl; 
 	lm.reestimate( 4000,LevenburgMaquart::Quadratic ); 
 
+	system( "pause" ); 
+
 	cout << "LevenburgMaquart::Linear" << endl; 
-	lm.reestimate( 400, LevenburgMaquart::Linear ); 
-
-	Timer::end( "Levenberg Marquart" ); 
-
-	cout << Timer::summery() << endl; 
-
-	model.serialize( "output/Line3DTwoPoint.model" ); 
+	lm.reestimate( 4000, LevenburgMaquart::Linear ); 
 
 	cout << "Main Thread is Done. " << endl; 
 	WaitForSingleObject( thread_render, INFINITE);
+}
+
+void experiment3( void ) {
+	// Vesselness measure with sigma
+	Image3D<Vesselness_Sig> vn_sig;
+	
+	vn_sig.load( "../temp/data15.vn_sig" ); 
+	vn_sig.remove_margin_to( Vec3i( 70, 70, 70 ) );
+
+	// threshold the data and put the data points into a vector
+	Data3D<int> labelID3d; 
+	vector<cv::Vec3i> tildaP; 
+	ModelSet<Line3D> model; 
+	vector<int> labelID; 
+	// each_model_per_point( vn_sig, labelID3d, tildaP, model, labelID ); 
+	each_model_per_local_maximum( vn_sig, labelID3d, tildaP, model, labelID ); 
+
+	//////////////////////////////////////////////////
+	// create a thread for rendering
+	//////////////////////////////////////////////////
+	initViwer( vn_sig, tildaP, model.models, labelID );
+
+	//////////////////////////////////////////////////
+	// Levenberg-Marquart
+	//////////////////////////////////////////////////
+	cout << "Number of data points: " << tildaP.size() << endl;
+
+	LevenburgMaquart lm( tildaP, labelID, model, labelID3d );
+
+	cout << "LevenburgMaquart::Quadratic" << endl; 
+	lm.reestimate( 4000,LevenburgMaquart::Quadratic ); 
+
+	cout << "Main Thread is Done. " << endl; 
+	WaitForSingleObject( thread_render, INFINITE);
+}
+
+void experiment4( void ) {
+	// Vesselness measure with sigma
+	Image3D<Vesselness_Sig> vn_sig;
+	
+	vn_sig.load( "../temp/data15.nms.vn_sig" ); 
+	vn_sig.remove_margin_to( Vec3i( 100, 100, 100 ) );
+
+	// threshold the data and put the data points into a vector
+	Data3D<int> labelID3d; 
+	vector<cv::Vec3i> tildaP; 
+	ModelSet<Line3D> model; 
+	vector<int> labelID; 
+	each_model_per_point( vn_sig, labelID3d, tildaP, model, labelID ); 
+	// each_model_per_local_maximum( vn_sig, labelID3d, tildaP, model, labelID ); 
+
+	//////////////////////////////////////////////////
+	// create a thread for rendering
+	//////////////////////////////////////////////////
+	initViwer( vn_sig, tildaP, model.models, labelID );
+
+	//////////////////////////////////////////////////
+	// Levenberg-Marquart
+	//////////////////////////////////////////////////
+	cout << "Number of data points: " << tildaP.size() << endl;
+
+	LevenburgMaquart lm( tildaP, labelID, model, labelID3d );
+
+	cout << "LevenburgMaquart::Quadratic" << endl; 
+	lm.reestimate( 4000,LevenburgMaquart::Quadratic ); 
+
+	cout << "Main Thread is Done. " << endl; 
+	WaitForSingleObject( thread_render, INFINITE);
+}
+
+int main(int argc, char* argv[])
+{
+	// wtih linear smooth cost 
+	//experiment1(); 
+	// with linear smooth cost (only on centreline) 
+	//experiment2(); 
+	// grouping with non-maximum suppresion 
+	//experiment3(); 
+	// centerline of the vessels
+	experiment4(); 
 	return 0; 
 }
 
+
+//// TODO: not compatible with MinGW? 
+//CreateDirectory(L"./output", NULL);
 
 //////////////////////////////////////////////////
 // Loading serialized data

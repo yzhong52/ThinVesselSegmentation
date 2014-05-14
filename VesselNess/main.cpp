@@ -18,15 +18,16 @@ namespace sample_code{
 	int centreline( bool isDisplay, string dataname = "data15" ); 
 }
 
+namespace experiment{
+	void synthetic_yes(); 
+}
+
+
 int main(int argc, char* argv[])
 {
-	Data3D<short> im_short; 
-	
-	SyntheticData::Yes( im_short ); 
-	im_short.save( "../temp/yes.data" ); 
-
-	sample_code::vesselness( false, "../temp/yes" );
-	sample_code::centreline( true, "../temp/yes" ); 
+	experiment::synthetic_yes(); 
+	//sample_code::vesselness( false, "data15" );
+	//sample_code::centreline( false, "data15" ); 
 	return 0;
 }
 
@@ -90,3 +91,12 @@ namespace sample_code{
 }
 
 
+
+
+void experiment::synthetic_yes(){
+	Data3D<short> im_short; 
+	SyntheticData::Yes( im_short ); 
+	im_short.save( "../temp/yes.data" ); 
+	sample_code::vesselness( false, "../temp/yes" );
+	sample_code::centreline( true, "../temp/yes" ); 
+}
