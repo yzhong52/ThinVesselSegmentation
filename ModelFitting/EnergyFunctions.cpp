@@ -21,7 +21,20 @@ using namespace cv;
 
 static const double epsilon_double = 1e-50; 
 
-inline double compute_datacost_for_one( const Line3D* line_i, const Vec3d& pi )
+
+
+double (*using_datacost_func)( 
+	const Line3D* line_i, const cv::Vec3d& pi, void* func_data ) = &compute_datacost_for_one; 
+
+void (*using_smoothcost_func)(  
+	const Line3D* line_i, const Line3D* line_j,
+	const cv::Vec3d& pi_tilde, const cv::Vec3d& pj_tilde,
+	double& smooth_cost_i, double& smooth_cost_j, void* func_data ) = &compute_smoothcost_for_pair; 
+
+
+
+
+inline double compute_datacost_for_one( const Line3D* line_i, const Vec3d& pi, void* func_data )
 {
 	const Vec3d proj_point = line_i->projection( pi );
 	const Vec3d dir = proj_point - pi;
@@ -34,7 +47,7 @@ inline double compute_datacost_for_one( const Line3D* line_i, const Vec3d& pi )
 void compute_smoothcost_for_pair( 
 	const Line3D* line_i,  const Line3D* line_j,
 	const Vec3d& pi_tilde, const Vec3d& pj_tilde,
-	double& smooth_cost_i, double& smooth_cost_j )
+	double& smooth_cost_i, double& smooth_cost_j, void* func_data )
 {
 	// single projection
 	const Vec3d pi = line_i->projection( pi_tilde ); 
@@ -65,21 +78,27 @@ double compute_datacost(
 	const vector<Line3D*>& lines )
 {
 	double energy = 0; 
-	for( int site = 0; site < (int) dataPoints.size(); site++ ) {
-		const int& label = labelings[site];
-		energy += compute_datacost_for_one( lines[label], dataPoints[site] ); 
-	}
+	
 	return energy; 
 }
 
 
-double compute_smoothcost( 
+
+double compute_energy( 
 	const vector<Vec3i>& dataPoints,
 	const vector<int>& labelings, 
 	const vector<Line3D*>& lines,
-	const Data3D<int>& indeces )
-{	
-	double energy = 0; 
+	const Data3D<int>& indeces, void* func_data )
+{
+	double energy = 0.0;
+
+	// computer data cost 
+	for( int site = 0; site < (int) dataPoints.size(); site++ ) {
+		const int& label = labelings[site];
+		energy += compute_datacost_for_one( lines[label], dataPoints[site] ); 
+	}
+
+	// compute smooth cost 
 	for( int site = 0; site < dataPoints.size(); site++ ) { // For each data point
 
 		// iterate through all its neighbours
@@ -106,16 +125,6 @@ double compute_smoothcost(
 			energy += energy_smoothness_i + energy_smoothness_j; 
 		}
 	}
-	return energy; 
-}
 
-double compute_energy( 
-	const vector<Vec3i>& dataPoints,
-	const vector<int>& labelings, 
-	const vector<Line3D*>& lines,
-	const Data3D<int>& indeces )
-{
-	double datacost   = compute_datacost( dataPoints, labelings, lines ); 
-	double smoothcost = compute_smoothcost( dataPoints, labelings, lines, indeces ); 
-	return datacost + smoothcost; 
+	return energy; 
 }
