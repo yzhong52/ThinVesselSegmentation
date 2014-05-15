@@ -240,6 +240,7 @@ void LevenburgMaquart::Jacobian_smoothcost_abs_esp( const int& sitei, const int&
 		* (1.0 / dist_pi_pj2 * PAIRWISE_SMOOTH * oldsmoothcost.first ); 
 	nabla_smooth_cost_j = ( nabla_pj_pj_prime * dist_pi_pj - nabla_pi_pj * dist_pj_pj_prime ) 
 		* (1.0 / dist_pi_pj2 * PAIRWISE_SMOOTH * oldsmoothcost.second ); 
+	double temp = PAIRWISE_SMOOTH * oldsmoothcost.first; 
 }
 
 void LevenburgMaquart::Jacobian_datacost_thread_func(
