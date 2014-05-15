@@ -89,8 +89,8 @@ void smoothcost_func_abs_eps(
 
 	static const double eps = 0.0;// 0.5e-2; 
 	double temp = sqrt(dist_pi_pj2) + eps; 
-	oldsmoothcost.first  = temp / ( sqrt(dist_pj_pj_prime2) + eps ); 
-	oldsmoothcost.second = temp / ( sqrt(dist_pi_pi_prime2) + eps ); 
+	oldsmoothcost.first  = temp / ( sqrt(dist_pi_pi_prime2) + eps ); 
+	oldsmoothcost.second = temp / ( sqrt(dist_pj_pj_prime2) + eps ); 
 }
 
 // compute total energy: smoothcost + datacost
