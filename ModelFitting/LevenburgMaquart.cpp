@@ -236,8 +236,10 @@ void LevenburgMaquart::Jacobian_smoothcost_abs_esp( const int& sitei, const int&
 	
 	// output result 
 	std::pair<double,double>& oldsmoothcost = *((std::pair<double,double>*)func_data); 
-	nabla_smooth_cost_i = ( nabla_pi_pi_prime * dist_pi_pj - nabla_pi_pj * dist_pi_pi_prime ) * (1.0 / dist_pi_pj2 * PAIRWISE_SMOOTH * sqrt(oldsmoothcost.first) ); 
-	nabla_smooth_cost_j = ( nabla_pj_pj_prime * dist_pi_pj - nabla_pi_pj * dist_pj_pj_prime ) * (1.0 / dist_pi_pj2 * PAIRWISE_SMOOTH * sqrt(oldsmoothcost.second) ); 
+	nabla_smooth_cost_i = ( nabla_pi_pi_prime * dist_pi_pj - nabla_pi_pj * dist_pi_pi_prime ) 
+		* (1.0 / dist_pi_pj2 * PAIRWISE_SMOOTH * oldsmoothcost.first ); 
+	nabla_smooth_cost_j = ( nabla_pj_pj_prime * dist_pi_pj - nabla_pi_pj * dist_pj_pj_prime ) 
+		* (1.0 / dist_pi_pj2 * PAIRWISE_SMOOTH * oldsmoothcost.second ); 
 }
 
 void LevenburgMaquart::Jacobian_datacost_thread_func(
