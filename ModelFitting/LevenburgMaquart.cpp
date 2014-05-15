@@ -32,11 +32,6 @@ LevenburgMaquart::LevenburgMaquart( const vector<Vec3i>& dataPoints, const vecto
 	P = vector<Vec3d>( tildaP.size() );               // projection points of original points
 	nablaP = vector<SparseMatrixCV>( tildaP.size() ); // Jacobian matrix of the porjeciton points 
 	
-	// initialized all of them to be 1s
-	SmoothcostCoefficient temp; 
-	for( int j=0; j<temp.size(); j++ ) temp[j].first = temp[j].second = 1.0; 
-	smoothcost_coefficient_old.resize( P.size(), temp );  
-
 	using_smoothcost_func = NULL; 
 }
 
@@ -358,9 +353,10 @@ void LevenburgMaquart::Jacobian_smoothcost_thread_func(
 		if( l1==l2 ) continue; // TODO
 
 		double smoothcost_i_before = 0, smoothcost_j_before = 0;
+		std::pair<double, double> coefficiency; 
 		using_smoothcost_func( lines[l1], lines[l2], 
 			tildaP[site], tildaP[site2], 
-			smoothcost_i_before, smoothcost_j_before, &smoothcost_coefficient_old[site][neibourIndex] ); 
+			smoothcost_i_before, smoothcost_j_before, &coefficiency ); 
 
 		// add more rows to energy_matrix according to smooth cost 
 		energy_matrix.push_back( sqrt( smoothcost_i_before ) ); 
@@ -368,8 +364,7 @@ void LevenburgMaquart::Jacobian_smoothcost_thread_func(
 
 		////// Computing derivative of pair-wise smooth cost analytically
 		SparseMatrixCV J[2];
-		(this->*using_Jacobian_smoothcost_for_pair)( site, site2, J[0], J[1], 
-			&smoothcost_coefficient_old[site][neibourIndex] ); 
+		(this->*using_Jacobian_smoothcost_for_pair)( site, site2, J[0], J[1], &coefficiency ); 
 
 		for( int ji = 0; ji<2; ji++ ) {
 			int nnz;
@@ -594,7 +589,7 @@ void LevenburgMaquart::reestimate( double lambda, SmoothCostType whatSmoothCost 
 	switch( whatSmoothCost ) {
 	case Linear:
 		using_Jacobian_smoothcost_for_pair = &LevenburgMaquart::Jacobian_smoothcost_abs_esp; 
-		using_smoothcost_func = &smoothcost_func_abs_eps; 
+		using_smoothcost_func = &smoothcost_func_linear; 
 		break; 
 	case Quadratic:
 		using_Jacobian_smoothcost_for_pair = &LevenburgMaquart::Jacobian_smoothcost_quadratic; 
@@ -603,11 +598,7 @@ void LevenburgMaquart::reestimate( double lambda, SmoothCostType whatSmoothCost 
 	}
 
 	double energy_before = 0; 
-	energy_before = compute_energy( tildaP, labelID, lines, labelID3d, 
-		using_smoothcost_func, &smoothcost_coefficient_old ); 
-	
-	energy_before = compute_energy( tildaP, labelID, lines, labelID3d, 
-		using_smoothcost_func, &smoothcost_coefficient_old ); 
+	energy_before = compute_energy( tildaP, labelID, lines, labelID3d, using_smoothcost_func ); 
 	
 	const SparseMatrixCV I  = SparseMatrixCV::I( numParam ); 
 
@@ -657,17 +648,12 @@ void LevenburgMaquart::reestimate( double lambda, SmoothCostType whatSmoothCost 
 		
 		update_lines( -X ); 
 		
-		vector<SmoothcostCoefficient> smoothcost_coefficient_new = 
-			smoothcost_coefficient_old; 
 
-		double new_energy = compute_energy( tildaP, labelID, lines, labelID3d, 
-			using_smoothcost_func, &smoothcost_coefficient_new );
+		double new_energy = compute_energy( tildaP, labelID, lines, labelID3d, using_smoothcost_func );
 
 		if( new_energy < energy_before ) { 
 			// if energy is decreasing 
 			// adjust the endpoints of the lines
-			smoothcost_coefficient_old = smoothcost_coefficient_new; 
-
 			adjust_endpoints(); 
 			energy_before = new_energy;
 			lambda *= 0.50; 

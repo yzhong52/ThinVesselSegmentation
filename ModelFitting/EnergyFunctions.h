@@ -12,8 +12,6 @@ class SparseMatrixCV;
 extern const double DATA_COST2; 
 extern const double PAIRWISE_SMOOTH2; 
 
-typedef std::array<std::pair<double, double>, 13> SmoothcostCoefficient; 
-
 typedef void (*SmoothCostFunc)( \
 	const Line3D* line_i, const Line3D* line_j, \
 	const cv::Vec3d& pi_tilde, const cv::Vec3d& pj_tilde, \
@@ -21,8 +19,7 @@ typedef void (*SmoothCostFunc)( \
 
 
 // compute datacost for asigning a data point to a line
-double compute_datacost_for_one( 
-	const Line3D* line_i, const cv::Vec3d& pi, void* func_data = NULL );
+double compute_datacost_for_one( const Line3D* line_i, const cv::Vec3d& pi );
 
 // compute smoothcost for a pair of neighbouring pixels
 void smoothcost_func_quadratic( 
@@ -31,15 +28,14 @@ void smoothcost_func_quadratic(
 	double& smooth_cost_i, double& smooth_cost_j, void* func_data = NULL );
 
 // compute smoothcost for a pair of neighbouring pixels
-void smoothcost_func_abs_eps( 
+void smoothcost_func_linear( 
 	const Line3D* line_i, const Line3D* line_j,
 	const cv::Vec3d& pi_tilde, const cv::Vec3d& pj_tilde,
 	double& smooth_cost_i, double& smooth_cost_j, void* func_data = NULL );
-
 
 // compute total energy: smoothcost + datacost
 double compute_energy( 
 	const std::vector<cv::Vec3i>& dataPoints,
 	const std::vector<int>& labelings, 
 	const std::vector<Line3D*>& lines,
-	const Data3D<int>& indeces, SmoothCostFunc using_smoothcost_func, void *func_data = NULL );
+	const Data3D<int>& indeces, SmoothCostFunc using_smoothcost_func );

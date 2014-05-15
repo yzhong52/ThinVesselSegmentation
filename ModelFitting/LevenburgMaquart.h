@@ -15,8 +15,6 @@ template <typename T> class ModelSet;
 extern const double DATA_COST;
 extern const double PAIRWISE_SMOOTH; 
 
-
-
 class LevenburgMaquart
 {
 public:
@@ -38,8 +36,6 @@ private:
 	const ModelSet<Line3D>& modelset;
 	const vector<Line3D*>& lines; 
 	
-	vector<SmoothcostCoefficient> smoothcost_coefficient_old; 
-
 	int numParamPerLine; 
 	int numParam; 
 
