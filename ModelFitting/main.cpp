@@ -49,33 +49,32 @@ const double PAIRWISE_SMOOTH2 = PAIRWISE_SMOOTH * PAIRWISE_SMOOTH;
 HANDLE thread_render = NULL; 
 
 #ifndef IS_PROFILING // NOT profiling, add visualization model
-#include "GLViwerModel.h"
-GLViwerModel ver;
-// thread function for rendering
-void visualization_func( void* data ) {
-	GLViwerModel& ver = *(GLViwerModel*) data; 
-	ver.go( 720, 480, 2 );
-}
-template<class T>
-void initViwer( const Data3D<T>& im, const vector<cv::Vec3i>& dataPoints, 
-	const vector<Line3D*>& lines, const vector<int>& labelings )
-{
-	GLViewer::GLLineModel *model = new GLViewer::GLLineModel( im.get_size() );
-	model->updatePoints( dataPoints ); 
-	model->updateModel( lines, labelings ); 
-	ver.objs.push_back( model );
+	#include "GLViwerModel.h"
+	GLViwerModel ver;
+	// thread function for rendering
+	void visualization_func( void* data ) {
+		GLViwerModel& ver = *(GLViwerModel*) data; 
+		ver.go( 720, 480, 2 );
+	}
+	template<class T>
+	void initViwer( const Data3D<T>& im, const vector<cv::Vec3i>& dataPoints, 
+		const vector<Line3D*>& lines, const vector<int>& labelings )
+	{
+		GLViewer::GLLineModel *model = new GLViewer::GLLineModel( im.get_size() );
+		model->updatePoints( dataPoints ); 
+		model->updateModel( lines, labelings ); 
+		ver.objs.push_back( model );
 
-	ver.addObject( im ); 
+		ver.addObject( im ); 
 
-	thread_render = (HANDLE) _beginthread( visualization_func, 0, (void*)&ver ); 
-}
+		thread_render = (HANDLE) _beginthread( visualization_func, 0, (void*)&ver ); 
+
+		Sleep(1000); 
+	}
 #else
-template<class T>
-void initViwer( const Image3D<T>& im_short, const vector<cv::Vec3i>& dataPoints, 
-	const vector<Line3D*>& lines, const vector<int>& labelings )
-{
-
-}
+	template<class T>
+	void initViwer( const Image3D<T>& im_short, const vector<cv::Vec3i>& dataPoints, 
+		const vector<Line3D*>& lines, const vector<int>& labelings ) { }
 #endif
 
 
@@ -163,7 +162,7 @@ void experiment3( void ) {
 	Image3D<Vesselness_Sig> vn_sig;
 	
 	vn_sig.load( "../temp/data15.vn_sig" ); 
-	vn_sig.remove_margin_to( Vec3i( 70, 70, 70 ) );
+	vn_sig.remove_margin_to( Vec3i( 60, 60, 60 ) );
 
 	// threshold the data and put the data points into a vector
 	Data3D<int> labelID3d; 
@@ -228,14 +227,18 @@ void experiment4( void ) {
 
 int main(int argc, char* argv[])
 {
-	// wtih linear smooth cost 
-	// experiment1(); 
-	// with linear smooth cost (only on centreline) 
-	experiment2(); 
-	// grouping with non-maximum suppresion 
-	//experiment3(); 
 	// centerline of the vessels
-	//experiment4(); 
+	// experiment4(); 
+
+	// grouping with non-maximum suppresion 
+	// experiment3(); 
+	
+	// wtih linear smooth cost 
+	experiment1(); 
+
+	// with linear smooth cost (only on centreline) 
+	// experiment2(); 
+
 	return 0; 
 }
 

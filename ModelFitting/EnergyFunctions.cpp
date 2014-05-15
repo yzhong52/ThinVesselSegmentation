@@ -89,7 +89,7 @@ void smoothcost_func_linear(
 	smooth_cost_j = PAIRWISE_SMOOTH2 * dist_pj_pj_prime / dist_pi_pj; 
 
 	if( func_data ) {
-		static const double eps = 0.0;// 0.5e-2; 
+		static const double eps = 0.5e-2; 
 		std::pair<double,double>& coefficiency = *((std::pair<double,double>*)func_data); 
 		coefficiency.first  = ( dist_pi_pj + eps) / ( dist_pi_pi_prime + eps); 
 		coefficiency.second = ( dist_pi_pj + eps) / ( dist_pj_pj_prime + eps); 
