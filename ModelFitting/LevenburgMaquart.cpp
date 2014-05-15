@@ -588,10 +588,12 @@ void LevenburgMaquart::reestimate( double lambda, SmoothCostType whatSmoothCost 
 
 	switch( whatSmoothCost ) {
 	case Linear:
+		cout << endl << "LevenburgMaquart::Linear" << endl; 
 		using_Jacobian_smoothcost_for_pair = &LevenburgMaquart::Jacobian_smoothcost_abs_esp; 
 		using_smoothcost_func = &smoothcost_func_linear; 
 		break; 
 	case Quadratic:
+		cout << endl << "LevenburgMaquart::Quadratic" << endl; 
 		using_Jacobian_smoothcost_for_pair = &LevenburgMaquart::Jacobian_smoothcost_quadratic; 
 		using_smoothcost_func = &smoothcost_func_quadratic; 
 		break; 

@@ -19,30 +19,29 @@ GLLineModel::~GLLineModel( void ){
 
 void GLLineModel::render(void){
 	// in case there is any previously bind texture, you need to unbind them
-	glBindTexture( GL_TEXTURE_3D, NULL );
-
+	
 	///////////////////////////////////////////////////
 	//// Draw the axis
 	///////////////////////////////////////////////////
-	//	glBegin( GL_LINES );
-	//	// x-axis
-	//	glColor3f(  1.0f, 0.0f, 0.0f ); 
-	//	glVertex3i( 0, 0, 0 ); 
-	//	glVertex3i( size[0], 0, 0 ); 
-	//	// y-axis
-	//	glColor3f(  0.0f, 1.0f, 0.0f ); 
-	//	glVertex3i( 0, 0, 0 ); 
-	//	glVertex3i( 0, size[1], 0 ); 
-	//	// z-axis
-	//	glColor3f(  0.0f, 0.0f, 1.0f ); 
-	//	glVertex3i( 0, 0, 0 ); 
-	//	glVertex3i( 0, 0, size[2] ); 
-	//	glEnd();
+	glBegin( GL_LINES );
+	// x-axis
+	glColor3f(  1.0f, 0.0f, 0.0f ); 
+	glVertex3i( 0, 0, 0 ); 
+	glVertex3i( size[0], 0, 0 ); 
+	// y-axis
+	glColor3f(  0.0f, 1.0f, 0.0f ); 
+	glVertex3i( 0, 0, 0 ); 
+	glVertex3i( 0, size[1], 0 ); 
+	// z-axis
+	glColor3f(  0.0f, 0.0f, 1.0f ); 
+	glVertex3i( 0, 0, 0 ); 
+	glVertex3i( 0, 0, size[2] ); 
+	glEnd();
 
 	WaitForSingleObject( hMutex, INFINITE );
 
 	/////////////////////////////////////////////////
-	// draw the data points 
+	// draw the projection points 
 	/////////////////////////////////////////////////
 	if( render_mode & 4 ){
 		glPointSize( 3.0 );
@@ -52,9 +51,6 @@ void GLLineModel::render(void){
 			Vec3f prj = lines[lineID]->projection( dataPoints[i] ); 
 			glColor3ubv( &lineColors[lineID][0] ); 
 			glVertex3fv( &prj[0] ); 
-			// drawing data points
-			//glColor3f( 0.1f, 0.1f, 0.1f ); 
-			//glVertex3iv( &dataPoints[i][0] ); 
 		} 
 		glEnd();
 	}
@@ -75,19 +71,15 @@ void GLLineModel::render(void){
 	//glEnd();
 
 	if( render_mode & 1 ) {
+		/////////////////////////////////////////////////
+		// draw a short line alond the line model
+		/////////////////////////////////////////////////
+		glColor3f( 0.3f, 0.3f, 0.3f ); 
 		glBegin( GL_LINES );
 		for( int i=0; i < (int) dataPoints.size(); i++ ) {
-			// label id
-			const int lineID = labelings[i]; 
-			// actual position
-			Vec3f prj = lines[lineID]->projection( dataPoints[i] ); 
-
-			/////////////////////////////////////////////////
-			// draw a short line alond the line model
-			/////////////////////////////////////////////////
-			glColor3f( 0.3f, 0.3f, 0.3f ); 
-			// direction of the line
-			Vec3f dir = lines[lineID]->getDirection(); 
+			const int lineID = labelings[i]; // label id
+			const Vec3f prj = lines[lineID]->projection( dataPoints[i] );  // position
+			const Vec3f dir = lines[lineID]->getDirection(); // direction 
 			glVertex3fv( &(prj + dir * 0.5 )[0] ); 
 			glVertex3fv( &(prj - dir * 0.5 )[0] ); 
 		} 
@@ -95,26 +87,24 @@ void GLLineModel::render(void){
 	}
 
 	if( render_mode & 2 ) {
+		/////////////////////////////////////////////////
+		// draw the lines of the projection direction
+		/////////////////////////////////////////////////
 		glBegin( GL_LINES );
 		for( int i=0; i < (int) dataPoints.size(); i++ ) {
-			// label id
-			const int lineID = labelings[i]; 
-			// actual position
-			Vec3f prj = lines[lineID]->projection( dataPoints[i] ); 
-
-			/////////////////////////////////////////////////
-			// draw the lines of the projection direction
-			/////////////////////////////////////////////////
-			// projection point 
-			glColor3ubv( &lineColors[lineID][0] );  glVertex3fv( &prj[0] ); 
-			// data points
-			glColor3f( 0.1f, 0.1f, 0.1f );          glVertex3iv( &dataPoints[i][0] ); 
+			const int lineID = labelings[i]; // label id
+			Vec3f prj = lines[lineID]->projection( dataPoints[i] ); // position
+			// draw projection point 
+			glColor3ubv( &lineColors[lineID][0] );  
+			glVertex3fv( &prj[0] ); 
+			// draw data points
+			glColor3f( 0.1f, 0.1f, 0.1f );
+			glVertex3iv( &dataPoints[i][0] ); 
 		} 
 		glEnd();
 	}
 
 	ReleaseMutex( hMutex );
-	
 }
 
 
@@ -147,15 +137,15 @@ void GLLineModel::updateModel( const vector<Line3D*>& lns, const vector<int>& lb
 }
 
 void GLLineModel::init(void){
-	glDisable(GL_DEPTH_TEST);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_ONE, GL_ONE);
-	glBlendEquation( GL_MAX_EXT ); 
+	//glDisable(GL_DEPTH_TEST);
+	//glEnable(GL_BLEND);
+	//glBlendFunc(GL_ONE, GL_ONE);
+	//glBlendEquation( GL_MAX_EXT ); 
 	//cout << "Volumn Rendeing Mode is set to MIP" << endl;
 
 	//// Antialiasing
-	glDisable(GL_LINE_SMOOTH);
-	glHint (GL_LINE_SMOOTH_HINT, GL_FASTEST );
+	//glDisable(GL_LINE_SMOOTH);
+	//glHint (GL_LINE_SMOOTH_HINT, GL_FASTEST );
 
 	//glEnable( GL_POLYGON_SMOOTH_HINT );
 	//glHint (GL_POLYGON_SMOOTH_HINT, GL_NICEST);
@@ -166,14 +156,12 @@ void GLLineModel::init(void){
 	//glBlendFunc(GL_ONE, GL_ONE);
 	//glBlendEquation( GL_MAX_EXT ); 
 
-	
-	
-	glEnable( GL_POINT_SPRITE ); // GL_POINT_SPRITE_ARB if you're
+	// glEnable( GL_POINT_SPRITE ); // GL_POINT_SPRITE_ARB if you're
                                  // using the functionality as an extension.
 
-    glEnable( GL_POINT_SMOOTH );
-    glEnable( GL_BLEND );
-    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+    //glEnable( GL_POINT_SMOOTH );
+    //glEnable( GL_BLEND );
+    //glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
     
 }
 

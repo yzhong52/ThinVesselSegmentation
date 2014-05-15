@@ -106,12 +106,9 @@ void experiment1( void ) {
 
 	LevenburgMaquart lm( tildaP, labelID, model, labelID3d );
 
-	cout << "LevenburgMaquart::Quadratic" << endl; 
-	lm.reestimate( 1000,LevenburgMaquart::Quadratic ); 
-
+	
+	lm.reestimate( 1000, LevenburgMaquart::Quadratic ); 
 	system( "pause" ); 
-
-	cout << "LevenburgMaquart::Linear" << endl; 
 	lm.reestimate( 4000, LevenburgMaquart::Linear ); 
 
 	cout << "Main Thread is Done. " << endl; 
@@ -145,12 +142,8 @@ void experiment2( void ) {
 
 	LevenburgMaquart lm( tildaP, labelID, model, labelID3d );
 
-	cout << "LevenburgMaquart::Quadratic" << endl; 
-	lm.reestimate( 4000,LevenburgMaquart::Quadratic ); 
-
+	lm.reestimate( 4000, LevenburgMaquart::Quadratic ); 
 	system( "pause" ); 
-
-	cout << "LevenburgMaquart::Linear" << endl; 
 	lm.reestimate( 4000, LevenburgMaquart::Linear ); 
 
 	cout << "Main Thread is Done. " << endl; 
@@ -162,7 +155,7 @@ void experiment3( void ) {
 	Image3D<Vesselness_Sig> vn_sig;
 	
 	vn_sig.load( "../temp/data15.vn_sig" ); 
-	vn_sig.remove_margin_to( Vec3i( 60, 60, 60 ) );
+	vn_sig.remove_margin_to( Vec3i( 50, 50, 50 ) );
 
 	// threshold the data and put the data points into a vector
 	Data3D<int> labelID3d; 
@@ -234,10 +227,10 @@ int main(int argc, char* argv[])
 	// experiment3(); 
 	
 	// wtih linear smooth cost 
-	experiment1(); 
+	// experiment1(); 
 
 	// with linear smooth cost (only on centreline) 
-	// experiment2(); 
+	experiment2(); 
 
 	return 0; 
 }
