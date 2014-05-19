@@ -25,9 +25,9 @@ namespace experiment{
 
 int main(int argc, char* argv[])
 {
-	experiment::synthetic_yes(); 
+	//experiment::synthetic_yes(); 
 	//sample_code::vesselness( false, "data15" );
-	//sample_code::centreline( false, "data15" ); 
+	sample_code::centreline( true, "data15" ); 
 	return 0;
 }
 
@@ -70,19 +70,27 @@ namespace sample_code{
 		return 0;
 	}
 
-
 	int centreline( bool isDisplay, string dataname ) {
+		// load vesselness data
 		Data3D<Vesselness_Sig> vn_sig; 
-		Data3D<Vesselness_Sig> vn_sig_nms; 
 		vn_sig.load( OUTPUT_DIR + dataname + ".vn_sig" );
+		
+		// non-maximum suppression
+		Data3D<Vesselness_Sig> vn_sig_nms; 
 		IP::non_max_suppress( vn_sig, vn_sig_nms );
-		vn_sig_nms.save( OUTPUT_DIR + dataname + ".nms.vn_sig" );
+		vn_sig_nms.save( OUTPUT_DIR + dataname + ".et.vn_sig" );
+
+		// edge tracing 
+		Data3D<Vesselness_Sig> vn_sig_et; 
+		IP::edge_tracing( vn_sig_nms, vn_sig_et, 0.45f, 0.05f );
+		vn_sig_et.save( OUTPUT_DIR + dataname + ".et.vn_sig" );
 
 		if( isDisplay ) {
-			viewer.addObject( vn_sig,  GLViewer::Volumn::MIP );
-			viewer.addDiretionObject( vn_sig );
 			viewer.addObject( vn_sig_nms,  GLViewer::Volumn::MIP );
 			viewer.addDiretionObject( vn_sig_nms );
+
+			viewer.addObject( vn_sig_et,  GLViewer::Volumn::MIP );
+			viewer.addDiretionObject( vn_sig_et );
 		
 			viewer.go(600, 400, 4);
 		}
