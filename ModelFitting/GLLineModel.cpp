@@ -20,23 +20,23 @@ GLLineModel::~GLLineModel( void ){
 void GLLineModel::render(void){
 	// in case there is any previously bind texture, you need to unbind them
 	
-	///////////////////////////////////////////////////
-	//// Draw the axis
-	///////////////////////////////////////////////////
-	glBegin( GL_LINES );
-	// x-axis
-	glColor3f(  1.0f, 0.0f, 0.0f ); 
-	glVertex3i( 0, 0, 0 ); 
-	glVertex3i( size[0], 0, 0 ); 
-	// y-axis
-	glColor3f(  0.0f, 1.0f, 0.0f ); 
-	glVertex3i( 0, 0, 0 ); 
-	glVertex3i( 0, size[1], 0 ); 
-	// z-axis
-	glColor3f(  0.0f, 0.0f, 1.0f ); 
-	glVertex3i( 0, 0, 0 ); 
-	glVertex3i( 0, 0, size[2] ); 
-	glEnd();
+	/////////////////////////////////////////////////////
+	////// Draw the axis
+	/////////////////////////////////////////////////////
+	//glBegin( GL_LINES );
+	//// x-axis
+	//glColor3f(  1.0f, 0.0f, 0.0f ); 
+	//glVertex3i( 0, 0, 0 ); 
+	//glVertex3i( size[0], 0, 0 ); 
+	//// y-axis
+	//glColor3f(  0.0f, 1.0f, 0.0f ); 
+	//glVertex3i( 0, 0, 0 ); 
+	//glVertex3i( 0, size[1], 0 ); 
+	//// z-axis
+	//glColor3f(  0.0f, 0.0f, 1.0f ); 
+	//glVertex3i( 0, 0, 0 ); 
+	//glVertex3i( 0, 0, size[2] ); 
+	//glEnd();
 
 	WaitForSingleObject( hMutex, INFINITE );
 
@@ -70,11 +70,11 @@ void GLLineModel::render(void){
 	//} 
 	//glEnd();
 
+	/////////////////////////////////////////////////
+	// draw a short line alond the line model
+	/////////////////////////////////////////////////
 	if( render_mode & 1 ) {
-		/////////////////////////////////////////////////
-		// draw a short line alond the line model
-		/////////////////////////////////////////////////
-		glColor3f( 0.3f, 0.3f, 0.3f ); 
+		glColor3f( 0.4f, 0.4f, 0.4f ); 
 		glBegin( GL_LINES );
 		for( int i=0; i < (int) dataPoints.size(); i++ ) {
 			const int lineID = labelings[i]; // label id

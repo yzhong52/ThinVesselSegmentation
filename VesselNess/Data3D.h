@@ -8,33 +8,18 @@
 template<typename T>
 class Data3D {
 public:
+	//////////////////////////////////////////////////////////////////////
 	// Constructors & Destructors
-	// Default Constructors
-	Data3D( const Vec3i& n_size = 0){ 
-		reset(n_size); 
-	}
+	// Default Constructor
+	Data3D( const Vec3i& n_size = 0); 
 	// Constructor with size and value
-	Data3D( const Vec3i& n_size, const T& value ){ 
-		reset(n_size, value);
-	}	
-
+	Data3D( const Vec3i& n_size, const T& value );
+	// Constructor from file
+	Data3D( string filename );
 	// Copy Constructor - extremely similar to the copyTo function
 	template <class T2>
-	Data3D( const Data3D<T2>& src ) {
-		// resize 
-		this->resize( src.get_size() );
-		// copy the data over
-		MatIterator_<T>       this_it;
-		MatConstIterator_<T2> src_it;
-		for( this_it = this->getMat().begin(), src_it = src.getMat().begin(); 
-			 this_it < this->getMat().end(),   src_it < src.getMat().end();
-			 this_it++, src_it++ )
-		{
-			// Yuchen: The convertion from T2 to T may be unsafe
-			*(this_it) = T( *(src_it) );
-		}
-	}
-
+	Data3D( const Data3D<T2>& src );
+	// Destructor
 	virtual ~Data3D(void){ }
 
 	//////////////////////////////////////////////////////////////////////
@@ -46,7 +31,7 @@ public:
 			(*it) = value;
 		}
 	}
-	
+
 	void reset( const Vec3i& n_size ){
 		_size = n_size;
 		_size_slice = _size[0] * _size[1];
@@ -80,7 +65,7 @@ public:
 	inline const long& get_size_slice(void) const { return _size_slice; }
 	inline const long& get_size_total(void) const { return _size_total; }
 	inline const Vec3i& get_size(void) const { return _size; }
-	
+
 	// getters about values of the data
 	virtual const inline T& at( const int& i ) const {
 		return _mat( i ); 
@@ -104,7 +89,7 @@ public:
 	// getter of the data
 	inline Mat_<T>& getMat() { return _mat; }
 	inline const Mat_<T>& getMat() const { return _mat; }
-	
+
 	// loading/saving data from/to file
 	bool load( const string& file_name );
 	bool load( const string& file_name, const Vec3i& size, bool isBigEndian=true, bool isLoadPartial=false );
@@ -120,7 +105,7 @@ public:
 	friend bool subtract3D( const Data3D<T1>& src1, const Data3D<T2>& src2, Data3D<T3>& dst );
 	template<typename T1, typename T2, typename T3>
 	friend bool multiply3D( const Data3D<T1>& src1, const Data3D<T2>& src2, Data3D<T3>& dst );
-	
+
 	// change the type of the data
 	template< typename DT >
 	void convertTo( Data3D<DT>& dst ) const {
@@ -138,7 +123,7 @@ public:
 		return min_max;
 	}
 
-	public:
+public:
 	// copy data of dimension i to a new Image3D structure
 	// e.g. this is useful when trying to visualize vesselness which is
 	// a multidimensional data structure
@@ -154,81 +139,22 @@ public:
 	}
 
 	// remove some margin of the data
-	inline bool remove_margin( const int& margin ) {
-		return remove_margin( Vec3i( margin, margin, margin) );
-	}
+	inline bool remove_margin( const int& margin ); 
 	// remove some margin of the data
 	// such that left_margin and right_margin are the same
-	inline bool remove_margin( const Vec3i& margin ) {
-		return remove_margin( margin, margin );
-	}
+	inline bool remove_margin( const Vec3i& margin ); 
 	// remove some margin of the data
-	bool remove_margin( const Vec3i& margin1, const Vec3i& margin2 ) {
-		Vec3i n_size;
-		for( int i=0; i<3; i++ ){
-			n_size[i] = _size[i] - margin1[i] - margin2[i];
-			if( n_size[i] <= 0 ) {
-				cout << "Margin is too big. Remove margin failed. " << endl;
-				return false;
-			}
-		}
-
-		// allocate memory for new data
-		int n_size_slice = n_size[0] * n_size[1];
-		int n_size_total = n_size[2] * n_size_slice;
-		Mat_<T> n_mat = Mat_<T>( n_size[2], n_size_slice );
-
-		// Remove a negetive margin is equivalent to 
-		// padding zeros around the data
-		Vec3i spos = Vec3i(
-			max( margin1[0], 0), 
-			max( margin1[1], 0), 
-			max( margin1[2], 0)
-		); 
-		Vec3i epos = Vec3i(
-			min( _size[0]-margin2[0], _size[0] ), 
-			min( _size[1]-margin2[1], _size[1] ), 
-			min( _size[2]-margin2[2], _size[2] )
-		); 
-		for( int z=spos[2]; z<epos[2]; z++ ){
-			for( int y=spos[1]; y<epos[1]; y++ ){
-				for( int x=spos[0]; x<epos[0]; x++ ){
-					n_mat( z-margin1[2], (y-margin1[1])*n_size[0] + (x-margin1[0]) ) = _mat( z, y*_size[0] + x );
-				}
-			}
-		}
-		// update the data
-		// just passing the reference here is good
-		_mat = n_mat; 
-		// updata the size
-		_size = n_size;
-		_size_slice = n_size_slice;
-		_size_total = n_size_total;
-		return true; 
-	}
-
+	bool remove_margin( const Vec3i& margin1, const Vec3i& margin2 );
 	// Resize the data by cropping or padding
 	// This is done through remove margin func
-	void remove_margin_to( const Vec3i& size ) {
-		remove_margin( 
-			Vec3i( 
-				(int) floor(1.0f*(SX()-size[0])/2), 
-				(int) floor(1.0f*(SY()-size[1])/2), 
-				(int) floor(1.0f*(SZ()-size[2])/2)
-				), 
-			Vec3i( 
-				(int) ceil(1.0f*(SX()-size[0])/2), 
-				(int) ceil(1.0f*(SY()-size[1])/2), 
-				(int) ceil(1.0f*(SZ()-size[2])/2)
-				)
-		);
-	}
+	void remove_margin_to( const Vec3i& size );
+
 
 	// return true if a index is valide for the data
 	bool isValid( const int& x, const int& y, const int& z ) const {
 		return ( x>=0 && x<get_size_x() &&
-			     y>=0 && y<get_size_y() &&
-			     z>=0 && z<get_size_z() );
+			y>=0 && y<get_size_y() &&
+			z>=0 && z<get_size_z() );
 	}
 	bool isValid( const Vec3i& v ) const { 
 		return isValid( v[0], v[1], v[2] );
@@ -237,7 +163,7 @@ public:
 	const T* getData(void) const {
 		return (T*) getMat().data; 
 	}
-	
+
 	T* getData(void) {
 		return (T*) getMat().data; 
 	}
@@ -258,6 +184,43 @@ private:
 	void save_info( const string& file_name, bool isBigEndian, const string& log )  const;
 	bool load_info( const string& file_name, Vec3i& size, bool& isBigEndian );
 };
+
+
+// Default Constructor
+template <typename T>
+Data3D<T>::Data3D( const Vec3i& n_size = 0){ 
+	reset(n_size); 
+}
+
+// Constructor with size and value
+template <typename T>
+Data3D<T>::Data3D( const Vec3i& n_size, const T& value ){ 
+	reset(n_size, value);
+}	
+
+// Constructor with a given file
+template<typename T>
+Data3D<T>::Data3D( string filename ){ 
+	load( filename ); 
+}
+
+// Copy Constructor - extremely similar to the copyTo function
+template<typename T>
+template<typename T2>
+Data3D<T>::Data3D( const Data3D<T2>& src ) {
+	// resize 
+	this->resize( src.get_size() );
+	// copy the data over
+	MatIterator_<T>       this_it;
+	MatConstIterator_<T2> src_it;
+	for( this_it = this->getMat().begin(), src_it = src.getMat().begin(); 
+		this_it < this->getMat().end(),   src_it < src.getMat().end();
+		this_it++, src_it++ )
+	{
+		// Yuchen: The convertion from T2 to T may be unsafe
+		*(this_it) = T( *(src_it) );
+	}
+}
 
 template <typename T>
 bool Data3D<T>::save( const string& file_name, const string& log, bool saveInfo, bool isBigEndian ) const
@@ -313,13 +276,13 @@ bool Data3D<T>::load( const string& file_name, const Vec3i& size, bool isBigEndi
 
 	// reset size of the data
 	reset( size );
-	
+
 	// loading data from file
 	FILE* pFile=fopen( file_name.c_str(), "rb" );
 	smart_return_value( pFile!=0, "File not found", false );
 
 	long long size_read = fread_big( _mat.data, sizeof(T), _size_total, pFile);
-	
+
 	fgetc( pFile );
 	// if we haven't read the end of the file
 	// and if we specify that we only want to load part of the data (isLoadPartial)
@@ -329,11 +292,11 @@ bool Data3D<T>::load( const string& file_name, const Vec3i& size, bool isBigEndi
 		return false;
 	}
 	fclose(pFile);
-	
+
 	// if the size we read is not as big as the size we expected, fail
 	smart_return_value( size_read==_size_total*sizeof(T), 
 		"Data size is incorrect (too big)", false );
-	
+
 	if( isBigEndian ) {
 		smart_return_value( sizeof(T)==2, "Datatype does not support big endian.", false );
 		// swap the data
@@ -369,7 +332,7 @@ void Data3D<T>::show(const string& window_name, int current_slice, T min_value, 
 		" p - previous slice \n" +\
 		" s - save the current slice \n" +\
 		" Exc - exit ";
-	
+
 	cout << "Displaying data by slice. " << endl;
 	cout << instructions << endl;
 	cout << "Displaying Slice #" << current_slice;
@@ -529,3 +492,72 @@ bool multiply3D( const Data3D<T1>& src1, const Data3D<T2>& src2, Data3D<T3>& dst
 	return true;
 }
 
+
+
+// remove some margin of the data
+template<typename T>
+inline bool Data3D<T>::remove_margin( const int& margin ) {
+	return remove_margin( Vec3i( margin, margin, margin) );
+}
+
+// remove some margin of the data
+// such that left_margin and right_margin are the same
+template<typename T>
+inline bool Data3D<T>::remove_margin( const Vec3i& margin ) {
+	return remove_margin( margin, margin );
+}
+
+// remove some margin of the data
+template<typename T>
+bool Data3D<T>::remove_margin( const Vec3i& margin1, const Vec3i& margin2 ) {
+	Vec3i n_size;
+	for( int i=0; i<3; i++ ){
+		n_size[i] = _size[i] - margin1[i] - margin2[i];
+		if( n_size[i] <= 0 ) {
+			cout << "Margin is too big. Remove margin failed. " << endl;
+			return false;
+		}
+	}
+
+	// allocate memory for new data
+	int n_size_slice = n_size[0] * n_size[1];
+	int n_size_total = n_size[2] * n_size_slice;
+	Mat_<T> n_mat = Mat_<T>( n_size[2], n_size_slice );
+
+	// Remove a negetive margin is equivalent to 
+	// padding zeros around the data
+	Vec3i spos = Vec3i(
+		max( margin1[0], 0), 
+		max( margin1[1], 0), 
+		max( margin1[2], 0)
+		); 
+	Vec3i epos = Vec3i(
+		min( _size[0]-margin2[0], _size[0] ), 
+		min( _size[1]-margin2[1], _size[1] ), 
+		min( _size[2]-margin2[2], _size[2] )
+		); 
+	for( int z=spos[2]; z<epos[2]; z++ ){
+		for( int y=spos[1]; y<epos[1]; y++ ){
+			for( int x=spos[0]; x<epos[0]; x++ ){
+				n_mat( z-margin1[2], (y-margin1[1])*n_size[0] + (x-margin1[0]) ) = _mat( z, y*_size[0] + x );
+			}
+		}
+	}
+	// update the data
+	// just passing the reference here is good
+	_mat = n_mat; 
+	// updata the size
+	_size = n_size;
+	_size_slice = n_size_slice;
+	_size_total = n_size_total;
+	return true; 
+}
+
+// Resize the data by cropping or padding
+// This is done through remove margin func
+template<typename T>
+void Data3D<T>::remove_margin_to( const Vec3i& size ) {
+	const Vec3i left( (int) floor(1.0f*(SX()-size[0])/2), (int) floor(1.0f*(SY()-size[1])/2), (int) floor(1.0f*(SZ()-size[2])/2) );
+	const Vec3i right( (int) ceil(1.0f*(SX()-size[0])/2),  (int) ceil(1.0f*(SY()-size[1])/2), (int) ceil(1.0f*(SZ()-size[2])/2)) ;
+	remove_margin( left, right );
+}

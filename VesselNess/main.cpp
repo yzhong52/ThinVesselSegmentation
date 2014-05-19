@@ -25,9 +25,9 @@ namespace experiment{
 
 int main(int argc, char* argv[])
 {
-	//experiment::synthetic_yes(); 
+	experiment::synthetic_yes(); 
 	//sample_code::vesselness( false, "data15" );
-	sample_code::centreline( true, "data15" ); 
+	//sample_code::centreline( true, "data15" ); 
 	return 0;
 }
 
