@@ -1,0 +1,98 @@
+# depslib dependency file v1.0
+1400729060 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrixcv-test\main.cpp
+	"../SparseMatrixCV/SparseMatrixCV.h"
+	<opencv2\core\core.hpp>
+	<iostream>
+
+1400726728 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrixcv\sparsematrixcv.h
+	"../SparseMatrix/SparseMatrix.h"
+	<opencv2/core/core.hpp>
+	<vector>
+
+1400698082 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrix.h
+	"SparseMatrixData.h"
+	"RC.h"
+	<vector>
+	<iostream>
+	<ostream>
+
+1398362213 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdata.h
+	"SparseMatrixDataCol.h"
+	"SparseMatrixDataRow.h"
+	<utility>
+
+1398362213 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdatacol.h
+	"SuperLU_4.3\SRC\slu_ddefs.h"
+
+1398362216 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\superlu_4.3\src\slu_ddefs.h
+	<fortran.h>
+	<string.h>
+	<math.h>
+	<limits.h>
+	"slu_Cnames.h"
+	"supermatrix.h"
+	"slu_util.h"
+
+1398362216 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\superlu_4.3\src\slu_cnames.h
+
+1398362216 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\superlu_4.3\src\supermatrix.h
+
+1400726707 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\superlu_4.3\src\slu_util.h
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<malloc.h>
+	<assert.h>
+	"superlu_enum_consts.h"
+
+1398362216 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\superlu_4.3\src\superlu_enum_consts.h
+
+1398362213 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdatarow.h
+	"SuperLU_4.3\SRC\slu_ddefs.h"
+
+1398362212 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\rc.h
+
+1398360686 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\opencv2.4.8\include\opencv2\core\core.hpp
+	"opencv2/core/types_c.h"
+	"opencv2/core/version.hpp"
+	<limits.h>
+	<algorithm>
+	<cmath>
+	<cstddef>
+	<complex>
+	<map>
+	<new>
+	<string>
+	<vector>
+	<sstream>
+	"opencv2/core/operations.hpp"
+	"opencv2/core/mat.hpp"
+
+1398360686 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\opencv2.4.8\include\opencv2\core\types_c.h
+	<assert.h>
+	<stdlib.h>
+	<string.h>
+	<float.h>
+	<stdint.h>
+	<intrin.h>
+	<emmintrin.h>
+	<fastmath.h>
+	<math.h>
+	<ipl.h>
+	<ipl/ipl.h>
+	"tegra_round.hpp"
+	"emmintrin.h"
+
+1398360686 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\opencv2.4.8\include\opencv2\core\version.hpp
+
+1398360686 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\opencv2.4.8\include\opencv2\core\operations.hpp
+	<string.h>
+	<limits.h>
+	<ext/atomicity.h>
+	<bits/atomicity.h>
+	<limits>
+
+1398360686 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\opencv2.4.8\include\opencv2\core\mat.hpp
+	<limits.h>
+	<string.h>
+

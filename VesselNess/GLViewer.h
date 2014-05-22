@@ -1,9 +1,8 @@
 #pragma once
 
 /////////////////////////////////////
-// Glew Library 
+// Glew Library
 #include "gl\glew.h"  // For Texture 3D and Blending_Ext
-#pragma comment(lib, "glew32.lib")
 
 /////////////////////////////////////
 // OpenGL Library
@@ -17,15 +16,15 @@
 #include "GLVideoSaver.h"
 #include <vector>
 
-class GLCamera; 
+class GLCamera;
 
 namespace GLViewer
 {
 	// derive the following virtual class in order to render your own objects
 	class Object{
 	public:
-		// Pure virtual functions 
-		// you have to implement these virtual functions in order to render it 
+		// Pure virtual functions
+		// you have to implement these virtual functions in order to render it
 		// with GLViewer
 		virtual void render(void) = 0;				 // render the object
 		virtual unsigned int size_x(void) const = 0; // size of the object
@@ -33,19 +32,19 @@ namespace GLViewer
 		virtual unsigned int size_z(void) const = 0; // size of the object
 
 		// Optional funtions to overide
-		// init function for OpenGL, excuted before rendering loop 
+		// init function for OpenGL, excuted before rendering loop
 		virtual void init(void) { }
 		// render function for OpenGL
 		// keyboard function for OpenGL
 		virtual void keyboard( unsigned char key ) { }
-	}; 
+	};
 
 	// camera infos
 	extern GLCamera cam;
-	extern int numViewports; 
-	void go( std::vector<Object*> objects, int w=1280, int h = 720  ); 
+	extern int numViewports;
+	void go( std::vector<Object*> objects, int w=1280, int h = 720  );
 
-	void startCaptureVideo( int maxNumFrames = 3600 ); 
+	void startCaptureVideo( int maxNumFrames = 3600 );
 
 	// TODO: visualize color texture
 }

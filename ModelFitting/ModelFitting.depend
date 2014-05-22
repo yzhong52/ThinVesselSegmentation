@@ -1,0 +1,529 @@
+# depslib dependency file v1.0
+1400697726 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\main.cpp
+	"stdafx.h"
+	<Windows.h>
+	<math.h>
+	"Line3D.h"
+	<Windows.h>
+	<process.h>
+	<iomanip>
+	"Data3D.h"
+	"MinSpanTree.h"
+	"GCoptimization.h"
+	"Line3DTwoPoint.h"
+	"LevenburgMaquart.h"
+	"GraphCut.h"
+	"SyntheticData.h"
+	"ImageProcessing.h"
+	"Timer.h"
+	"Neighbour26.h"
+	"SparseMatrix\SparseMatrix.h"
+	"ModelSet.h"
+	"init_models.h"
+	"EnergyFunctions.h"
+	<opencv2\core\core.hpp>
+	<assert.h>
+	<iostream>
+	<limits>
+	"GLViwerModel.h"
+
+1398360453 d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\stdafx.h
+	<vector>
+	<iostream>
+	"opencv2/core/core.hpp"
+	"opencv2/imgproc/imgproc.hpp"
+	"opencv2/video/video.hpp"
+	"opencv2/highgui/highgui.hpp"
+	"nstdio.h"
+
+1398360686 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\opencv2.4.8\include\opencv2\core\core.hpp
+	"opencv2/core/types_c.h"
+	"opencv2/core/version.hpp"
+	<limits.h>
+	<algorithm>
+	<cmath>
+	<cstddef>
+	<complex>
+	<map>
+	<new>
+	<string>
+	<vector>
+	<sstream>
+	"opencv2/core/operations.hpp"
+	"opencv2/core/mat.hpp"
+
+1398360686 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\opencv2.4.8\include\opencv2\core\types_c.h
+	<assert.h>
+	<stdlib.h>
+	<string.h>
+	<float.h>
+	<stdint.h>
+	<intrin.h>
+	<emmintrin.h>
+	<fastmath.h>
+	<math.h>
+	<ipl.h>
+	<ipl/ipl.h>
+	"tegra_round.hpp"
+	"emmintrin.h"
+
+1398360686 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\opencv2.4.8\include\opencv2\core\version.hpp
+
+1398360686 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\opencv2.4.8\include\opencv2\core\operations.hpp
+	<string.h>
+	<limits.h>
+	<ext/atomicity.h>
+	<bits/atomicity.h>
+	<limits>
+
+1398360686 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\opencv2.4.8\include\opencv2\core\mat.hpp
+	<limits.h>
+	<string.h>
+
+1398360686 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\opencv2.4.8\include\opencv2\imgproc\imgproc.hpp
+	"opencv2/core/core.hpp"
+	"opencv2/imgproc/types_c.h"
+
+1398360686 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\opencv2.4.8\include\opencv2\imgproc\types_c.h
+	"opencv2/core/core_c.h"
+
+1398360686 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\opencv2.4.8\include\opencv2\core\core_c.h
+	"opencv2/core/types_c.h"
+
+1398360686 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\opencv2.4.8\include\opencv2\video\video.hpp
+	"opencv2/video/tracking.hpp"
+	"opencv2/video/background_segm.hpp"
+
+1398360686 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\opencv2.4.8\include\opencv2\video\tracking.hpp
+	"opencv2/core/core.hpp"
+	"opencv2/imgproc/imgproc.hpp"
+
+1398360686 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\opencv2.4.8\include\opencv2\video\background_segm.hpp
+	"opencv2/core/core.hpp"
+	<list>
+
+1398360686 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\opencv2.4.8\include\opencv2\highgui\highgui.hpp
+	"opencv2/core/core.hpp"
+	"opencv2/highgui/highgui_c.h"
+
+1398360686 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\opencv2.4.8\include\opencv2\highgui\highgui_c.h
+	"opencv2/core/core_c.h"
+
+1398360460 d:\users\yzhong52\documents\github\thin_vessel_segmentation\vesselness\nstdio.h
+	<stdio.h>
+
+1400727338 d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\line3d.h
+	"stdafx.h"
+	<iostream>
+
+1400690706 d:\users\yzhong52\documents\github\thin_vessel_segmentation\vesselness\data3d.h
+	"stdafx.h"
+	"TypeInfo.h"
+	"nstdio.h"
+	<fstream>
+
+1398360681 d:\users\yzhong52\documents\github\thin_vessel_segmentation\vesselness\stdafx.h
+	<vector>
+	<iostream>
+	"opencv2/core/core.hpp"
+	"opencv2/imgproc/imgproc.hpp"
+	"opencv2/video/video.hpp"
+	"opencv2/highgui/highgui.hpp"
+	"smart_assert.h"
+
+1400690973 d:\users\yzhong52\documents\github\thin_vessel_segmentation\vesselness\smart_assert.h
+	<assert.h>
+	<iostream>
+
+1399493887 d:\users\yzhong52\documents\github\thin_vessel_segmentation\vesselness\typeinfo.h
+	<string>
+	<opencv2/core/core.hpp>
+	"VesselNessTypes.h"
+
+1399493887 d:\users\yzhong52\documents\github\thin_vessel_segmentation\vesselness\vesselnesstypes.h
+	"stdafx.h"
+
+1398360460 d:\users\yzhong52\documents\github\thin_vessel_segmentation\vesselness\minspantree.h
+	<iostream>
+	"Graph.h"
+	"Edge.h"
+	"DataTypes.h"
+
+1400691401 d:\users\yzhong52\documents\github\thin_vessel_segmentation\vesselness\graph.h
+	<iostream>
+	<queue>
+	<vector>
+	"Edge.h"
+	"DisjointSet.h"
+
+1398360459 d:\users\yzhong52\documents\github\thin_vessel_segmentation\vesselness\edge.h
+	<iostream>
+
+1398360459 d:\users\yzhong52\documents\github\thin_vessel_segmentation\vesselness\disjointset.h
+	<iostream>
+
+1400698425 d:\users\yzhong52\documents\github\thin_vessel_segmentation\vesselness\datatypes.h
+	"Edge.h"
+	<vector>
+	<algorithm>
+
+1398360451 d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\gco-v3.0\\gcoptimization.h
+	<cstddef>
+	"energy.h"
+	"graph.cpp"
+	"maxflow.cpp"
+	<ctime>
+
+1398360451 d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\gco-v3.0\\energy.h
+	<stdio.h>
+	"energy.h"
+	<assert.h>
+	"graph.h"
+
+1398360452 d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\gco-v3.0\\graph.h
+	<string.h>
+	"block.h"
+	<assert.h>
+
+1398360451 d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\gco-v3.0\\block.h
+	"block.h"
+	<stdlib.h>
+
+1398360452 d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\gco-v3.0\\graph.cpp
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"graph.h"
+
+1398360453 d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\gco-v3.0\\maxflow.cpp
+	<stdio.h>
+	"graph.h"
+
+1400698323 d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\line3dtwopoint.h
+	"line3d.h"
+
+1400508275 d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\levenburgmaquart.h
+	"SparseMatrixCV\SparseMatrixCV.h"
+	"opencv2\core\core.hpp"
+	"ModelSet.h"
+	"EnergyFunctions.h"
+	<array>
+	<vector>
+
+1400726728 d:\users\yzhong52\documents\github\thin_vessel_segmentation\\sparsematrixcv\sparsematrixcv.h
+	"../SparseMatrix/SparseMatrix.h"
+	<opencv2/core/core.hpp>
+	<vector>
+
+1400698082 d:\users\yzhong52\documents\github\thin_vessel_segmentation\\sparsematrix\sparsematrix.h
+	"SparseMatrixData.h"
+	"RC.h"
+	<vector>
+	<iostream>
+	<ostream>
+
+1398362213 d:\users\yzhong52\documents\github\thin_vessel_segmentation\\sparsematrix\sparsematrixdata.h
+	"SparseMatrixDataCol.h"
+	"SparseMatrixDataRow.h"
+	<utility>
+
+1398362213 d:\users\yzhong52\documents\github\thin_vessel_segmentation\\sparsematrix\sparsematrixdatacol.h
+	"SuperLU_4.3\SRC\slu_ddefs.h"
+
+1398362216 d:\users\yzhong52\documents\github\thin_vessel_segmentation\\sparsematrix\superlu_4.3\src\slu_ddefs.h
+	<fortran.h>
+	<string.h>
+	<math.h>
+	<limits.h>
+	"slu_Cnames.h"
+	"supermatrix.h"
+	"slu_util.h"
+
+1398362216 d:\users\yzhong52\documents\github\thin_vessel_segmentation\\sparsematrix\superlu_4.3\src\slu_cnames.h
+
+1398362216 d:\users\yzhong52\documents\github\thin_vessel_segmentation\\sparsematrix\superlu_4.3\src\supermatrix.h
+
+1400726707 d:\users\yzhong52\documents\github\thin_vessel_segmentation\\sparsematrix\superlu_4.3\src\slu_util.h
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<malloc.h>
+	<assert.h>
+	"superlu_enum_consts.h"
+
+1398362216 d:\users\yzhong52\documents\github\thin_vessel_segmentation\\sparsematrix\superlu_4.3\src\superlu_enum_consts.h
+
+1398362213 d:\users\yzhong52\documents\github\thin_vessel_segmentation\\sparsematrix\sparsematrixdatarow.h
+	"SuperLU_4.3\SRC\slu_ddefs.h"
+
+1398362212 d:\users\yzhong52\documents\github\thin_vessel_segmentation\\sparsematrix\rc.h
+
+1400727009 d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\modelset.h
+	<vector>
+	<iostream>
+	<string>
+	<fstream>
+	<vector>
+
+1400508275 d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\energyfunctions.h
+	<vector>
+	<array>
+	"opencv2\core\core.hpp"
+
+1400508275 d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\graphcut.h
+	"opencv2/core/core.hpp"
+
+1400698439 d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\syntheticdata.h
+	"Data3D.h"
+	<random>
+	<cmath>
+
+1400508275 d:\users\yzhong52\documents\github\thin_vessel_segmentation\vesselness\imageprocessing.h
+	"stdafx.h"
+	"Image3D.h"
+	"Kernel3D.h"
+
+1398360681 d:\users\yzhong52\documents\github\thin_vessel_segmentation\vesselness\image3d.h
+	"stdafx.h"
+	"Data3D.h"
+	<fstream>
+
+1398360681 d:\users\yzhong52\documents\github\thin_vessel_segmentation\vesselness\kernel3d.h
+	"stdafx.h"
+
+1399493829 d:\users\yzhong52\documents\github\thin_vessel_segmentation\\timer.h
+	<string>
+	<unordered_map>
+
+1400508275 d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\neighbour26.h
+	<vector>
+	"opencv2\core\core.hpp"
+	"smart_assert.h"
+
+1400508275 d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\init_models.h
+	<vector>
+	"opencv2\core\core.hpp"
+
+1400508275 d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\glviwermodel.h
+	"GLViwerWrapper.h"
+	"GLLineModel.h"
+
+1400691129 d:\users\yzhong52\documents\github\thin_vessel_segmentation\vesselness\glviwerwrapper.h
+	<opencv2\opencv.hpp>
+	"Data3D.h"
+	"GLVolumn.h"
+	"GLDirection.h"
+	"GLCenterLine.h"
+	"GLViewer.h"
+	"MinSpanTreeWrapper.h"
+
+1398360686 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\opencv2.4.8\include\opencv2\opencv.hpp
+	"opencv2/core/core_c.h"
+	"opencv2/core/core.hpp"
+	"opencv2/imgproc/imgproc_c.h"
+	"opencv2/imgproc/imgproc.hpp"
+	"opencv2/video/video.hpp"
+	"opencv2/highgui/highgui_c.h"
+	"opencv2/highgui/highgui.hpp"
+
+1398360686 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\opencv2.4.8\include\opencv2\imgproc\imgproc_c.h
+	"opencv2/core/core_c.h"
+	"opencv2/imgproc/types_c.h"
+
+1398360459 d:\users\yzhong52\documents\github\thin_vessel_segmentation\vesselness\glvolumn.h
+	"Graph.h"
+	"MinSpanTree.h"
+	"MinSpanTreeWrapper.h"
+	"DataTypes.h"
+	<windows.h>
+	<queue>
+	"GLViewer.h"
+	"gl\glew.h"
+	<gl\gl.h>
+	<gl\glu.h>
+	"GLCamera.h"
+
+1400691724 d:\users\yzhong52\documents\github\thin_vessel_segmentation\vesselness\minspantreewrapper.h
+	"MinSpanTree.h"
+	"Data3D.h"
+	"VesselNessTypes.h"
+	"ImageProcessing.h"
+
+1400690677 d:\users\yzhong52\documents\github\thin_vessel_segmentation\vesselness\glviewer.h
+	"gl\glew.h"
+	<windows.h>
+	<gl\gl.h>
+	<gl\glu.h>
+	"GLVideoSaver.h"
+	<vector>
+
+1398360460 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\glew-1.10.0\include\gl\glew.h
+	<stddef.h>
+	<inttypes.h>
+	<stdint.h>
+	<inttypes.h>
+	<OpenGL/glu.h>
+	<GL/glu.h>
+
+1398360459 d:\users\yzhong52\documents\github\thin_vessel_segmentation\vesselness\glvideosaver.h
+	<string>
+
+1398360459 d:\users\yzhong52\documents\github\thin_vessel_segmentation\vesselness\glcamera.h
+	"gl\glew.h"
+	<windows.h>
+	<gl\gl.h>
+	<gl\glu.h>
+
+1400508275 d:\users\yzhong52\documents\github\thin_vessel_segmentation\vesselness\gldirection.h
+	<windows.h>
+	<queue>
+	"GLViewer.h"
+	<gl\gl.h>
+	<gl\glu.h>
+	"VesselNessTypes.h"
+	"Data3D.h"
+
+1400697598 d:\users\yzhong52\documents\github\thin_vessel_segmentation\vesselness\glcenterline.h
+	"Graph.h"
+	"MinSpanTreeWrapper.h"
+	"DataTypes.h"
+	"GLViewer.h"
+	"gl\glew.h"
+	<gl\gl.h>
+	<gl\glu.h>
+	"GL\freeglut.h"
+
+1398360460 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\freeglut 2.8.1\include\gl\freeglut.h
+	"freeglut_std.h"
+	"freeglut_ext.h"
+
+1398360460 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\freeglut 2.8.1\include\gl\freeglut_std.h
+	<windows.h>
+	<OpenGL/gl.h>
+	<OpenGL/glu.h>
+	<GL/gl.h>
+	<GL/glu.h>
+	<stdlib.h>
+
+1398360460 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\freeglut 2.8.1\include\gl\freeglut_ext.h
+	<stdarg.h>
+
+1400508275 d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\gllinemodel.h
+	"stdafx.h"
+	"GLViewer.h"
+	"Data3D.h"
+	<Windows.h>
+	<process.h>
+	<vector>
+	"Line3D.h"
+
+1400727579 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\energyfunctions.cpp
+	"EnergyFunctions.h"
+	"opencv2\core\core.hpp"
+	"Line3D.h"
+	"Neighbour26.h"
+	"Data3D.h"
+	"Timer.h"
+	"../SparseMatrixCV/SparseMatrixCV.h"
+	<vector>
+	<omp.h>
+
+1400726728 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrixcv\sparsematrixcv.h
+	"../SparseMatrix/SparseMatrix.h"
+	<opencv2/core/core.hpp>
+	<vector>
+
+1400698082 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrix.h
+	"SparseMatrixData.h"
+	"RC.h"
+	<vector>
+	<iostream>
+	<ostream>
+
+1398362213 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdata.h
+	"SparseMatrixDataCol.h"
+	"SparseMatrixDataRow.h"
+	<utility>
+
+1398362213 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdatacol.h
+	"SuperLU_4.3\SRC\slu_ddefs.h"
+
+1398362216 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\superlu_4.3\src\slu_ddefs.h
+	<fortran.h>
+	<string.h>
+	<math.h>
+	<limits.h>
+	"slu_Cnames.h"
+	"supermatrix.h"
+	"slu_util.h"
+
+1398362216 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\superlu_4.3\src\slu_cnames.h
+
+1398362216 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\superlu_4.3\src\supermatrix.h
+
+1400726707 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\superlu_4.3\src\slu_util.h
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<malloc.h>
+	<assert.h>
+	"superlu_enum_consts.h"
+
+1398362216 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\superlu_4.3\src\superlu_enum_consts.h
+
+1398362213 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdatarow.h
+	"SuperLU_4.3\SRC\slu_ddefs.h"
+
+1398362212 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\rc.h
+
+1400697776 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\gllinemodel.cpp
+	"GLLineModel.h"
+
+1400508275 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\glviwermodel.cpp
+	"GLViwerModel.h"
+	"Line3D.h"
+
+1400508275 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\graphcut.cpp
+	"GraphCut.h"
+	<iostream>
+	<iomanip>
+	<Windows.h>
+	"Line3D.h"
+	"GCoptimization.h"
+
+1400698253 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\init_models.cpp
+	"init_models.h"
+	"VesselnessTypes.h"
+	"Line3DTwoPoint.h"
+	"ModelSet.h"
+	"Data3D.h"
+	"ImageProcessing.h"
+	"Neighbour26.h"
+
+1400698325 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\line3dtwopoint.cpp
+	"Line3DTwoPoint.h"
+
+1399493829 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\line3d.cpp
+	"Line3D.h"
+
+1400508275 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\levenburgmaquart.cpp
+	"LevenburgMaquart.h"
+	<iostream>
+	<iomanip>
+	<Windows.h>
+	<limits>
+	"Line3D.h"
+	"Neighbour26.h"
+	"Data3D.h"
+	"Timer.h"
+	"ModelSet.h"
+	"EnergyFunctions.h"
+	"SparseMatrixCV\SparseMatrixCV.h"
+	<omp.h>
+	<array>
+	<vector>
+
+1399493887 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\stdafx.cpp
+	"stdafx.h"
+	"VesselnessTypes.h"
+

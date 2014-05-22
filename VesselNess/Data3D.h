@@ -1,7 +1,7 @@
 #pragma once
 
 #include "stdafx.h"
-#include "TypeInfo.h" 
+#include "TypeInfo.h"
 #include "nstdio.h"
 #include <fstream> // For reading and saving files
 
@@ -11,7 +11,7 @@ public:
 	//////////////////////////////////////////////////////////////////////
 	// Constructors & Destructors
 	// Default Constructor
-	Data3D( const Vec3i& n_size = 0); 
+	Data3D( const Vec3i& n_size = Vec3i(0,0,0));
 	// Constructor with size and value
 	Data3D( const Vec3i& n_size, const T& value );
 	// Constructor from file
@@ -37,7 +37,7 @@ public:
 		_size_slice = _size[0] * _size[1];
 		_size_total = _size_slice * _size[2];
 		_mat = Mat_<T>( _size[2], _size_slice );
-		memset( _mat.data, 0, _size_total * sizeof(T) ); 
+		memset( _mat.data, 0, _size_total * sizeof(T) );
 	}
 	void reset( void ) {
 		memset( _mat.data, 0, _size_total * sizeof(T) );
@@ -68,16 +68,16 @@ public:
 
 	// getters about values of the data
 	virtual const inline T& at( const int& i ) const {
-		return _mat( i ); 
+		return _mat( i );
 	}
 	virtual inline T& at( const int& i ) {
-		return _mat( i ); 
+		return _mat( i );
 	}
-	virtual const inline T& at( const int& x, const int& y, const int& z ) const { 
-		return _mat( z, y * _size[0] + x ); 
+	virtual const inline T& at( const int& x, const int& y, const int& z ) const {
+		return _mat( z, y * _size[0] + x );
 	}
-	virtual inline T& at( const int& x, const int& y, const int& z ) { 
-		return _mat( z, y * _size[0] + x ); 
+	virtual inline T& at( const int& x, const int& y, const int& z ) {
+		return _mat( z, y * _size[0] + x );
 	}
 	virtual const inline T& at( const Vec3i& pos ) const {
 		return at( pos[0], pos[1], pos[2] );
@@ -93,10 +93,10 @@ public:
 	// loading/saving data from/to file
 	bool load( const string& file_name );
 	bool load( const string& file_name, const Vec3i& size, bool isBigEndian=true, bool isLoadPartial=false );
-	bool save( const string& file_name, const string& log = "", 
+	bool save( const string& file_name, const string& log = "",
 		bool saveInfo = true, bool isBigEndian = false ) const;
 	void show( const string& window_name = "Show 3D Data by Slice", int current_slice = 0 ) const;
-	void show( const string& window_name, int current_slice, T max_value, T min_value ) const; 
+	void show( const string& window_name, int current_slice, T max_value, T min_value ) const;
 
 	// overwrite operators
 	template<typename T1, typename T2>
@@ -128,7 +128,7 @@ public:
 	// e.g. this is useful when trying to visualize vesselness which is
 	// a multidimensional data structure
 	// Yuchen: p.s. I have no idea how to move the funciton body out the class
-	// definition nicely. Let me figure it later maybe. 
+	// definition nicely. Let me figure it later maybe.
 	template<typename T2>
 	void copyDimTo( Data3D<T2>& dst, int dim ) const {
 		dst.reset( this->get_size() );
@@ -139,10 +139,10 @@ public:
 	}
 
 	// remove some margin of the data
-	inline bool remove_margin( const int& margin ); 
+	inline bool remove_margin( const int& margin );
 	// remove some margin of the data
 	// such that left_margin and right_margin are the same
-	inline bool remove_margin( const Vec3i& margin ); 
+	inline bool remove_margin( const Vec3i& margin );
 	// remove some margin of the data
 	bool remove_margin( const Vec3i& margin1, const Vec3i& margin2 );
 	// Resize the data by cropping or padding
@@ -156,26 +156,26 @@ public:
 			y>=0 && y<get_size_y() &&
 			z>=0 && z<get_size_z() );
 	}
-	bool isValid( const Vec3i& v ) const { 
+	bool isValid( const Vec3i& v ) const {
 		return isValid( v[0], v[1], v[2] );
 	}
 
 	const T* getData(void) const {
-		return (T*) getMat().data; 
+		return (T*) getMat().data;
 	}
 
 	T* getData(void) {
-		return (T*) getMat().data; 
+		return (T*) getMat().data;
 	}
 
 protected:
-	// Maximum size of the x, y and z direction respetively. 
+	// Maximum size of the x, y and z direction respetively.
 	Vec3i _size;
 	// int size_x, size_y, size_z;
 	// size_x * size_y * size_z
-	long _size_total;   
+	long _size_total;
 	// size_x * size_y
-	long _size_slice; 
+	long _size_slice;
 	// data <T>
 	Mat_<T> _mat;
 
@@ -188,32 +188,32 @@ private:
 
 // Default Constructor
 template <typename T>
-Data3D<T>::Data3D( const Vec3i& n_size = 0){ 
-	reset(n_size); 
+Data3D<T>::Data3D( const Vec3i& n_size ){
+	reset(n_size);
 }
 
 // Constructor with size and value
 template <typename T>
-Data3D<T>::Data3D( const Vec3i& n_size, const T& value ){ 
+Data3D<T>::Data3D( const Vec3i& n_size, const T& value ){
 	reset(n_size, value);
-}	
+}
 
 // Constructor with a given file
 template<typename T>
-Data3D<T>::Data3D( string filename ){ 
-	load( filename ); 
+Data3D<T>::Data3D( string filename ){
+	load( filename );
 }
 
 // Copy Constructor - extremely similar to the copyTo function
 template<typename T>
 template<typename T2>
 Data3D<T>::Data3D( const Data3D<T2>& src ) {
-	// resize 
+	// resize
 	this->resize( src.get_size() );
 	// copy the data over
 	MatIterator_<T>       this_it;
 	MatConstIterator_<T2> src_it;
-	for( this_it = this->getMat().begin(), src_it = src.getMat().begin(); 
+	for( this_it = this->getMat().begin(), src_it = src.getMat().begin();
 		this_it < this->getMat().end(),   src_it < src.getMat().end();
 		this_it++, src_it++ )
 	{
@@ -294,7 +294,7 @@ bool Data3D<T>::load( const string& file_name, const Vec3i& size, bool isBigEndi
 	fclose(pFile);
 
 	// if the size we read is not as big as the size we expected, fail
-	smart_return_value( size_read==_size_total*sizeof(T), 
+	smart_return_value( size_read==_size_total*sizeof(T),
 		"Data size is incorrect (too big)", false );
 
 	if( isBigEndian ) {
@@ -313,15 +313,15 @@ bool Data3D<T>::load( const string& file_name, const Vec3i& size, bool isBigEndi
 
 
 template<typename T>
-void Data3D<T>::show(const string& window_name, int current_slice, T min_value, T max_value ) const 
+void Data3D<T>::show(const string& window_name, int current_slice, T min_value, T max_value ) const
 {
 	smart_return( this->get_size_total(), "Data is empty." );
-	smart_return( 
+	smart_return(
 		typeid(T)==typeid(float)||
 		typeid(T)==typeid(short)||
 		typeid(T)==typeid(int)||
 		typeid(T)==typeid(unsigned char)||
-		typeid(T)==typeid(unsigned short), 
+		typeid(T)==typeid(unsigned short),
 		"Datatype cannot be visualized." );
 
 	namedWindow( window_name.c_str(), CV_WINDOW_AUTOSIZE );
@@ -336,9 +336,9 @@ void Data3D<T>::show(const string& window_name, int current_slice, T min_value, 
 	cout << "Displaying data by slice. " << endl;
 	cout << instructions << endl;
 	cout << "Displaying Slice #" << current_slice;
-	if( current_slice > SZ() ) current_slice = SZ(); 
+	if( current_slice > SZ() ) current_slice = SZ();
 	do {
-		Mat mat_temp = _mat.row(current_slice).reshape( 0, get_height() ).clone(); 
+		Mat mat_temp = _mat.row(current_slice).reshape( 0, get_height() ).clone();
 		// change the data type from whatever dataype it is to float for computation
 		mat_temp.convertTo(mat_temp, CV_32F);
 		// normalize the data range from whatever it is to [0, 255];
@@ -351,7 +351,7 @@ void Data3D<T>::show(const string& window_name, int current_slice, T min_value, 
 		// key controls
 		int key = cvWaitKey(0);
 		// Yuchen: Program will stop at cvWaitKey above and User may
-		// close the windows at this moment. 
+		// close the windows at this moment.
 		if( !cvGetWindowHandle( window_name.c_str()) ) break;
 		if( key == 27 ) {
 			break;
@@ -367,9 +367,9 @@ void Data3D<T>::show(const string& window_name, int current_slice, T min_value, 
 			}
 		} else if ( key =='s' ) {
 			stringstream ss;
-			ss << "output/" << window_name << "_Data_Slice_"; 
+			ss << "output/" << window_name << "_Data_Slice_";
 			ss.width(3); ss.fill('0');
-			ss << current_slice << ".jpg"; 
+			ss << current_slice << ".jpg";
 			cv::imwrite( ss.str(), mat_temp );
 		} else {
 			cout << '\r' << "Unknow Input '"<< char(key) << "'. Please follow the instructions above.";
@@ -380,7 +380,7 @@ void Data3D<T>::show(const string& window_name, int current_slice, T min_value, 
 }
 
 template<typename T>
-void Data3D<T>::show(const string& window_name, int current_slice ) const 
+void Data3D<T>::show(const string& window_name, int current_slice ) const
 {
 	// find the maximum and minimum value (method3)
 	Point minLoc, maxLoc;
@@ -421,15 +421,15 @@ bool Data3D<T>::load_info( const string& file_name, Vec3i& size, bool& isBigEndi
 	}
 	// size of the data
 	fin >> size[0];
-	fin >> size[1]; 
-	fin >> size[2]; 
+	fin >> size[1];
+	fin >> size[2];
 	fin.ignore(255, '\n');
-	// data type 
+	// data type
 	string str_type;
 	fin >> str_type;
 	fin.ignore(255, '\n');
 	if( TypeInfo<T>::str().compare( str_type ) != 0 ){
-		cout << "Loading information error: "; 
+		cout << "Loading information error: ";
 		cout << "Data3D<" << TypeInfo<T>::str() << "> cannot load Data3D<" << str_type << ">. "<< endl;
 		return false;
 	}
@@ -524,18 +524,18 @@ bool Data3D<T>::remove_margin( const Vec3i& margin1, const Vec3i& margin2 ) {
 	int n_size_total = n_size[2] * n_size_slice;
 	Mat_<T> n_mat = Mat_<T>( n_size[2], n_size_slice );
 
-	// Remove a negetive margin is equivalent to 
+	// Remove a negetive margin is equivalent to
 	// padding zeros around the data
 	Vec3i spos = Vec3i(
-		max( margin1[0], 0), 
-		max( margin1[1], 0), 
+		max( margin1[0], 0),
+		max( margin1[1], 0),
 		max( margin1[2], 0)
-		); 
+		);
 	Vec3i epos = Vec3i(
-		min( _size[0]-margin2[0], _size[0] ), 
-		min( _size[1]-margin2[1], _size[1] ), 
+		min( _size[0]-margin2[0], _size[0] ),
+		min( _size[1]-margin2[1], _size[1] ),
 		min( _size[2]-margin2[2], _size[2] )
-		); 
+		);
 	for( int z=spos[2]; z<epos[2]; z++ ){
 		for( int y=spos[1]; y<epos[1]; y++ ){
 			for( int x=spos[0]; x<epos[0]; x++ ){
@@ -545,12 +545,12 @@ bool Data3D<T>::remove_margin( const Vec3i& margin1, const Vec3i& margin2 ) {
 	}
 	// update the data
 	// just passing the reference here is good
-	_mat = n_mat; 
+	_mat = n_mat;
 	// updata the size
 	_size = n_size;
 	_size_slice = n_size_slice;
 	_size_total = n_size_total;
-	return true; 
+	return true;
 }
 
 // Resize the data by cropping or padding
