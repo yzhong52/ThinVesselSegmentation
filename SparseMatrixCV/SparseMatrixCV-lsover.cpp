@@ -1,6 +1,7 @@
+#include <opencv2/core/core.hpp>
+
 #include "SparseMatrixCV.h"
 #include <iostream>
-#include <opencv2/core/core.hpp>
 
 using namespace std;
 #include "lsolver\bicgsq.h"

@@ -81,7 +81,12 @@
 /***********************************************************************
  * Constants
  ***********************************************************************/
-//#define EMPTY	(-1)
+
+// Modified by Yuchen 2014-05-22
+#ifndef EMPTY
+	#define EMPTY	(-1)
+#endif
+
 /*#define NO	(-1)*/
 #define FALSE	0
 #define TRUE	1

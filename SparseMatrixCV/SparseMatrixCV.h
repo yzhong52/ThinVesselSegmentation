@@ -1,10 +1,8 @@
 #pragma once
 
-#include "../SparseMatrix/SparseMatrix.h"
 #include <opencv2/core/core.hpp>
+#include "../SparseMatrix/SparseMatrix.h"
 #include <vector>
-
-
 
 // A wraper for SparseMatrix for OpenCV
 class SparseMatrixCV : public SparseMatrix

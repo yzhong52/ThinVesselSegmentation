@@ -8,17 +8,18 @@
 #include <vector>
 #include <omp.h>
 
-//#ifdef _DEBUG
-//	#pragma comment(lib,"../x64/Debug/SparseMatrixCV.lib")
-//	#pragma comment(lib,"../x64/Debug/SparseMatrix.lib")
-//#else
-//	#pragma comment(lib,"../x64/Release/SparseMatrixCV.lib")
-//	#pragma comment(lib,"../x64/Release/SparseMatrix.lib")
-//#endif
+#if _MSC_VER && !__INTEL_COMPILER
+	#ifdef _DEBUG
+		#pragma comment(lib,"../x64/Debug/SparseMatrixCV.lib")
+		#pragma comment(lib,"../x64/Debug/SparseMatrix.lib")
+	#else
+		#pragma comment(lib,"../x64/Release/SparseMatrixCV.lib")
+		#pragma comment(lib,"../x64/Release/SparseMatrix.lib")
+	#endif
+#endif
 
 using namespace std;
 using namespace cv;
-
 
 static const double epsilon_double = 1e-50;
 

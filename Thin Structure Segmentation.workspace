@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_workspace_file>
 	<Workspace title="Thin Structure Segmentation">
-		<Project filename="ModelFitting/ModelFitting.cbp" />
 		<Project filename="SparseMatrix/SparseMatrix.cbp" />
 		<Project filename="SparseMatrixCV/SparseMatrixCV.cbp" />
 		<Project filename="SparseMatrixCV-test/SparseMatrixCV-test.cbp" />
+		<Project filename="Vesselness/Vesselness.cbp" />
+		<Project filename="ModelFitting/ModelFitting.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>

@@ -201,7 +201,11 @@ Data3D<T>::Data3D( const Vec3i& n_size, const T& value ){
 // Constructor with a given file
 template<typename T>
 Data3D<T>::Data3D( string filename ){
-	load( filename );
+	bool flag = load( filename );
+	if( !flag ) {
+        std::cout << "Cannot load the file. " << std::endl;
+        system( "pause" );
+	}
 }
 
 // Copy Constructor - extremely similar to the copyTo function

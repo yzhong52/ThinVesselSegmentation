@@ -24,9 +24,13 @@
 				</Compiler>
 				<Linker>
 					<Add library="libopencv_core248.dll.a" />
+					<Add library="libSparseMatrixCV.a" />
+					<Add library="libSparseMatrix.a" />
+					<Add library="libgomp.a" />
 					<Add directory="../dependencies/opencv2.4.8/x64-mingw32-w64" />
 					<Add directory="../dependencies/glew-1.10.0/x64" />
 					<Add directory="../dependencies/freeglut 2.8.1/x64" />
+					<Add directory="../libs" />
 				</Linker>
 			</Target>
 			<Target title="Release">

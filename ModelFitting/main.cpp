@@ -48,7 +48,10 @@ const double PAIRWISE_SMOOTH2 = PAIRWISE_SMOOTH * PAIRWISE_SMOOTH;
 //#define IS_PROFILING
 HANDLE thread_render = NULL;
 
-#define IS_PROFILING
+#if !(_MSC_VER && !__INTEL_COMPILER)
+	#define IS_PROFILING
+#endif
+
 #ifndef IS_PROFILING // NOT profiling, add visualization model
 	#include "GLViwerModel.h"
 	GLViwerModel ver;
@@ -91,7 +94,7 @@ HANDLE thread_render = NULL;
 		numViewports += (im3!=NULL);
 		thread_render = (HANDLE) _beginthread( visualization_func, 0, (void*)&numViewports );
 
-		Sleep(1000);
+		Sleep( 1000 );
 	}
 
 #else
@@ -164,7 +167,8 @@ void experiment1_video( void ) {
 
 int main(int argc, char* argv[])
 {
-	// centerline
+    cout << Mat::zeros(3,2, CV_32F) << endl;
+    // centerline
 	// experiment6_video();
 
 	// energy converging

@@ -1,11 +1,13 @@
 #include "SparseMatrixCV.h"
 
 // Todo: the following not supported by g++
-//#ifdef _DEBUG
-//#pragma comment(lib,"../x64/Debug/SparseMatrix.lib")
-//#else
-//#pragma comment(lib,"../x64/Release/SparseMatrix.lib")
-//#endif
+#if _MSC_VER && !__INTEL_COMPILER
+	#ifdef _DEBUG
+		#pragma comment(lib,"../x64/Debug/SparseMatrix.lib")
+	#else
+		#pragma comment(lib,"../x64/Release/SparseMatrix.lib")
+	#endif
+#endif
 
 #include <vector>
 

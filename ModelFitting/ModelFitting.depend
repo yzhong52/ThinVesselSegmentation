@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1400697726 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\main.cpp
+1400797791 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\main.cpp
 	"stdafx.h"
 	<Windows.h>
 	<math.h>
@@ -116,7 +116,7 @@
 	"stdafx.h"
 	<iostream>
 
-1400690706 d:\users\yzhong52\documents\github\thin_vessel_segmentation\vesselness\data3d.h
+1400789522 d:\users\yzhong52\documents\github\thin_vessel_segmentation\vesselness\data3d.h
 	"stdafx.h"
 	"TypeInfo.h"
 	"nstdio.h"
@@ -210,9 +210,9 @@
 	<array>
 	<vector>
 
-1400726728 d:\users\yzhong52\documents\github\thin_vessel_segmentation\\sparsematrixcv\sparsematrixcv.h
-	"../SparseMatrix/SparseMatrix.h"
+1400774900 d:\users\yzhong52\documents\github\thin_vessel_segmentation\\sparsematrixcv\sparsematrixcv.h
 	<opencv2/core/core.hpp>
+	"../SparseMatrix/SparseMatrix.h"
 	<vector>
 
 1400698082 d:\users\yzhong52\documents\github\thin_vessel_segmentation\\sparsematrix\sparsematrix.h
@@ -243,7 +243,7 @@
 
 1398362216 d:\users\yzhong52\documents\github\thin_vessel_segmentation\\sparsematrix\superlu_4.3\src\supermatrix.h
 
-1400726707 d:\users\yzhong52\documents\github\thin_vessel_segmentation\\sparsematrix\superlu_4.3\src\slu_util.h
+1400774664 d:\users\yzhong52\documents\github\thin_vessel_segmentation\\sparsematrix\superlu_4.3\src\slu_util.h
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
@@ -304,7 +304,7 @@
 	<vector>
 	"opencv2\core\core.hpp"
 
-1400508275 d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\glviwermodel.h
+1400788374 d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\glviwermodel.h
 	"GLViwerWrapper.h"
 	"GLLineModel.h"
 
@@ -417,7 +417,7 @@
 	<vector>
 	"Line3D.h"
 
-1400727579 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\energyfunctions.cpp
+1400775017 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\energyfunctions.cpp
 	"EnergyFunctions.h"
 	"opencv2\core\core.hpp"
 	"Line3D.h"
@@ -428,9 +428,9 @@
 	<vector>
 	<omp.h>
 
-1400726728 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrixcv\sparsematrixcv.h
-	"../SparseMatrix/SparseMatrix.h"
+1400774900 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrixcv\sparsematrixcv.h
 	<opencv2/core/core.hpp>
+	"../SparseMatrix/SparseMatrix.h"
 	<vector>
 
 1400698082 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrix.h
@@ -461,7 +461,7 @@
 
 1398362216 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\superlu_4.3\src\supermatrix.h
 
-1400726707 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\superlu_4.3\src\slu_util.h
+1400774664 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\superlu_4.3\src\slu_util.h
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
@@ -506,7 +506,7 @@
 1399493829 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\line3d.cpp
 	"Line3D.h"
 
-1400508275 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\levenburgmaquart.cpp
+1400798586 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\levenburgmaquart.cpp
 	"LevenburgMaquart.h"
 	<iostream>
 	<iomanip>
