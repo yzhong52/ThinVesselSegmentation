@@ -34,6 +34,7 @@
 					<Add option="-s" />
 					<Add library="libSparseMatrix.a" />
 					<Add library="libopencv_core248.dll.a" />
+					<Add directory="../dependencies/opencv2.4.8/x64-mingw32-w64" />
 				</Linker>
 			</Target>
 		</Build>

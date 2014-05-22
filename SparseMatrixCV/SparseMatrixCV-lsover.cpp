@@ -1,8 +1,9 @@
 #include "SparseMatrixCV.h"
 #include <iostream>
+#include <opencv2/core/core.hpp>
+
 using namespace std;
 #include "lsolver\bicgsq.h"
-#include <opencv2/core/core.hpp>
 
 void mult( const SparseMatrixCV &A, const double *v, double *w ) {
 	for( int i=0; i<A.row(); i++ ) ;

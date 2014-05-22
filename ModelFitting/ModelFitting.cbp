@@ -47,9 +47,13 @@
 				<Linker>
 					<Add option="-s" />
 					<Add library="libopencv_core248.dll.a" />
+					<Add library="libSparseMatrixCV.a" />
+					<Add library="libSparseMatrix.a" />
+					<Add library="libgomp.a" />
 					<Add directory="../dependencies/opencv2.4.8/x64-mingw32-w64" />
 					<Add directory="../dependencies/glew-1.10.0/x64" />
 					<Add directory="../dependencies/freeglut 2.8.1/x64" />
+					<Add directory="./" />
 				</Linker>
 			</Target>
 		</Build>
@@ -59,12 +63,20 @@
 		</Compiler>
 		<Unit filename="EnergyFunctions.cpp" />
 		<Unit filename="LevenburgMaquart.cpp" />
+		<Unit filename="LevenburgMaquart.h" />
 		<Unit filename="Line3D.cpp" />
+		<Unit filename="Line3D.h" />
 		<Unit filename="Line3DTwoPoint.cpp" />
 		<Unit filename="Line3DTwoPoint.h" />
+		<Unit filename="ModelSet.h" />
+		<Unit filename="Neighbour26.h" />
+		<Unit filename="SyntheticData.h" />
 		<Unit filename="init_models.cpp" />
 		<Unit filename="init_models.h" />
 		<Unit filename="main.cpp" />
+		<Unit filename="stdafx.cpp" />
+		<Unit filename="stdafx.h" />
+		<Unit filename="targetver.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />

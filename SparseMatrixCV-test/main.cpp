@@ -1,10 +1,10 @@
-#ifdef _DEBUG
-#pragma comment(lib,"../x64/Debug/SparseMatrixCV.lib")
-#pragma comment(lib,"../x64/Debug/SparseMatrix.lib")
-#else
-#pragma comment(lib,"../x64/Release/SparseMatrixCV.lib")
-#pragma comment(lib,"../x64/Release/SparseMatrix.lib")
-#endif
+//#ifdef _DEBUG
+//#pragma comment(lib,"../x64/Debug/SparseMatrixCV.lib")
+//#pragma comment(lib,"../x64/Debug/SparseMatrix.lib")
+//#else
+//#pragma comment(lib,"../x64/Release/SparseMatrixCV.lib")
+//#pragma comment(lib,"../x64/Release/SparseMatrix.lib")
+//#endif
 
 
 #include "../SparseMatrixCV/SparseMatrixCV.h"
@@ -16,8 +16,20 @@ using namespace std;
 
 
 int main( void ) {
+    cv::Mat m(3, 2, CV_32F);
+    m.at<float>(0,0) = 3;
+    cout << m << endl;
+    cout << "hello world" << endl;
+
+    m = cv::Mat_<double>::zeros( 4, 4 );
+
+    cout << m << endl;
+
+    cout << "hello world" << endl;
+
 	cout << "############################ Identity Matrix ###########################" << endl << endl;
 	cout << SparseMatrixCV::I( 4 ) << endl;
+
 
 	cout << "############################ Add & Sub #################################" << endl << endl;
 	{
@@ -40,6 +52,7 @@ int main( void ) {
 	cv::Vec3f v(1.0f, 0.0f, 2.0f);
 	static const SparseMatrixCV B( v );
 	cout << B << endl;
+
 
 	cout << "############################ Multiplications ###########################" << endl << endl;
 	{
@@ -100,9 +113,9 @@ int main( void ) {
 
 		cv::Mat_<double> X;
 
-		solve( A, B, X, SparseMatrixCV::SUPERLU );
-		cout << "X = " << endl << X << endl << endl;
-		cout << "A * X = " << endl << A * X << endl << endl;
+		// solve( A, B, X, SparseMatrixCV::SUPERLU );
+		//cout << "X = " << endl << X << endl << endl;
+		//cout << "A * X = " << endl << A * X << endl << endl;
 
 		solve( A, B, X, SparseMatrixCV::BICGSQ );
 		cout << "X = " << endl << X << endl << endl;
