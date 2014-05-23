@@ -32,18 +32,7 @@ int main( void ) {
 
 	cout << "############################ Add & Sub #################################" << endl << endl;
 	{
-		static const int index[][2] = { {0, 0}, {1, 1}, {2, 2} };
-		static const double value[] = { 1.0, 1.0, 1.0 };
-		static const SparseMatrixCV A( 3, 6, index, value, 3 );
-		cout << A << endl;
 
-		static const int indexAA[][2] = { {0, 3}, {1, 4}, {2, 5} };
-		static const double valueAA[] = { 1.0, 1.0, 1.0 };
-		static const SparseMatrixCV AA( 3, 6, indexAA, valueAA, 3 );
-		cout << AA << endl;
-
-		cout << A - AA << endl;
-		cout << A + AA << endl;
 
         const SparseMatrixCV m1 = ( A - AA ).t();
         cout << "m1 = " << m1 << endl;
@@ -116,10 +105,6 @@ int main( void ) {
 		Mat_<double> B = (Mat_<double>(3,1) << 1, 3, 5 );
 
 		cv::Mat_<double> X;
-
-		// solve( A, B, X, SparseMatrixCV::SUPERLU );
-		//cout << "X = " << endl << X << endl << endl;
-		//cout << "A * X = " << endl << A * X << endl << endl;
 
 		solve( A, B, X, SparseMatrixCV::BICGSQ );
 		cout << "X = " << endl << X << endl << endl;

@@ -2,8 +2,8 @@
 set targetdir=".\libs"
 
 for %%a in (
-		".\SparseMatrix\bin\Debug\*.*"
-		".\SparseMatrixCV\bin\Debug\*.*"
+		".\SparseMatrix\bin\Release\*.a"
+		".\SparseMatrixCV\bin\Release\*.a"
 	) do (
     	copy %%a %targetdir%
 	)

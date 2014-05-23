@@ -6,6 +6,5 @@
 		<Project filename="SparseMatrixCV-test/SparseMatrixCV-test.cbp" />
 		<Project filename="Vesselness/Vesselness.cbp" />
 		<Project filename="ModelFitting/ModelFitting.cbp" />
-		<Project filename="SparseMatrixCV/test/SparseMatrixCV-test.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>
