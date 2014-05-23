@@ -1,0 +1,772 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="SparseMatrix" />
+		<Option pch_mode="2" />
+		<Option compiler="gnu_gcc_compiler_x64" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/SparseMatrix" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="obj/Debug/" />
+				<Option type="2" />
+				<Option compiler="gnu_gcc_compiler_x64" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/SparseMatrix" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="obj/Release/" />
+				<Option type="2" />
+				<Option compiler="gnu_gcc_compiler_x64" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-Wall" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-fopenmp" />
+		</Compiler>
+		<Unit filename="SparseMatrix.cpp" />
+		<Unit filename="SparseMatrix.h" />
+		<Unit filename="SparseMatrixData.cpp" />
+		<Unit filename="SparseMatrixData.h" />
+		<Unit filename="SparseMatrixDataCol.cpp" />
+		<Unit filename="SparseMatrixDataCol.h" />
+		<Unit filename="SparseMatrixDataRow.cpp" />
+		<Unit filename="SparseMatrixDataRow.h" />
+		<Unit filename="SuperLU_4.3/CBLAS/Makefile" />
+		<Unit filename="SuperLU_4.3/CBLAS/caxpy.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/ccopy.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/cdotc.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/cgemv.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/cgerc.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/chemv.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/cher2.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/cscal.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/cswap.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/ctrsv.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/dasum.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/daxpy.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/dcabs1.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/dcopy.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/ddot.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/dgemv.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/dger.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/dnrm2.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/drot.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/dscal.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/dswap.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/dsymv.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/dsyr2.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/dtrsv.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/dzasum.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/dznrm2.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/f2c.h" />
+		<Unit filename="SuperLU_4.3/CBLAS/icamax.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/idamax.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/isamax.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/izamax.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/sasum.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/saxpy.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/scasum.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/scnrm2.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/scopy.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/sdot.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/sgemv.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/sger.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/slu_Cnames.h" />
+		<Unit filename="SuperLU_4.3/CBLAS/snrm2.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/srot.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/sscal.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/sswap.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/ssymv.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/ssyr2.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/strsv.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/superlu_f2c.h" />
+		<Unit filename="SuperLU_4.3/CBLAS/zaxpy.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/zcopy.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/zdotc.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/zgemv.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/zgerc.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/zhemv.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/zher2.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/zscal.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/zswap.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/CBLAS/ztrsv.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/Makefile" />
+		<Unit filename="SuperLU_4.3/SRC/ccolumn_bmod.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/ccolumn_dfs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/ccopy_to_ucol.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/cdiagonal.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/cgscon.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/cgsequ.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/cgsisx.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/cgsitrf.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/cgsrfs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/cgssv.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/cgssvx.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/cgstrf.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/cgstrs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/clacon.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/clangs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/claqgs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/cldperm.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/cmemory.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/cmyblas2.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/colamd.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/colamd.h" />
+		<Unit filename="SuperLU_4.3/SRC/cpanel_bmod.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/cpanel_dfs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/cpivotL.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/cpivotgrowth.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/cpruneL.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/creadhb.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/creadrb.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/creadtriple.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/csnode_bmod.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/csnode_dfs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/csp_blas2.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/csp_blas3.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/cutil.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/dcolumn_bmod.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/dcolumn_dfs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/dcomplex.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/dcopy_to_ucol.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/ddiagonal.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/dgscon.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/dgsequ.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/dgsisx.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/dgsitrf.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/dgsrfs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/dgssv.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/dgssvx.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/dgstrf.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/dgstrs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/dlacon.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/dlamch.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/dlangs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/dlaqgs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/dldperm.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/dmemory.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/dmyblas2.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/dpanel_bmod.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/dpanel_dfs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/dpivotL.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/dpivotgrowth.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/dpruneL.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/dreadhb.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/dreadrb.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/dreadtriple.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/dsnode_bmod.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/dsnode_dfs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/dsp_blas2.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/dsp_blas3.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/dutil.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/dzsum1.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/get_perm_c.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/heap_relax_snode.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/html_mainpage.h" />
+		<Unit filename="SuperLU_4.3/SRC/icmax1.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/ilu_ccolumn_dfs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/ilu_ccopy_to_ucol.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/ilu_cdrop_row.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/ilu_cpanel_dfs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/ilu_cpivotL.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/ilu_csnode_dfs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/ilu_dcolumn_dfs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/ilu_dcopy_to_ucol.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/ilu_ddrop_row.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/ilu_dpanel_dfs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/ilu_dpivotL.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/ilu_dsnode_dfs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/ilu_heap_relax_snode.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/ilu_relax_snode.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/ilu_scolumn_dfs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/ilu_scopy_to_ucol.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/ilu_sdrop_row.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/ilu_spanel_dfs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/ilu_spivotL.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/ilu_ssnode_dfs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/ilu_zcolumn_dfs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/ilu_zcopy_to_ucol.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/ilu_zdrop_row.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/ilu_zpanel_dfs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/ilu_zpivotL.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/ilu_zsnode_dfs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/izmax1.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/lsame.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/mark_relax.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/mc64ad.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/memory.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/mmd.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/qselect.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/relax_snode.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/scolumn_bmod.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/scolumn_dfs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/scomplex.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/scopy_to_ucol.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/scsum1.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/sdiagonal.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/sgscon.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/sgsequ.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/sgsisx.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/sgsitrf.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/sgsrfs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/sgssv.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/sgssvx.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/sgstrf.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/sgstrs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/slacon.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/slamch.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/slangs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/slaqgs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/sldperm.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/slu_Cnames.h" />
+		<Unit filename="SuperLU_4.3/SRC/slu_cdefs.h" />
+		<Unit filename="SuperLU_4.3/SRC/slu_dcomplex.h" />
+		<Unit filename="SuperLU_4.3/SRC/slu_ddefs.h" />
+		<Unit filename="SuperLU_4.3/SRC/slu_scomplex.h" />
+		<Unit filename="SuperLU_4.3/SRC/slu_sdefs.h" />
+		<Unit filename="SuperLU_4.3/SRC/slu_util.h" />
+		<Unit filename="SuperLU_4.3/SRC/slu_zdefs.h" />
+		<Unit filename="SuperLU_4.3/SRC/smemory.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/smyblas2.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/sp_coletree.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/sp_ienv.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/sp_preorder.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/spanel_bmod.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/spanel_dfs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/spivotL.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/spivotgrowth.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/spruneL.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/sreadhb.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/sreadrb.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/sreadtriple.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/ssnode_bmod.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/ssnode_dfs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/ssp_blas2.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/ssp_blas3.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/superlu_enum_consts.h" />
+		<Unit filename="SuperLU_4.3/SRC/superlu_timer.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/supermatrix.h" />
+		<Unit filename="SuperLU_4.3/SRC/sutil.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/temp" />
+		<Unit filename="SuperLU_4.3/SRC/util.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/xerbla.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/zcolumn_bmod.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/zcolumn_dfs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/zcopy_to_ucol.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/zdiagonal.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/zgscon.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/zgsequ.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/zgsisx.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/zgsitrf.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/zgsrfs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/zgssv.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/zgssvx.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/zgstrf.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/zgstrs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/zlacon.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/zlangs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/zlaqgs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/zldperm.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/zmemory.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/zmyblas2.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/zpanel_bmod.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/zpanel_dfs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/zpivotL.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/zpivotgrowth.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/zpruneL.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/zreadhb.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/zreadrb.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/zreadtriple.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/zsnode_bmod.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/zsnode_dfs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/zsp_blas2.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/zsp_blas3.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SuperLU_4.3/SRC/zutil.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

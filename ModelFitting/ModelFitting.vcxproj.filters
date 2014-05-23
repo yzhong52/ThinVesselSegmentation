@@ -140,9 +140,6 @@
     <ClCompile Include="gco-v3.0\maxflow.cpp">
       <Filter>gco-v3.0</Filter>
     </ClCompile>
-    <ClCompile Include="GLViwerModel.cpp">
-      <Filter>Visualization</Filter>
-    </ClCompile>
     <ClCompile Include="GLLineModel.cpp">
       <Filter>Visualization</Filter>
     </ClCompile>

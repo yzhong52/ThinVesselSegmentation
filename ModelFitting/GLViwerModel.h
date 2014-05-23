@@ -8,8 +8,7 @@ class Line3D;
 class GLViwerModel : public GLViewerExt
 {
 public:
-	GLViwerModel(void);
-	virtual ~GLViwerModel(void);
-
+	GLViwerModel(void){}
+	virtual ~GLViwerModel(void){}
 };
 

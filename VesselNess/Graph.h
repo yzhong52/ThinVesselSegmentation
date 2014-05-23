@@ -6,7 +6,7 @@
 #include "Edge.h"
 #include "DisjointSet.h" // for Minimum Spaning Tree
 
-namespace MinSpanTree{ 
+namespace MinSpanTree{
 
 	template<class Edge_Type = Edge, class Node_Type = char>
 	class Graph
@@ -28,9 +28,9 @@ namespace MinSpanTree{
 			// resize the nodes
 			nodes.resize( num_node );
 			// clear the edges
-			clear_edges(); 
+			clear_edges();
 		}
-	
+
 		inline void clear_edges(void) {
 			// clear the edges
 			edges = std::priority_queue<Edge_Type>();
@@ -38,12 +38,12 @@ namespace MinSpanTree{
 
 		// add an edge to a graph
 		void add_edge( Edge_Type edge ){
-			edges.push( edge ); 
+			edges.push( edge );
 		}
 
 		// add an node to a graph
 		void add_node( Node_Type node ){
-			nodes.push_back( node ); 
+			nodes.push_back( node );
 		}
 
 		//gettters
@@ -52,7 +52,11 @@ namespace MinSpanTree{
 		inline const std::vector<Node_Type>& get_nodes( void ) const { return nodes; }
 		inline       std::vector<Node_Type>& get_nodes( void )       { return nodes; }
 		inline Node_Type& get_node(const int& i){ return nodes[i]; }
-		inline Edge_Type& get_edge(const int& i){ return *(&edges.top()+i); }
+
+		// TODO: compile error
+		// ..\VesselNess\Graph.h|55|error: invalid initialization of reference of type 'MinSpanTree::Edge_Ext&' from expression of type 'const value_type {aka const MinSpanTree::Edge_Ext}'|
+		inline const Edge_Type& get_edge(const int& i){ return *(&edges.top()+i); }
+
 		unsigned int num_edges(void) const { return (unsigned int) edges.size(); }
 		unsigned int num_nodes(void) const { return (unsigned int) nodes.size(); }
 
@@ -78,10 +82,10 @@ namespace MinSpanTree{
 			int sid1 = djs.find( e.node1 );
 			int sid2 = djs.find( e.node2 );
 			if( sid1 != sid2 ) {
-				dst.add_edge( e ); 
+				dst.add_edge( e );
 				djs.merge( sid1, sid2 );
 			}
-			edges.pop(); 
+			edges.pop();
 		}
 
 		// copy nodes

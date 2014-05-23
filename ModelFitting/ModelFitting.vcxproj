@@ -122,7 +122,6 @@
     <ClCompile Include="gco-v3.0\LinkedBlockList.cpp" />
     <ClCompile Include="gco-v3.0\maxflow.cpp" />
     <ClCompile Include="GLLineModel.cpp" />
-    <ClCompile Include="GLViwerModel.cpp" />
     <ClCompile Include="GraphCut.cpp" />
     <ClCompile Include="init_models.cpp" />
     <ClCompile Include="LevenburgMaquart.cpp" />

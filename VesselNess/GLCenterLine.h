@@ -14,7 +14,7 @@
 #include <gl\glu.h>			// Header File For The GLu32 Library
 #include "GL\freeglut.h"
 
-namespace GLViewer{ 
+namespace GLViewer{
 
 	// abstract template class
 	template<class T, class U=char>
@@ -28,15 +28,15 @@ namespace GLViewer{
 		GLfloat red, green, blue;
 
 		// rendeing mode
-		enum RenderMode{ 
+		enum RenderMode{
 			POINTS,
 			CONNECTIONS
-		} render_mode; 
+		} render_mode;
 	public:
-		CenterLine( MST::Graph3D<Edge>& tree ) : ptrTree( &tree ) { 
+		CenterLine( MST::Graph3D<Edge>& tree ) : ptrTree( &tree ) {
 			sx = sy = sz = 0;
 			for( int unsigned i=0; i<ptrTree->num_edges(); i++ ) {
-				Edge& e = ptrTree->get_edge(i);
+				const Edge& e = ptrTree->get_edge(i);
 				cv::Vec3i p1 = ptrTree->get_pos( e.node1 );
 				cv::Vec3i p2 = ptrTree->get_pos( e.node2 );
 				sx = (int) max( sx, p1[0] );
@@ -49,7 +49,7 @@ namespace GLViewer{
 			// default color
 			red = 0.0f; green = 1.0f; blue = 0.0f;
 			// default rendering mode
-			render_mode = CONNECTIONS; 
+			render_mode = CONNECTIONS;
 		}
 
 		void init( void ) { }
@@ -65,8 +65,8 @@ namespace GLViewer{
 					render_mode = CONNECTIONS;
 					break;
 				case CONNECTIONS:
-					render_mode = POINTS; 
-					break; 
+					render_mode = POINTS;
+					break;
 				}
 			}
 		}
@@ -78,7 +78,7 @@ namespace GLViewer{
 			if( render_mode == POINTS ){
 				glBegin( GL_POINTS );
 				for( int unsigned i=0; i<ptrTree->num_edges(); i++ ) {
-					Edge& e = ptrTree->get_edge(i);
+					const Edge e = ptrTree->get_edge(i);
 					Vec3i p1 = ptrTree->get_pos( e.node1 );
 					Vec3i p2 = ptrTree->get_pos( e.node2 );
 					glVertex3i( p1[0], p1[1], p1[2] );
@@ -88,7 +88,7 @@ namespace GLViewer{
 			} else if( render_mode == CONNECTIONS ) {
 				glBegin( GL_LINES );
 				for( int unsigned i=0; i<ptrTree->num_edges(); i++ ) {
-					Edge& e = ptrTree->get_edge(i);
+					const Edge& e = ptrTree->get_edge(i);
 					Vec3i p1 = ptrTree->get_pos( e.node1 );
 					Vec3i p2 = ptrTree->get_pos( e.node2 );
 					glVertex3i( p1[0], p1[1], p1[2] );
@@ -115,11 +115,11 @@ namespace GLViewer{
 		GLfloat red, green, blue;
 		GLfloat red2, green2, blue2;
 	public:
-		CenterLine( MST::Graph<MST::Edge_Ext, MST::LineSegment>& tree ) : ptrTree( &tree ) { 
+		CenterLine( MST::Graph<MST::Edge_Ext, MST::LineSegment>& tree ) : ptrTree( &tree ) {
 			// get the size of the data
 			sx = sy = sz = 0;
 			for( unsigned int i=0; i<ptrTree->num_edges(); i++ ) {
-				MST::Edge_Ext& e = ptrTree->get_edge(i);
+				const MST::Edge_Ext e = ptrTree->get_edge(i); // TODO: can it use reference?
 				sx = (int) max( sx, (int) e.line.p1.x );
 				sx = (int) max( sx, (int) e.line.p2.x );
 				sy = (int) max( sy, (int) e.line.p1.y );
@@ -128,7 +128,7 @@ namespace GLViewer{
 				sz = (int) max( sz, (int) e.line.p2.z );
 			}
 			for( unsigned int i=0; i< ptrTree->num_nodes(); i++ ) {
-				MST::LineSegment& line = ptrTree->get_node( i );
+				const MST::LineSegment line = ptrTree->get_node( i );
 				sx = (int) max( sx, (int) line.p1.x );
 				sx = (int) max( sx, (int) line.p2.x );
 				sy = (int) max( sy, (int) line.p1.y );
@@ -148,7 +148,7 @@ namespace GLViewer{
 		{
 			if( quadric ) {
 				gluDeleteQuadric(quadric);
-				quadric = NULL; 
+				quadric = NULL;
 			}
 		}
 		void setColor( GLfloat r, GLfloat g, GLfloat b, GLfloat r2, GLfloat g2, GLfloat b2 )
@@ -160,22 +160,22 @@ namespace GLViewer{
 		unsigned int size_y() const { return sy; }
 		unsigned int size_z() const { return sz; }
 
-		virtual void init(void) { 
-			quadric = gluNewQuadric(); 
+		virtual void init(void) {
+			quadric = gluNewQuadric();
 		}
 
 		void drawCylinder( float x1, float y1, float z1, float x2, float y2, float z2, float radius ){
 			// Yuchen: The following code is borrowed from a blog (sorry I cannot find it now)
-			// But there is bug in the original code. I think I fix them. 
+			// But there is bug in the original code. I think I fix them.
 
 			float vx = x2-x1;
 			float vy = y2-y1;
 			float vz = z2-z1;
 
 			float v = sqrt( vx*vx + vy*vy + vz*vz );
-			
+
 			static const double zero = 1.0e-3;
-			static const double RADIAN_TO_DEGREE = 57.2957795; 
+			static const double RADIAN_TO_DEGREE = 57.2957795;
 
 			glPushMatrix();
 			glTranslatef( x1, y1, z1 );
@@ -195,7 +195,7 @@ namespace GLViewer{
 				float ry = vx*vz;
 				glRotated(ax, rx, ry, 0.0); // Rotate about rotation vector
 			}
-			
+
 			//draw the cylinder body
 			gluQuadricOrientation(quadric,GLU_OUTSIDE);
 			gluCylinder(quadric, radius, radius, v, 10, 1);
@@ -215,7 +215,7 @@ namespace GLViewer{
 			if ( key == '\t' ) { /*TAB key*/
 				mode ++;
 				// Round it over
-				if( mode==0x7 ) mode = 0x1; 
+				if( mode==0x7 ) mode = 0x1;
 			}
 		}
 
@@ -223,7 +223,7 @@ namespace GLViewer{
 			static char LINES = 0x1;
 			static char CYLINDERS = 0x2;
 			static char POINTS  = 0x4;
-			
+
 			if( mode & LINES ) {
 				glBegin( GL_LINES );
 				// draw 3d line
@@ -236,7 +236,7 @@ namespace GLViewer{
 				// draw connection, which are generated by min span tree
 				glColor3f( red2, green2, blue2 );
 				for( unsigned int i=0; i<ptrTree->num_edges(); i++ ) {
-					MST::Edge_Ext& e = ptrTree->get_edge(i);
+					const MST::Edge_Ext e = ptrTree->get_edge(i);
 					glVertex3f( e.line.p1.x, e.line.p1.y, e.line.p1.z );
 					glVertex3f( e.line.p2.x, e.line.p2.y, e.line.p2.z );
 				}
@@ -248,16 +248,16 @@ namespace GLViewer{
 				glColor3f( red, green, blue );
 				for( unsigned int i=0; i< ptrTree->num_nodes(); i++ ) {
 					MST::LineSegment& line = ptrTree->get_node( i );
-					drawCylinder( line.p1.x, line.p1.y, line.p1.z, 
+					drawCylinder( line.p1.x, line.p1.y, line.p1.z,
 						line.p2.x, line.p2.y, line.p2.z, line.radius );
 
 				}
 				// draw connection, which are generated by min span tree
 				glColor3f( red2, green2, blue2 );
 				for( int unsigned i=0; i<ptrTree->num_edges(); i++ ) {
-					MST::Edge_Ext& e = ptrTree->get_edge(i);
+					const MST::Edge_Ext e = ptrTree->get_edge(i);
 					float radius = min( ptrTree->get_node(e.node1).radius, ptrTree->get_node(e.node2).radius );
-					drawCylinder( e.line.p1.x, e.line.p1.y, e.line.p1.z, 
+					drawCylinder( e.line.p1.x, e.line.p1.y, e.line.p1.z,
 						e.line.p2.x, e.line.p2.y, e.line.p2.z, radius );
 				}
 			}
@@ -270,7 +270,7 @@ namespace GLViewer{
 					MST::LineSegment& line = ptrTree->get_node( i );
 					vector<MST::Point3D>& points = line.points;
 					for( unsigned int j=0; j<points.size(); j++ ) {
-						glVertex3i( points[j].x, points[j].y, points[j].z );	
+						glVertex3i( points[j].x, points[j].y, points[j].z );
 					}
 				}
 				glEnd();
