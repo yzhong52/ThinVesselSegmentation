@@ -16,14 +16,8 @@ SparseMatrix::SparseMatrix( int num_rows, int num_cols ) {
 SparseMatrix::SparseMatrix( int num_rows, int num_cols, const double non_zero_value[],
 	const int col_index[], const int row_pointer[], int N )
 {
-    for( int i=0; i< N; i++ ) {
-        cout << non_zero_value[i] << " ";
-    }
-    cout << endl;
-
-	data = new SparseMatrixData( num_rows, num_cols, non_zero_value, col_index, row_pointer, N );
+    data = new SparseMatrixData( num_rows, num_cols, non_zero_value, col_index, row_pointer, N );
 	rc = new RC();
-
 }
 
 SparseMatrix::SparseMatrix( int num_rows, int num_cols,
@@ -355,8 +349,6 @@ const SparseMatrix operator*( const SparseMatrix& m1, const double& value ){
 	SparseMatrix sm = m1.clone();
 	return (sm *= value);
 }
-
-
 
 ostream& operator<<( ostream& out, const SparseMatrix& m ){
 	cout << "Size: " << m.row() << " x " << m.col() << endl;

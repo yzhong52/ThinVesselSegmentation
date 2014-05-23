@@ -22,7 +22,7 @@ public:
 private:
 
     // constructors & destructors
-    SparseMatrixDataRow( int rows, int cols, double nzval[], int colidx[], int rowptr[], int N );
+    SparseMatrixDataRow( int rows, int cols, double non_zero_value[], int col_index[], int row_pointer[], int N );
     SparseMatrixDataRow( int rows, int cols, const double non_zero_value[],
                          const int col_index[], const int row_pointer[], int N );
     ~SparseMatrixDataRow();

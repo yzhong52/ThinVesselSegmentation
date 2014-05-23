@@ -25,20 +25,17 @@ SparseMatrixDataRow::SparseMatrixDataRow( int rows, int cols,
 	// if ( !(rowptr = intMalloc(rows+1)) ) ABORT("Fail to alloc memory for SparseMatrix");
 	memcpy( rowptr, row_pointer, sizeof(int) * rows );
 	rowptr[rows] = N;
-
-	for( int i=0; i< N; i++ ) {
-        cout << non_zero_value[i] << " ";
-    }
-    cout << endl;
-
-    cout << nzval[0] << endl;
 }
 
-SparseMatrixDataRow::SparseMatrixDataRow( int rows, int cols, double nzval[],
-	int colidx[], int rowptr[], int N )
+SparseMatrixDataRow::SparseMatrixDataRow( int rows, int cols, double non_zero_value[],
+	int column_index[], int row_pointer[], int N )
 {
-	assert( rowptr[0]==0 && rowptr[rows]==N && "rowptr is not initialliezed properly." );
+	assert( row_pointer[0]==0 && row_pointer[rows]==N && "rowptr is not initialliezed properly." );
 
+    this->nnz = N;
+	this->nzval = non_zero_value;
+	this->colind = column_index;
+	this->rowptr = row_pointer;
 }
 
 

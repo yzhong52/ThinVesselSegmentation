@@ -21,11 +21,8 @@ protected:
     // if this is a zero matrix
 	inline bool isZero(void) const{ return data->isZero(); };
 public:
-    SparseMatrix( ) { } // TODO
-
-
 	// initialized a zero matrix
-	SparseMatrix( int num_rows, int num_cols );
+	SparseMatrix( int num_rows = 0, int num_cols = 0 );
 
 	// initialize a matrix with N non-zero values
 	SparseMatrix( int num_rows, int num_cols,

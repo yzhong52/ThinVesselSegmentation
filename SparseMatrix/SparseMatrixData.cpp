@@ -5,6 +5,12 @@
 
 using namespace std;
 
+SparseMatrixData::SparseMatrixData( unsigned num_rows, unsigned num_cols )
+	: ncol( num_cols ), nrow( num_rows ), datacol( nullptr ), datarow( nullptr )
+{
+
+}
+
 SparseMatrixData::SparseMatrixData( int num_rows, int num_cols, const double non_zero_value[],
 	const int col_index[], const int row_pointer[], int N )
 	: ncol( num_cols ), nrow( num_rows ), datacol( nullptr ), datarow( nullptr )
@@ -15,22 +21,7 @@ SparseMatrixData::SparseMatrixData( int num_rows, int num_cols, const double non
 	datarow = new SparseMatrixDataRow( num_rows, num_cols, non_zero_value, col_index, row_pointer, N );
 }
 
-SparseMatrixData::SparseMatrixData( int num_rows, int num_cols, double non_zero_value[],
-	int col_index[], int row_pointer[], int N )
-	: ncol( num_cols ), nrow( num_rows ), datacol( nullptr ), datarow( nullptr )
-{
-	// N==0, then this is a zero matrix, then don't allocate matrix data
-	if( N == 0 ) return;
 
-	datarow = new SparseMatrixDataRow( num_rows, num_cols, non_zero_value, col_index, row_pointer, N );
-}
-
-
-SparseMatrixData::SparseMatrixData( int num_rows, int num_cols )
-	: ncol( num_cols ), nrow( num_rows ), datacol( nullptr ), datarow( nullptr )
-{
-
-}
 
 SparseMatrixData::~SparseMatrixData(){
 	// destro matrix data
@@ -38,7 +29,7 @@ SparseMatrixData::~SparseMatrixData(){
 	if( datarow ) delete datarow;
 }
 
-const SparseMatrixDataCol* const SparseMatrixData::getCol(){
+SparseMatrixDataCol* SparseMatrixData::getCol(){
 	if( datarow==nullptr || datacol ) return datacol;
 
 	// memory of the following arrays will be allocated in func dCompRow_to_CompCol
@@ -62,7 +53,7 @@ const SparseMatrixDataCol* const SparseMatrixData::getCol(){
 	return datacol;
 }
 
-const SparseMatrixDataRow* const SparseMatrixData::getRow(){
+SparseMatrixDataRow* SparseMatrixData::getRow(){
 	if( datacol==nullptr || datarow ) return datarow;
 
 	// memory of the following arrays will be allocated in func dCompRow_to_CompCol
@@ -102,37 +93,15 @@ void SparseMatrixData::transpose( void ) {
 	}
 	else if( datarow )
 	{
-		// If the matrix is stored as row-order only
-		// convert the matrix from row-order to col-order
-		datacol = new SparseMatrixDataCol(
-			nrow,   // number of rows
-			ncol,   // number of cols
-			datarow->nzval,    // non-zero values
-			datarow->colind,   // row index
-			datarow->rowptr,   // col pointer
-			datarow->nnz );
-
-		// destroy row-order data
-		// IMPORTANT: the matrix data stored in supermatrix won't be destroyed.
-		//  as they are used in datacol->sparsematrix
-		delete datarow;    datarow = nullptr;
+	    delete datacol;
+	    datacol = (SparseMatrixDataCol*) datarow;
+		datarow = nullptr;
 	}
 	else if( datacol )
 	{
-		// if the matrix is stored as col-order only
-		// convert the matrix from col-order to row-order
-		datarow = new SparseMatrixDataRow(
-			nrow,   // number of rows
-			ncol,   // number of cols
-			datacol->nzval,    // non-zero values
-			datacol->rowind,   // column index
-			datacol->colptr,   // row pointer
-			datacol->nnz );
-
-		// destroy col-order data
-		// IMPORTANT: the matrix data stored in supermatrix won't be destroyed.
-		//  as they are used in datarow->sparsematrix
-		delete datacol;    datacol = nullptr;
+        delete datarow;
+	    datarow = (SparseMatrixDataRow*) datacol;
+		datacol = nullptr;
 	}
 	else
 	{

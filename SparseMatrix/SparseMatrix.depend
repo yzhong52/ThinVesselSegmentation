@@ -2,14 +2,15 @@
 1400716372 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\main.c
 	<stdio.h>
 
-1400880776 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdata.cpp
+1400884260 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdata.cpp
 	"SparseMatrixData.h"
 	<iostream>
 
-1400880437 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdata.h
+1400883683 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdata.h
 	"SparseMatrixDataCol.h"
 	"SparseMatrixDataRow.h"
 	<utility>
+	<string.h>
 
 1400877463 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdatacol.h
 
@@ -36,7 +37,7 @@
 
 1398362216 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\superlu_4.3\src\superlu_enum_consts.h
 
-1400877382 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdatarow.h
+1400884054 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdatarow.h
 
 1400878379 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdatacol.cpp
 	"SparseMatrixDataCol.h"
@@ -44,13 +45,13 @@
 	<string.h>
 	<assert.h>
 
-1400880757 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdatarow.cpp
+1400884306 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdatarow.cpp
 	"SparseMatrixDataRow.h"
 	<string.h>
 	<assert.h>
 	<iostream>
 
-1400880816 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrix.cpp
+1400883185 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrix.cpp
 	"SparseMatrix.h"
 	<vector>
 	<iostream>
@@ -58,7 +59,7 @@
 	<omp.h>
 	<assert.h>
 
-1400879530 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrix.h
+1400882140 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrix.h
 	"SparseMatrixData.h"
 	"RC.h"
 	<vector>
@@ -923,10 +924,10 @@
 	<math.h>
 	"slu_zdefs.h"
 
-1400879021 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\test\sparsematrixtest.cpp
+1400882576 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\test\sparsematrixtest.cpp
 	"SparseMatrixTest.h"
 
-1400879060 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\test\sparsematrixtest.h
+1400881820 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\test\sparsematrixtest.h
 	"gtest/gtest.h"
 	"../SparseMatrix.h"
 
@@ -1069,7 +1070,7 @@
 
 1400876794 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\gtest-1.7.0\include\gtest\gtest_pred_impl.h
 
-1400880833 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\test\test.cpp
+1400883113 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\test\test.cpp
 	"gtest/gtest.h"
 	"SparseMatrixTest.h"
 	<iostream>

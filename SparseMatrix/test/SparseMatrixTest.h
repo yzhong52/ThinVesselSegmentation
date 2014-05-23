@@ -10,7 +10,15 @@ protected:
     SparseMatrix A1, A2, B, C1, C2;
     virtual void SetUp();
     virtual void TearDown();
+
+    template<int R, int C>
+    void test_equal( double (&expetec)[R][C], const SparseMatrix& m );
 };
 
+template<int R, int C>
+void SparseMatrixTest :: test_equal( double (&expetec)[R][C], const SparseMatrix& m )
+{
+
+}
 
 #endif // SPARSEMATRIXCVTEST_H
