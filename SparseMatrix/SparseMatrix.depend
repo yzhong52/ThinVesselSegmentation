@@ -2,16 +2,16 @@
 1400716372 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\main.c
 	<stdio.h>
 
-1398362213 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdata.cpp
+1400880776 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdata.cpp
 	"SparseMatrixData.h"
+	<iostream>
 
-1398362213 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdata.h
+1400880437 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdata.h
 	"SparseMatrixDataCol.h"
 	"SparseMatrixDataRow.h"
 	<utility>
 
-1398362213 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdatacol.h
-	"SuperLU_4.3\SRC\slu_ddefs.h"
+1400877463 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdatacol.h
 
 1398362216 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\superlu_4.3\src\slu_ddefs.h
 	<fortran.h>
@@ -26,7 +26,7 @@
 
 1398362216 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\superlu_4.3\src\supermatrix.h
 
-1400774664 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\superlu_4.3\src\slu_util.h
+1400876793 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\superlu_4.3\src\slu_util.h
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
@@ -36,23 +36,29 @@
 
 1398362216 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\superlu_4.3\src\superlu_enum_consts.h
 
-1398362213 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdatarow.h
-	"SuperLU_4.3\SRC\slu_ddefs.h"
+1400877382 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdatarow.h
 
-1398362213 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdatacol.cpp
+1400878379 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdatacol.cpp
 	"SparseMatrixDataCol.h"
+	<stdlib.h>
+	<string.h>
+	<assert.h>
 
-1398362213 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdatarow.cpp
+1400880757 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdatarow.cpp
 	"SparseMatrixDataRow.h"
+	<string.h>
+	<assert.h>
+	<iostream>
 
-1400874279 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrix.cpp
+1400880816 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrix.cpp
 	"SparseMatrix.h"
 	<vector>
 	<iostream>
 	<cmath>
 	<omp.h>
+	<assert.h>
 
-1400698082 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrix.h
+1400879530 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrix.h
 	"SparseMatrixData.h"
 	"RC.h"
 	<vector>
@@ -916,4 +922,155 @@
 1398362216 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\superlu_4.3\src\zutil.c
 	<math.h>
 	"slu_zdefs.h"
+
+1400879021 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\test\sparsematrixtest.cpp
+	"SparseMatrixTest.h"
+
+1400879060 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\test\sparsematrixtest.h
+	"gtest/gtest.h"
+	"../SparseMatrix.h"
+
+1400876794 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\gtest-1.7.0\include\gtest\gtest.h
+	<limits>
+	<ostream>
+	<vector>
+	"gtest/internal/gtest-internal.h"
+	"gtest/internal/gtest-string.h"
+	"gtest/gtest-death-test.h"
+	"gtest/gtest-message.h"
+	"gtest/gtest-param-test.h"
+	"gtest/gtest-printers.h"
+	"gtest/gtest_prod.h"
+	"gtest/gtest-test-part.h"
+	"gtest/gtest-typed-test.h"
+	"gtest/gtest_pred_impl.h"
+
+1400876794 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\gtest-1.7.0\include\gtest\internal\gtest-internal.h
+	"gtest/internal/gtest-port.h"
+	<stdlib.h>
+	<sys/types.h>
+	<sys/wait.h>
+	<unistd.h>
+	<stdexcept>
+	<ctype.h>
+	<float.h>
+	<string.h>
+	<iomanip>
+	<limits>
+	<set>
+	"gtest/gtest-message.h"
+	"gtest/internal/gtest-string.h"
+	"gtest/internal/gtest-filepath.h"
+	"gtest/internal/gtest-type-util.h"
+
+1400876794 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\gtest-1.7.0\include\gtest\internal\gtest-port.h
+	<ctype.h>
+	<stddef.h>
+	<stdlib.h>
+	<stdio.h>
+	<string.h>
+	<sys/types.h>
+	<sys/stat.h>
+	<AvailabilityMacros.h>
+	<TargetConditionals.h>
+	<iostream>
+	<sstream>
+	<string>
+	<unistd.h>
+	<strings.h>
+	<direct.h>
+	<io.h>
+	<android/api-level.h>
+	<regex.h>
+	<typeinfo>
+	<pthread.h>
+	<time.h>
+	"gtest/internal/gtest-tuple.h"
+	<tuple>
+	<tuple>
+	<tr1/tuple>
+	<tr1/tuple>
+	<tuple>
+	<vector>
+
+1400876794 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\gtest-1.7.0\include\gtest\internal\gtest-tuple.h
+	<utility>
+
+1400876794 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\gtest-1.7.0\include\gtest\gtest-message.h
+	<limits>
+	"gtest/internal/gtest-port.h"
+
+1400876794 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\gtest-1.7.0\include\gtest\internal\gtest-string.h
+	<mem.h>
+	<string.h>
+	<string>
+	"gtest/internal/gtest-port.h"
+
+1400876794 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\gtest-1.7.0\include\gtest\internal\gtest-filepath.h
+	"gtest/internal/gtest-string.h"
+
+1400876794 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\gtest-1.7.0\include\gtest\internal\gtest-type-util.h
+	"gtest/internal/gtest-port.h"
+	<cxxabi.h>
+	<acxx_demangle.h>
+
+1400876794 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\gtest-1.7.0\include\gtest\gtest-death-test.h
+	"gtest/internal/gtest-death-test-internal.h"
+
+1400876794 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\gtest-1.7.0\include\gtest\internal\gtest-death-test-internal.h
+	"gtest/internal/gtest-internal.h"
+	<stdio.h>
+
+1400876794 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\gtest-1.7.0\include\gtest\gtest-param-test.h
+	"gtest/internal/gtest-port.h"
+	<utility>
+	"gtest/internal/gtest-internal.h"
+	"gtest/internal/gtest-param-util.h"
+	"gtest/internal/gtest-param-util-generated.h"
+
+1400876794 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\gtest-1.7.0\include\gtest\internal\gtest-param-util.h
+	<iterator>
+	<utility>
+	<vector>
+	"gtest/internal/gtest-internal.h"
+	"gtest/internal/gtest-linked_ptr.h"
+	"gtest/internal/gtest-port.h"
+	"gtest/gtest-printers.h"
+
+1400876794 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\gtest-1.7.0\include\gtest\internal\gtest-linked_ptr.h
+	<stdlib.h>
+	<assert.h>
+	"gtest/internal/gtest-port.h"
+
+1400876794 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\gtest-1.7.0\include\gtest\gtest-printers.h
+	<ostream>
+	<sstream>
+	<string>
+	<utility>
+	<vector>
+	"gtest/internal/gtest-port.h"
+	"gtest/internal/gtest-internal.h"
+
+1400876794 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\gtest-1.7.0\include\gtest\internal\gtest-param-util-generated.h
+	"gtest/internal/gtest-param-util.h"
+	"gtest/internal/gtest-port.h"
+
+1400876794 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\gtest-1.7.0\include\gtest\gtest_prod.h
+
+1400876794 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\gtest-1.7.0\include\gtest\gtest-test-part.h
+	<iosfwd>
+	<vector>
+	"gtest/internal/gtest-internal.h"
+	"gtest/internal/gtest-string.h"
+
+1400876794 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\gtest-1.7.0\include\gtest\gtest-typed-test.h
+	"gtest/internal/gtest-port.h"
+	"gtest/internal/gtest-type-util.h"
+
+1400876794 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\gtest-1.7.0\include\gtest\gtest_pred_impl.h
+
+1400880833 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\test\test.cpp
+	"gtest/gtest.h"
+	"SparseMatrixTest.h"
+	<iostream>
 

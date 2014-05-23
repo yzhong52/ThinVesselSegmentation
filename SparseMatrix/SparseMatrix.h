@@ -21,6 +21,9 @@ protected:
     // if this is a zero matrix
 	inline bool isZero(void) const{ return data->isZero(); };
 public:
+    SparseMatrix( ) { } // TODO
+
+
 	// initialized a zero matrix
 	SparseMatrix( int num_rows, int num_cols );
 
@@ -30,7 +33,7 @@ public:
 		const int col_index[],
 		const int row_pointer[],
 		int N );
-		// use (const T*) to force the constructor to make a deep copy of the data
+
 	SparseMatrix( int num_rows, int num_cols,
 		const std::vector<double> non_zero_value,
 		const std::vector<int> col_index,

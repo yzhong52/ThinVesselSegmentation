@@ -4,6 +4,7 @@
 #include <iostream>
 #include <cmath>
 #include <omp.h>
+#include <assert.h>
 
 using namespace std;
 
@@ -15,8 +16,14 @@ SparseMatrix::SparseMatrix( int num_rows, int num_cols ) {
 SparseMatrix::SparseMatrix( int num_rows, int num_cols, const double non_zero_value[],
 	const int col_index[], const int row_pointer[], int N )
 {
+    for( int i=0; i< N; i++ ) {
+        cout << non_zero_value[i] << " ";
+    }
+    cout << endl;
+
 	data = new SparseMatrixData( num_rows, num_cols, non_zero_value, col_index, row_pointer, N );
 	rc = new RC();
+
 }
 
 SparseMatrix::SparseMatrix( int num_rows, int num_cols,
@@ -53,10 +60,10 @@ const SparseMatrix SparseMatrix::clone(void) const{
 		SparseMatrix m(
 			this->row(),
 			this->col(),
-			(const double*)(this->data->getRow()->nzvel()),
-			(const int*)   (this->data->getRow()->colinx()),
-			(const int*)   (this->data->getRow()->rowptr()),
-			this->data->getRow()->nnz() );
+			(const double*)(this->data->getRow()->nzval ),
+			(const int*)   (this->data->getRow()->colind ),
+			(const int*)   (this->data->getRow()->rowptr ),
+			this->data->getRow()->nnz );
 		return m;
 	}
 }
@@ -143,60 +150,6 @@ bool SparseMatrix::updateData(  int num_rows, int num_cols,
 }
 
 
-// friend functions
-
-void solve( const SparseMatrix& AAAA, const double* BBBB, double* XXXX )
-{
-    SuperMatrix L, U;
-
-	int m = AAAA.row();
-	int n = AAAA.col();
-
-    /* Create right-hand side matrix B. */
-    int nrhs = 1;
-	double *rhs;
-    if ( !(rhs = doubleMalloc(m * nrhs)) ) ABORT("Malloc fails for rhs[].");
-    memcpy( rhs, BBBB, sizeof(double) * m );
-	SuperMatrix B;
-    dCreate_Dense_Matrix(&B, m, nrhs, rhs, m, SLU_DN, SLU_D, SLU_GE);
-
-	int *perm_r; /* row permutations from partial pivoting */
-    int *perm_c; /* column permutation vector */
-    if ( !(perm_r = intMalloc(m)) ) ABORT("Malloc fails for perm_r[].");
-    if ( !(perm_c = intMalloc(n)) ) ABORT("Malloc fails for perm_c[].");
-
-    /* Set the default input options. */
-	superlu_options_t options;
-    set_default_options( &options );
-    options.ColPerm = NATURAL;
-
-    /* Initialize the statistics variables. */
-	SuperLUStat_t stat;
-    StatInit( &stat );
-
-    /* Solve the linear system. */
-	int info;
-	dgssv( &options,
-		const_cast<SuperMatrix *>(AAAA.data->getRow()->getSuperMatrix()),
-		perm_c, perm_r, &L, &U,
-		&B, // INPUT and OUTPUT
-		&stat, &info);
-
-	memcpy( XXXX, ((DNformat*)B.Store)->nzval, sizeof(double) * m );
-
-    /* De-allocate storage */
-    SUPERLU_FREE( rhs );
-    SUPERLU_FREE( perm_r );
-    SUPERLU_FREE( perm_c );
-
-    Destroy_SuperMatrix_Store(&B);
-    Destroy_SuperNode_Matrix(&L);
-    Destroy_CompCol_Matrix(&U);
-    StatFree(&stat);
-}
-
-
-
 const SparseMatrix operator*( const SparseMatrix& m1, const SparseMatrix& m2 ){
 	assert( m1.col()==m2.row() && "Matrix size does not match" );
 
@@ -209,13 +162,13 @@ const SparseMatrix operator*( const SparseMatrix& m1, const SparseMatrix& m2 ){
 	vector<int> res_colidx;
 	vector<int> res_rowptr;
 
-	const double* const nzval1 = m1.data->getRow()->nzvel();
-	const int* const colidx1   = m1.data->getRow()->colinx();
-	const int* const rowptr1   = m1.data->getRow()->rowptr();
+	const double* const nzval1 = m1.data->getRow()->nzval;
+	const int* const colidx1   = m1.data->getRow()->colind;
+	const int* const rowptr1   = m1.data->getRow()->rowptr;
 
-	const double* const nzval2 = m2.data->getCol()->nzvel();
-	const int* const rowidx2   = m2.data->getCol()->rowinx();
-	const int* const colptr2   = m2.data->getCol()->colptr();
+	const double* const nzval2 = m2.data->getCol()->nzval;
+	const int* const rowidx2   = m2.data->getCol()->rowind;
+	const int* const colptr2   = m2.data->getCol()->colptr;
 
 	// store the result as row-order
 	res_rowptr.push_back( 0 );
@@ -268,13 +221,13 @@ const SparseMatrix operator-( const SparseMatrix& m1, const SparseMatrix& m2 ){
 	vector<int> res_colidx;
 	vector<int> res_rowptr;
 
-	const double* const nzval1 = m1.data->getRow()->nzvel();
-	const int* const colidx1   = m1.data->getRow()->colinx();
-	const int* const rowptr1   = m1.data->getRow()->rowptr();
+	const double* const nzval1 = m1.data->getRow()->nzval;
+	const int* const colidx1   = m1.data->getRow()->colind;
+	const int* const rowptr1   = m1.data->getRow()->rowptr;
 
-	const double* const nzval2 = m2.data->getRow()->nzvel();
-	const int* const colidx2   = m2.data->getRow()->colinx();
-	const int* const rowptr2   = m2.data->getRow()->rowptr();
+	const double* const nzval2 = m2.data->getRow()->nzval;
+	const int* const colidx2   = m2.data->getRow()->colind;
+	const int* const rowptr2   = m2.data->getRow()->rowptr;
 
 	// store the result as row-order
 	res_rowptr.push_back( 0 );
@@ -336,13 +289,13 @@ const SparseMatrix operator+( const SparseMatrix& m1, const SparseMatrix& m2 ){
 	vector<int> res_colidx;
 	vector<int> res_rowptr;
 
-	const double* const nzval1 = m1.data->getRow()->nzvel();
-	const int* const colidx1   = m1.data->getRow()->colinx();
-	const int* const rowptr1   = m1.data->getRow()->rowptr();
+	const double* const nzval1 = m1.data->getRow()->nzval;
+	const int* const colidx1   = m1.data->getRow()->colind;
+	const int* const rowptr1   = m1.data->getRow()->rowptr;
 
-	const double* const nzval2 = m2.data->getRow()->nzvel();
-	const int* const colidx2   = m2.data->getRow()->colinx();
-	const int* const rowptr2   = m2.data->getRow()->rowptr();
+	const double* const nzval2 = m2.data->getRow()->nzval;
+	const int* const colidx2   = m2.data->getRow()->colind;
+	const int* const rowptr2   = m2.data->getRow()->rowptr;
 
 	// store the result as row-order
 	res_rowptr.push_back( 0 );
@@ -414,12 +367,13 @@ ostream& operator<<( ostream& out, const SparseMatrix& m ){
 	}
 
 	// const int& N              = m.data->getRow()->nnz();
-	const double* const nzval = m.data->getRow()->nzvel();
-	const int* const colidx   = m.data->getRow()->colinx();
-	const int* const rowptr   = m.data->getRow()->rowptr();
+	const double* const nzval = m.data->getRow()->nzval;
+	const int* const colidx   = m.data->getRow()->colind;
+	const int* const rowptr   = m.data->getRow()->rowptr;
 
 	int vi = 0;
 	for( int r=0; r<m.row(); r++ ) {
+        cout << "   ";
 		for( int c=0; c<m.col(); c++ ) {
 			out.width( 4 );
 			if( colidx[vi]==c && vi<rowptr[r+1] ) out << nzval[vi++] << " ";
@@ -432,25 +386,26 @@ ostream& operator<<( ostream& out, const SparseMatrix& m ){
 }
 
 void SparseMatrix::print( ostream& out ) const{
-	out << "Size: " << this->row() << " x " << this->col() << endl;
+	out << "Matrix Size: " << this->row() << " x " << this->col() << endl;
 
 	if( this->data->getRow()==NULL ){
 		out << "  ...This is a zero matrix." << endl;
 	}
 
-	const int& N              = this->data->getRow()->nnz();
-	const double* const nzval = this->data->getRow()->nzvel();
-	const int* const colidx   = this->data->getRow()->colinx();
-	const int* const rowptr   = this->data->getRow()->rowptr();
+	const int& N              = this->data->getRow()->nnz;
+	const double* const nzval = this->data->getRow()->nzval;
+	const int* const colidx   = this->data->getRow()->colind;
+	const int* const rowptr   = this->data->getRow()->rowptr;
 
-	int vi = 0;
+    cout << "# non-zero values: " << N << endl;
+
 	int r = 0;
 	for( int i = 0; i<N; i++ ) {
 		if( i >= rowptr[r+1] ) r++;
-		out << "[";
+		out << "   [";
 		out << std::left << r << ", ";
 		out << colidx[i] << "]: ";
-		out << nzval[vi++] << " ";
+		out << nzval[i] << " ";
 		out << endl;
 	}
 }
@@ -458,10 +413,9 @@ void SparseMatrix::print( ostream& out ) const{
 SparseMatrix SparseMatrix::diag() const {
 	assert( this->row()==this->col() && "Matrix size does not match" );
 
-	// const int& N              = this->data->getRow()->nnz();
-	const double* const nzval = this->data->getRow()->nzvel();
-	const int* const colidx   = this->data->getRow()->colinx();
-	const int* const rowptr   = this->data->getRow()->rowptr();
+	const double* const nzval = this->data->getRow()->nzval;
+	const int* const colidx   = this->data->getRow()->colind;
+	const int* const rowptr   = this->data->getRow()->rowptr;
 
 	// store the result as row-order
 	vector<double> res_nzval;
@@ -500,13 +454,13 @@ const SparseMatrix multiply_openmp( const SparseMatrix& m1, const SparseMatrix& 
 	}
 
 
-	const double* const nzval1 = m1.data->getRow()->nzvel();
-	const int* const colidx1   = m1.data->getRow()->colinx();
-	const int* const rowptr1   = m1.data->getRow()->rowptr();
+	const double* const nzval1 = m1.data->getRow()->nzval;
+	const int* const colidx1   = m1.data->getRow()->colind;
+	const int* const rowptr1   = m1.data->getRow()->rowptr;
 
-	const double* const nzval2 = m2.data->getCol()->nzvel();
-	const int* const rowidx2   = m2.data->getCol()->rowinx();
-	const int* const colptr2   = m2.data->getCol()->colptr();
+	const double* const nzval2 = m2.data->getCol()->nzval;
+	const int* const rowidx2   = m2.data->getCol()->rowind;
+	const int* const colptr2   = m2.data->getCol()->colptr;
 
 	vector<double> res_nzval;
 	vector<int> res_colidx;

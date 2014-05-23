@@ -1,62 +1,47 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "SparseMatrixDataRow.h"
+#include <string.h>
+#include <assert.h>
 
-SparseMatrixDataRow::SparseMatrixDataRow( int rows, int cols, 
+
+#include <iostream>
+
+using namespace std;
+
+SparseMatrixDataRow::SparseMatrixDataRow( int rows, int cols,
 	const double non_zero_value[], const int col_index[], const int row_pointer[], int N )
 {
+    this->nnz = N;
+
 	// non-zero values
-	double   *nzval = NULL; 
-	if ( !(nzval = doubleMalloc(N)) ) ABORT("Fail to alloc memory for SparseMatrix");
-	memcpy( nzval, non_zero_value, sizeof(double) * N ); 
+	this->nzval = new double[N];
+	memcpy( nzval, non_zero_value, sizeof(double) * N );
 
-	int* colind = NULL; 
-	if ( !(colind = intMalloc(N)) ) ABORT("Fail to alloc memory for SparseMatrix");
-	memcpy( colind, col_index, sizeof(int) * N ); 
+	this->colind = new int[N];
+	// if ( !(colind = intMalloc(N)) ) ABORT("Fail to alloc memory for SparseMatrix");
+	memcpy( colind, col_index, sizeof(int) * N );
 
-	int* rowptr; 
-	if ( !(rowptr = intMalloc(rows+1)) ) ABORT("Fail to alloc memory for SparseMatrix");
-	memcpy( rowptr, row_pointer, sizeof(int) * rows ); 
+	this->rowptr = new int[rows+1];
+	// if ( !(rowptr = intMalloc(rows+1)) ) ABORT("Fail to alloc memory for SparseMatrix");
+	memcpy( rowptr, row_pointer, sizeof(int) * rows );
 	rowptr[rows] = N;
 
-	supermatrix = new SuperMatrix();
-	/* Create matrix A in the format expected by SuperLU. */
-	dCreate_CompCol_Matrix( 
-		supermatrix, 
-		rows,   // number of rows
-		cols,   // number of cols
-		N,      // number of non zero entrires
-		nzval,  // the values column wise
-		colind, // row indices of the nonzeros
-		rowptr, // beginning of columns in nzval[] and rowind[]
-		SLU_NC, // Data storage order: column-wise
-		SLU_D,  // Data type: double
-		SLU_GE);// Matrix type: genral
+	for( int i=0; i< N; i++ ) {
+        cout << non_zero_value[i] << " ";
+    }
+    cout << endl;
+
+    cout << nzval[0] << endl;
 }
 
-SparseMatrixDataRow::SparseMatrixDataRow( int rows, int cols, double nzval[], 
+SparseMatrixDataRow::SparseMatrixDataRow( int rows, int cols, double nzval[],
 	int colidx[], int rowptr[], int N )
 {
-	assert( rowptr[0]==0 && rowptr[rows]==N && "rowptr is not initialliezed properly." ); 
-	supermatrix = new SuperMatrix();
-	/* Create matrix A in the format expected by SuperLU. */
-	dCreate_CompCol_Matrix( 
-		supermatrix, 
-		rows,   // number of rows
-		cols,   // number of cols
-		N,      // number of non zero entrires
-		nzval,  // the values column wise
-		colidx, // row indices of the nonzeros
-		rowptr, // beginning of columns in nzval[] and rowind[]
-		SLU_NC, // Data storage order: column-wise
-		SLU_D,  // Data type: double
-		SLU_GE);// Matrix type: genral
-} 
+	assert( rowptr[0]==0 && rowptr[rows]==N && "rowptr is not initialliezed properly." );
+
+}
 
 
 SparseMatrixDataRow::~SparseMatrixDataRow(){
-	if( supermatrix ) {
-		Destroy_CompRow_Matrix( supermatrix );
-		delete supermatrix; 
-		supermatrix = NULL; 
-	}
+
 }
