@@ -111,6 +111,7 @@ HANDLE thread_render = NULL;
 		const Data3D<T3>* im3 ) { }
 #endif
 
+
 void experiment6_video( void ) {
 	// Vesselness measure with sigma
 	Image3D<Vesselness_Sig> vn_et_sig;
@@ -139,6 +140,7 @@ void experiment6_video( void ) {
 	WaitForSingleObject( thread_render, INFINITE);
 }
 
+
 void experiment1_video( void ) {
 	// Vesselness measure with sigma
 	Data3D<Vesselness_Sig> vn_sig( "../temp/yes.vn_sig" );
@@ -165,14 +167,59 @@ void experiment1_video( void ) {
 	WaitForSingleObject( thread_render, INFINITE);
 }
 
+
+
+void test1_twopoints( void ) {
+	// Vesselness measure with sigma
+	Data3D<char> im_uchar( Vec3i(10, 10, 10), 0 );
+	im_uchar.at(5,5,5) = 20; 
+	im_uchar.at(5,6,6) = 20; 
+	im_uchar.at(6,7,7) = 20; 
+
+	// threshold the data and put the data points into a vector
+	Data3D<int> labelID3d( im_uchar.get_size(), -1 );
+
+	vector<cv::Vec3i> tildaP;
+	ModelSet<Line3D> model;
+	vector<int> labelID;
+
+	for(int z=0;z<im_uchar.SZ();z++) for ( int y=0;y<im_uchar.SY();y++) for(int x=0;x<im_uchar.SX();x++) {
+		if( im_uchar.at(x,y,z) > 10 ) { // a thread hold
+			int lid = (int) model.models.size();
+
+			labelID3d.at(x,y,z) = lid;
+
+			labelID.push_back( lid );
+
+			tildaP.push_back( Vec3i(x,y,z) );
+
+			const Vec3d pos(x,y,z);
+			const Vec3d dir( rand()%100, rand()%100, rand()%100 + 1); 
+			dir / sqrt( dir.dot( dir ) );
+			const double sigma = 1;
+			Line3DTwoPoint *line  = new Line3DTwoPoint();
+			line->setPositions( pos-dir, pos+dir );
+			line->setSigma( sigma );
+			model.models.push_back( line );
+		}
+	}
+
+	// Levenberg-Marquart
+	cout << "Number of data points: " << tildaP.size() << endl;
+
+	LevenburgMaquart lm( tildaP, labelID, model, labelID3d );
+	lm.reestimate( 1000, LevenburgMaquart::Quadratic );
+	system( "pause" );
+	lm.reestimate( 4000, LevenburgMaquart::Linear );
+
+	cout << "Main Thread is Done. " << endl;
+	WaitForSingleObject( thread_render, INFINITE);
+}
+
 int main(int argc, char* argv[])
 {
     cout << Mat::zeros(3,2, CV_32F) << endl;
-    // centerline
-	// experiment6_video();
-
-	// energy converging
-	experiment1_video();
+	test1_twopoints();
 	return 0;
 }
 

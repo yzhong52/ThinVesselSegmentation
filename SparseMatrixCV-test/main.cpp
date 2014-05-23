@@ -21,16 +21,11 @@ using namespace std;
 int main( void ) {
     cv::Mat m(3, 2, CV_32F);
     m.at<float>(0,0) = 3;
-
     cout << m << endl;
     cout << "hello world" << endl;
-
     m = cv::Mat_<double>::zeros( 4, 4 );
-
     cout << m << endl;
-
     cout << "hello world" << endl;
-
 	cout << "############################ Identity Matrix ###########################" << endl << endl;
 	cout << SparseMatrixCV::I( 4 ) << endl;
 
@@ -49,6 +44,11 @@ int main( void ) {
 
 		cout << A - AA << endl;
 		cout << A + AA << endl;
+
+        const SparseMatrixCV m1 = ( A - AA ).t();
+        cout << "m1 = " << m1 << endl;
+
+        return 0;
 	}
 
 	cout << "############################ Constructors   ###########################" << endl << endl;

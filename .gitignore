@@ -29,6 +29,9 @@ VesselNess/output
 
 
 
+libs/
+*.layout
+
 
 
 
@@ -217,5 +220,3 @@ FakesAssemblies/
 
 
 
-libs/
-*.layout

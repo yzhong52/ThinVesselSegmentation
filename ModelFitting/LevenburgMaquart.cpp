@@ -366,6 +366,7 @@ void LevenburgMaquart::Jacobian_smoothcost_thread_func(
 		SparseMatrixCV J[2];
 		(this->*using_Jacobian_smoothcost_for_pair)( site, site2, J[0], J[1], &coefficiency );
 
+
 		for( int ji = 0; ji<2; ji++ ) {
 			int nnz;
 			const double* non_zero_value = NULL;
@@ -382,6 +383,7 @@ void LevenburgMaquart::Jacobian_smoothcost_thread_func(
 			}
 			Jacobian_rowptr.push_back( (int) Jacobian_nzv.size() );
 		}
+
 	} // end of - for each pair of pi and pj
 }
 
@@ -619,15 +621,16 @@ void LevenburgMaquart::reestimate( double lambda, SmoothCostType whatSmoothCost 
 		// // // // // // // // // // // // // // // // // //
 		// Construct Jacobian Matrix -  data cost
 		// // // // // // // // // // // // // // // // // //
-		//Jacobian_datacosts( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
-		Jacobian_datacosts_openmp( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
+		Jacobian_datacosts( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
+		//Jacobian_datacosts_openmp( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
+
 
 		// // // // // // // // // // // // // // // // // //
 		// Construct Jacobian Matrix - smooth cost
 		// // // // // // // // // // // // // // // // // //
 		// Jacobian_smoothcosts_openmp_critical_section( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
-		Jacobian_smoothcosts_openmp( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
-		//Jacobian_smoothcosts( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
+		//Jacobian_smoothcosts_openmp( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
+		Jacobian_smoothcosts( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
 
 		// Construct Jacobian matrix
 		const SparseMatrixCV Jacobian = SparseMatrix(
@@ -648,8 +651,8 @@ void LevenburgMaquart::reestimate( double lambda, SmoothCostType whatSmoothCost 
 
 		solve( A, B, X );
 
-		update_lines( -X );
 
+		update_lines( -X );
 
 		double new_energy = compute_energy( tildaP, labelID, lines, labelID3d, using_smoothcost_func );
 

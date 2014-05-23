@@ -71,7 +71,10 @@ SparseMatrixCV::SparseMatrixCV( const cv::Matx<_Tp, m, n>& vec ) : SparseMatrix(
 	row_pointer.push_back( 0 );
 	for( int r = 0; r < m; r++ ) {
 		for( int c = 0; c < n; c++ ) {
-			if( abs( vec(r, c) )>1e-12 ) {
+//            std::cout << vec(r, c) << std::endl;
+//            std::cout << abs( vec(r, c) << std::endl;
+//            std::cout << 1e-12 << std::endl;
+			if( vec(r, c)>1e-12 || vec(r, c)<1e-12) {
 				non_zero_value.push_back( vec(r, c) );
 				col_index.push_back( c );
 			}
