@@ -107,24 +107,6 @@ SparseMatrixCV SparseMatrixCV::I( int rows )
     return SparseMatrixCV( rows, rows, nzv, colind, rowptr, rows );
 }
 
-void SparseMatrixCV::getRowMatrixData( int& N, double const** non_zero_value, int const** column_index, int const** row_pointer ) const
-{
-    if( const SparseMatrixDataRow* rowData = this->data->getRow() )
-    {
-        N = rowData->nnz();
-        *non_zero_value = rowData->nzvel();
-        *column_index = rowData->colinx();
-        *row_pointer = rowData->rowptr();
-    }
-    else
-    {
-        N = 0;
-        *non_zero_value = 0;
-        *column_index = 0;
-        *row_pointer = 0;
-    }
-}
-
 void SparseMatrixCV::convertTo( cv::Mat_<double>& m )
 {
     m = cv::Mat_<double>::zeros( this->row(), this->col() );

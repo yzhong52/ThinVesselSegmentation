@@ -144,6 +144,38 @@ bool SparseMatrix::updateData(  int num_rows, int num_cols,
 }
 
 
+
+void SparseMatrix::getRowMatrixData( int& N, double const** non_zero_value, int const** column_index, int const** row_pointer ) const
+{
+    if( const SparseMatrixDataRow* rowData = this->data->getRow() )
+    {
+        N = rowData->nnz;
+        *non_zero_value = rowData->nzval;
+        *column_index = rowData->colind;
+        *row_pointer = rowData->rowptr;
+    }
+    else
+    {
+        N = 0;
+        *non_zero_value = 0;
+        *column_index = 0;
+        *row_pointer = 0;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const SparseMatrix operator*( const SparseMatrix& m1, const SparseMatrix& m2 ){
 	assert( m1.col()==m2.row() && "Matrix size does not match" );
 
@@ -358,7 +390,6 @@ ostream& operator<<( ostream& out, const SparseMatrix& m ){
 		return out;
 	}
 
-	// const int& N              = m.data->getRow()->nnz();
 	const double* const nzval = m.data->getRow()->nzval;
 	const int* const colidx   = m.data->getRow()->colind;
 	const int* const rowptr   = m.data->getRow()->rowptr;

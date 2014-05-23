@@ -47,9 +47,6 @@ public:
         return SparseMatrix::t();
     }
 
-    void getRowMatrixData( int& N, double const** non_zero_value, int const** column_index,
-                           int const** row_pointer ) const;
-
     static SparseMatrixCV I( int rows );
 
     void convertTo( cv::Mat_<double>& m );

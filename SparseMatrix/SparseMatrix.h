@@ -35,17 +35,23 @@ public:
 		const std::vector<double> non_zero_value,
 		const std::vector<int> col_index,
 		const std::vector<int> row_pointer );
+
 	// copy constructor
 	SparseMatrix( const SparseMatrix& matrix );
 	const SparseMatrix& operator=( const SparseMatrix& matrix );
+
 	// deep copy of the matrix data
 	const SparseMatrix clone(void) const;
+
 	// destructor
 	~SparseMatrix(void);
 
 	// get the number of rows and column of the matrix
 	inline const int row() const { return data->row(); }
 	inline const int col() const { return data->col(); }
+
+	void getRowMatrixData( int& N, double const** non_zero_value, int const** column_index,
+                           int const** row_pointer ) const;
 
 	bool updateData( int num_rows, int num_cols,
 		const std::vector<double> non_zero_value,
