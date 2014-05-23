@@ -1,9 +1,5 @@
 #pragma once
 
-// This class is build with SuperLU 4.3, referece can be found in the following lin:
-// http://crd-legacy.lbl.gov/~xiaoye/SuperLU/
-
-
 #include "SparseMatrixData.h"
 #include "RC.h"
 #include <vector>
@@ -22,10 +18,13 @@ protected:
 	// for reference counting
 	RC *rc;
 
+    // if this is a zero matrix
 	inline bool isZero(void) const{ return data->isZero(); };
 public:
 	// initialized a zero matrix
 	SparseMatrix( int num_rows, int num_cols );
+
+	// initialize a matrix with N non-zero values
 	SparseMatrix( int num_rows, int num_cols,
 		const double non_zero_value[],
 		const int col_index[],
@@ -85,5 +84,7 @@ public:
 	// utility functions
 	friend std::ostream& operator<<( std::ostream& out, const SparseMatrix& m );
 	void print( std::ostream& out ) const;
+
+	// diaganal matrix
 	SparseMatrix diag() const;
 };
