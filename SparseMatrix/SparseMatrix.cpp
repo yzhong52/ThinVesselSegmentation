@@ -524,15 +524,15 @@ const SparseMatrix multiply_openmp( const SparseMatrix& m1, const SparseMatrix& 
     }
 
     unsigned N1 = 0;
-    const double* nzval1 = nullptr; //m1.data->getRow().nzval;
-    const unsigned* colidx1   = nullptr; //m1.data->getRow().colind;
-    const unsigned* rowptr1   = nullptr; //m1.data->getRow().rowptr;
+    const double* nzval1 = nullptr;
+    const unsigned* colidx1   = nullptr;
+    const unsigned* rowptr1   = nullptr;
     m1.data->getRow(N1, nzval1, colidx1, rowptr1 );
 
     unsigned N2 = 0;
-    const double* nzval2 = nullptr; //m2.data->getCol().nzval;
-    const unsigned* rowidx2   = nullptr; //m2.data->getCol().rowind;
-    const unsigned* colptr2   = nullptr; //m2.data->getCol().colptr;
+    const double* nzval2 = nullptr;
+    const unsigned* rowidx2   = nullptr;
+    const unsigned* colptr2   = nullptr;
     m2.data->getCol( N2, nzval2, rowidx2, colptr2 );
 
     vector<double> res_nzval;
@@ -551,8 +551,7 @@ const SparseMatrix multiply_openmp( const SparseMatrix& m1, const SparseMatrix& 
         vector<unsigned> res_colidx_loc;
 
         #pragma omp for
-
-        for( unsigned r=0; r < m1.row(); r++ )
+        for( int r=0; r < (int) m1.row(); r++ )
         {
             unsigned old_row_size = (unsigned) res_nzval_loc.size();
             for( unsigned c=0; c < m2.col(); c++ )
