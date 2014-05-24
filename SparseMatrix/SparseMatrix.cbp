@@ -16,6 +16,7 @@
 				<Compiler>
 					<Add option="-Wall" />
 					<Add option="-g" />
+					<Add directory="../SparseMatrix" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -28,6 +29,7 @@
 				<Compiler>
 					<Add option="-O2" />
 					<Add option="-Wall" />
+					<Add directory="../SparseMatrix" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -45,6 +47,7 @@
 					<Add option="-Wall" />
 					<Add option="-g" />
 					<Add directory="../dependencies/gtest-1.7.0/include" />
+					<Add directory="../SparseMatrix" />
 				</Compiler>
 				<Linker>
 					<Add library="libgtest.a" />
@@ -69,14 +72,11 @@
 		<Unit filename="CBLAS/dscal.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="MatrixData.h" />
 		<Unit filename="SparseMatrix.cpp" />
 		<Unit filename="SparseMatrix.h" />
 		<Unit filename="SparseMatrixData.cpp" />
 		<Unit filename="SparseMatrixData.h" />
-		<Unit filename="SparseMatrixDataCol.cpp" />
-		<Unit filename="SparseMatrixDataCol.h" />
-		<Unit filename="SparseMatrixDataRow.cpp" />
-		<Unit filename="SparseMatrixDataRow.h" />
 		<Unit filename="test/SparseMatrixTest.cpp">
 			<Option target="Test" />
 		</Unit>

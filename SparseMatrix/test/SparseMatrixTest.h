@@ -30,7 +30,7 @@ void SparseMatrixTest :: test_equal( double (&expected)[R][C], const SparseMatri
     const double* nzval = nullptr;
     const int* colidx   = nullptr;
     const int* rowptr   = nullptr;
-    m.getRowMatrixData( N, &nzval, &colidx, &rowptr );
+    m.getRowMatrixData( N, nzval, colidx, rowptr );
 
     ASSERT_NE( N, 0 );
 

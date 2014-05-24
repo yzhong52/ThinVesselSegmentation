@@ -1,6 +1,7 @@
 #include "SparseMatrixCVTest.h"
-
+#include <iostream>
 using namespace cv;
+using namespace std;
 
 void SparseMatrixCVTest::SetUp()
 {
@@ -13,6 +14,7 @@ void SparseMatrixCVTest::SetUp()
     int    col_index_A1[13] =     { 0,  2,  3,  0,  1,  1,  2,  3,  4,  0,  1,  4, 5};
     int    row_pointer_A1[6] =    { 0,          3,      5,      7,      9,        13};
     A1 = SparseMatrixCV(5, 6, non_zero_value_A1, col_index_A1, row_pointer_A1, 13);
+    cout << A1 << endl;
 
     /*[ 0, 14,  0,  0,  0;
        12,  0,  0,  0,  7;

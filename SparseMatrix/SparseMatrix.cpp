@@ -12,12 +12,15 @@ SparseMatrix::SparseMatrix( int num_rows, int num_cols )
 {
     // create a zero-matrix
     data = new SparseMatrixData( num_rows, num_cols );
+    // reference counter
     rc = new RC();
 }
 SparseMatrix::SparseMatrix( int num_rows, int num_cols, const double non_zero_value[],
                             const int col_index[], const int row_pointer[], int N )
 {
+    // create matrix
     data = new SparseMatrixData( num_rows, num_cols, non_zero_value, col_index, row_pointer, N );
+    // reference counter
     rc = new RC();
 }
 
@@ -26,19 +29,24 @@ SparseMatrix::SparseMatrix( int num_rows, int num_cols,
                             const std::vector<int> col_index,
                             const std::vector<int> row_pointer )
 {
-    assert( non_zero_value.size()==col_index.size() && row_pointer.size()==(unsigned)num_rows+1 && "Data size is invalid. " );
+    assert( non_zero_value.size()==col_index.size() && "Data size is invalid. " );
+    assert( row_pointer.size()==(unsigned)num_rows+1 && "Data size is invalid. " );
+
     if( non_zero_value.size()==0 )
     {
+        // create a zero-matrix
         data = new SparseMatrixData( num_rows, num_cols );
     }
     else
     {
+        // create matrix
         data = new SparseMatrixData( num_rows, num_cols,
                                      (const double*) &non_zero_value[0],
                                      (const int*)    &col_index[0],
                                      (const int*)    &row_pointer[0],
                                      (int) non_zero_value.size() );
     }
+    // reference counter
     rc = new RC();
 }
 
@@ -60,14 +68,12 @@ const SparseMatrix SparseMatrix::clone(void) const
     }
     else
     {
-        SparseMatrix m(
-            this->row(),
-            this->col(),
-            (const double*)(this->data->getRow()->nzval ),
-            (const int*)   (this->data->getRow()->colind ),
-            (const int*)   (this->data->getRow()->rowptr ),
-            this->data->getRow()->nnz );
-        return m;
+        int N = 0;
+        const double* nzval = nullptr;
+        const int* colind = nullptr;
+        const int* rowptr = nullptr;
+        this->data->getRow(N, nzval, colind, rowptr );
+        return SparseMatrix( this->row(), this->col(), nzval, colind, rowptr, N);
     }
 }
 
@@ -163,23 +169,9 @@ bool SparseMatrix::updateData(  int num_rows, int num_cols,
 }
 
 
-
-void SparseMatrix::getRowMatrixData( int& N, double const** non_zero_value, int const** column_index, int const** row_pointer ) const
+void SparseMatrix::getRowMatrixData( int& N, double const*& non_zero_value, int const*& column_index, int const*& row_pointer ) const
 {
-    if( const SparseMatrixDataRow* rowData = this->data->getRow() )
-    {
-        N = rowData->nnz;
-        *non_zero_value = rowData->nzval;
-        *column_index = rowData->colind;
-        *row_pointer = rowData->rowptr;
-    }
-    else
-    {
-        N = 0;
-        *non_zero_value = 0;
-        *column_index = 0;
-        *row_pointer = 0;
-    }
+    this->data->getRow(N, non_zero_value, column_index, row_pointer );
 }
 
 
@@ -205,19 +197,24 @@ const SparseMatrix operator*( const SparseMatrix& m1, const SparseMatrix& m2 )
         return SparseMatrix( m1.row(), m2.col() );
     }
 
+    // store the result as row-order
     vector<double> res_nzval;
     vector<int> res_colidx;
     vector<int> res_rowptr;
 
-    const double* const nzval1 = m1.data->getRow()->nzval;
-    const int* const colidx1   = m1.data->getRow()->colind;
-    const int* const rowptr1   = m1.data->getRow()->rowptr;
+    int N1 = 0;
+    const double* nzval1 = nullptr; //m1.data->getRow().nzval;
+    const int* colidx1   = nullptr; //m1.data->getRow().colind;
+    const int* rowptr1   = nullptr; //m1.data->getRow().rowptr;
+    m1.data->getRow(N1, nzval1, colidx1, rowptr1 );
 
-    const double* const nzval2 = m2.data->getCol()->nzval;
-    const int* const rowidx2   = m2.data->getCol()->rowind;
-    const int* const colptr2   = m2.data->getCol()->colptr;
+    int N2 = 0;
+    const double* nzval2 = nullptr; //m2.data->getCol().nzval;
+    const int* rowidx2   = nullptr; //m2.data->getCol().rowind;
+    const int* colptr2   = nullptr; //m2.data->getCol().colptr;
+    m2.data->getCol( N2, nzval2, rowidx2, colptr2 );
 
-    // store the result as row-order
+
     res_rowptr.push_back( 0 );
     for( int r=0; r < m1.row(); r++ )
     {
@@ -241,20 +238,7 @@ const SparseMatrix operator*( const SparseMatrix& m1, const SparseMatrix& m2 )
         res_rowptr.push_back( (int) res_nzval.size() );
     }
 
-    // use (const T*) to force the constructor to make a deep copy of the data
-    if( res_nzval.size()==0 )
-    {
-        return SparseMatrix( m1.row(), m2.col() );
-    }
-    else
-    {
-        SparseMatrix res( m1.row(), m2.col(),
-                          (const double*) (&res_nzval[0]),
-                          (const int*)    (&res_colidx[0]),
-                          (const int*)    (&res_rowptr[0]),
-                          (int) res_nzval.size() );
-        return res;
-    }
+    return SparseMatrix( m1.row(), m2.col(), res_nzval, res_colidx, res_rowptr );
 }
 
 const SparseMatrix operator-( const SparseMatrix& m1, const SparseMatrix& m2 )
@@ -262,32 +246,38 @@ const SparseMatrix operator-( const SparseMatrix& m1, const SparseMatrix& m2 )
     assert( m1.row()==m2.row() && m1.col()==m2.col() && "Matrix size does not match" );
 
 
-    if( m1.data->getRow()==NULL && m2.data->getRow()==NULL )
+    if( m1.data->isZero() && m2.data->isZero() )
     {
         // if both of the are zero, return a zero matrix
         return SparseMatrix( m1.row(), m2.col() );
     }
-    else if( m1.data->getRow()==NULL )
+    else if( m1.data->isZero() )
     {
         SparseMatrix res = m2.clone();
-        return res*=-1.0;
+        res *= (-1.0);
+        return res;
     }
-    else if( m2.data->getRow()==NULL )
+    else if( m2.data->isZero() )
     {
         return m1.clone();
     }
 
+    // store the result as row-order
     vector<double> res_nzval;
     vector<int> res_colidx;
     vector<int> res_rowptr;
 
-    const double* const nzval1 = m1.data->getRow()->nzval;
-    const int* const colidx1   = m1.data->getRow()->colind;
-    const int* const rowptr1   = m1.data->getRow()->rowptr;
+    int N1 = 0;
+    const double* nzval1 = nullptr; //m1.data->getRow().nzval;
+    const int* colidx1   = nullptr; //m1.data->getRow().colind;
+    const int* rowptr1   = nullptr; //m1.data->getRow().rowptr;
+    m1.data->getRow(N1, nzval1, colidx1, rowptr1 );
 
-    const double* const nzval2 = m2.data->getRow()->nzval;
-    const int* const colidx2   = m2.data->getRow()->colind;
-    const int* const rowptr2   = m2.data->getRow()->rowptr;
+    int N2 = 0;
+    const double* nzval2 = nullptr; //m2.data->getCol().nzval;
+    const int* colidx2   = nullptr; //m2.data->getCol().rowind;
+    const int* rowptr2   = nullptr; //m2.data->getCol().colptr;
+    m2.data->getRow( N2, nzval2, colidx2, rowptr2 );
 
     // store the result as row-order
     res_rowptr.push_back( 0 );
@@ -334,10 +324,7 @@ const SparseMatrix operator-( const SparseMatrix& m1, const SparseMatrix& m2 )
         res_rowptr.push_back( (int) res_nzval.size() );
     }
 
-    // use (const T*) to force the constructor to make a deep copy of the data
-    SparseMatrix res( m1.row(), m2.col(), res_nzval, res_colidx, res_rowptr );
-
-    return res;
+    return SparseMatrix( m1.row(), m2.col(), res_nzval, res_colidx, res_rowptr );
 }
 
 
@@ -346,31 +333,36 @@ const SparseMatrix operator+( const SparseMatrix& m1, const SparseMatrix& m2 )
 {
     assert( m1.row()==m2.row() && m1.col()==m2.col() && "Matrix size does not match" );
 
-    if( m1.data->getRow()==NULL && m2.data->getRow()==NULL )
+    if( m1.isZero() && m2.isZero() )
     {
         // if both of the are zero, return a zero matrix
         return SparseMatrix( m1.row(), m2.col() );
     }
-    else if( m1.data->getRow()==NULL )
+    else if( m1.isZero() )
     {
         return m2.clone();
     }
-    else if( m2.data->getRow()==NULL )
+    else if( m2.isZero() )
     {
         return m1.clone();
     }
 
+    // store the result as row-order
     vector<double> res_nzval;
     vector<int> res_colidx;
     vector<int> res_rowptr;
 
-    const double* const nzval1 = m1.data->getRow()->nzval;
-    const int* const colidx1   = m1.data->getRow()->colind;
-    const int* const rowptr1   = m1.data->getRow()->rowptr;
+    int N1 = 0;
+    const double* nzval1 = nullptr;
+    const int* colidx1   = nullptr;
+    const int* rowptr1   = nullptr;
+    m1.data->getRow(N1, nzval1, colidx1, rowptr1 );
 
-    const double* const nzval2 = m2.data->getRow()->nzval;
-    const int* const colidx2   = m2.data->getRow()->colind;
-    const int* const rowptr2   = m2.data->getRow()->rowptr;
+    int N2 = 0;
+    const double* nzval2 = nullptr;
+    const int* colidx2   = nullptr;
+    const int* rowptr2   = nullptr;
+    m2.data->getRow( N2, nzval2, colidx2, rowptr2 );
 
     // store the result as row-order
     res_rowptr.push_back( 0 );
@@ -419,14 +411,7 @@ const SparseMatrix operator+( const SparseMatrix& m1, const SparseMatrix& m2 )
         res_rowptr.push_back( (int) res_nzval.size() );
     }
 
-    // use (const T*) to force the constructor to make a deep copy of the data
-    SparseMatrix res( m1.row(), m2.col(),
-                      (const double*) (&res_nzval[0]),
-                      (const int*)    (&res_colidx[0]),
-                      (const int*)    (&res_rowptr[0]),
-                      (int) res_nzval.size() );
-
-    return res;
+    return SparseMatrix( m1.row(), m2.col(), res_nzval, res_colidx, res_rowptr );
 }
 
 
@@ -447,15 +432,17 @@ ostream& operator<<( ostream& out, const SparseMatrix& m )
 {
     cout << "Size: " << m.row() << " x " << m.col() << endl;
 
-    if( m.data->getRow()==NULL )
+    if( m.data->isZero() )
     {
         out << "  ...This is a zero matrix." << endl;
         return out;
     }
 
-    const double* const nzval = m.data->getRow()->nzval;
-    const int* const colidx   = m.data->getRow()->colind;
-    const int* const rowptr   = m.data->getRow()->rowptr;
+    int N = 0;
+    const double* nzval = nullptr;
+    const int* colidx   = nullptr;
+    const int* rowptr   = nullptr;
+    m.data->getRow(N, nzval, colidx, rowptr );
 
     int vi = 0;
     for( int r=0; r<m.row(); r++ )
@@ -477,15 +464,17 @@ void SparseMatrix::print( ostream& out ) const
 {
     out << "Matrix Size: " << this->row() << " x " << this->col() << endl;
 
-    if( this->data->getRow()==NULL )
+    if( this->isZero() )
     {
         out << "  ...This is a zero matrix." << endl;
+        return;
     }
 
-    const int& N              = this->data->getRow()->nnz;
-    const double* const nzval = this->data->getRow()->nzval;
-    const int* const colidx   = this->data->getRow()->colind;
-    const int* const rowptr   = this->data->getRow()->rowptr;
+    int N = 0;
+    const double* nzval = nullptr;
+    const int* colidx   = nullptr;
+    const int* rowptr   = nullptr;
+    this->getRowMatrixData( N, nzval, colidx, rowptr );
 
     cout << "# non-zero values: " << N << endl;
 
@@ -505,9 +494,11 @@ SparseMatrix SparseMatrix::diag() const
 {
     assert( this->row()==this->col() && "Matrix size does not match" );
 
-    const double* const nzval = this->data->getRow()->nzval;
-    const int* const colidx   = this->data->getRow()->colind;
-    const int* const rowptr   = this->data->getRow()->rowptr;
+    int N = 0;
+    const double* nzval = nullptr; //m1.data->getRow().nzval;
+    const int* colidx   = nullptr; //m1.data->getRow().colind;
+    const int* rowptr   = nullptr; //m1.data->getRow().rowptr;
+    this->data->getRow(N, nzval, colidx, rowptr );
 
     // store the result as row-order
     vector<double> res_nzval;
@@ -533,32 +524,30 @@ SparseMatrix SparseMatrix::diag() const
         res_rowptr.push_back( (int) res_nzval.size() );
     }
 
-    // use (const T*) to force the constructor to make a deep copy of the data
-    return SparseMatrix( this->row(), this->col(),
-                         (const double*) (&res_nzval[0]),
-                         (const int*)    (&res_colidx[0]),
-                         (const int*)    (&res_rowptr[0]),
-                         (int) res_nzval.size() );
+    return SparseMatrix( this->row(), this->col(), res_nzval, res_colidx, res_rowptr );
 }
 
 const SparseMatrix multiply_openmp( const SparseMatrix& m1, const SparseMatrix& m2 )
 {
     assert( m1.col()==m2.row() && "Matrix size does not match" );
 
-    if( m1.data->getRow()==NULL || m2.data->getCol()==NULL )
+    if( m1.isZero() || m2.isZero()  )
     {
         // if either m1 or m2 is zero matrix, return a zero matrix
         return SparseMatrix( m1.row(), m2.col() );
     }
 
+    int N1 = 0;
+    const double* nzval1 = nullptr; //m1.data->getRow().nzval;
+    const int* colidx1   = nullptr; //m1.data->getRow().colind;
+    const int* rowptr1   = nullptr; //m1.data->getRow().rowptr;
+    m1.data->getRow(N1, nzval1, colidx1, rowptr1 );
 
-    const double* const nzval1 = m1.data->getRow()->nzval;
-    const int* const colidx1   = m1.data->getRow()->colind;
-    const int* const rowptr1   = m1.data->getRow()->rowptr;
-
-    const double* const nzval2 = m2.data->getCol()->nzval;
-    const int* const rowidx2   = m2.data->getCol()->rowind;
-    const int* const colptr2   = m2.data->getCol()->colptr;
+    int N2 = 0;
+    const double* nzval2 = nullptr; //m2.data->getCol().nzval;
+    const int* rowidx2   = nullptr; //m2.data->getCol().rowind;
+    const int* colptr2   = nullptr; //m2.data->getCol().colptr;
+    m2.data->getRow( N2, nzval2, rowidx2, colptr2 );
 
     vector<double> res_nzval;
     vector<int> res_colidx;

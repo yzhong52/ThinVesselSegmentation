@@ -1,7 +1,6 @@
 #include <opencv2/core/core.hpp>
-
-#include "SparseMatrixCV.h"
 #include <iostream>
+#include "SparseMatrixCV.h"
 
 using namespace std;
 
@@ -11,13 +10,11 @@ using namespace std;
 
 void mult( const SparseMatrixCV &A, const double *v, double *w )
 {
-    for( int i=0; i<A.row(); i++ ) ;
-
-    int N;
+    int N = 0;
     const double* non_zero_value = NULL;
     const int * column_index = NULL;
     const int* row_pointer = NULL;
-    A.getRowMatrixData( N, &non_zero_value, &column_index, &row_pointer );
+    A.getRowMatrixData( N, non_zero_value, column_index, row_pointer );
 
     // int previous = -1;
     for( int r=0; r<A.row(); r++ )

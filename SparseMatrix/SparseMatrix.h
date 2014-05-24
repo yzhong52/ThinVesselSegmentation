@@ -24,22 +24,23 @@ protected:
         return data->isZero();
     };
 public:
-    // initialized a zero matrix
+    // c'tor: initialized a zero matrix
     SparseMatrix( int num_rows = 0, int num_cols = 0 );
 
-    // initialize a matrix with N non-zero values
+    // c'tor: initialize a matrix with N non-zero values
     SparseMatrix( int num_rows, int num_cols,
                   const double non_zero_value[],
                   const int col_index[],
                   const int row_pointer[],
                   int N );
 
+    // c'tor
     SparseMatrix( int num_rows, int num_cols,
                   const std::vector<double> non_zero_value,
                   const std::vector<int> col_index,
                   const std::vector<int> row_pointer );
 
-    // copy constructor
+    // c'tor: copy constructor
     SparseMatrix( const SparseMatrix& matrix );
     const SparseMatrix& operator=( const SparseMatrix& matrix );
 
@@ -59,9 +60,10 @@ public:
         return data->col();
     }
 
-    void getRowMatrixData( int& N, double const** non_zero_value, int const** column_index,
-                           int const** row_pointer ) const;
+    void getRowMatrixData( int& N, double const*& non_zero_value, int const*& column_index,
+                           int const*& row_pointer ) const;
 
+private:
     bool updateData( int num_rows, int num_cols,
                      const std::vector<double> non_zero_value,
                      const std::vector<int> col_index,
@@ -77,6 +79,7 @@ public:
                       int row_pointer[],
                       int N );
 
+public:
     ////////////////////////////////////////////////////////////////
     // Matrix manipulations
     ////////////////////////////////////////////////////////////////
@@ -86,7 +89,9 @@ public:
     // mutiply by value
     const SparseMatrix& operator*=( const double& value );
     const SparseMatrix& operator/=( const double& value );
+    // solving linear system
     friend void solve( const SparseMatrix& A, const double* B, double* X );
+    // other matrix manipulations
     friend const SparseMatrix operator*( const SparseMatrix& m1, const SparseMatrix& m2 );
     friend const SparseMatrix operator+( const SparseMatrix& m1, const SparseMatrix& m2 );
     friend const SparseMatrix operator-( const SparseMatrix& m1, const SparseMatrix& m2 );
@@ -97,9 +102,9 @@ public:
     friend const SparseMatrix multiply_openmp( const SparseMatrix& m1, const SparseMatrix& m2 );
 
     // utility functions
-    friend std::ostream& operator<<( std::ostream& out, const SparseMatrix& m );
     void print( std::ostream& out ) const;
+    friend std::ostream& operator<<( std::ostream& out, const SparseMatrix& m );
 
-    // diaganal matrix
+    // return the diaganal matrix
     SparseMatrix diag() const;
 };

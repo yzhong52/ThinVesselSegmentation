@@ -69,9 +69,9 @@ const cv::Mat_<double> operator*( const SparseMatrixCV& m1, const cv::Mat_<doubl
     std::vector<int> res_colidx;
     std::vector<int> res_rowptr;
 
-    const double* const nzval1 = m1.data->getRow()->nzval;
-    const int* const colidx1   = m1.data->getRow()->colind;
-    const int* const rowptr1   = m1.data->getRow()->rowptr;
+    const double* const nzval1 = m1.data->getRow().nzval;
+    const int* const colidx1   = m1.data->getRow().colind;
+    const int* const rowptr1   = m1.data->getRow().rowptr;
 
     // store the result as row-order
     res_rowptr.push_back( 0 );
@@ -111,14 +111,14 @@ void SparseMatrixCV::convertTo( cv::Mat_<double>& m )
 {
     m = cv::Mat_<double>::zeros( this->row(), this->col() );
 
-    if( this->data->getRow()==NULL )
+    if( this->data->getRow().nnz==0 )
     {
         return;
     }
 
-    const double* const nzval = this->data->getRow()->nzval;
-    const int* const colidx   = this->data->getRow()->colind;
-    const int* const rowptr   = this->data->getRow()->rowptr;
+    const double* const nzval = this->data->getRow().nzval;
+    const int* const colidx   = this->data->getRow().colind;
+    const int* const rowptr   = this->data->getRow().rowptr;
 
     int vi = 0;
     for( int r=0; r < this->row(); r++ )

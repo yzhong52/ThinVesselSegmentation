@@ -54,22 +54,23 @@
 	"../SparseMatrix/SparseMatrix.h"
 	<vector>
 
-1400894843 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrix.h
+1400949681 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrix.h
 	"SparseMatrixData.h"
 	"RC.h"
 	<vector>
 	<iostream>
 	<ostream>
 
-1400894875 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdata.h
+1400950767 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdata.h
 	"SparseMatrixDataCol.h"
 	"SparseMatrixDataRow.h"
 	<utility>
 	<string.h>
+	"MatrixData.h"
 
-1400893628 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdatacol.h
+1400899432 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdatacol.h
 
-1400893629 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdatarow.h
+1400899366 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdatarow.h
 
 1398362212 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\rc.h
 
@@ -80,12 +81,13 @@
 1398362216 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrixcv\lsolver\cblas.h
 	<math.h>
 
-1400893841 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrixcv\sparsematrixcv.cpp
+1400901379 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrixcv\sparsematrixcv.cpp
 	"SparseMatrixCV.h"
 	<vector>
 
-1400876794 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrixcv\test\sparsematrixcvtest.cpp
+1400901760 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrixcv\test\sparsematrixcvtest.cpp
 	"SparseMatrixCVTest.h"
+	<iostream>
 
 1400876794 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrixcv\test\sparsematrixcvtest.h
 	"gtest/gtest.h"
@@ -230,7 +232,9 @@
 
 1400876794 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\gtest-1.7.0\include\gtest\gtest_pred_impl.h
 
-1400898886 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrixcv\test\test.cpp
+1400901555 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrixcv\test\test.cpp
 	"gtest/gtest.h"
 	"SparseMatrixCVTest.h"
+
+1400943841 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\matrixdata.h
 

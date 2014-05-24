@@ -2,39 +2,21 @@
 #include "SparseMatrixDataCol.h"
 #include "SparseMatrixDataRow.h"
 #include <utility>
-
-
 #include <string.h>
 
 
-/*! \brief Convert a row compressed storage into a column compressed storage.
- */
-
+#include "MatrixData.h"
 
 
 class SparseMatrixData
 {
-//    struct MatrixData {
-//        int nnz;       // number of non-zero value
-//        double *nzval; // pointer to array of nonzero values
-//        union{
-//            // row order representation
-//            struct{
-//                int *colind; /* pointer to array of columns indices of the nonzeros */
-//                int *rowptr; /* pointer to array of beginning of rows in nzval[] and colind[]  */
-//            };
-//            // column order representtaion
-//            struct {
-//
-//            };
-//        };
-//    };
+
 public:
     // size of the matrix
     int ncol, nrow;
 
-    SparseMatrixDataCol* datacol; // matrix data stored in collumn order
-    SparseMatrixDataRow* datarow; // matrix data stored in row order
+    MatrixData datacol; // matrix data stored in collumn order
+    MatrixData datarow; // matrix data stored in row order
 public:
     // create an zero matrix
     SparseMatrixData( unsigned num_rows, unsigned num_cols);
@@ -49,7 +31,7 @@ public:
         const int row_pointer[],		// pointers to data of each row
         int N );						// number of non-zero values
 
-
+    // dtor
     ~SparseMatrixData();
 
     inline const int& col() const
@@ -62,11 +44,17 @@ public:
     }
     inline bool isZero ( void ) const
     {
-        return !datacol && !datarow;
+        return isRow() && isCol();
     }
+    inline bool isRow (void) const {
+        return datarow.isEmpty();
+    }
+    inline bool isCol (void) const {
+        return datacol.isEmpty();
+    }
+    void getCol(int& N, const double*& nzval, const int *&rowind, const int*& colptr );
+    void getRow(int& N, const double*& nzval, const int *&colind, const int*& rowptr );
 
-    SparseMatrixDataCol* getCol();
-    SparseMatrixDataRow* getRow();
     void transpose( void );
     void multiply( const double& value );
 
