@@ -20,8 +20,8 @@ using namespace cv;
 
 LevenburgMaquart::LevenburgMaquart( const vector<Vec3i>& dataPoints, const vector<int>& labelings,
 	const ModelSet<Line3D>& modelset, const Data3D<int>& labelIDs, SmoothCostType smooth_cost_type )
-	: tildaP( dataPoints ), labelID( labelings )
-	, modelset( modelset ), labelID3d( labelIDs )
+	: tildaP( dataPoints ), labelID( labelings ), labelID3d( labelIDs )
+	, modelset( modelset )
 	, lines( modelset.models )
 {
 	smart_assert( lines.size()!=0, "Error: model set is empty" );
@@ -73,11 +73,11 @@ SparseMatrixCV LevenburgMaquart::Jacobian_datacost_for_one( const int& site ) {
 	line->getEndPoints( X1, X2 );
 
 	// jacobian matrix of the end points of the line
-	const int indecesM1[][2] = {
+	const unsigned indecesM1[][2] = {
 		{0, 0 + label * numParamPerLine},
 		{1, 1 + label * numParamPerLine},
 		{2, 2 + label * numParamPerLine}};
-	const int indecesM2[][2] = {
+	const unsigned indecesM2[][2] = {
 		{0, 3 + label * numParamPerLine},
 		{1, 4 + label * numParamPerLine},
 		{2, 5 + label * numParamPerLine}};
@@ -112,10 +112,6 @@ void LevenburgMaquart::Jacobian_smoothcost_quadratic(
 	Vec3d Xi1, Xi2, Xj1, Xj2;
 	linei->getEndPoints( Xi1, Xi2 );
 	linej->getEndPoints( Xj1, Xj2 );
-
-	// original points
-	const Vec3d tildePi = tildaP[sitei];
-	const Vec3d tildePj = tildaP[sitej];
 
 	// Jacobian matrix of the end points of the line
 	const int indecesXi1[][2] = {
@@ -180,10 +176,10 @@ void LevenburgMaquart::Jacobian_smoothcost_abs_esp( const int& sitei, const int&
 	Vec3d Xi1, Xi2, Xj1, Xj2;
 	linei->getEndPoints( Xi1, Xi2 );
 	linej->getEndPoints( Xj1, Xj2 );
-
-	// original points
-	const Vec3d tildePi = tildaP[sitei];
-	const Vec3d tildePj = tildaP[sitej];
+//
+//	// original points
+//	const Vec3d tildePi = tildaP[sitei];
+//	const Vec3d tildePj = tildaP[sitej];
 
 	// Jacobian matrix of the end points of the line
 	const int indecesXi1[][2] = {
@@ -235,7 +231,7 @@ void LevenburgMaquart::Jacobian_smoothcost_abs_esp( const int& sitei, const int&
 		* (1.0 / dist_pi_pj2 * PAIRWISE_SMOOTH * oldsmoothcost.first );
 	nabla_smooth_cost_j = ( nabla_pj_pj_prime * dist_pi_pj - nabla_pi_pj * dist_pj_pj_prime )
 		* (1.0 / dist_pi_pj2 * PAIRWISE_SMOOTH * oldsmoothcost.second );
-	double temp = PAIRWISE_SMOOTH * oldsmoothcost.first;
+//	double temp = PAIRWISE_SMOOTH * oldsmoothcost.first;
 }
 
 void LevenburgMaquart::Jacobian_datacost_thread_func(
@@ -261,7 +257,7 @@ void LevenburgMaquart::Jacobian_datacost_thread_func(
 	const double* non_zero_value = NULL;
 	const int* column_index = NULL;
 	const int* row_pointer = NULL;
-	J_datacost.getRowMatrixData( nnz, &non_zero_value, &column_index, &row_pointer );
+	J_datacost.getRowMatrixData( nnz, non_zero_value, column_index, row_pointer );
 
 	smart_assert( J_datacost.row()==1 && J_datacost.col()==numParam,
 		"Number of row is not correct for Jacobian matrix" );
@@ -372,7 +368,7 @@ void LevenburgMaquart::Jacobian_smoothcost_thread_func(
 			const double* non_zero_value = NULL;
 			const int * column_index = NULL;
 			const int* row_pointer = NULL;
-			J[ji].getRowMatrixData( nnz, &non_zero_value, &column_index, &row_pointer );
+			J[ji].getRowMatrixData( nnz, non_zero_value, column_index, row_pointer );
 
 			smart_assert( J[ji].row()==1 && J[ji].col()==numParam,
 				"Number of row is not correct for Jacobian matrix" );
@@ -398,9 +394,9 @@ void LevenburgMaquart::Jacobian_smoothcosts_openmp(
 	// // // // // // // // // // // // // // // // // //
 	// Construct Jacobian Matrix - smooth cost
 	// // // // // // // // // // // // // // // // // //
-	const vector<Line3D*>& lines = modelset.models;
-	int numParamPerLine = lines[0]->getNumOfParameters();
-	const Data3D<int>& indeces = labelID3d;
+//	const vector<Line3D*>& lines = modelset.models;
+//	int numParamPerLine = lines[0]->getNumOfParameters();
+//	const Data3D<int>& indeces = labelID3d;
 
 	int max_num_threads = omp_get_max_threads(); // maximum number of thread
 	vector<unsigned int> nzv_size( max_num_threads, 0);
@@ -416,7 +412,7 @@ void LevenburgMaquart::Jacobian_smoothcosts_openmp(
 		vector<int>    Jacobian_rowptr_loc;
 		vector<double> energy_matrix_loc;
 #pragma omp for
-		for( int site = 0; site < tildaP.size(); site++ ) { // For each data point
+		for( unsigned site = 0; site < tildaP.size(); site++ ) { // For each data point
 			Jacobian_smoothcost_thread_func( Jacobian_nzv_loc, Jacobian_colindx_loc,
 				Jacobian_rowptr_loc, energy_matrix_loc, site );
 		} // end of contruction of Jacobian Matrix
@@ -474,7 +470,7 @@ void LevenburgMaquart::Jacobian_smoothcosts_openmp(
 		int data_offset = old_nzv_size;
 		if( tid>0 ) data_offset += accumulate_nzv_size[tid-1];
 
-		for( int i=0; i<Jacobian_rowptr_loc.size(); i++ ) {
+		for( unsigned i=0; i<Jacobian_rowptr_loc.size(); i++ ) {
 			Jacobian_rowptr[ i + row_offset + 1 ] = Jacobian_rowptr_loc[i] + data_offset;
 		}
 
@@ -499,7 +495,7 @@ void LevenburgMaquart::Jacobian_smoothcosts_openmp_critical_section(
 
 #pragma omp for
 
-		for( int site = 0; site < tildaP.size(); site++ ) {
+		for( unsigned site = 0; site < tildaP.size(); site++ ) {
 			// For each data point, the following computation will
 			// be splited into multiple thread
 			Jacobian_smoothcost_thread_func(
@@ -517,7 +513,7 @@ void LevenburgMaquart::Jacobian_smoothcosts_openmp_critical_section(
 				Jacobian_colindx_loc.begin(), Jacobian_colindx_loc.end());
 
 			int offset = Jacobian_rowptr.back();
-			for( int i=0; i<Jacobian_rowptr_loc.size(); i++ ) {
+			for( unsigned i=0; i<Jacobian_rowptr_loc.size(); i++ ) {
 				Jacobian_rowptr.push_back( Jacobian_rowptr_loc[i] + offset );
 			}
 
@@ -548,7 +544,7 @@ void LevenburgMaquart::adjust_endpoints( void )
 	// update the end points of the line
 	vector<double> minT( (int) labelID.size(), (std::numeric_limits<double>::max)() );
 	vector<double> maxT( (int) labelID.size(), (std::numeric_limits<double>::min)() );
-	for( int site = 0; site < tildaP.size(); site++ ) { // For each data point
+	for( unsigned site = 0; site < tildaP.size(); site++ ) { // For each data point
 		const int label = labelID[site];
 		Vec3d p1, p2;
 		lines[label]->getEndPoints( p1, p2 );
@@ -560,7 +556,7 @@ void LevenburgMaquart::adjust_endpoints( void )
 		maxT[label] = max( t+1, maxT[label] );
 		minT[label] = min( t-1, minT[label] );
 	}
-	for( int label=0; label < labelID.size(); label++ ) {
+	for( unsigned label=0; label < labelID.size(); label++ ) {
 		if( minT[label] < maxT[label] ) {
 			Vec3d p1, p2;
 			lines[label]->getEndPoints( p1, p2 );
@@ -576,8 +572,8 @@ void LevenburgMaquart::adjust_endpoints( void )
 
 void LevenburgMaquart::update_lines( const Mat_<double>& delta )
 {
-	for( int label=0; label < lines.size(); label++ ) {
-		for( int i=0; i < numParamPerLine; i++ ) {
+	for( unsigned label=0; label < lines.size(); label++ ) {
+		for( unsigned i=0; i < numParamPerLine; i++ ) {
 			const double& d = delta.at<double>( label * numParamPerLine + i );
 			lines[label]->updateParameterWithDelta( i, d );
 		}

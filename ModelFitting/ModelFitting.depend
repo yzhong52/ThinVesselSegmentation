@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1400812385 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\main.cpp
+1400876793 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\main.cpp
 	"stdafx.h"
 	<Windows.h>
 	<math.h>
@@ -109,14 +109,14 @@
 1398360686 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\opencv2.4.8\include\opencv2\highgui\highgui_c.h
 	"opencv2/core/core_c.h"
 
-1398360460 d:\users\yzhong52\documents\github\thin_vessel_segmentation\vesselness\nstdio.h
+1400961923 d:\users\yzhong52\documents\github\thin_vessel_segmentation\vesselness\nstdio.h
 	<stdio.h>
 
-1400727338 d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\line3d.h
+1400876792 d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\line3d.h
 	"stdafx.h"
 	<iostream>
 
-1400789522 d:\users\yzhong52\documents\github\thin_vessel_segmentation\vesselness\data3d.h
+1400961825 d:\users\yzhong52\documents\github\thin_vessel_segmentation\vesselness\data3d.h
 	"stdafx.h"
 	"TypeInfo.h"
 	"nstdio.h"
@@ -131,7 +131,7 @@
 	"opencv2/highgui/highgui.hpp"
 	"smart_assert.h"
 
-1400690973 d:\users\yzhong52\documents\github\thin_vessel_segmentation\vesselness\smart_assert.h
+1400876794 d:\users\yzhong52\documents\github\thin_vessel_segmentation\vesselness\smart_assert.h
 	<assert.h>
 	<iostream>
 
@@ -149,7 +149,7 @@
 	"Edge.h"
 	"DataTypes.h"
 
-1400691401 d:\users\yzhong52\documents\github\thin_vessel_segmentation\vesselness\graph.h
+1400876794 d:\users\yzhong52\documents\github\thin_vessel_segmentation\vesselness\graph.h
 	<iostream>
 	<queue>
 	<vector>
@@ -162,7 +162,7 @@
 1398360459 d:\users\yzhong52\documents\github\thin_vessel_segmentation\vesselness\disjointset.h
 	<iostream>
 
-1400698425 d:\users\yzhong52\documents\github\thin_vessel_segmentation\vesselness\datatypes.h
+1400876794 d:\users\yzhong52\documents\github\thin_vessel_segmentation\vesselness\datatypes.h
 	"Edge.h"
 	<vector>
 	<algorithm>
@@ -199,10 +199,10 @@
 	<stdio.h>
 	"graph.h"
 
-1400698323 d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\line3dtwopoint.h
+1400876792 d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\line3dtwopoint.h
 	"line3d.h"
 
-1400508275 d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\levenburgmaquart.h
+1400962168 d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\levenburgmaquart.h
 	"SparseMatrixCV\SparseMatrixCV.h"
 	"opencv2\core\core.hpp"
 	"ModelSet.h"
@@ -210,22 +210,21 @@
 	<array>
 	<vector>
 
-1400860508 d:\users\yzhong52\documents\github\thin_vessel_segmentation\\sparsematrixcv\sparsematrixcv.h
+1400885193 d:\users\yzhong52\documents\github\thin_vessel_segmentation\\sparsematrixcv\sparsematrixcv.h
 	<opencv2/core/core.hpp>
 	"../SparseMatrix/SparseMatrix.h"
 	<vector>
 
-1400698082 d:\users\yzhong52\documents\github\thin_vessel_segmentation\\sparsematrix\sparsematrix.h
+1400960980 d:\users\yzhong52\documents\github\thin_vessel_segmentation\\sparsematrix\sparsematrix.h
 	"SparseMatrixData.h"
 	"RC.h"
 	<vector>
 	<iostream>
 	<ostream>
 
-1398362213 d:\users\yzhong52\documents\github\thin_vessel_segmentation\\sparsematrix\sparsematrixdata.h
-	"SparseMatrixDataCol.h"
-	"SparseMatrixDataRow.h"
+1400960423 d:\users\yzhong52\documents\github\thin_vessel_segmentation\\sparsematrix\sparsematrixdata.h
 	<utility>
+	<string.h>
 
 1398362213 d:\users\yzhong52\documents\github\thin_vessel_segmentation\\sparsematrix\sparsematrixdatacol.h
 	"SuperLU_4.3\SRC\slu_ddefs.h"
@@ -258,7 +257,7 @@
 
 1398362212 d:\users\yzhong52\documents\github\thin_vessel_segmentation\\sparsematrix\rc.h
 
-1400727009 d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\modelset.h
+1400876793 d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\modelset.h
 	<vector>
 	<iostream>
 	<string>
@@ -273,7 +272,7 @@
 1400508275 d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\graphcut.h
 	"opencv2/core/core.hpp"
 
-1400698439 d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\syntheticdata.h
+1400876793 d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\syntheticdata.h
 	"Data3D.h"
 	<random>
 	<cmath>
@@ -304,11 +303,11 @@
 	<vector>
 	"opencv2\core\core.hpp"
 
-1400788374 d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\glviwermodel.h
+1400876792 d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\glviwermodel.h
 	"GLViwerWrapper.h"
 	"GLLineModel.h"
 
-1400691129 d:\users\yzhong52\documents\github\thin_vessel_segmentation\vesselness\glviwerwrapper.h
+1400876794 d:\users\yzhong52\documents\github\thin_vessel_segmentation\vesselness\glviwerwrapper.h
 	<opencv2\opencv.hpp>
 	"Data3D.h"
 	"GLVolumn.h"
@@ -343,13 +342,13 @@
 	<gl\glu.h>
 	"GLCamera.h"
 
-1400691724 d:\users\yzhong52\documents\github\thin_vessel_segmentation\vesselness\minspantreewrapper.h
+1400876794 d:\users\yzhong52\documents\github\thin_vessel_segmentation\vesselness\minspantreewrapper.h
 	"MinSpanTree.h"
 	"Data3D.h"
 	"VesselNessTypes.h"
 	"ImageProcessing.h"
 
-1400690677 d:\users\yzhong52\documents\github\thin_vessel_segmentation\vesselness\glviewer.h
+1400876794 d:\users\yzhong52\documents\github\thin_vessel_segmentation\vesselness\glviewer.h
 	"gl\glew.h"
 	<windows.h>
 	<gl\gl.h>
@@ -383,7 +382,7 @@
 	"VesselNessTypes.h"
 	"Data3D.h"
 
-1400697598 d:\users\yzhong52\documents\github\thin_vessel_segmentation\vesselness\glcenterline.h
+1400876794 d:\users\yzhong52\documents\github\thin_vessel_segmentation\vesselness\glcenterline.h
 	"Graph.h"
 	"MinSpanTreeWrapper.h"
 	"DataTypes.h"
@@ -417,7 +416,7 @@
 	<vector>
 	"Line3D.h"
 
-1400775017 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\energyfunctions.cpp
+1400961793 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\energyfunctions.cpp
 	"EnergyFunctions.h"
 	"opencv2\core\core.hpp"
 	"Line3D.h"
@@ -428,22 +427,21 @@
 	<vector>
 	<omp.h>
 
-1400860508 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrixcv\sparsematrixcv.h
+1400885193 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrixcv\sparsematrixcv.h
 	<opencv2/core/core.hpp>
 	"../SparseMatrix/SparseMatrix.h"
 	<vector>
 
-1400698082 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrix.h
+1400960980 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrix.h
 	"SparseMatrixData.h"
 	"RC.h"
 	<vector>
 	<iostream>
 	<ostream>
 
-1398362213 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdata.h
-	"SparseMatrixDataCol.h"
-	"SparseMatrixDataRow.h"
+1400960423 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdata.h
 	<utility>
+	<string.h>
 
 1398362213 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdatacol.h
 	"SuperLU_4.3\SRC\slu_ddefs.h"
@@ -491,7 +489,7 @@
 	"Line3D.h"
 	"GCoptimization.h"
 
-1400698253 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\init_models.cpp
+1400876793 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\init_models.cpp
 	"init_models.h"
 	"VesselnessTypes.h"
 	"Line3DTwoPoint.h"
@@ -500,13 +498,13 @@
 	"ImageProcessing.h"
 	"Neighbour26.h"
 
-1400698325 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\line3dtwopoint.cpp
+1400876792 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\line3dtwopoint.cpp
 	"Line3DTwoPoint.h"
 
 1399493829 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\line3d.cpp
 	"Line3D.h"
 
-1400816235 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\levenburgmaquart.cpp
+1400962151 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\modelfitting\levenburgmaquart.cpp
 	"LevenburgMaquart.h"
 	<iostream>
 	<iomanip>

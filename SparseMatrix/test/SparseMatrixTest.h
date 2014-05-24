@@ -13,31 +13,31 @@ protected:
     virtual void SetUp();
     virtual void TearDown();
 
-    template<int R, int C>
+    template<unsigned R, unsigned C>
     void test_equal( double (&expected)[R][C], const SparseMatrix& m );
 
-    template<int R, int C>
+    template<unsigned R, unsigned C>
     void print( double (&expected)[R][C] );
 };
 
-template<int R, int C>
+template<unsigned R, unsigned C>
 void SparseMatrixTest :: test_equal( double (&expected)[R][C], const SparseMatrix& m )
 {
     ASSERT_EQ( R, m.row() );
     ASSERT_EQ( C, m.col() );
 
-    int N = 0;
+    unsigned N = 0;
     const double* nzval = nullptr;
-    const int* colidx   = nullptr;
-    const int* rowptr   = nullptr;
+    const unsigned* colidx   = nullptr;
+    const unsigned* rowptr   = nullptr;
     m.getRowMatrixData( N, nzval, colidx, rowptr );
 
     ASSERT_NE( N, 0 );
 
-    int vi = 0;
-    for( int r=0; r<m.row(); r++ )
+    unsigned vi = 0;
+    for( unsigned r=0; r<m.row(); r++ )
     {
-        for( int c=0; c<m.col(); c++ )
+        for( unsigned c=0; c<m.col(); c++ )
         {
             if( colidx[vi]==c && vi<rowptr[r+1] )
             {
@@ -52,12 +52,12 @@ void SparseMatrixTest :: test_equal( double (&expected)[R][C], const SparseMatri
 }
 
 
-template<int R, int C>
+template<unsigned R, unsigned C>
 void SparseMatrixTest :: print( double (&expected)[R][C] )
 {
-    for( int r=0; r<R; r++ )
+    for( unsigned r=0; r<R; r++ )
     {
-        for( int c=0; c<C; c++ )
+        for( unsigned c=0; c<C; c++ )
         {
             std::cout.width(5);
             std::cout << expected[r][c] << " ";

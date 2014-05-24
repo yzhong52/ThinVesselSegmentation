@@ -25,20 +25,20 @@ protected:
     };
 public:
     // c'tor: initialized a zero matrix
-    SparseMatrix( int num_rows = 0, int num_cols = 0 );
+    SparseMatrix( unsigned num_rows = 0, unsigned num_cols = 0 );
 
     // c'tor: initialize a matrix with N non-zero values
-    SparseMatrix( int num_rows, int num_cols,
+    SparseMatrix( unsigned num_rows, unsigned num_cols,
                   const double non_zero_value[],
-                  const int col_index[],
-                  const int row_pointer[],
-                  int N );
+                  const unsigned col_index[],
+                  const unsigned row_pointer[],
+                  unsigned N );
 
     // c'tor
-    SparseMatrix( int num_rows, int num_cols,
+    SparseMatrix( unsigned num_rows, unsigned num_cols,
                   const std::vector<double> non_zero_value,
-                  const std::vector<int> col_index,
-                  const std::vector<int> row_pointer );
+                  const std::vector<unsigned> col_index,
+                  const std::vector<unsigned> row_pointer );
 
     // c'tor: copy constructor
     SparseMatrix( const SparseMatrix& matrix );
@@ -51,34 +51,29 @@ public:
     ~SparseMatrix(void);
 
     // get the number of rows and column of the matrix
-    inline const int& row() const
+    inline const unsigned& row() const
     {
         return data->row();
     }
-    inline const int& col() const
+    inline const unsigned& col() const
     {
         return data->col();
     }
 
-    void getRowMatrixData( int& N, double const*& non_zero_value, int const*& column_index,
-                           int const*& row_pointer ) const;
+    void getRowMatrixData( unsigned& N, double const*& non_zero_value, unsigned const*& column_index,
+                           unsigned const*& row_pointer ) const;
 
-public:
+protected:
 
-    bool updateData( int num_rows, int num_cols,
+    bool updateData( unsigned num_rows, unsigned num_cols,
                      const std::vector<double> non_zero_value,
-                     const std::vector<int> col_index,
-                     const std::vector<int> row_pointer );
-    bool updateData(  int num_rows, int num_cols,
+                     const std::vector<unsigned> col_index,
+                     const std::vector<unsigned> row_pointer );
+    bool updateData(  unsigned num_rows, unsigned num_cols,
                       const double non_zero_value[],
-                      const int col_index[],
-                      const int row_pointer[],
-                      int N );
-    bool updateData(  int num_rows, int num_cols,
-                      double non_zero_value[],
-                      int col_index[],
-                      int row_pointer[],
-                      int N );
+                      const unsigned col_index[],
+                      const unsigned row_pointer[],
+                      unsigned N );
 
 public:
     ////////////////////////////////////////////////////////////////
