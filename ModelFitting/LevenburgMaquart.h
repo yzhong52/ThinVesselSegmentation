@@ -48,46 +48,46 @@ private:
 	// Jacobian Matrix - data cost
 	void Jacobian_datacosts(
 		vector<double>& Jacobian_nzv,
-		vector<int>&    Jacobian_colindx,
-		vector<int>&    Jacobian_rowptr,
+		vector<unsigned>&    Jacobian_colindx,
+		vector<unsigned>&    Jacobian_rowptr,
 		vector<double>& energy_matrix );
 	// Jacobian Matrix - data cost
 	void Jacobian_datacosts_openmp(
 		vector<double>& Jacobian_nzv,
-		vector<int>&    Jacobian_colindx,
-		vector<int>&    Jacobian_rowptr,
+		vector<unsigned>&    Jacobian_colindx,
+		vector<unsigned>&    Jacobian_rowptr,
 		vector<double>& energy_matrix );
 	// Jacobian Matrix - data cost - thread func
 	void Jacobian_datacost_thread_func(
 		vector<double>& Jacobian_nzv,
-		vector<int>&    Jacobian_colindx,
-		vector<int>&    Jacobian_rowptr,
+		vector<unsigned>&    Jacobian_colindx,
+		vector<unsigned>&    Jacobian_rowptr,
 		vector<double>& energy_matrix,
 		const int site);
 
 	// Jacobian Matrix - smooth cost
 	void Jacobian_smoothcosts(
 		vector<double>& Jacobian_nzv,
-		vector<int>&    Jacobian_colindx,
-		vector<int>&    Jacobian_rowptr,
+		vector<unsigned>&    Jacobian_colindx,
+		vector<unsigned>&    Jacobian_rowptr,
 		vector<double>& energy_matrix );
 	// Jacobian Matrix - smooth cost
 	void Jacobian_smoothcosts_openmp(
 		vector<double>& Jacobian_nzv,
-		vector<int>&    Jacobian_colindx,
-		vector<int>&    Jacobian_rowptr,
+		vector<unsigned>&    Jacobian_colindx,
+		vector<unsigned>&    Jacobian_rowptr,
 		vector<double>& energy_matrix );
 	// Jacobian Matrix - smooth cost
 	void Jacobian_smoothcosts_openmp_critical_section(
 		vector<double>& Jacobian_nzv,
-		vector<int>&    Jacobian_colindx,
-		vector<int>&    Jacobian_rowptr,
+		vector<unsigned>&    Jacobian_colindx,
+		vector<unsigned>&    Jacobian_rowptr,
 		vector<double>& energy_matrix );
 	// Jacobian Matrix - smooth cost - thread func
 	void Jacobian_smoothcost_thread_func(
 		vector<double>& Jacobian_nzv,
-		vector<int>&    Jacobian_colindx,
-		vector<int>&    Jacobian_rowptr,
+		vector<unsigned>&    Jacobian_colindx,
+		vector<unsigned>&    Jacobian_rowptr,
 		vector<double>& energy_matrix,
 		const int site );
 
