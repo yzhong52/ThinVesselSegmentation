@@ -63,7 +63,8 @@ public:
     void getRowMatrixData( int& N, double const*& non_zero_value, int const*& column_index,
                            int const*& row_pointer ) const;
 
-private:
+public:
+
     bool updateData( int num_rows, int num_cols,
                      const std::vector<double> non_zero_value,
                      const std::vector<int> col_index,

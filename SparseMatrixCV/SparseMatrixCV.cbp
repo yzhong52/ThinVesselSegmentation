@@ -76,7 +76,6 @@
 		<Linker>
 			<Add library="libopencv_core248.dll.a" />
 		</Linker>
-		<Unit filename="MatrixData.h" />
 		<Unit filename="SparseMatrixCV-lsover.cpp" />
 		<Unit filename="SparseMatrixCV.cpp" />
 		<Unit filename="SparseMatrixCV.h" />

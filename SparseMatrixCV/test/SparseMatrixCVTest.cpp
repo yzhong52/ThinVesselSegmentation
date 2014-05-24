@@ -60,18 +60,18 @@ void SparseMatrixCVTest::test_equal( cv::Mat_<double> m0, SparseMatrixCV m1 )
     EXPECT_EQ(m0.rows, m1.row() );
     EXPECT_EQ(m0.cols, m1.col() );
 
-    int N;
-    double const* nzval = NULL;
-    int const *colinx = NULL;
-    int const *rowptr = NULL;
-    m1.getRowMatrixData( N, &nzval, &colinx, &rowptr );
+    int N = 0;
+    const double* nzval = nullptr;
+    const int* colidx   = nullptr;
+    const int* rowptr   = nullptr;
+    m1.getRowMatrixData( N, nzval, colidx, rowptr );
 
     int vi = 0;
     for( int r=0; r<m1.row(); r++ )
     {
         for( int c=0; c<m1.col(); c++ )
         {
-            if( colinx[vi]==c && vi<rowptr[r+1] )
+            if( colidx[vi]==c && vi<rowptr[r+1] )
             {
                 ASSERT_DOUBLE_EQ(  m0[r][c], nzval[vi++] );
             }
@@ -96,11 +96,11 @@ void SparseMatrixCVTest::test_equal( cv::Mat_<double> m0, cv::Mat_<double> m1 ){
 
 Mat_<double> SparseMatrixCVTest::toCvMat( const SparseMatrixCV& m1 )
 {
-    int N;
-    double const* nzval = NULL;
-    int const *colinx = NULL;
-    int const *rowptr = NULL;
-    m1.getRowMatrixData( N, &nzval, &colinx, &rowptr );
+    int N = 0;
+    const double* nzval = nullptr;
+    const int* colidx   = nullptr;
+    const int* rowptr   = nullptr;
+    m1.getRowMatrixData( N, nzval, colidx, rowptr );
 
     Mat_<double> mres =Mat_<double>::zeros( m1.row(), m1.col() );
 
@@ -109,7 +109,7 @@ Mat_<double> SparseMatrixCVTest::toCvMat( const SparseMatrixCV& m1 )
     {
         for( int c=0; c<m1.col(); c++ )
         {
-            if( colinx[vi]==c && vi<rowptr[r+1] )
+            if( colidx[vi]==c && vi<rowptr[r+1] )
             {
                 mres[r][c] = nzval[vi++];
             }

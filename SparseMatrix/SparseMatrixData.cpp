@@ -38,6 +38,8 @@ SparseMatrixData::SparseMatrixData( int num_rows, int num_cols, const double non
 
 SparseMatrixData::~SparseMatrixData()
 {
+    datarow.release();
+    datacol.release();
 }
 
 
@@ -82,46 +84,6 @@ void SparseMatrixData::getRow(int& N, const double*& nzval, const int *&colind, 
     colind = datarow.colind;
     rowptr = datarow.rowptr;
 }
-//
-//const MatrixData& SparseMatrixData::getCol()
-//{
-//    if( datarow.nnz==0 || datacol.nnz!=0 ) return datacol;
-//
-//    RowMatrix_to_ColMatrix(
-//        nrow,						// number of rows
-//        ncol,						// number of cols
-//        datarow.nnz,                // number of non-zero entries
-//        datarow.nzval,             // non-zero entries
-//        datarow.colind,            // column index
-//        datarow.rowptr,            // row pointers
-//        &datacol.nzval,                     // non-zero entries (for column-order matrix)
-//        &datacol.rowind,                    // row indeces
-//        &datacol.colptr );                  // column pointers
-//
-//    return datacol;
-//}
-//
-//const MatrixData&  SparseMatrixData::getRow()
-//{
-//    if( datacol.nnz==0 || datarow.nnz!=0 ) return datarow;
-//
-//    // IMPORTANT!: ncol and nrow is reversed in the following function.
-//    // This is because dCompRow_to_CompCol is a function for converting
-//    // row-order sparse matrix to col-order matrix. But it can also be
-//    // used to comvert a col matrix into a row one if it is carefully used.
-//    RowMatrix_to_ColMatrix(
-//        ncol,						// number of rows
-//        nrow,						// number of cols
-//        datacol.nnz,               // number of non-zero entries
-//        datacol.nzval,             // non-zero entries
-//        datacol.rowind,            // pretend it is column index array
-//        datacol.colptr,            // pretend it is row pointers arrays
-//        &datarow.nzval,                     // non-zero entries (for row-order matrix)
-//        &datarow.colind,                    // column indeces
-//        &datarow.rowptr );                  // row pointers
-//
-//    return datarow;
-//}
 
 void SparseMatrixData::transpose( void )
 {

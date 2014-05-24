@@ -72,7 +72,8 @@
 		<Unit filename="CBLAS/dscal.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="MatrixData.h" />
+		<Unit filename="CBLAS/f2c.h" />
+		<Unit filename="CBLAS/slu_Cnames.h" />
 		<Unit filename="SparseMatrix.cpp" />
 		<Unit filename="SparseMatrix.h" />
 		<Unit filename="SparseMatrixData.cpp" />

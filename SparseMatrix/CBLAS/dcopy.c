@@ -11,9 +11,6 @@
 {
 
 
-    /* System generated locals */
-    integer i__1;
-
     /* Local variables */
     static integer i, m, ix, iy, mp1;
 
@@ -53,7 +50,6 @@
     {
         iy = (-(*n) + 1) **incy + 1;
     }
-    i__1 = *n;
     for (i = 1; i <= *n; ++i)
     {
         DY(iy) = DX(ix);
@@ -74,7 +70,6 @@ L20:
     {
         goto L40;
     }
-    i__1 = m;
     for (i = 1; i <= m; ++i)
     {
         DY(i) = DX(i);
@@ -86,7 +81,6 @@ L20:
     }
 L40:
     mp1 = m + 1;
-    i__1 = *n;
     for (i = mp1; i <= *n; i += 7)
     {
         DY(i) = DX(i);
