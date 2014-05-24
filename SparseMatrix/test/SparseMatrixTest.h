@@ -59,7 +59,7 @@ void SparseMatrixTest :: print( double (&expected)[R][C] )
     {
         for( int c=0; c<C; c++ )
         {
-            std::cout.width(10);
+            std::cout.width(5);
             std::cout << expected[r][c] << " ";
         }
         std::cout << std::endl;

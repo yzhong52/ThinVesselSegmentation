@@ -57,6 +57,18 @@
 		<Compiler>
 			<Add option="-fopenmp" />
 		</Compiler>
+		<Unit filename="CBLAS/daxpy.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="CBLAS/dcopy.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="CBLAS/ddot.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="CBLAS/dscal.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="SparseMatrix.cpp" />
 		<Unit filename="SparseMatrix.h" />
 		<Unit filename="SparseMatrixData.cpp" />

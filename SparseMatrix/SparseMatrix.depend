@@ -2,17 +2,17 @@
 1400716372 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\main.c
 	<stdio.h>
 
-1400884337 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdata.cpp
+1400894875 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdata.cpp
 	"SparseMatrixData.h"
 	<iostream>
 
-1400883683 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdata.h
+1400894875 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdata.h
 	"SparseMatrixDataCol.h"
 	"SparseMatrixDataRow.h"
 	<utility>
 	<string.h>
 
-1400877463 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdatacol.h
+1400899432 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdatacol.h
 
 1398362216 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\superlu_4.3\src\slu_ddefs.h
 	<fortran.h>
@@ -37,21 +37,21 @@
 
 1398362216 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\superlu_4.3\src\superlu_enum_consts.h
 
-1400884054 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdatarow.h
+1400899366 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdatarow.h
 
-1400878379 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdatacol.cpp
+1400894875 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdatacol.cpp
 	"SparseMatrixDataCol.h"
 	<stdlib.h>
 	<string.h>
 	<assert.h>
 
-1400884306 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdatarow.cpp
+1400899297 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrixdatarow.cpp
 	"SparseMatrixDataRow.h"
 	<string.h>
 	<assert.h>
 	<iostream>
 
-1400885174 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrix.cpp
+1400898947 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrix.cpp
 	"SparseMatrix.h"
 	<vector>
 	<iostream>
@@ -59,7 +59,7 @@
 	<omp.h>
 	<assert.h>
 
-1400885208 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrix.h
+1400894843 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\sparsematrix.h
 	"SparseMatrixData.h"
 	"RC.h"
 	<vector>
@@ -924,10 +924,10 @@
 	<math.h>
 	"slu_zdefs.h"
 
-1400884506 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\test\sparsematrixtest.cpp
+1400898401 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\test\sparsematrixtest.cpp
 	"SparseMatrixTest.h"
 
-1400885963 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\test\sparsematrixtest.h
+1400894935 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\test\sparsematrixtest.h
 	"gtest/gtest.h"
 	"../SparseMatrix.h"
 	<iostream>
@@ -1071,8 +1071,25 @@
 
 1400876794 d:\users\yzhong52\documents\github\thin_vessel_segmentation\dependencies\gtest-1.7.0\include\gtest\gtest_pred_impl.h
 
-1400885335 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\test\test.cpp
+1400898354 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\test\test.cpp
 	"gtest/gtest.h"
 	"SparseMatrixTest.h"
 	<iostream>
+
+1400894875 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\cblas\daxpy.c
+	"f2c.h"
+
+1398362214 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\cblas\f2c.h
+	"slu_Cnames.h"
+
+1398362215 d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\cblas\slu_cnames.h
+
+1400894875 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\cblas\dcopy.c
+	"f2c.h"
+
+1400894875 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\cblas\ddot.c
+	"f2c.h"
+
+1400894875 source:d:\users\yzhong52\documents\github\thin_vessel_segmentation\sparsematrix\cblas\dscal.c
+	"f2c.h"
 

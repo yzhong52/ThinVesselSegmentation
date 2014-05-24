@@ -8,6 +8,9 @@ using namespace cv;
 // Tests matrix multiplication
 TEST_F(SparseMatrixCVTest, Multiplication)
 {
+    cout << "A1 = " << A1 << endl;
+    cout << "A2 = " << A2 << endl;
+    cout << "A1 * A2 = " << A1 * A2 << endl;
     test_equal( toCvMat(A1) * toCvMat(A2), A1 * A2);
 }
 
