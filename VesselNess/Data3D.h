@@ -285,7 +285,7 @@ bool Data3D<T>::load( const string& file_name, const Vec3i& size, bool isBigEndi
 	FILE* pFile=fopen( file_name.c_str(), "rb" );
 	smart_return_value( pFile!=0, "File not found", false );
 
-	long long size_read = fread_big( _mat.data, sizeof(T), _size_total, pFile);
+	unsigned long long size_read = fread_big( _mat.data, sizeof(T), _size_total, pFile);
 
 	fgetc( pFile );
 	// if we haven't read the end of the file

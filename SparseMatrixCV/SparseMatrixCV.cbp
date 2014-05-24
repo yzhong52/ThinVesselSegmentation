@@ -21,6 +21,7 @@
 				<Linker>
 					<Add library="libSparseMatrix.a" />
 					<Add directory="../libs" />
+					<Add directory="../dependencies/opencv2.4.8/x64-mingw32-w64" />
 				</Linker>
 			</Target>
 			<Target title="Release">

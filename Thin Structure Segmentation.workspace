@@ -3,7 +3,6 @@
 	<Workspace title="Thin Structure Segmentation">
 		<Project filename="SparseMatrix/SparseMatrix.cbp" />
 		<Project filename="SparseMatrixCV/SparseMatrixCV.cbp" />
-		<Project filename="SparseMatrixCV-test/SparseMatrixCV-test.cbp" />
 		<Project filename="Vesselness/Vesselness.cbp" />
 		<Project filename="ModelFitting/ModelFitting.cbp" />
 	</Workspace>

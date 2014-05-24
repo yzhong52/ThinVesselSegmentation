@@ -219,7 +219,7 @@ void test1_twopoints( void ) {
 int main(int argc, char* argv[])
 {
     cout << Mat::zeros(3,2, CV_32F) << endl;
-	test1_twopoints();
+	experiment1_video();
 	return 0;
 }
 

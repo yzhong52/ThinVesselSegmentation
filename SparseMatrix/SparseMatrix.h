@@ -13,78 +13,94 @@
 class SparseMatrix
 {
 protected:
-	// matrix data are all store in class SparseMatrixData
-	SparseMatrixData *data;
-	// for reference counting
-	RC *rc;
+    // matrix data are all store in class SparseMatrixData
+    SparseMatrixData *data;
+    // for reference counting
+    RC *rc;
 
     // if this is a zero matrix
-	inline bool isZero(void) const{ return data->isZero(); };
+    inline bool isZero(void) const
+    {
+        return data->isZero();
+    };
 public:
-	// initialized a zero matrix
-	SparseMatrix( int num_rows, int num_cols );
+    // c'tor: initialized a zero matrix
+    SparseMatrix( unsigned num_rows = 0, unsigned num_cols = 0 );
 
-	// initialize a matrix with N non-zero values
-	SparseMatrix( int num_rows, int num_cols,
-		const double non_zero_value[],
-		const int col_index[],
-		const int row_pointer[],
-		int N );
-		// use (const T*) to force the constructor to make a deep copy of the data
-	SparseMatrix( int num_rows, int num_cols,
-		const std::vector<double> non_zero_value,
-		const std::vector<int> col_index,
-		const std::vector<int> row_pointer );
-	// copy constructor
-	SparseMatrix( const SparseMatrix& matrix );
-	const SparseMatrix& operator=( const SparseMatrix& matrix );
-	// deep copy of the matrix data
-	const SparseMatrix clone(void) const;
-	// destructor
-	~SparseMatrix(void);
+    // c'tor: initialize a matrix with N non-zero values
+    SparseMatrix( unsigned num_rows, unsigned num_cols,
+                  const double non_zero_value[],
+                  const unsigned col_index[],
+                  const unsigned row_pointer[],
+                  unsigned N );
 
-	// get the number of rows and column of the matrix
-	inline const int row() const { return data->row(); }
-	inline const int col() const { return data->col(); }
+    // c'tor
+    SparseMatrix( unsigned num_rows, unsigned num_cols,
+                  const std::vector<double> non_zero_value,
+                  const std::vector<unsigned> col_index,
+                  const std::vector<unsigned> row_pointer );
 
-	bool updateData( int num_rows, int num_cols,
-		const std::vector<double> non_zero_value,
-		const std::vector<int> col_index,
-		const std::vector<int> row_pointer );
-	bool updateData(  int num_rows, int num_cols,
-		const double non_zero_value[],
-		const int col_index[],
-		const int row_pointer[],
-		int N );
-	bool updateData(  int num_rows, int num_cols,
-		double non_zero_value[],
-		int col_index[],
-		int row_pointer[],
-		int N );
+    // c'tor: copy constructor
+    SparseMatrix( const SparseMatrix& matrix );
+    const SparseMatrix& operator=( const SparseMatrix& matrix );
 
-	////////////////////////////////////////////////////////////////
-	// Matrix manipulations
-	////////////////////////////////////////////////////////////////
+    // deep copy of the matrix data
+    const SparseMatrix clone(void) const;
 
-	// Transpose a matrix
-	const SparseMatrix t() const;
-	// mutiply by value
-	const SparseMatrix& operator*=( const double& value );
-	const SparseMatrix& operator/=( const double& value );
-	friend void solve( const SparseMatrix& A, const double* B, double* X );
-	friend const SparseMatrix operator*( const SparseMatrix& m1, const SparseMatrix& m2 );
-	friend const SparseMatrix operator+( const SparseMatrix& m1, const SparseMatrix& m2 );
-	friend const SparseMatrix operator-( const SparseMatrix& m1, const SparseMatrix& m2 );
-	friend const SparseMatrix operator/( const SparseMatrix& m1, const double& value );
-	friend const SparseMatrix operator*( const SparseMatrix& m1, const double& value );
+    // destructor
+    ~SparseMatrix(void);
 
-	// parallel function(s)
-	friend const SparseMatrix multiply_openmp( const SparseMatrix& m1, const SparseMatrix& m2 );
+    // get the number of rows and column of the matrix
+    inline const unsigned& row() const
+    {
+        return data->row();
+    }
+    inline const unsigned& col() const
+    {
+        return data->col();
+    }
 
-	// utility functions
-	friend std::ostream& operator<<( std::ostream& out, const SparseMatrix& m );
-	void print( std::ostream& out ) const;
+    void getRowMatrixData( unsigned& N, double const*& non_zero_value, unsigned const*& column_index,
+                           unsigned const*& row_pointer ) const;
 
-	// diaganal matrix
-	SparseMatrix diag() const;
+protected:
+
+    bool updateData( unsigned num_rows, unsigned num_cols,
+                     const std::vector<double> non_zero_value,
+                     const std::vector<unsigned> col_index,
+                     const std::vector<unsigned> row_pointer );
+    bool updateData(  unsigned num_rows, unsigned num_cols,
+                      const double non_zero_value[],
+                      const unsigned col_index[],
+                      const unsigned row_pointer[],
+                      unsigned N );
+
+public:
+    ////////////////////////////////////////////////////////////////
+    // Matrix manipulations
+    ////////////////////////////////////////////////////////////////
+
+    // Transpose a matrix
+    const SparseMatrix t() const;
+    // mutiply by value
+    const SparseMatrix& operator*=( const double& value );
+    const SparseMatrix& operator/=( const double& value );
+    // solving linear system
+    friend void solve( const SparseMatrix& A, const double* B, double* X );
+    // other matrix manipulations
+    friend const SparseMatrix operator*( const SparseMatrix& m1, const SparseMatrix& m2 );
+    friend const SparseMatrix operator+( const SparseMatrix& m1, const SparseMatrix& m2 );
+    friend const SparseMatrix operator-( const SparseMatrix& m1, const SparseMatrix& m2 );
+    friend const SparseMatrix operator/( const SparseMatrix& m1, const double& value );
+    friend const SparseMatrix operator*( const SparseMatrix& m1, const double& value );
+
+    // parallel function(s)
+    friend const SparseMatrix multiply_openmp( const SparseMatrix& m1, const SparseMatrix& m2 );
+
+    // utility functions
+    void print( std::ostream& out ) const;
+    friend std::ostream& operator<<( std::ostream& out, const SparseMatrix& m );
+
+    // return the diaganal matrix
+    SparseMatrix diag() const;
 };

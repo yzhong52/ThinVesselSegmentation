@@ -13,16 +13,16 @@ public:
     // // // // // // // // // // // // // // // // // // // // // //
     SparseMatrixCV( void ) : SparseMatrix( 0, 0 ) { }
 
-    SparseMatrixCV( int nrow, int ncol ) : SparseMatrix( nrow, ncol ) { }
+    SparseMatrixCV( unsigned nrow, unsigned ncol ) : SparseMatrix( nrow, ncol ) { }
 
-    SparseMatrixCV( int num_rows, int num_cols, const double non_zero_value[], const int col_index[], const int row_pointer[], int N )
+    SparseMatrixCV( unsigned num_rows, unsigned num_cols, const double non_zero_value[], const unsigned col_index[], const unsigned row_pointer[], unsigned N )
         : SparseMatrix( num_rows, num_cols, non_zero_value, col_index, row_pointer, N ) { }
 
     SparseMatrixCV( const SparseMatrixCV& m ) : SparseMatrix( m ) { }
 
     SparseMatrixCV( const SparseMatrix& m ) : SparseMatrix( m ) { }
 
-    SparseMatrixCV( int nrow, int ncol, const int index[][2], const double value[], int N );
+    SparseMatrixCV( unsigned nrow, unsigned ncol, const unsigned index[][2], const double value[], unsigned N );
 
     template <class _Tp>
     SparseMatrixCV( const cv::Mat_<_Tp>& m );
@@ -47,10 +47,7 @@ public:
         return SparseMatrix::t();
     }
 
-    void getRowMatrixData( int& N, double const** non_zero_value, int const** column_index,
-                           int const** row_pointer ) const;
-
-    static SparseMatrixCV I( int rows );
+    static SparseMatrixCV I( unsigned rows );
 
     void convertTo( cv::Mat_<double>& m );
 
@@ -69,8 +66,8 @@ template <class _Tp, int m, int n>
 SparseMatrixCV::SparseMatrixCV( const cv::Matx<_Tp, m, n>& vec ) : SparseMatrix(0,0)
 {
     std::vector<double > non_zero_value;
-    std::vector<int > col_index;
-    std::vector<int > row_pointer;
+    std::vector<unsigned  > col_index;
+    std::vector<unsigned > row_pointer;
 
     row_pointer.push_back( 0 );
     for( int r = 0; r < m; r++ )
@@ -94,8 +91,8 @@ template <class _Tp>
 SparseMatrixCV::SparseMatrixCV( const cv::Mat_<_Tp>& m ) : SparseMatrix( m.rows, m.cols )
 {
     std::vector<double > non_zero_value;
-    std::vector<int > col_index;
-    std::vector<int > row_pointer;
+    std::vector<unsigned > col_index;
+    std::vector<unsigned > row_pointer;
 
     row_pointer.push_back( 0 );
     for( int r = 0; r < m.rows; r++ )
@@ -108,7 +105,7 @@ SparseMatrixCV::SparseMatrixCV( const cv::Mat_<_Tp>& m ) : SparseMatrix( m.rows,
                 col_index.push_back( c );
             }
         }
-        row_pointer.push_back( (int) non_zero_value.size() );
+        row_pointer.push_back( (unsigned) non_zero_value.size() );
     }
 
     // re-constuct the matrix with give data
