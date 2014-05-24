@@ -30,7 +30,11 @@ VesselNess/output
 
 
 libs/
+
+# for code::block
 *.layout
+*.depend
+
 
 
 
@@ -217,6 +221,4 @@ UpgradeLog*.htm
 
 # Microsoft Fakes
 FakesAssemblies/
-
-
 

@@ -286,7 +286,7 @@ void LevenburgMaquart::Jacobian_datacosts_openmp(
 
 #pragma omp for
 
-		for( int site = 0; site < tildaP.size(); site++ ) {
+		for( int site = 0; site < (int) tildaP.size(); site++ ) {
 			// For each data point, the following computation will
 			// be splited into multiple thread
 			Jacobian_datacost_thread_func(
@@ -412,7 +412,7 @@ void LevenburgMaquart::Jacobian_smoothcosts_openmp(
 		vector<unsigned>    Jacobian_rowptr_loc;
 		vector<double> energy_matrix_loc;
 #pragma omp for
-		for( int site = 0; site < tildaP.size(); site++ ) { // For each data point
+		for( int site = 0; site < (int) tildaP.size(); site++ ) { // For each data point
 			Jacobian_smoothcost_thread_func( Jacobian_nzv_loc, Jacobian_colindx_loc,
 				Jacobian_rowptr_loc, energy_matrix_loc, site );
 		} // end of contruction of Jacobian Matrix
@@ -495,7 +495,7 @@ void LevenburgMaquart::Jacobian_smoothcosts_openmp_critical_section(
 
 #pragma omp for
 
-		for( int site = 0; site < tildaP.size(); site++ ) {
+		for( int site = 0; site < (int) tildaP.size(); site++ ) {
 			// For each data point, the following computation will
 			// be splited into multiple thread
 			Jacobian_smoothcost_thread_func(
