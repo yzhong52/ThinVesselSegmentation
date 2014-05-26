@@ -6,7 +6,7 @@ using namespace std;
 
 // Please refer to the following link for more details about the following library
 // http://aam.mathematik.uni-freiburg.de/IAM/Research/projectskr/lin_solver/
-#include "lsolver\bicgsq.h"
+#include "lsolver/bicgsq.h"
 
 void mult( const SparseMatrixCV &A, const double *v, double *w )
 {
