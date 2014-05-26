@@ -26,14 +26,24 @@
 		exit(0); \
 	}
 
-#define smart_return_value( condition, message, return_value ) if( !(condition) ) { system("pause"); return (return_value); }
+#define smart_return_value( condition, message, return_value ) \
+	if( !(condition) ) { \
+		std::cout << message << std::endl; \
+		system("pause"); \
+		return (return_value); \
+	}
 
 
-#define smart_return_false( condition, message ) if( !(condition) ) { system("pause");  return false; }
+#define smart_return_false( condition, message ) \
+	if( !(condition) ) { \
+		system("pause");  \
+		return false; \
+	}
 
 
 #define smart_return( condition, message ) if( !(condition) ) { \
     system("pause"); \
+		std::cout << message << std::endl; \
 		return ; \
 	}
 
