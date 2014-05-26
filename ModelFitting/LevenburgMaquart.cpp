@@ -617,17 +617,18 @@ void LevenburgMaquart::reestimate( double lambda, SmoothCostType whatSmoothCost 
 		// // // // // // // // // // // // // // // // // //
 		// Construct Jacobian Matrix -  data cost
 		// // // // // // // // // // // // // // // // // //
-		Jacobian_datacosts( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
-		//Jacobian_datacosts_openmp( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
-
+		//Jacobian_datacosts( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
+		Jacobian_datacosts_openmp( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
+		cout << "Compute data cost done. " << endl; 
 
 		// // // // // // // // // // // // // // // // // //
 		// Construct Jacobian Matrix - smooth cost
 		// // // // // // // // // // // // // // // // // //
 		// Jacobian_smoothcosts_openmp_critical_section( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
-		//Jacobian_smoothcosts_openmp( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
-		Jacobian_smoothcosts( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
-
+		Jacobian_smoothcosts_openmp( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
+		//Jacobian_smoothcosts( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
+		cout << "Compute smooth cost done. " << endl; 
+		
 		// Construct Jacobian matrix
 		const SparseMatrixCV Jacobian = SparseMatrix(
 			(int) Jacobian_rowptr.size() - 1,
@@ -637,7 +638,7 @@ void LevenburgMaquart::reestimate( double lambda, SmoothCostType whatSmoothCost 
 		const SparseMatrixCV Jt = Jacobian.t();
 		const SparseMatrixCV Jt_J = multiply_openmp( Jt, Jacobian );
 
-		// SparseMatrixCV A = Jt_J + Jt_J.diag() * lambda;
+		// const SparseMatrixCV A = Jt_J + Jt_J.diag() * lambda;
 		const SparseMatrixCV A = Jt_J + I * lambda;
 
 		// TODO: the following line could be optimized
@@ -646,13 +647,12 @@ void LevenburgMaquart::reestimate( double lambda, SmoothCostType whatSmoothCost 
 		Mat_<double> X;
 
 		solve( A, B, X );
-
+		cout << "Solve linear equation done. " << endl; 
+		
 
 		update_lines( -X );
 
 		double new_energy = compute_energy( tildaP, labelID, lines, labelID3d, using_smoothcost_func );
-
-        cout << "new_energy = " << new_energy << endl;
 
 		if( new_energy < energy_before ) {
 			// if energy is decreasing
@@ -672,7 +672,7 @@ void LevenburgMaquart::reestimate( double lambda, SmoothCostType whatSmoothCost 
 			}
 		}
 
-		cout << energy_before << endl;
+		cout << " New Energy = "  << energy_before << endl << endl;
 	}
 }
 

@@ -9,9 +9,10 @@
 void each_model_per_point(
 	const Data3D<Vesselness_Sig>& vn_sig,
 	Data3D<int>& labelID3d,
-	vector<cv::Vec3i>& tildaP,
+	std::vector<cv::Vec3i>& tildaP,
 	ModelSet<Line3D>& model,
-	vector<int>& labelID )
+	std::vector<int>& labelID,
+	const float& threshold )
 {
 	Data3D<float> vn = vn_sig;
 	IP::normalize( vn, 1.0f );
@@ -22,7 +23,7 @@ void each_model_per_point(
 	model.models.clear();
 
 	for(int z=0;z<vn.SZ();z++) for ( int y=0;y<vn.SY();y++) for(int x=0;x<vn.SX();x++) {
-		if( vn.at(x,y,z) > 0.1f ) { // a thread hold
+		if( vn.at(x,y,z) > threshold ) { // a thread hold
 			int lid = (int) model.models.size();
 
 			labelID3d.at(x,y,z) = lid;

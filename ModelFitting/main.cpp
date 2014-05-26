@@ -145,11 +145,11 @@ namespace experiments{
 	void whole_volumn( void ) {
 		// Vesselness measure with sigma
 		Image3D<Vesselness_Sig> vn_et_sig;
-		bool flag = vn_et_sig.load( "../temp/vessel3d.rd.19.et.vn_sig" );
+		bool flag = vn_et_sig.load( "../temp/vessel3d.rd.19.crop0.5.et.vn_sig" );
 		if( !flag ) return; 
 
 		vn_et_sig.remove_margin( 
-			vn_et_sig.get_size()/2,
+			Vec3i(0,0,vn_et_sig.SZ()*3/6),
 			Vec3i(0,0,0) ); 
 
 		// threshold the data and put the data points into a vector
@@ -157,7 +157,7 @@ namespace experiments{
 		vector<cv::Vec3i> tildaP;
 		ModelSet<Line3D> model;
 		vector<int> labelID;
-		each_model_per_point( vn_et_sig, labelID3d, tildaP, model, labelID );
+		each_model_per_point( vn_et_sig, labelID3d, tildaP, model, labelID, 0.5f );
 
 		// create a thread for rendering
 		initViwer( tildaP, model.models, labelID, &vn_et_sig );
