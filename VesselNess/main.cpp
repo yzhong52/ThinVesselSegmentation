@@ -14,26 +14,26 @@ namespace sample_code{
 	// Compute vesselness measure
 	int vesselness( bool isDisplay, string dataname = "data15" );
 
-	// Extract Vessel centrelines with non-maximum suppression 
-	int centreline( bool isDisplay, string dataname = "data15" ); 
+	// Extract Vessel centrelines with non-maximum suppression
+	int centreline( bool isDisplay, string dataname = "data15" );
 }
 
 namespace experiment{
-	void synthetic_yes(); 
+	void synthetic_yes();
 }
 
 int main(int argc, char* argv[])
 {
-	//experiment::synthetic_yes(); 
+	//experiment::synthetic_yes();
 	sample_code::vesselness( false, "../temp/vessel3d.rd.19.crop0.5" );
-	sample_code::centreline( true, "../temp/vessel3d.rd.19.crop0.5" ); 
+	sample_code::centreline( true, "../temp/vessel3d.rd.19.crop0.5" );
 	return 0;
 }
 
 namespace sample_code{
 	int vesselness( bool isDisplay, string dataname ){
 		// create output folders if it does not exist
-		CreateDirectory(L"../temp", NULL);
+		// CreateDirectory(L"../temp", NULL);
 
 		// Sigma: Parameters for Vesselness
 		// [sigma_from, sigma_to]: the potential size rang of the vessels
@@ -41,19 +41,19 @@ namespace sample_code{
 		float sigma_from = 1.0f;
 		float sigma_to = 8.10f;
 		float sigma_step = 0.3f;
-		// Parameters for vesselness, please refer to Frangi's papaer 
+		// Parameters for vesselness, please refer to Frangi's papaer
 		// or this [blog](http://yzhong.co/?p=351)
-		float alpha = 1.0e-1f;	
+		float alpha = 1.0e-1f;
 		float beta  = 5.0e0f;
 		float gamma = 3.5e5f;
 
 		// laoding data
 		Image3D<short> im_short;
 		bool falg = im_short.load( INPUT_DIR + dataname + ".data" );
-		
+
 		// Compute Vesselness
-		Data3D<Vesselness_Sig> vn_sig; 
-		VesselDetector::compute_vesselness( im_short, vn_sig, 
+		Data3D<Vesselness_Sig> vn_sig;
+		VesselDetector::compute_vesselness( im_short, vn_sig,
 			sigma_from, sigma_to, sigma_step,
 			alpha, beta, gamma );
 		vn_sig.save( OUTPUT_DIR + dataname + ".vn_sig" );
@@ -70,16 +70,16 @@ namespace sample_code{
 
 	int centreline( bool isDisplay, string dataname ) {
 		// load vesselness data
-		Data3D<Vesselness_Sig> vn_sig; 
+		Data3D<Vesselness_Sig> vn_sig;
 		vn_sig.load( OUTPUT_DIR + dataname + ".vn_sig" );
-		
+
 		// non-maximum suppression
-		Data3D<Vesselness_Sig> vn_sig_nms; 
+		Data3D<Vesselness_Sig> vn_sig_nms;
 		IP::non_max_suppress( vn_sig, vn_sig_nms );
 		vn_sig_nms.save( OUTPUT_DIR + dataname + ".nms.vn_sig" );
 
-		// edge tracing 
-		Data3D<Vesselness_Sig> vn_sig_et; 
+		// edge tracing
+		Data3D<Vesselness_Sig> vn_sig_et;
 		IP::edge_tracing( vn_sig_nms, vn_sig_et, 0.45f, 0.05f );
 		vn_sig_et.save( OUTPUT_DIR + dataname + ".et.vn_sig" );
 
@@ -96,9 +96,9 @@ namespace sample_code{
 
 
 void experiment::synthetic_yes(){
-	Data3D<short> im_short; 
-	SyntheticData::Yes( im_short ); 
-	im_short.save( "../temp/yes.data" ); 
+	Data3D<short> im_short;
+	SyntheticData::Yes( im_short );
+	im_short.save( "../temp/yes.data" );
 	sample_code::vesselness( false, "../temp/yes" );
-	sample_code::centreline( true, "../temp/yes" ); 
+	sample_code::centreline( true, "../temp/yes" );
 }

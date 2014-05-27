@@ -1,29 +1,32 @@
 #pragma once
 
 /////////////////////////////////////
-// Glew Library 
-#include "gl\glew.h"  // For Texture 3D and Blending_Ext
+// Glew Library
+#include <GL/glew.h> // For Texture 3D and Blending_Ext
 #pragma comment(lib, "glew32.lib")
 
 /////////////////////////////////////
 // OpenGL Library
-#include <windows.h>		// Header File For Windows
-#include <gl\gl.h>			// Header File For The OpenGL32 Library
-#include <gl\glu.h>			// Header File For The GLu32 Library
+#if _MSC_VER && !__INTEL_COMPILER
+    #include <windows.h>		// Header File For Windows
+    #include <GL\GL.h>			// Header File For The OpenGL32 Library
+    #include <GL\glu.h>			// Header File For The GLu32 Library
+#endif
+
 
 class GLCamera
 {
 public:
 	GLCamera(void);
 	~GLCamera(void);
-	
+
 	// Navigation Mode
 	enum NavigationMode{
-		None, 
+		None,
 		MoveAside,
 		MoveForward,
 		Rotate
-	} navigationMode; 
+	} navigationMode;
 	// setter and getters
 	inline void setNavigationMode( NavigationMode nMode ) { navigationMode = nMode; }
 	inline NavigationMode getNavigationMode(void) { return navigationMode; }
@@ -41,7 +44,7 @@ public:
 	void zoomIn(void);
 	void zoomOut(void);
 
-	void rotate_scene(void); 
+	void rotate_scene(void);
 
 	inline void setRotation( GLfloat rotation_x, GLfloat rotation_y ) {
 		xrot = rotation_x * rotate_speed;
@@ -63,9 +66,9 @@ public:
 		GLfloat tx = translate_x * translate_speed;
 		GLfloat ty = translate_y * translate_speed;
 		GLfloat vec_z[3];
-		vec_z[0] = vec_x[1]*vec_y[2] - vec_x[2]*vec_y[1]; 
-		vec_z[1] = vec_x[2]*vec_y[0] - vec_x[0]*vec_y[2]; 
-		vec_z[2] = vec_x[0]*vec_y[1] - vec_x[1]*vec_y[0]; 
+		vec_z[0] = vec_x[1]*vec_y[2] - vec_x[2]*vec_y[1];
+		vec_z[1] = vec_x[2]*vec_y[0] - vec_x[0]*vec_y[2];
+		vec_z[2] = vec_x[0]*vec_y[1] - vec_x[1]*vec_y[0];
 		// update translation vector
 		t[0] += (tx+ty) * vec_z[0];
 		t[1] += (tx+ty) * vec_z[1];
@@ -86,9 +89,9 @@ public:
 
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity(); // clear the identity matrix.
-        gluLookAt( 0, 0, 1, /*eye position*/ 
-                   0, 0, 0, /*Center of the object*/ 
-                   0, 1, 0 ); /*Up Vector*/ 
+        gluLookAt( 0, 0, 1, /*eye position*/
+                   0, 0, 0, /*Center of the object*/
+                   0, 1, 0 ); /*Up Vector*/
 	}
 
 
@@ -107,7 +110,7 @@ public:
 public:
 	// Rotation
 	GLfloat	xrot;
-	GLfloat	yrot; 
+	GLfloat	yrot;
 	GLfloat rotate_speed;
 
 	// Rotation Axis
@@ -116,8 +119,8 @@ public:
 	// Translation
 	GLfloat t[3];
 	GLfloat translate_speed;
-	
+
 	int elapsedTick;
-	float scale; 
+	float scale;
 };
 

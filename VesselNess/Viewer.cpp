@@ -1,9 +1,9 @@
 #include "Viewer.h"
 #include "Image3D.h"
-#include "VesselNessTypes.h"
+#include "VesselnessTypes.h"
 
-namespace Viewer{ 
-	
+namespace Viewer{
+
 	// void plot( Mat_<double> mx, Mat_<double> my );
 	namespace OpenCV {
 		void plot( const string& name, vector<Mat_<double>>& mat_ys,
@@ -18,8 +18,8 @@ namespace Viewer{
 			int num_ys = (int) mat_ys.size();
 			// Error controls
 			if( num_ys==0 ) { cout << "Data mat_ys is enmpty" << endl; return;}
-			if( num_ys>MAX_GROUP ) { 
-				cout << "Cannot handle that many number of groups" << endl; 
+			if( num_ys>MAX_GROUP ) {
+				cout << "Cannot handle that many number of groups" << endl;
 				cout << "Maximum number of y supported: " << MAX_GROUP << endl;
 				return;
 			}
@@ -29,7 +29,7 @@ namespace Viewer{
 			for( int i=0; i<num_ys; i++ ){
 				if( mat_ys[i].rows!=width ){
 					cout << "Error using ==> plot. " << endl << "Vectors must be the same lengths. " << endl; return;
-				} 
+				}
 			}
 
 			if( im_width==0 ) im_width = width;
@@ -37,15 +37,15 @@ namespace Viewer{
 			double scale = 2.0f * im_width / width;
 
 			// Set the color the lines for each group
-			// Maximum number of groups is 6. 
+			// Maximum number of groups is 6.
 			Scalar colors[MAX_GROUP] = {
 				Scalar(0, 0, 255), // red
 				Scalar(0, 0, 255), // red
 				Scalar(0, 155, 0), // green
 				Scalar(255, 0, 0), // blue
 				// Scalar(0, 255, 255), // yellow
-				Scalar(255, 0, 255), 
-				Scalar(255, 255, 0), 
+				Scalar(255, 0, 255),
+				Scalar(255, 255, 0),
 				// Scalar(0, 0, 0)
 			};
 
@@ -64,16 +64,16 @@ namespace Viewer{
 			double max_min_gap = maxVal - minVal;
 
 			// draw the plot on a mat
-			Mat im_bg( int( im_height*scale ), int( width*scale), CV_8UC3, 
+			Mat im_bg( int( im_height*scale ), int( width*scale), CV_8UC3,
 				/*Default Background Color*/ Scalar(255, 255, 255) );
 
 			// draw the background
 			for( int i=0; i<mat_bg.rows; i++ ){
 				unsigned char c = mat_bg.at<unsigned char>(i);
 				Scalar color( c, c, c );
-				line( im_bg, 
-					Point(i, 0)*scale, 
-					Point(i, im_height-1)*scale, 
+				line( im_bg,
+					Point(i, 0)*scale,
+					Point(i, im_height-1)*scale,
 					color, 2, CV_AA, 0 );
 			}
 
@@ -82,7 +82,7 @@ namespace Viewer{
 			{
 				// Yuchen: draw the image N times for color blending
 				// If I draw it only once, the last y data, which is mat_ys[mat_ys.size()]
-				// will be drawn on top of all other function. I don't want this kind of bias. 
+				// will be drawn on top of all other function. I don't want this kind of bias.
 				Mat temp = im_bg.clone();
 				for( unsigned int it2 = 0; it2 < mat_ys.size(); it2++ ) {
 					unsigned int i = (it+it2) % mat_ys.size();

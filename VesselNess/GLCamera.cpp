@@ -1,19 +1,20 @@
 #include "GLCamera.h"
-#include <math.h>
+#include <cmath>
+#include <ctime>
 
-void rotate_axis( 
+void rotate_axis(
 	float u, float v, float w,        /*Axis*/
 	float x, float y, float z,        /*The Point That We Want to Roate */
 	float& nx, float& ny, float& nz,  /*Result*/
-	float degree ) 
+	float degree )
 {
 	// change from degree to radian
-	float A = degree * 3.14159265f / 180.0f; 
+	float A = degree * 3.14159265f / 180.0f;
 	float c = cos(A);
 	float s = sin(A);
 	float C = 1.0f - c;
 
-	if( abs(c) > 0.999 ) {
+	if( std::abs(c) > 0.999 ) {
 		nx = x;
 		ny = y;
 		nz = z;
@@ -44,7 +45,7 @@ GLCamera::GLCamera(void)
 	navigationMode = None;
 
 	// Rotation
-	xrot = 0;              
+	xrot = 0;
 	yrot = 0;
 	rotate_speed = 0.001f;
 
@@ -60,7 +61,7 @@ GLCamera::GLCamera(void)
 	t[0] = t[1] = t[2] = 0;
 	translate_speed = 0.2f;
 
-	elapsedTick = 0; 
+	elapsedTick = 0;
 }
 
 
@@ -71,28 +72,34 @@ GLCamera::~GLCamera(void)
 
 
 void GLCamera::zoomIn(void){
-	translate_speed /= 1.01f; 
-	// rotate_speed  *= 1.01f; 
-	scale *= 1.01f; 
+	translate_speed /= 1.01f;
+	// rotate_speed  *= 1.01f;
+	scale *= 1.01f;
 }
 
 void GLCamera::zoomOut(void){
-	translate_speed /= 0.99f; 
-	// rotate_speed  *= 0.99f; 
-	scale *= 0.99f; 
+	translate_speed /= 0.99f;
+	// rotate_speed  *= 0.99f;
+	scale *= 0.99f;
 }
 
 
 void GLCamera::rotate_scene(void){
-	static int tick = GetTickCount();
-	static int oldtick = GetTickCount(); 
-	tick = GetTickCount(); 
-	elapsedTick = tick - oldtick;
-	oldtick = tick; 
+    // The following is not competible under Linux
+//	static int tick = GetTickCount();
+//	static int oldtick = GetTickCount();
+//	tick = GetTickCount();
+//	elapsedTick = tick - oldtick;
+//	oldtick = tick;
+    static clock_t oldtick = clock();
+    clock_t tick = clock();
+    clock_t elapsedTick = tick - oldtick;
+    oldtick = tick;
+    float elapsed = ((float)elapsedTick) / CLOCKS_PER_SEC;
 
 	// update the rotation matrix as well as the rotation axis
-	rotate_x( yrot * elapsedTick ); 
-	rotate_y( xrot * elapsedTick ); 
+	rotate_x( yrot * elapsedTick );
+	rotate_y( xrot * elapsedTick );
 }
 
 

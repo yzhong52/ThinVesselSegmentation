@@ -2,7 +2,7 @@
 
 // Using OpenCV ot Save the Scene to video
 #define _CRT_SECURE_NO_DEPRECATE
-#include <opencv2\opencv.hpp>
+#include <opencv2/core/core.hpp>
 
 #include "Data3D.h"
 #include "GLVolumn.h"
@@ -43,10 +43,6 @@ public:
         im_data.convertTo( im_uchar );
         addObject( im_uchar, mode );
     }
-
-
-
-
 
     template<class E, class N>
     GLViewer::CenterLine<E, N>* addObject( MST::Graph< E, N >& tree ) {

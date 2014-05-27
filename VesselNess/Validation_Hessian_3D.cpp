@@ -5,7 +5,7 @@
 #include "ImageProcessing.h"
 #include "VesselDetector.h"
 #include "Viewer.h"
-#include "Vesselness.h"
+#include "VesselNess.h"
 
 
 void Validation::construct_tube( Data3D<short>& image ) {
@@ -46,11 +46,11 @@ void Validation::construct_tube( Data3D<short>& image ) {
 	//				} else if (ratio<0.0f) {
 	//					image.at(x+center[i][0], z+center[i][2], y) = 0;
 	//				} else {
-	//					image.at(x+center[i][0], z+center[i][2], y) = short( MAX_SHORT * ratio ); 
+	//					image.at(x+center[i][0], z+center[i][2], y) = short( MAX_SHORT * ratio );
 	//				}
 	//				/*
 	//				else if( ratio<0.0f ) ratio = 0.0f;
-	//				image.at(x+center[i][0], z+center[i][2], y) 
+	//				image.at(x+center[i][0], z+center[i][2], y)
 	//					= short( max( 0.0f, min(1.0f, r+0.5f-dis_center)) * MAX_SHORT );
 	//				*/
 	//			}
@@ -73,7 +73,7 @@ void Validation::construct_tube( Data3D<short>& image ) {
 					if( ratio>1.0f ) {
 						image.at(x+center[i][0], y, z+center[i][2]) = MAX_SHORT;
 					} else if( ratio>0.0f ) {
-						image.at(x+center[i][0], y, z+center[i][2]) = short( MAX_SHORT * ratio ) + 500; 
+						image.at(x+center[i][0], y, z+center[i][2]) = short( MAX_SHORT * ratio ) + 500;
 					}
 				}
 			}
@@ -102,7 +102,7 @@ void Validation::construct_tube2( Data3D<short>& image ) {
 					if( ratio>1.0f ) {
 						image.at(x+center[i][0], y, z+center[i][2]) = MAX_SHORT;
 					} else if( ratio>0.0f ) {
-						image.at(x+center[i][0], y, z+center[i][2]) = short( MAX_SHORT * ratio ); 
+						image.at(x+center[i][0], y, z+center[i][2]) = short( MAX_SHORT * ratio );
 					}
 				}
 			}

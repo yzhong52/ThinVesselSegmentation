@@ -7,17 +7,10 @@
 #include "MinSpanTree.h"
 #include "MinSpanTreeWrapper.h"
 #include "DataTypes.h"
-
-#include <windows.h>		// Header File For Windows
 #include <queue>
 
 #include "GLViewer.h"
-#include "gl\glew.h"
-#include <gl\gl.h>			// Header File For The OpenGL32 Library
-#include <gl\glu.h>			// Header File For The GLu32 Library
-
-
-#include "GLCamera.h" 
+#include "GLCamera.h"
 
 namespace GLViewer
 {
@@ -26,11 +19,11 @@ namespace GLViewer
 		friend class VolumnWithROI;
 		// rendeing mode
 	public:
-		enum RenderMode{ 
+		enum RenderMode{
 			MIP, //Maximum Intensity Projection
-			CrossSection, 
+			CrossSection,
 			Surface
-		} render_mode; 
+		} render_mode;
 	private:
 		/////////////////////////////////////////
 		// Data
@@ -40,20 +33,20 @@ namespace GLViewer
 		// size of texture
 		int texture_sx, texture_sy, texture_sz;
 		// Original Data
-		int sx, sy, sz; 
+		int sx, sy, sz;
 		// Texture Data
-		unsigned char* data; 
+		unsigned char* data;
 		// Reference to the camera
-		GLCamera* ptrCam; 
+		GLCamera* ptrCam;
 	public:
-		Volumn(unsigned char* im_data, const int& im_x, const int& im_y, const int& im_z,  GLCamera* ptrCamera = NULL ) 
+		Volumn(unsigned char* im_data, const int& im_x, const int& im_y, const int& im_z,  GLCamera* ptrCamera = NULL )
 			: sx( im_x )
 			, sy( im_y )
 			, sz( im_z )
 			, ptrCam( ptrCamera )
 		{
-			// From wikipedia: Do not forget that all 3 dimensions must be a power of 2! so your 2D textures must have 
-			// the same size and this size be a power of 2 AND the number of layers (=2D textures) you use to create 
+			// From wikipedia: Do not forget that all 3 dimensions must be a power of 2! so your 2D textures must have
+			// the same size and this size be a power of 2 AND the number of layers (=2D textures) you use to create
 			// your 3D texture must be a power of 2 too.
 			static const double log2 = log(2.0);
 			texture_sx = (int) pow(2, ceil( log( 1.0*sx )/log2 ));
@@ -79,23 +72,23 @@ namespace GLViewer
 
 		bool update_data( unsigned char* im_data ) {
 			if( data==NULL ) {
-				return false; 
+				return false;
 			}
 			// update data for texture
-			// int texture_size = texture_sx * texture_sy * texture_sz; 
-			for( int z=0;z<sz;z++ ) for( int y=0;y<sy;y++ ) { 
+			// int texture_size = texture_sx * texture_sy * texture_sz;
+			for( int z=0;z<sz;z++ ) for( int y=0;y<sy;y++ ) {
 				memcpy( data + z*texture_sy*texture_sx + y*texture_sx, im_data + z*sy*sx + y*sx, sx );
-			} 
+			}
 			return true;
 		}
 
 		bool update_texture(  ) {
 			if( data==NULL ) {
-				return false; 
+				return false;
 			}
-			// update texture for rendering 
+			// update texture for rendering
 			glBindTexture(GL_TEXTURE_3D, texture);
-			glTexImage3D(GL_TEXTURE_3D, 0, GL_LUMINANCE, 
+			glTexImage3D(GL_TEXTURE_3D, 0, GL_LUMINANCE,
 				texture_sx, texture_sy, texture_sz, 0,
 				GL_LUMINANCE, GL_UNSIGNED_BYTE, data );
 			return true;
@@ -115,29 +108,29 @@ namespace GLViewer
 			// Yuchen [Important]: For the following line of code
 			// If the graphic hard do not have enough memory for the 3D texture,
 			// OpenGL will fail to render the textures. However, since it is hardware
-			// related, the porgramme won't show any assertions here. I may need to fix 
-			// this issue later. But now, it has no problem rendering 3D texture with a 
-			// size of 1024 * 1024 * 1024. 
-			glTexImage3D(GL_TEXTURE_3D, 0, GL_LUMINANCE, 
+			// related, the porgramme won't show any assertions here. I may need to fix
+			// this issue later. But now, it has no problem rendering 3D texture with a
+			// size of 1024 * 1024 * 1024.
+			glTexImage3D(GL_TEXTURE_3D, 0, GL_LUMINANCE,
 				texture_sx, texture_sy, texture_sz, 0,
 				GL_LUMINANCE, GL_UNSIGNED_BYTE, data );
 
 			//////////////////////////////////////
 			// Set up OpenGL
-			
+
 			// Enable Blending For Maximum Intensity Projection
 			setRenderMode( render_mode );
-			
+
 			// Antialiasing
 			glEnable (GL_LINE_SMOOTH);
 			glHint (GL_LINE_SMOOTH_HINT, GL_NICEST );
 
 			// Use GL_NEAREST to see the voxels
 			glEnable( GL_TEXTURE_3D ); // Enable Texture Mapping
-			glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR ); 
+			glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 			glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			// Sets the wrap parameter for texture coordinate
-			glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE  ); 
+			glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE  );
 			glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE  );
 			glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE  );
 
@@ -152,7 +145,7 @@ namespace GLViewer
 				glDisable(GL_DEPTH_TEST);
 				glEnable(GL_BLEND);
 				glBlendFunc(GL_ONE, GL_ONE);
-				glBlendEquation( GL_MAX_EXT ); 
+				glBlendEquation( GL_MAX_EXT );
 				cout << "Volumn Rendeing Mode is set to MIP" << endl;
 				break;
 			case CrossSection:
@@ -166,7 +159,7 @@ namespace GLViewer
 				cout << "Volumn Rendeing Mode is set to Surface" << endl;
 				break;
 			}
-			render_mode = mode; 
+			render_mode = mode;
 		}
 
 		virtual void keyboard( unsigned char key ) {
@@ -183,9 +176,9 @@ namespace GLViewer
 			inline float dot( const Vec3f& v ) const { return x * v.x + y * v.y + z * v.z; }
 			inline Vec3f cross( const Vec3f& v ) const {
 				Vec3f res;
-				res.x = y * v.z - z * v.y; 
-				res.y = z * v.x - x * v.z; 
-				res.z = x * v.y - y * v.x; 
+				res.x = y * v.z - z * v.y;
+				res.y = z * v.x - x * v.z;
+				res.z = x * v.y - y * v.x;
 				return res;
 			}
 			inline Vec3f operator-( const Vec3f& v) const { return Vec3f( x-v.x, y-v.y, z-v.z); }
@@ -198,14 +191,14 @@ namespace GLViewer
 				return *this;
 			}
 			template<class T>
-			inline Vec3f& operator/=( const T& v) { 
+			inline Vec3f& operator/=( const T& v) {
 				this->x /= v;
 				this->y /= v;
 				this->z /= v;
-				return *this; 
+				return *this;
 			}
 			inline float length() const { return sqrt(x*x + y*y + z*z); }
-		}; 
+		};
 
 		vector<Vec3f> intersectPoints( const Vec3f& center, const Vec3f& norm )
 		{
@@ -268,7 +261,7 @@ namespace GLViewer
 				if( t>=0 && t<=sx ) result.push_back( Vec3f(t,(float)sy,(float)sz) );
 			}
 
-			
+
 			if( result.size()<=2 ) {
 				result.clear();
 			} else if( result.size()==3 ) {
@@ -281,7 +274,7 @@ namespace GLViewer
 				for( unsigned int i=0; i<result.size(); i++ ) {
 					centroid += result[i];
 				}
-				centroid /= result.size(); 
+				centroid /= result.size();
 
 				// We are not using the first index
 				static float signed_angle[6];
@@ -290,7 +283,7 @@ namespace GLViewer
 					va[i] = result[i] - centroid;
 					float dotproduct = va[0].dot( va[i] )/( va[i].length()*va[0].length() );
 					// constraint the result of dotproduct be within -1 and 1 (it might
-					// sometime not with this range only because of floating point 
+					// sometime not with this range only because of floating point
 					// calculation accuracy )
 					if( dotproduct<-1 ){
 						dotproduct = -1;
@@ -381,20 +374,20 @@ namespace GLViewer
 				// visualizing the data with maximum intensity projection
 				glColor3f( 1.0f, 1.0f, 1.0f ); render_volumn();
 				glColor3f( 0.2f, 0.2f, 0.2f ); render_outline();
-			} 
-			else if( render_mode == CrossSection ) // Yuchen: This rendering Mode requires the information of camera 
+			}
+			else if( render_mode == CrossSection ) // Yuchen: This rendering Mode requires the information of camera
 			{
-				if( ptrCam==NULL ) return; 
-				// retrive camera infomation 
+				if( ptrCam==NULL ) return;
+				// retrive camera infomation
 				Vec3f center, vz;
 				center.x = ptrCam->t[0];
 				center.y = ptrCam->t[1];
 				center.z = ptrCam->t[2];
-				vz.x = ptrCam->vec_x[1]*ptrCam->vec_y[2] - ptrCam->vec_x[2]*ptrCam->vec_y[1]; 
-				vz.y = ptrCam->vec_x[2]*ptrCam->vec_y[0] - ptrCam->vec_x[0]*ptrCam->vec_y[2]; 
-				vz.z = ptrCam->vec_x[0]*ptrCam->vec_y[1] - ptrCam->vec_x[1]*ptrCam->vec_y[0]; 
+				vz.x = ptrCam->vec_x[1]*ptrCam->vec_y[2] - ptrCam->vec_x[2]*ptrCam->vec_y[1];
+				vz.y = ptrCam->vec_x[2]*ptrCam->vec_y[0] - ptrCam->vec_x[0]*ptrCam->vec_y[2];
+				vz.z = ptrCam->vec_x[0]*ptrCam->vec_y[1] - ptrCam->vec_x[1]*ptrCam->vec_y[0];
 				// get the cross section of cube
-				// the cross section can vary from a point to hexagon 
+				// the cross section can vary from a point to hexagon
 				vector<Vec3f> points = intersectPoints( center, vz );
 
 				glEnable(GL_DEPTH_TEST);
@@ -408,22 +401,22 @@ namespace GLViewer
 						points[i].x / texture_sx,
 						points[i].y / texture_sy,
 						points[i].z / texture_sz );
-					glVertex3f( points[i].x, points[i].y, points[i].z ); 
+					glVertex3f( points[i].x, points[i].y, points[i].z );
 				}
 				glEnd();
 				glBindTexture( GL_TEXTURE_3D, NULL );
 
 				// draw the boundary of the box
 				glColor3f( 0.0f, 0.0f, 0.8f );
-				render_outline(); 
+				render_outline();
 
 				// We want to boarder to be visible all the time; therefore disable depth_test
-				glDisable(GL_DEPTH_TEST); 
+				glDisable(GL_DEPTH_TEST);
 				// draw the boundary of the cross section
 				glColor3f( 0.3f, 0.3f, 0.3f );
 				glBegin( GL_LINE_LOOP );
 				for( unsigned int i=0; i<points.size(); i++ ) {
-					glVertex3f( points[i].x, points[i].y, points[i].z ); 
+					glVertex3f( points[i].x, points[i].y, points[i].z );
 				}
 				glEnd();
 
@@ -431,10 +424,10 @@ namespace GLViewer
 				glColor3f( 1.0f, 1.0f, 1.0f ); render_volumn( sx-1.0f, sy-1.0f, sz-1.f );
 				glColor3f( 0.2f, 0.2f, 0.2f ); render_outline();
 			}
-		} 
+		}
 
 		unsigned int size_x() const { return sx; }
 		unsigned int size_y() const { return sy; }
 		unsigned int size_z() const { return sz; }
-	}; 
+	};
 }

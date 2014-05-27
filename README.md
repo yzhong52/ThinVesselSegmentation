@@ -21,12 +21,14 @@ The following are important components using in the projects:
 -  EigenDecomp: eigenvalue decomposition of a 3 by 3 symetric matrix
 
 
-Requirements
+Requirements (Windows)
 ---------------
-1. A graphic card which supports OpenGL 4.0
+
+1. OpenGL 4.0 (or higher)
+
 2. Microsoft Visual Studio 2010 (or higher) 
 
-3. This project requires freeglut 2.8.1, glew 1.10.0 and OpenCV 2.8.4. You have to add the following directories to PATH: 
+3. This project requires `freeglut 2.8.1`, `glew 1.10.0` and `OpenCV 2.8.4`. You have to add the following directories to PATH: 
 
  - `%CD%\dependencies\freeglut 2.8.1\x64;`
  - `%CD%\dependencies\glew-1.10.0\bin\x64;`
@@ -35,3 +37,29 @@ Requirements
 Note: `%CD%` above means the location where you save the files. 
 
 Or you can copy the dlls in their bin folders to the project directory either manually or excute the bat file `set-up-dlls.bat`. 
+
+
+Requireents (Linux)
+---------------
+
+1. Install `freeglut`
+
+`sudo apt-get install freeglut3-dev`
+
+2. Install the X Window System (X11, X, and sometimes informally X-Windows), which is a windowing system for bitmap displays
+
+`sudo apt-get install libxmu-dev`
+`sudo apt-get install libxi-dev`
+
+3. Install glew
+
+`sudo apt-get install libglew-dev`
+
+4. Install OpenGL
+
+`sudo apt-get install mesa-common-dev`
+
+5. Install OpenCV
+`sudo apt-get install libopencv-highgui-dev`
+`sudo apt-get install libopencv-dev`
+

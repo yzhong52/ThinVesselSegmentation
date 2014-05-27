@@ -98,12 +98,12 @@ namespace MinSpanTree{
 			out << "OMG: There is currently no edges in graph.";
 			return out;
 		} else {
-			out << "Number of Edge: " << g.num_edges() << endl;
+			out << "Number of Edge: " << g.num_edges() << std::endl;
 		}
 		// Tranverse the edges and print them
-		E* pt_edge = &g.edges.top();
+		const E* pt_edge = &g.edges.top();
 		for( unsigned int i=0; i<g.edges.size(); i++ ) {
-			cout << (*pt_edge) << endl;
+			out << (*pt_edge) << std::endl;
 			pt_edge++;
 		}
 		return out;

@@ -2,24 +2,24 @@
 #include "GLCamera.h"
 
 #include <iostream>
-#include <sstream> 
+#include <sstream>
 using namespace std;
 
 #include <time.h>
 
 /////////////////////////////////////
 // Glut Library
-#include "GL\freeglut.h"
+#include <GL/glut.h>
 #pragma comment(lib, "freeglut.lib")
 
 namespace GLViewer
 {
 	// objects that need to be render
 	vector<Object*> obj;
-	const int maxNumViewports = 4; 
+	const int maxNumViewports = 4;
 	int numViewports = 1;
 	vector<bool> isDisplayObject[maxNumViewports];
-	
+
 	// Size of the data
 	unsigned int sx = 0;
 	unsigned int sy = 0;
@@ -28,7 +28,7 @@ namespace GLViewer
 	/////////////////////////////////////////
 	// Camera Controls by Mouse
 	///////////////////////
-	GLCamera cam; 
+	GLCamera cam;
 	int mouse_pos_x = 0;
 	int mouse_pos_y = 0;
 
@@ -37,24 +37,24 @@ namespace GLViewer
 	///////////////////////
 	int width = 1280 / 2 * numViewports;
 	int height = 720;
-	
+
 	VideoSaver* videoSaver = NULL;
 
 	bool isAxis = false;
-	
-	bool isSaveFrame = false; 
+
+	bool isSaveFrame = false;
 
 	void render(void)									// Here's Where We Do All The Drawing
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	// Clear The Screen And The Depth Buffer
-		
+
 		cam.pushMatrix();
 		// rending viewports
 		if( numViewports == 4 ) {
-			for( unsigned int i=0; i<2; i++ ) for( unsigned int j=0; j<2; j++ ) 
+			for( unsigned int i=0; i<2; i++ ) for( unsigned int j=0; j<2; j++ )
 			{
 				glViewport (width/2*i, height/2*j, width/2, height/2);
-				unsigned int obj_index = i+2*(1-j); 
+				unsigned int obj_index = i+2*(1-j);
 				if( obj_index < obj.size() ) obj[obj_index]->render();
 				else                         obj[0]->render();
 			}
@@ -62,7 +62,7 @@ namespace GLViewer
 			for( int i=0; i<numViewports; i++ ) {
 				// For viewport i
 				glViewport (i*width/numViewports, 0, width/numViewports, height);
-				for( unsigned int j=0; j<obj.size(); j++ ) { 
+				for( unsigned int j=0; j<obj.size(); j++ ) {
 					if( isDisplayObject[i][j] ) obj[j]->render();
 				}
 				if( isAxis ) {
@@ -71,14 +71,14 @@ namespace GLViewer
 				}
 			}
 		}
-		cam.popMatrix(); 
-		cam.rotate_scene(); 
-		
+		cam.popMatrix();
+		cam.rotate_scene();
+
 		// saving frame buffer as video
 		if( videoSaver ) {
 			if( videoSaver->isAutoRotate() ) {
-				// rotate the camera for 1 degree 
-				cam.rotate_y(1); 
+				// rotate the camera for 1 degree
+				cam.rotate_y(1);
 			}
 			videoSaver->saveBuffer();
 		}
@@ -86,17 +86,17 @@ namespace GLViewer
 		// take a screen shot
 		if( isSaveFrame && videoSaver ) {
 			videoSaver->takeScreenShot( width, height );
-			isSaveFrame = false; 
+			isSaveFrame = false;
 		}
 
 		glutSwapBuffers();
 	}
 
 	void startCaptureVideo( int maxNumFrames ) {
-		static int index = 0; 
-		stringstream videoName; 
+		static int index = 0;
+		stringstream videoName;
 		videoName << "output/video" << ++index << ".avi";
-		cout << "Begin to create video '" << videoName.str() << "'" << endl; 
+		cout << "Begin to create video '" << videoName.str() << "'" << endl;
 		if( !videoSaver ) videoSaver = new VideoSaver();
 		videoSaver->init(width, height, videoName.str(), maxNumFrames );
 	}
@@ -139,7 +139,7 @@ namespace GLViewer
 			}
 		} else if ( button==3 ) { // mouse wheel scrolling up
 			cam.zoomIn();
-		} else if ( button==4 ) { // mouse wheel scrooling down 
+		} else if ( button==4 ) { // mouse wheel scrooling down
 			cam.zoomOut();
 		}
 	}
@@ -163,9 +163,9 @@ namespace GLViewer
 		glMatrixMode(GL_PROJECTION);						// Select The Projection Matrix
 		glLoadIdentity();									// Reset The Projection Matrix
 		GLfloat maxVal = max( sx, max(sy, sz) ) * 0.8f;
-		
+
 		GLfloat ratio = 1;
-		if ( numViewports==4 ) ratio = (GLfloat)width / (GLfloat)height; 
+		if ( numViewports==4 ) ratio = (GLfloat)width / (GLfloat)height;
 		else                   ratio = (GLfloat)width / (GLfloat)height / numViewports;
 
 		glOrtho( -maxVal*ratio, maxVal*ratio, -maxVal, maxVal, -maxVal, maxVal);
@@ -174,12 +174,12 @@ namespace GLViewer
 
 	void reset_modelview(void) {
 		cam.resetModelview( (GLfloat)sx, (GLfloat)sy, (GLfloat)sz );
-		glutPostRedisplay(); 
+		glutPostRedisplay();
 	}
 
 	void reshape(int w, int h)
 	{
-		width = max(50, w); 
+		width = max(50, w);
 		height = max(50, h);
 
 		reset_projection(); // Reset Projection
@@ -199,24 +199,24 @@ namespace GLViewer
 			} else {
 				isDisplayObject[numViewports-1][index] = !isDisplayObject[numViewports-1][index];
 			}
-		} 
+		}
 
-		switch (key) 
+		switch (key)
 		{
-		case ' ': 
+		case ' ':
 			reset_projection();
 			reset_modelview();
 			break;
-		case 'a': 
+		case 'a':
 			// toggle on/off the axis
 			isAxis = !isAxis;
 			break;
 		//case '\t': // TODO: Fix it before you uncommend this block of code
-		//	numViewports = (numViewports+1) % maxNumViewports; 
+		//	numViewports = (numViewports+1) % maxNumViewports;
 		//	reset_projection();
 		//	break;
-		case 's': case 'S': 
-			isSaveFrame = true; 
+		case 's': case 'S':
+			isSaveFrame = true;
 			break;
 
 		/////////////////////////////
@@ -224,11 +224,11 @@ namespace GLViewer
 		/////////////////////////////
 		case 'v': case 'V':
 			if( !videoSaver || videoSaver->isDone() ) {
-				startCaptureVideo( ); 
+				startCaptureVideo( );
 			} else if( videoSaver->isRendering() ) {
-				cout << "Video render complete. " << endl; 
+				cout << "Video render complete. " << endl;
 				videoSaver->stop();
-			} 
+			}
 			break;
 
 		case 27:
@@ -242,10 +242,10 @@ namespace GLViewer
 	{
 		if( numViewports == 4 ) {
 			width = w;
-			height = h; 
+			height = h;
 		} else {
 			width = w;
-			height = h; 
+			height = h;
 		}
 
 		if( objects.size()==0 ) {
@@ -253,9 +253,9 @@ namespace GLViewer
 			return;
 		}
 
-		obj = objects; 
-		
-		for( unsigned int i=0; i<maxNumViewports; i++ ){ 
+		obj = objects;
+
+		for( unsigned int i=0; i<maxNumViewports; i++ ){
 			isDisplayObject[i].resize( objects.size(), false );
 			if( i < objects.size() ) { // put the i-th object in the i-th viewport
 				isDisplayObject[i][i] = true;
@@ -318,7 +318,7 @@ namespace GLViewer
 		cout << "       SPACE             - Reset Projection Matrix " << endl;
 		cout << "       1,2,3...          - Toggle on/off objects " << endl;
 		cout << "       ALT + 1,2,3...  - Change Rendering Mode for a object " << endl;
-		cout << "       v/V               - toggle start/stop saving video" << endl;  
+		cout << "       v/V               - toggle start/stop saving video" << endl;
 		cout << "       ESC               - Exit " << endl;
 
 		glutMainLoop(); // No Code Will Be Executed After This Line

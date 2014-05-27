@@ -1,11 +1,11 @@
 #include "ImageProcessing.h"
-#include "VesselNessTypes.h"
+#include "VesselnessTypes.h"
 #include <queue>
 
-void ImageProcessing::histogram( Data3D<short>& data, 
+void ImageProcessing::histogram( Data3D<short>& data,
 	Mat_<double>& range, Mat_<double>& hist, int number_of_bins ){
 	cout << "Calculating Image Histogram" << endl;
-	
+
 	// get the minimum and maximum value in the data
 	Vec<short,2> min_max = data.get_min_max_value();
 	const double min = min_max[0];
@@ -17,7 +17,7 @@ void ImageProcessing::histogram( Data3D<short>& data,
 	for( int i=0; i<number_of_bins; i++ ) {
 		range.at<double>(i) = 1.0 * i * diff / number_of_bins + min;
 	}
-	
+
 	// set the hist vector
 	hist = Mat_<double>( number_of_bins, 1, 0.0);
 	Mat_<short>::const_iterator it;
@@ -31,8 +31,8 @@ void ImageProcessing::histogram( Data3D<short>& data,
 Mat ImageProcessing::histogram_with_opencv( Data3D<short>& data, int number_of_bins ){
 	cout << "Calculating Image Histogram using build in OpenCV function" << endl;
 	cout << "This function may be fairly memory intensive. Be careful when using." << endl;
-	
-	Mat mat = data.getMat(); 
+
+	Mat mat = data.getMat();
 
 	mat.convertTo( mat, CV_32F );
 	// normalize( mat, mat, 0, number_of_bins, CV_MINMAX );
@@ -42,22 +42,22 @@ Mat ImageProcessing::histogram_with_opencv( Data3D<short>& data, int number_of_b
 
 	// Set the ranges
 	float range[] = {// 0.0f, number_of_bins
-		std::numeric_limits<short>::min(), 
-		std::numeric_limits<short>::max() 
+		std::numeric_limits<short>::min(),
+		std::numeric_limits<short>::max()
 	};//the upper boundary is exclusive
 	const float* histRange = { range };
 
 	// Compute the histograms:
-	Mat hist; 
-	bool uniform = true;  // true: bins to have the same size (uniform) 
-	bool accumulate = false;
-	calcHist( &mat, 1, 0, 
+	Mat hist;
+	bool uniform = true;  // true: bins to have the same size (uniform)
+
+	calcHist( &mat, 1, 0,
 		Mat(), // mask
 		hist,  // Output Array
 		1, &histSize, &histRange, uniform, true );
 
 	// Draw the histogram
-	int hist_w = number_of_bins; 
+	int hist_w = number_of_bins;
 	int hist_h = int( number_of_bins * 0.618 );
 	int bin_w = cvRound( (double) hist_w/histSize );
 
@@ -71,8 +71,8 @@ Mat ImageProcessing::histogram_with_opencv( Data3D<short>& data, int number_of_b
 	{
 		line( histImage, Point( bin_w*(i-1), hist_h - cvRound( hist.at<float>(i-1)) ) ,
 			Point( bin_w*(i), hist_h - cvRound( hist.at<float>(i)) ),
-			Scalar( 255, 255, 255), 
-			2,     // thickness 
+			Scalar( 255, 255, 255),
+			2,     // thickness
 			CV_AA, // antialiased line
 			0  );
 	}
@@ -89,7 +89,7 @@ Mat ImageProcessing::histogram_with_opencv( Data3D<short>& data, int number_of_b
 
 void ImageProcessing::histogram_for_slice( Image3D<short>& data ){
 	cout << "Calculating Image Histogram by Slice" << endl;
-	const Mat mat = data.getMat(); 
+	const Mat mat = data.getMat();
 
 	vector<double> intensities( data.get_size_z() );
 	double max_intensity;
@@ -102,20 +102,20 @@ void ImageProcessing::histogram_for_slice( Image3D<short>& data ){
 		min_intensity = std::min( intensities[i], min_intensity );
 	}
 
-	int w = data.get_size_z(); 
+	int w = data.get_size_z();
 	int h = int( data.get_size_z() * 0.618 );
 
 	Mat histImage( h, w, CV_8UC3, Scalar(0,0,0) );
 	for( int i=1; i<data.get_size_z(); i++ ){
-		line( histImage, 
+		line( histImage,
 			Point( i-1, int( h*intensities[i-1]/max_intensity ) ),
 			Point( i,   int( h*intensities[i]/max_intensity ) ),
-			Scalar( 255, 255, 255), 
-			2, // thickness 
+			Scalar( 255, 255, 255),
+			2, // thickness
 			8, // antialiased line
 			0  );
 	}
-	
+
 	namedWindow("Histogram of Slice", CV_WINDOW_AUTOSIZE );
 	imshow("Histogram of Slice", histImage );
 	imwrite("Histogram of Slice.png", histImage );
@@ -136,10 +136,10 @@ void ImageProcessing::non_max_suppress( const Data3D<Vesselness_Sig>& src, Data3
 	static const int MAJOR_DIR_NUM = 13;
 	static const Vec3f major_dirs[MAJOR_DIR_NUM] = {
 		// directions along the axis, there are 3 of them
-		Vec3f(1, 0, 0), Vec3f(0, 1, 0), Vec3f(0, 0, 1), 
+		Vec3f(1, 0, 0), Vec3f(0, 1, 0), Vec3f(0, 0, 1),
 		// directions that lie within the 3D plane of two axis, there are 6 of them
-		Vec3f(s2, s2,0), Vec3f(0,s2, s2), Vec3f(s2,0, s2), 
-		Vec3f(s2,-s2,0), Vec3f(0,s2,-s2), Vec3f(s2,0,-s2), 
+		Vec3f(s2, s2,0), Vec3f(0,s2, s2), Vec3f(s2,0, s2),
+		Vec3f(s2,-s2,0), Vec3f(0,s2,-s2), Vec3f(s2,0,-s2),
 		// directions that are equally in between three axis, there are 4 of them
 		Vec3f(s3,s3,s3), Vec3f(s3,s3,-s3), Vec3f(s3,-s3,s3), Vec3f(s3,-s3,-s3)
 	};
@@ -149,19 +149,19 @@ void ImageProcessing::non_max_suppress( const Data3D<Vesselness_Sig>& src, Data3
 	Vec3i neighbor3d[NUM_DIR_3D] = {
 		// directions along the axis, there are 6 of them
 		Vec3i(0,0, 1), Vec3i(0, 1,0),  Vec3i( 1,0,0),
-		Vec3i(0,0,-1), Vec3i(0,-1,0),  Vec3i(-1,0,0), 
+		Vec3i(0,0,-1), Vec3i(0,-1,0),  Vec3i(-1,0,0),
 		// directions that lie within the 3D plane of two axis, there are 12 of them
-		Vec3i(0,1,1), Vec3i(0, 1,-1), Vec3i( 0,-1,1), Vec3i( 0,-1,-1), 
-		Vec3i(1,0,1), Vec3i(1, 0,-1), Vec3i(-1, 0,1), Vec3i(-1, 0,-1), 
-		Vec3i(1,1,0), Vec3i(1,-1, 0), Vec3i(-1, 1,0), Vec3i(-1,-1, 0), 
+		Vec3i(0,1,1), Vec3i(0, 1,-1), Vec3i( 0,-1,1), Vec3i( 0,-1,-1),
+		Vec3i(1,0,1), Vec3i(1, 0,-1), Vec3i(-1, 0,1), Vec3i(-1, 0,-1),
+		Vec3i(1,1,0), Vec3i(1,-1, 0), Vec3i(-1, 1,0), Vec3i(-1,-1, 0),
 		// directions that are equally in between three axis, there are 8 of them
-		Vec3i( 1,1,1), Vec3i( 1,1,-1), Vec3i( 1,-1,1), Vec3i( 1,-1,-1), 
-		Vec3i(-1,1,1), Vec3i(-1,1,-1), Vec3i(-1,-1,1), Vec3i(-1,-1,-1), 
+		Vec3i( 1,1,1), Vec3i( 1,1,-1), Vec3i( 1,-1,1), Vec3i( 1,-1,-1),
+		Vec3i(-1,1,1), Vec3i(-1,1,-1), Vec3i(-1,-1,1), Vec3i(-1,-1,-1),
 	};
 
 	// cross section for the major orientation
 	vector<Vec3i> cross_section[MAJOR_DIR_NUM];
-	
+
 	// Setting offsets that are perpendicular to dirs
 	for( int i=0; i<MAJOR_DIR_NUM; i++ ) {
 		for( int j=0; j<NUM_DIR_3D; j++ ){
@@ -181,7 +181,7 @@ void ImageProcessing::non_max_suppress( const Data3D<Vesselness_Sig>& src, Data3
 				// non-maximum surpression
 				bool isMaximum = true;
 
-				// Method I: 
+				// Method I:
 				// find the major orientation
 				// assigning the orientation to one of the 13 categories
 				const Vec3f& cur_dir = src.at(x,y,z).dir;
@@ -189,7 +189,7 @@ void ImageProcessing::non_max_suppress( const Data3D<Vesselness_Sig>& src, Data3
 				float max_dot_product = 0;
 				for( int di=0; di<MAJOR_DIR_NUM; di++ ){
 					float current_dot_product = abs( cur_dir.dot(major_dirs[di]) );
-					if( max_dot_product < current_dot_product ) { 
+					if( max_dot_product < current_dot_product ) {
 						max_dot_product = current_dot_product;
 						mdi = di;// update the major direction id
 					}
@@ -200,7 +200,7 @@ void ImageProcessing::non_max_suppress( const Data3D<Vesselness_Sig>& src, Data3
 					int oz = z + cross_section[mdi][i][2];
 					if( src.isValid(ox,oy,oz) && src.at(x,y,z).rsp < src.at(ox,oy,oz).rsp ) {
 						isMaximum = false; break;
-					} 
+					}
 				}
 
 				// Method II: Based on Sigma
@@ -212,7 +212,7 @@ void ImageProcessing::non_max_suppress( const Data3D<Vesselness_Sig>& src, Data3
 				//	int oz = z + offset[2];
 				//	if( src.isValid(ox,oy,oz) && src.at(x,y,z).rsp < src.at(ox,oy,oz).rsp ) {
 				//		isMaximum = false; break;
-				//	} 
+				//	}
 				//}
 
 				if( isMaximum ) {
@@ -230,7 +230,7 @@ void ImageProcessing::edge_tracing( Data3D<Vesselness_Sig>& src, Data3D<Vesselne
 	Data3D<float> src1d;
 	src.copyDimTo( src1d, 0 );
 	IP::normalize( src1d, 1.0f );
-	
+
 	int x, y, z;
 	std::queue<Vec3i> q;
 	Data3D<unsigned char> mask( src.get_size() );
@@ -239,7 +239,7 @@ void ImageProcessing::edge_tracing( Data3D<Vesselness_Sig>& src, Data3D<Vesselne
 			q.push( Vec3i(x,y,z) );
 			mask.at(x,y,z) = 255;
 		}
-	} 
+	}
 
 	Vec3i dir[26];
 	for( int i=0; i<26; i++ ){
@@ -267,12 +267,12 @@ void ImageProcessing::edge_tracing( Data3D<Vesselness_Sig>& src, Data3D<Vesselne
 			dst.at( x,y,z ) = src.at( x,y,z );
 			// dst.at( x,y,z ).rsp = sqrt( src1d.at( x,y,z ) );
 		}
-	} 
+	}
 }
 
 void ImageProcessing::dir_tracing( Data3D<Vesselness_All>& src_vn, Data3D<Vesselness_Sig>& dst ){
 	// non-maximum suppression
-	Data3D<Vesselness_Sig> res_nms; 
+	Data3D<Vesselness_Sig> res_nms;
 	IP::non_max_suppress( src_vn, res_nms );
 
 	float thres1 = 0.800f;
@@ -289,7 +289,7 @@ void ImageProcessing::dir_tracing( Data3D<Vesselness_All>& src_vn, Data3D<Vessel
 	Data3D<float> src1d;
 	res_nms.copyDimTo( src1d, 0 );
 	IP::normalize( src1d, 1.0f );
-	
+
 	// find seed points
 	int x, y, z;
 	std::queue<Vec3i> q;
@@ -299,7 +299,7 @@ void ImageProcessing::dir_tracing( Data3D<Vesselness_All>& src_vn, Data3D<Vessel
 			q.push( Vec3i(x,y,z) );
 			mask.at(x,y,z) = 255;
 		}
-	} 
+	}
 
 	// region growing
 	while( !q.empty() ){
@@ -313,27 +313,27 @@ void ImageProcessing::dir_tracing( Data3D<Vesselness_All>& src_vn, Data3D<Vessel
 			}
 		}
 	}
-	
-	
+
+
 	dst.reset( src_vn.get_size() );
 	for(z=0;z<src_vn.SZ();z++) for (y=0;y<src_vn.SY();y++) for(x=0;x<src_vn.SX();x++) {
 		if( mask.at( x,y,z ) ) {
 
 			int count = 0;
 			int index = 0;
-			for( int i=0; i<26; i++ ){ 
+			for( int i=0; i<26; i++ ){
 				Vec3i pos = Vec3i(x,y,z) + offset[i];
 				if( mask.isValid(pos) && mask.at(pos) ) {
 					count++;
 					index = i;
 				}
 			}
-			if( count==1 ) { 
+			if( count==1 ) {
 				Vec3i bPos[20];
 				// trace the gap bettween bifurcations
 				Vec3f dir = src_vn.at(x,y,z).dir;
 				if( dir.dot( offset[index] ) > 0 ) dir = -dir;
-				
+
 				Vec3f pos(1.0f*x, 1.0f*y, 1.0f*z);
 				pos += dir;
 				for( int i=1; i<20; i++ ){
@@ -341,12 +341,12 @@ void ImageProcessing::dir_tracing( Data3D<Vesselness_All>& src_vn, Data3D<Vessel
 					bPos[i] = Vec3i( pos );
 					if( !mask.isValid( bPos[i] ) ) break;
 
-					bool flag = false; 
+					bool flag = false;
 					for( int j=0; j<26; j++ ) {
 						Vec3f off_pos = pos;
 						off_pos += offset[j];
 						if( mask.isValid(off_pos) && mask.at( off_pos ) ) {
-							flag = true; break;	
+							flag = true; break;
 						}
 					}
 
@@ -360,12 +360,12 @@ void ImageProcessing::dir_tracing( Data3D<Vesselness_All>& src_vn, Data3D<Vessel
 					}
 				}
 			}
-			
+
 			dst.at( x,y,z ) = src_vn.at( x,y,z );
 			dst.at( x,y,z ).rsp = sqrt( src1d.at( x,y,z ) );
 		}
-	} 
-	
+	}
+
 	return;
 }
 
@@ -376,9 +376,9 @@ void ImageProcessing::edge_tracing_mst( Data3D<Vesselness_All>& src_vn, Data3D<V
 	dst.reset( src_vn.get_size() );
 
 	// non-maximum suppression
-	Data3D<Vesselness_Sig> res_nms; 
+	Data3D<Vesselness_Sig> res_nms;
 	IP::non_max_suppress( src_vn, res_nms );
-	
+
 	Vec3i offset[26];
 	for( int i=0; i<26; i++ ){
 		int index = (i + 14) % 27;
@@ -401,7 +401,7 @@ void ImageProcessing::edge_tracing_mst( Data3D<Vesselness_All>& src_vn, Data3D<V
 			myQueue1.push( Vec3i(x,y,z) );
 			mask.at(x,y,z) = 255;
 		}
-	} 
+	}
 	// region growing base on the second threshold
 	while( !myQueue1.empty() ){
 		Vec3i pos = myQueue1.front(); myQueue1.pop();
@@ -415,16 +415,16 @@ void ImageProcessing::edge_tracing_mst( Data3D<Vesselness_All>& src_vn, Data3D<V
 		}
 	}
 
-	// Now we have the mask of the center-line. We want to connect them as a semi minimum spinning tree. 
-	// But before that, we need to know their conectivity. We achieve this by labeling them with a setid. 
-	// If two voxel have the same setid, they are connected. 
+	// Now we have the mask of the center-line. We want to connect them as a semi minimum spinning tree.
+	// But before that, we need to know their conectivity. We achieve this by labeling them with a setid.
+	// If two voxel have the same setid, they are connected.
 	Data3D<unsigned char> setid( mask.get_size() );
-	int max_sid = 0; // the maximum set id that being used 
+	int max_sid = 0; // the maximum set id that being used
 	for(z=0;z<src_vn.SZ();z++) for (y=0;y<src_vn.SY();y++) for(x=0;x<src_vn.SX();x++) {
 		// if this voxel belongs to the center-line and has not been labeled yet.
-		// We will run a breadth-first search from this voxel to label all other labels that are connected to this one. 
-		if( mask.at(x,y,z)==255 && setid.at(x,y,z)==0 ){ 
-			setid.at(x,y,z) = ++max_sid; 
+		// We will run a breadth-first search from this voxel to label all other labels that are connected to this one.
+		if( mask.at(x,y,z)==255 && setid.at(x,y,z)==0 ){
+			setid.at(x,y,z) = ++max_sid;
 			// breadth-first search
 			std::queue<Vec3i> q;
 			q.push( Vec3i(x,y,z) );
@@ -435,13 +435,13 @@ void ImageProcessing::edge_tracing_mst( Data3D<Vesselness_All>& src_vn, Data3D<V
 					if( mask.isValid( off_pos) && mask.at( off_pos )==255 && setid.at( off_pos )!=max_sid ) {
 						setid.at( off_pos )=max_sid;
 						q.push( off_pos );
-					} 
+					}
 				}
 			}
 		}
 	}
 	cout << "Max sid: " <<  max_sid << endl;
-	
+
 	const unsigned char ENDPOINT_YES = 255;
 	const unsigned char ENDPOINT_NO  = 144;
 	const unsigned char UN_DEFINED  = 0;   // undefined
@@ -457,15 +457,15 @@ void ImageProcessing::edge_tracing_mst( Data3D<Vesselness_All>& src_vn, Data3D<V
 			// initial guess the this pos to be a endpoint
 			endpoints_mask1.at( pos ) = ENDPOINT_YES;
 			// transverse the neighbour hood system
-			for( int i=0; i<26; i++ ) { 
+			for( int i=0; i<26; i++ ) {
 				Vec3i off_pos = pos + offset[i];
 				if( !mask.isValid( off_pos ) ) continue;
 				if( mask.at(off_pos)==0 ) continue;
 				if( endpoints_mask1.at(off_pos)==UN_DEFINED ) {
 					myQueue.push( off_pos );
-					endpoints_mask1.at( off_pos ) = ENDPOINT_YES; 
+					endpoints_mask1.at( off_pos ) = ENDPOINT_YES;
 					endpoints_mask1.at( pos ) = ENDPOINT_NO;
-				} else if( endpoints_mask1.at(off_pos)==ENDPOINT_YES ) { 
+				} else if( endpoints_mask1.at(off_pos)==ENDPOINT_YES ) {
 					endpoints_mask1.at( pos ) = ENDPOINT_NO;
 				}
 			}
@@ -483,15 +483,15 @@ void ImageProcessing::edge_tracing_mst( Data3D<Vesselness_All>& src_vn, Data3D<V
 			// initial guess the this pos to be a endpoint
 			endpoints_mask2.at( pos ) = ENDPOINT_YES;
 			// transverse the neighbour hood system
-			for( int i=0; i<26; i++ ) { 
+			for( int i=0; i<26; i++ ) {
 				Vec3i off_pos = pos + offset[i];
 				if( !mask.isValid( off_pos ) ) continue;
 				if( mask.at(off_pos)==0 ) continue;
 				if( endpoints_mask2.at(off_pos)==UN_DEFINED ) {
 					myQueue.push( off_pos );
-					endpoints_mask2.at( off_pos ) = ENDPOINT_YES; 
+					endpoints_mask2.at( off_pos ) = ENDPOINT_YES;
 					endpoints_mask2.at( pos ) = ENDPOINT_NO;
-				} else if( endpoints_mask2.at(off_pos)==ENDPOINT_YES ) { 
+				} else if( endpoints_mask2.at(off_pos)==ENDPOINT_YES ) {
 					endpoints_mask2.at( pos ) = ENDPOINT_NO;
 				}
 			}
@@ -505,7 +505,7 @@ void ImageProcessing::edge_tracing_mst( Data3D<Vesselness_All>& src_vn, Data3D<V
 				endpoints.push_back( Vec3i(x,y,z) );
 			}
 		}
-	} 
+	}
 
 	//// For visualization of the end points
 	//for(z=0;z<mask.SZ();z++) for (y=0;y<mask.SY();y++) for(x=0;x<mask.SX();x++) {
@@ -515,22 +515,22 @@ void ImageProcessing::edge_tracing_mst( Data3D<Vesselness_All>& src_vn, Data3D<V
 	//			dst.at(x,y,z).rsp = 1.0f;
 	//		}
 	//	}
-	//} 
+	//}
 	//return;
 
 	// two small data structures for the use priority_queue
 	class Dis_Pos {
-	private: 
+	private:
 		float dist;
 		Vec3i to_pos;
 	public:
-		Dis_Pos( const float& distance, const Vec3i& position ) 
-			: dist(distance) 
+		Dis_Pos( const float& distance, const Vec3i& position )
+			: dist(distance)
 			, to_pos(position) { }
-		inline bool operator<( const Dis_Pos& right ) const { 
+		inline bool operator<( const Dis_Pos& right ) const {
 			// for the use of priority_queue, we reverse the sign of comparison from '<' to '>'
-			return ( this->getDist() > right.getDist() ); 
-		} 
+			return ( this->getDist() > right.getDist() );
+		}
 		inline const float& getDist(void) const { return dist; }
 		inline const Vec3i& getToPos(void) const { return to_pos; }
 	};
@@ -538,45 +538,45 @@ void ImageProcessing::edge_tracing_mst( Data3D<Vesselness_All>& src_vn, Data3D<V
 	private:
 		Vec3i from_pos;
 	public:
-		Dis_Pos_Pos( const Dis_Pos& dis_pos, const Vec3i& from_posistion ) 
+		Dis_Pos_Pos( const Dis_Pos& dis_pos, const Vec3i& from_posistion )
 			: Dis_Pos(dis_pos), from_pos(from_posistion) { }
 		inline const Vec3i& getFromPos(void) const { return from_pos; }
 	};
 
 
-	std::priority_queue< Dis_Pos_Pos > min_dis_queue; 
+	std::priority_queue< Dis_Pos_Pos > min_dis_queue;
 	const unsigned char VISITED_YES = 255;
-	const unsigned char VISITED_N0  = 0;
+	// const unsigned char VISITED_N0  = 0;
 	Data3D<unsigned char> isVisited( setid.get_size() );
 	vector<Vec3i>::iterator it;
 	for( it=endpoints.begin(); it<endpoints.end(); it++ ) {
 		const Vec3i& from_pos = *it;
-		std::priority_queue< Dis_Pos > myQueue; 
+		std::priority_queue< Dis_Pos > myQueue;
 		myQueue.push( Dis_Pos( 0.0f, from_pos) );
-		
+
 		// breath first search
-		isVisited.reset(); // set all the data to 0. 
+		isVisited.reset(); // set all the data to 0.
 		isVisited.at( from_pos ) = 255;
-		bool to_pos_fount = false; 
+		bool to_pos_fount = false;
 		while( !myQueue.empty() && !to_pos_fount ) {
-			Dis_Pos dis_pos = myQueue.top(); myQueue.pop(); 
-			for( int i=0; i<26; i++ ) { 
+			Dis_Pos dis_pos = myQueue.top(); myQueue.pop();
+			for( int i=0; i<26; i++ ) {
 				// get the propogate position
 				Vec3i to_pos = offset[i] + dis_pos.getToPos();
 				if( !isVisited.isValid(to_pos) ) continue;
 				if(  isVisited.at(to_pos)==VISITED_YES ) continue;
-				
+
 				if( setid.at(to_pos)!=setid.at(from_pos) ) {
 					Vec3i dif = to_pos - from_pos;
 					float dist = sqrt( 1.0f*dif[0]*dif[0] + dif[1]*dif[1] + dif[2]*dif[2] );
 					if( dist > 7.0f ) continue; // prevent from searching too far aways
 
-					if( setid.at( to_pos )==0 || src1d.at(to_pos)< thres1 ) {	
+					if( setid.at( to_pos )==0 || src1d.at(to_pos)< thres1 ) {
 						// if this voxel belongs to a background set
 						myQueue.push( Dis_Pos(dist, to_pos) );
 						isVisited.at( to_pos ) = VISITED_YES;
 					}
-					
+
 					else {
 						// if this voxels have different setid
 						to_pos_fount = true;
@@ -595,18 +595,18 @@ void ImageProcessing::edge_tracing_mst( Data3D<Vesselness_All>& src_vn, Data3D<V
 		Dis_Pos_Pos dpp = min_dis_queue.top(); min_dis_queue.pop();
 		const Vec3i& from_pos = dpp.getFromPos();
 		const Vec3i& to_pos = dpp.getToPos();
-		const float& dist = dpp.getDist(); 
+		const float& dist = dpp.getDist();
 		if( setid.at(to_pos)==setid.at(from_pos) ) continue;
 
-		// And we will use breadth first search one more time to make sure the setid of 
-		// to_pos is the same as from_pos. 
-		std::queue< Vec3i > myQueue; 
+		// And we will use breadth first search one more time to make sure the setid of
+		// to_pos is the same as from_pos.
+		std::queue< Vec3i > myQueue;
 		myQueue.push( to_pos );
-		int to_setid = setid.at(to_pos); 
+		int to_setid = setid.at(to_pos);
 		setid.at(to_pos) = setid.at( from_pos );
 		while( !myQueue.empty() ){
 			Vec3i pos = myQueue.front(); myQueue.pop();
-			for( int i=0; i<26; i++ ) { 
+			for( int i=0; i<26; i++ ) {
 				Vec3i off_pos = pos + offset[i];
 				if( setid.isValid(off_pos) && setid.at(off_pos)==to_setid ){
 					myQueue.push( off_pos );
@@ -627,13 +627,13 @@ void ImageProcessing::edge_tracing_mst( Data3D<Vesselness_All>& src_vn, Data3D<V
 			setid.at(pos) = setid.at(from_pos);
 			pos+=dir;
 		}
-		
+
 	}
 
 	for(z=0;z<src_vn.SZ();z++) for (y=0;y<src_vn.SY();y++) for(x=0;x<src_vn.SX();x++) {
 		if( mask.at(x,y,z)==255) dst.at(x,y,z).rsp = sqrt( src1d.at(x,y,z) );
 	}
-	
+
 	return;
 }
 
@@ -647,7 +647,7 @@ void ImageProcessing::dilation( Data3D<unsigned char>& src, const int& ks ){
 		// look around the voxel
 		for( i=-ks;i<=ks;i++ ) for( j=-ks;j<=ks;j++ ) for( k=-ks;k<=ks;k++ ) {
 			if( src.isValid(x+i,y+j,z+k) ) {
-				if( src.at( x+i,y+j,z+k )!=0 ) temp.at(x,y,z) = 255; 
+				if( src.at( x+i,y+j,z+k )!=0 ) temp.at(x,y,z) = 255;
 			}
 		}
 	}
@@ -663,7 +663,7 @@ void ImageProcessing::erosion( Data3D<unsigned char>& src, const int& ks ){
 		// look around the voxel
 		for( i=-ks;i<=ks;i++ ) for( j=-ks;j<=ks;j++ ) for( k=-ks;k<=ks;k++ ) {
 			if( src.isValid(x+i,y+j,z+k) ){
-				if( src.at( x+i,y+j,z+k )!=255 ) temp.at(x,y,z) =  0; 
+				if( src.at( x+i,y+j,z+k )!=255 ) temp.at(x,y,z) =  0;
 			} else {
 				temp.at(x,y,z) = 0;
 			}

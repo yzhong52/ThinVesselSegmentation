@@ -6,7 +6,7 @@ using namespace std;
 
 
 
-//  ANSI [colour codes](http://en.wikipedia.org/wiki/ANSI_escape_code)
+// The following color is defined using [ANSI colour codes](http://en.wikipedia.org/wiki/ANSI_escape_code)
 const string RED = "\033[1;31m";
 const string GREEN = "\033[1;32m";
 const string BLACK = "\x1b[0;49m";

@@ -1,6 +1,7 @@
-#pragma once
+#ifndef SYNTHETICDATA_H
+#define  SYNTHETICDATA_H
 
-#include "Data3D.h"
+#include "../VesselNess/Data3D.h"
 #include <random>
 #include <cmath>
 
@@ -117,3 +118,6 @@ namespace SyntheticData {
 		}
 	}
 }
+
+#endif // SYNTHETICDATA_H
+
