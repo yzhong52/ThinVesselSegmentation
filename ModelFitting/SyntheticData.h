@@ -92,11 +92,14 @@ namespace SyntheticData {
 
 		im_short.reset( Vec3i(SX, SY, SZ), 0 );
 		for( int z=0; z<im_short.SZ(); z++ ) for( int y=0; y<SY; y++ ) for( int x=0; x<SX; x++ ) {
-			Vec3f point( 1.0f*x, 1.0f*y, 1.0f*z );
+			cv::Vec3f point( 1.0f*x, 1.0f*y, 1.0f*z );
 			for( unsigned i=0; i<intervals.size(); i++ ) {
 				// distant from line to point
-				Vec3f pos = cv::Vec3f( &intervals[i][0] );
-				Vec3f dir = cv::Vec3f( &intervals[i][3] ) - cv::Vec3f( &intervals[i][0] );
+				cv::Vec3f pos( intervals[i][0], intervals[i][1], intervals[i][2] );
+				cv::Vec3f dir(
+                  intervals[i][0] - intervals[i][3],
+                  intervals[i][1] - intervals[i][4],
+                  intervals[i][2] - intervals[i][5] );
 				float t = ( point - pos ).dot( dir ) / dir.dot( dir );
 
                 // TODO: why the following line of code do not compile in g++?
@@ -104,8 +107,8 @@ namespace SyntheticData {
 				if( t<0.0f ) t = 0.0f;
 				if( t>1.0f ) t = 1.0f;
 
-				Vec3f proj = pos + dir * t;
-				Vec3f proj_point = proj - point;
+				cv::Vec3f proj = pos + dir * t;
+				cv::Vec3f proj_point = proj - point;
 				float ratio = radius - sqrt( proj_point.dot( proj_point ) );
 
 				// todo: why the following line of code do not compile in g++

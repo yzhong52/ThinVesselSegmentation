@@ -6,35 +6,41 @@
 #include "VesselnessTypes.h"
 #include "ImageProcessing.h"
 
-namespace MinSpanTree {
+namespace MinSpanTree
+{
 
-	template<class EdgeType = Edge, class NodeType = char>
-	class Graph3D : public Graph<EdgeType, NodeType> {
-	public:
-		int sx;
-		int sy;
-		int sz;
+template<class EdgeType = Edge, class NodeType = char>
+class Graph3D : public Graph<EdgeType, NodeType>
+{
+public:
+    int sx;
+    int sy;
+    int sz;
 
-		Graph3D() : Graph<EdgeType, NodeType>( 0 ), sx( 0 ) , sy( 0 ) , sz( 0 ) {  }
-		Graph3D( unsigned int x, unsigned int y, unsigned int z )
-			: Graph<EdgeType, NodeType>( x*y*z ), sx( x ) , sy( y ) , sz( z ) {  }
-		Graph3D( Graph3D& g )
-			: Graph<EdgeType, NodeType>( g ), sx( g.sx ) , sy( g.sy ) , sz( g.sz ) {  }
+    Graph3D() : Graph<EdgeType, NodeType>( 0 ), sx( 0 ) , sy( 0 ) , sz( 0 ) {  }
+    Graph3D( unsigned int x, unsigned int y, unsigned int z )
+        : Graph<EdgeType, NodeType>( x*y*z ), sx( x ) , sy( y ) , sz( z ) {  }
+    Graph3D( Graph3D& g )
+        : Graph<EdgeType, NodeType>( g ), sx( g.sx ) , sy( g.sy ) , sz( g.sz ) {  }
 
-		// get node id from position
-		inline int nodeid(const Vec3i& pos ) {
-			return nodeid(pos[0], pos[1], pos[2]);
-		}
-		inline int nodeid(const int& x, const int& y, const int&z) {
-			return z*sx*sy + y*sx + x;
-		}
-		inline Vec3i get_pos( const int& nodeid ) {
-			return Vec3i( nodeid % (sx*sy) % sx, nodeid % (sx*sy) / sx, nodeid / (sx*sy) );
-		}
-	};
+    // get node id from position
+    inline int nodeid(const Vec3i& pos )
+    {
+        return nodeid(pos[0], pos[1], pos[2]);
+    }
+    inline int nodeid(const int& x, const int& y, const int&z)
+    {
+        return z*sx*sy + y*sx + x;
+    }
+    inline Vec3i get_pos( const int& nodeid )
+    {
+        return Vec3i( nodeid % (sx*sy) % sx, nodeid % (sx*sy) / sx, nodeid / (sx*sy) );
+    }
+};
+}
 
-    // TODO: connot compile with g++
-    static void edge_tracing( Data3D<Vesselness_All>& src_vn, Graph3D<Edge>& tree, const float& thres1, const float& thres2  );
+// TODO: connot compile with g++
+//static void edge_tracing( Data3D<Vesselness_All>& src_vn, Graph3D<Edge>& tree, const float& thres1, const float& thres2  );
 //	static void edge_tracing( Data3D<Vesselness_All>& src_vn, Graph3D<Edge>& tree, const float& thres1, const float& thres2  ){
 //		// construct the graph
 //		Graph3D<Edge> graph( src_vn.SX(), src_vn.SY(), src_vn.SZ() );
@@ -277,4 +283,4 @@ namespace MinSpanTree {
 //		return;
 //
 //	}
-}
+//}

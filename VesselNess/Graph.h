@@ -6,107 +6,143 @@
 #include "Edge.h"
 #include "DisjointSet.h" // for Minimum Spaning Tree
 
-namespace MinSpanTree{
+namespace MinSpanTree
+{
 
-	template<class Edge_Type = Edge, class Node_Type = char>
-	class Graph
-	{
-	private:
-		// number of nodes
-		std::vector<Node_Type> nodes;
-		// Edges of the graph
-		std::priority_queue<Edge_Type> edges;
-	public:
-		// Constructor & Destructor
-		Graph( unsigned int num_node ){  nodes.resize( num_node ); }
-		Graph( Graph& g ) : nodes( g.nodes ), edges( g.edges ) { }
-		Graph( void ){ };
-		~Graph( void ){ }
+template<class Edge_Type = Edge, class Node_Type = char>
+class Graph
+{
+private:
+    // number of nodes
+    std::vector<Node_Type> nodes;
+    // Edges of the graph
+    std::priority_queue<Edge_Type> edges;
+public:
+    // Constructor & Destructor
+    Graph( unsigned int num_node )
+    {
+        nodes.resize( num_node );
+    }
+    Graph( Graph& g ) : nodes( g.nodes ), edges( g.edges ) { }
+    Graph( void ) { };
+    ~Graph( void ) { }
 
-		// reset the graph and clear all the edges
-		void reset( int num_node ) {
-			// resize the nodes
-			nodes.resize( num_node );
-			// clear the edges
-			clear_edges();
-		}
+    // reset the graph and clear all the edges
+    void reset( int num_node )
+    {
+        // resize the nodes
+        nodes.resize( num_node );
+        // clear the edges
+        clear_edges();
+    }
 
-		inline void clear_edges(void) {
-			// clear the edges
-			edges = std::priority_queue<Edge_Type>();
-		}
+    inline void clear_edges(void)
+    {
+        // clear the edges
+        edges = std::priority_queue<Edge_Type>();
+    }
 
-		// add an edge to a graph
-		void add_edge( Edge_Type edge ){
-			edges.push( edge );
-		}
+    // add an edge to a graph
+    void add_edge( Edge_Type edge )
+    {
+        edges.push( edge );
+    }
 
-		// add an node to a graph
-		void add_node( Node_Type node ){
-			nodes.push_back( node );
-		}
+    // add an node to a graph
+    void add_node( Node_Type node )
+    {
+        nodes.push_back( node );
+    }
 
-		//gettters
-		inline const std::priority_queue<Edge_Type>& get_edges( void ) const { return edges; }
-		// inline       std::priority_queue<Edge_Type>& get_edges( void )       { return edges; }
-		inline const std::vector<Node_Type>& get_nodes( void ) const { return nodes; }
-		inline       std::vector<Node_Type>& get_nodes( void )       { return nodes; }
-		inline Node_Type& get_node(const int& i){ return nodes[i]; }
+    //gettters
+    inline const std::priority_queue<Edge_Type>& get_edges( void ) const
+    {
+        return edges;
+    }
+    // inline       std::priority_queue<Edge_Type>& get_edges( void )       { return edges; }
+    inline const std::vector<Node_Type>& get_nodes( void ) const
+    {
+        return nodes;
+    }
+    inline       std::vector<Node_Type>& get_nodes( void )
+    {
+        return nodes;
+    }
+    inline Node_Type& get_node(const int& i)
+    {
+        return nodes[i];
+    }
 
-		// TODO: compile error
-		// ..\VesselNess\Graph.h|55|error: invalid initialization of reference of type 'MinSpanTree::Edge_Ext&' from expression of type 'const value_type {aka const MinSpanTree::Edge_Ext}'|
-		inline const Edge_Type& get_edge(const int& i){ return *(&edges.top()+i); }
+    // TODO: compile error
+    // ..\VesselNess\Graph.h|55|error: invalid initialization of reference of type 'MinSpanTree::Edge_Ext&' from expression of type 'const value_type {aka const MinSpanTree::Edge_Ext}'|
+    inline const Edge_Type& get_edge(const int& i)
+    {
+        return *(&edges.top()+i);
+    }
 
-		unsigned int num_edges(void) const { return (unsigned int) edges.size(); }
-		unsigned int num_nodes(void) const { return (unsigned int) nodes.size(); }
+    unsigned int num_edges(void) const
+    {
+        return (unsigned int) edges.size();
+    }
+    unsigned int num_nodes(void) const
+    {
+        return (unsigned int) nodes.size();
+    }
 
-		// get a minimum spaning tree of the current graph
-		void get_min_span_tree( Graph<Edge_Type, Node_Type>& dst ) const;
+    // get a minimum spaning tree of the current graph
+    void get_min_span_tree( Graph<Edge_Type, Node_Type>& dst ) const;
 
-		// print graph for debuging
-		template<class E, class N>
-		friend std::ostream& operator<<( std::ostream& out, Graph<E, N>& g );
-	};
+    // print graph for debuging
+    template<class E, class N>
+    friend std::ostream& operator<<( std::ostream& out, Graph<E, N>& g );
+};
 
 
-	template<class Edge_Type, class Node_Type>
-	void Graph<Edge_Type, Node_Type>::get_min_span_tree( Graph<Edge_Type, Node_Type>& dst )  const
-	{
-		dst.reset( this->num_nodes() );
-		DisjointSet djs( this->num_nodes() );
+template<class Edge_Type, class Node_Type>
+void Graph<Edge_Type, Node_Type>::get_min_span_tree( Graph<Edge_Type, Node_Type>& dst )  const
+{
+    dst.reset( this->num_nodes() );
+    DisjointSet djs( this->num_nodes() );
 
-		// build edges
-		std::priority_queue<Edge_Type> edges = this->get_edges();
-		while( !edges.empty() && dst.num_edges()<dst.num_nodes()-1 ) {
-			Edge_Type e = edges.top();
-			int sid1 = djs.find( e.node1 );
-			int sid2 = djs.find( e.node2 );
-			if( sid1 != sid2 ) {
-				dst.add_edge( e );
-				djs.merge( sid1, sid2 );
-			}
-			edges.pop();
-		}
+    // build edges
+    std::priority_queue<Edge_Type> edges = this->get_edges();
+    while( !edges.empty() && dst.num_edges()<dst.num_nodes()-1 )
+    {
+        Edge_Type e = edges.top();
+        int sid1 = djs.find( e.node1 );
+        int sid2 = djs.find( e.node2 );
+        if( sid1 != sid2 )
+        {
+            dst.add_edge( e );
+            djs.merge( sid1, sid2 );
+        }
+        edges.pop();
+    }
 
-		// copy nodes
-		dst.get_nodes() = this->get_nodes();
-	}
+    // copy nodes
+    dst.get_nodes() = this->get_nodes();
+}
 
-	template<class E, class N>
-	std::ostream& operator<<( std::ostream& out, Graph<E, N>& g ) {
-		if( g.edges.empty() ) {
-			out << "OMG: There is currently no edges in graph.";
-			return out;
-		} else {
-			out << "Number of Edge: " << g.num_edges() << std::endl;
-		}
-		// Tranverse the edges and print them
-		const E* pt_edge = &g.edges.top();
-		for( unsigned int i=0; i<g.edges.size(); i++ ) {
-			out << (*pt_edge) << std::endl;
-			pt_edge++;
-		}
-		return out;
-	}
+template<class E, class N>
+std::ostream& operator<<( std::ostream& out, Graph<E, N>& g )
+{
+    if( g.edges.empty() )
+    {
+        out << "OMG: There is currently no edges in graph.";
+        return out;
+    }
+    else
+    {
+        out << "Number of Edge: " << g.num_edges() << std::endl;
+    }
+    // Tranverse the edges and print them
+    const E* pt_edge = &g.edges.top();
+    for( unsigned int i=0; i<g.edges.size(); i++ )
+    {
+        out << (*pt_edge) << std::endl;
+        pt_edge++;
+    }
+    return out;
+}
 
 }

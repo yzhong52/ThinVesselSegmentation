@@ -15,13 +15,15 @@
 					<Add option="-std=c++11" />
 					<Add option="-g" />
 					<Add option="-fopenmp" />
+					<Add option="-Wno-comment" />
 				</Compiler>
 				<Linker>
 					<Add library="libglut.a" />
 					<Add library="libGL.a" />
-					<Add library="libopencv_core.a" />
+					<Add library="libopencv_core.so" />
 					<Add library="libGLEW.a" />
 					<Add library="libGLU.a" />
+					<Add library="libgomp.a" />
 				</Linker>
 			</Target>
 			<Target title="Release">
@@ -52,7 +54,6 @@
 		<Unit filename="Edge.h" />
 		<Unit filename="GLCamera.cpp" />
 		<Unit filename="GLCamera.h" />
-		<Unit filename="GLCenterLine.cpp" />
 		<Unit filename="GLCenterLine.h" />
 		<Unit filename="GLDirection.h" />
 		<Unit filename="GLVideoSaver.cpp" />
@@ -61,7 +62,6 @@
 		<Unit filename="GLViewer.h" />
 		<Unit filename="GLViewerExt.h" />
 		<Unit filename="GLViwerWrapper.h" />
-		<Unit filename="GLVolumn.cpp" />
 		<Unit filename="GLVolumn.h" />
 		<Unit filename="Graph.h" />
 		<Unit filename="Image3D.cpp" />
@@ -77,7 +77,6 @@
 		<Unit filename="RingsDeduction.cpp" />
 		<Unit filename="RingsDeduction.h" />
 		<Unit filename="TypeInfo.h" />
-		<Unit filename="Validation.cpp" />
 		<Unit filename="Validation.h" />
 		<Unit filename="VesselDetector.cpp" />
 		<Unit filename="VesselDetector.h" />

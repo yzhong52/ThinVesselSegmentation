@@ -23,151 +23,184 @@ class Vesselness_Sig;
 class Vesselness_Nor;
 class Vesselness_All;
 
-struct Vesselness_Data {
-	float rsp;			// vesselness response
-	Vec3f dir;			// vessel dirction	
+struct Vesselness_Data
+{
+    float rsp;			// vesselness response
+    Vec3f dir;			// vessel dirction
 
-	Vesselness_Data( float s = 0.0f ) : rsp( s ), dir( Vec3f(1,0,0) ) { }
-	bool operator>( const Vesselness_Data& right ) const { return ( (this->rsp) > right.rsp ); }
-	bool operator<( const Vesselness_Data& right ) const { return ( (this->rsp) < right.rsp ); }
-}; 
-
-struct Vesselness_Sig_Data : public Vesselness_Data {
-	float sigma;		// relative size of the vessel
-
-	Vesselness_Sig_Data( float s = 0.0f ) : Vesselness_Data ( s ) { } 
+    Vesselness_Data( float s = 0.0f ) : rsp( s ), dir( Vec3f(1,0,0) ) { }
+    bool operator>( const Vesselness_Data& right ) const
+    {
+        return ( (this->rsp) > right.rsp );
+    }
+    bool operator<( const Vesselness_Data& right ) const
+    {
+        return ( (this->rsp) < right.rsp );
+    }
 };
 
-struct Vesselness_Nor_Data : public Vesselness_Data {
-	Vec3f normals[2];	// normals of vessel orientation
+struct Vesselness_Sig_Data : public Vesselness_Data
+{
+    float sigma;		// relative size of the vessel
+
+    Vesselness_Sig_Data( float s = 0.0f ) : Vesselness_Data ( s ) { }
 };
 
-struct Vesselness_All_Data : public Vesselness_Data {
-	float sigma;		// relative size of the vessel
-	Vec3f normals[2];	// normals of vessel orientation
+struct Vesselness_Nor_Data : public Vesselness_Data
+{
+    Vec3f normals[2];	// normals of vessel orientation
+};
+
+struct Vesselness_All_Data : public Vesselness_Data
+{
+    float sigma;		// relative size of the vessel
+    Vec3f normals[2];	// normals of vessel orientation
 };
 
 
 
 
 
-class Vesselness : public Vesselness_Data {
+class Vesselness : public Vesselness_Data
+{
 public:
-	Vesselness( const float& val = 0 ) : Vesselness_Data( val ){ }
- 
-	// Size tells us how much number of float we are using in the structure. 
-	// The returned value should be: 
-	//  4 for Vesselness;
-	//  5 for Vesselness_Sig;
-	// 10 for Vesselness_Nor;
-	// 11 for Vesselness_All;
-	// This virtual function here will take 2*4 = 8 bytes of data
-	static const int _size = sizeof(Vesselness_Data)/sizeof(float);
-	int size(void) const { return _size; }
+    Vesselness( const float& val = 0 ) : Vesselness_Data( val ) { }
 
-	const float& operator[]( const int& i ) const {
-		smart_return_value( i>=0&&i<_size, "index invalid", *(float*)(this) );
-		return *((float*)(this)+i);
-	}
+    // Size tells us how much number of float we are using in the structure.
+    // The returned value should be:
+    //  4 for Vesselness;
+    //  5 for Vesselness_Sig;
+    // 10 for Vesselness_Nor;
+    // 11 for Vesselness_All;
+    // This virtual function here will take 2*4 = 8 bytes of data
+    static const int _size = sizeof(Vesselness_Data)/sizeof(float);
+    int size(void) const
+    {
+        return _size;
+    }
 
-	float& operator[]( const int& i ) {
-		smart_return_value( i>=0&&i<_size, "index invalid", *(float*)(this) );
-		return *((float*)(this)+i);
-	}
+    const float& operator[]( const int& i ) const
+    {
+        smart_return_value( i>=0&&i<_size, "index invalid", *(float*)(this) );
+        return *((float*)(this)+i);
+    }
+
+    float& operator[]( const int& i )
+    {
+        smart_return_value( i>=0&&i<_size, "index invalid", *(float*)(this) );
+        return *((float*)(this)+i);
+    }
 };
 
 
-class Vesselness_Nor : public Vesselness_Nor_Data {
+class Vesselness_Nor : public Vesselness_Nor_Data
+{
 public:
-	static const int _size = sizeof(Vesselness_Nor_Data)/sizeof(float);
+    static const int _size = sizeof(Vesselness_Nor_Data)/sizeof(float);
 
-	const float& operator[]( const int& i ) const {
-		smart_return_value( i>=0&&i<_size, "index invalid", *(float*)(this) );
-		return *((float*)(this)+i);
-	}
+    const float& operator[]( const int& i ) const
+    {
+        smart_return_value( i>=0&&i<_size, "index invalid", *(float*)(this) );
+        return *((float*)(this)+i);
+    }
 
-	float& operator[]( const int& i ) {
-		smart_return_value( i>=0&&i<_size, "index invalid", *(float*)(this) );
-		return *((float*)(this)+i);
-	}
+    float& operator[]( const int& i )
+    {
+        smart_return_value( i>=0&&i<_size, "index invalid", *(float*)(this) );
+        return *((float*)(this)+i);
+    }
 };
 
-class Vesselness_All : public Vesselness_All_Data {
+class Vesselness_All : public Vesselness_All_Data
+{
 public:
-	static const int _size = sizeof(Vesselness_All_Data)/sizeof(float);
-	
-	Vesselness_All(){}
+    static const int _size = sizeof(Vesselness_All_Data)/sizeof(float);
 
-	Vesselness_All( const Vesselness_Nor& v_Nor, const float& s ) {
-		this->dir        = v_Nor.dir;
-		this->normals[0] = v_Nor.normals[0];
-		this->normals[1] = v_Nor.normals[1];
-		this->rsp        = v_Nor.rsp;
-		this->sigma      = s;
-	}
+    Vesselness_All() {}
 
-	const float& operator[]( const int& i ) const {
-		smart_return_value( i>=0&&i<_size, "index invalid", *(float*)(this) );
-		return *((float*)(this)+i);
-	}
+    Vesselness_All( const Vesselness_Nor& v_Nor, const float& s )
+    {
+        this->dir        = v_Nor.dir;
+        this->normals[0] = v_Nor.normals[0];
+        this->normals[1] = v_Nor.normals[1];
+        this->rsp        = v_Nor.rsp;
+        this->sigma      = s;
+    }
 
-	float& operator[]( const int& i ) {
-		smart_return_value( i>=0&&i<_size, "index invalid", *(float*)(this) );
-		return *((float*)(this)+i);
-	}
+    const float& operator[]( const int& i ) const
+    {
+        smart_return_value( i>=0&&i<_size, "index invalid", *(float*)(this) );
+        return *((float*)(this)+i);
+    }
+
+    float& operator[]( const int& i )
+    {
+        smart_return_value( i>=0&&i<_size, "index invalid", *(float*)(this) );
+        return *((float*)(this)+i);
+    }
 };
 
 
-class Vesselness_Sig : public Vesselness_Sig_Data {
-	Vesselness_Sig& operator=( const float& s );
+class Vesselness_Sig : public Vesselness_Sig_Data
+{
+    Vesselness_Sig& operator=( const float& s );
 public:
-	static const int _size = sizeof(Vesselness_Sig_Data)/sizeof(float);
+    static const int _size = sizeof(Vesselness_Sig_Data)/sizeof(float);
 
-	Vesselness_Sig() { }
-	Vesselness_Sig( float s ) : Vesselness_Sig_Data( s ) { } 
-	operator Vesselness( ) {
-		Vesselness vn;
-		vn.rsp = this->rsp;
-		vn.dir = this->dir;
-		return vn; 
-	}
-	operator float() { return this->rsp; }
+    Vesselness_Sig() { }
+    Vesselness_Sig( float s ) : Vesselness_Sig_Data( s ) { }
+    operator Vesselness( )
+    {
+        Vesselness vn;
+        vn.rsp = this->rsp;
+        vn.dir = this->dir;
+        return vn;
+    }
+    operator float()
+    {
+        return this->rsp;
+    }
 
-	Vesselness_Sig( const Vesselness_All& src ) {
-		this->rsp   = src.rsp;
-		this->dir   = src.dir;
-		this->sigma = src.sigma;
-	} 
+    Vesselness_Sig( const Vesselness_All& src )
+    {
+        this->rsp   = src.rsp;
+        this->dir   = src.dir;
+        this->sigma = src.sigma;
+    }
 
-	Vesselness_Sig& operator=( const Vesselness_All& src ){
-		this->rsp   = src.rsp;
-		this->dir   = src.dir;
-		this->sigma = src.sigma;
-		return (*this);
-	}
+    Vesselness_Sig& operator=( const Vesselness_All& src )
+    {
+        this->rsp   = src.rsp;
+        this->dir   = src.dir;
+        this->sigma = src.sigma;
+        return (*this);
+    }
 
-	const float& operator[]( const int& i ) const {
-		smart_return_value( i>=0&&i<_size, "index invalid", *(float*)(this) );
-		return *((float*)(this)+i);
-	}
+    const float& operator[]( const int& i ) const
+    {
+        smart_return_value( i>=0&&i<_size, "index invalid", *(float*)(this) );
+        return *((float*)(this)+i);
+    }
 
-	float& operator[]( const int& i ) {
-		smart_return_value( i>=0&&i<_size, "index invalid", *(float*)(this) );
-		return *((float*)(this)+i);
-	}
+    float& operator[]( const int& i )
+    {
+        smart_return_value( i>=0&&i<_size, "index invalid", *(float*)(this) );
+        return *((float*)(this)+i);
+    }
 };
 
-// The namespace cv here is necessary. 
+// The namespace cv here is necessary.
 // Reference: http://stackoverflow.com/questions/2282349/specialization-of-templateclass-tp-struct-stdless-in-different-namespace
-namespace cv{
-	// Yuchen: I should understand these better
-	template< > class DataType< Vesselness     > : public DataType< Vec<float, Vesselness::_size> > { };
+namespace cv
+{
+// Yuchen: I should understand these better
+template< > class DataType< Vesselness     > : public DataType< Vec<float, Vesselness::_size> > { };
 
-	template< > class DataType< Vesselness_Sig > : public DataType< Vec<float, Vesselness_Sig::_size> > { };
+template< > class DataType< Vesselness_Sig > : public DataType< Vec<float, Vesselness_Sig::_size> > { };
 
-	template< > class DataType< Vesselness_Nor > : public DataType< Vec<float, Vesselness_Nor::_size> > { };
+template< > class DataType< Vesselness_Nor > : public DataType< Vec<float, Vesselness_Nor::_size> > { };
 
-	template< > class DataType< Vesselness_All > : public DataType< Vec<float, Vesselness_All::_size> > { };
+template< > class DataType< Vesselness_All > : public DataType< Vec<float, Vesselness_All::_size> > { };
 }
 
 
