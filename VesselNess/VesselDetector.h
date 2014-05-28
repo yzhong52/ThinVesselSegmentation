@@ -1,7 +1,5 @@
 #pragma once
 
-#include "stdafx.h"
-
 template<typename T> class Data3D;
 template<typename T> class Image3D;
 template<typename T> class Kernel3D;

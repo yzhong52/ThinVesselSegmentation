@@ -1,5 +1,5 @@
 #include "RingsDeduction.h"
-#include "stdafx.h"
+
 #include "Image3D.h"
 #include "ImageProcessing.h"
 #define _USE_MATH_DEFINES

@@ -1,6 +1,5 @@
 #define _CRT_SECURE_NO_DEPRECATE
 #include <iostream>
-#include "stdafx.h"
 #include <time.h>
 #include "VesselDetector.h" // For computing vesselness
 #include "GLViwerWrapper.h" // For visualization
@@ -28,7 +27,10 @@ int centreline( bool isDisplay, std::string dataname = "data15" );
 int main(void)
 {
     Data3D<short> im_short("../data/data15.data");
-    im_short.show();
+
+    viewer.addObject( im_short );
+    viewer.go(200, 200, 1);
+
     return 0;
 
     sample_code::vesselness( true );
