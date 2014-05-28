@@ -28,9 +28,8 @@ class VideoSaver
         isStopped
     } state;
 
-    bool autoRotate;
 public:
-    VideoSaver( ) : state( isStopped ), autoRotate( false ) { }
+    VideoSaver( ) : state( isStopped ) { }
 
     unsigned int size_x(void) const
     {

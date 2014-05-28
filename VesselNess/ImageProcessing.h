@@ -1,6 +1,5 @@
 #pragma once
 
-#include "stdafx.h"
 #include "Image3D.h"
 #include "Kernel3D.h"
 #include <vector>

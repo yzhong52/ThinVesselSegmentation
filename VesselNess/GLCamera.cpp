@@ -1,7 +1,15 @@
 #include "GLCamera.h"
 #include <cmath>
 #include <ctime>
+#include <iostream>
+using namespace std;
 
+
+#if _MSC_VER && !__INTEL_COMPILER
+#include <Windows.h>
+#else
+#include <sys/time.h>
+#endif // _MSC_VER && !__INTEL_COMPILER
 void rotate_axis(
     float u, float v, float w,        /*Axis*/
     float x, float y, float z,        /*The Point That We Want to Roate */
@@ -40,15 +48,11 @@ void rotate_axis(
     nz = x * Q[0][2] + y * Q[1][2] + z * Q[2][2];
 }
 
-GLCamera::GLCamera(void)
-    : scale(1.0f)
+GLCamera::GLCamera(const float& rotate_speed)
+    : rot_x( 0 ), rot_y( 0 ), rot_speed( rotate_speed )
+    , scale( 1 )
 {
     navigationMode = None;
-
-    // Rotation
-    xrot = 0;
-    yrot = 0;
-    rotate_speed = 0.001f;
 
     // rotation axis
     vec_y[0] = 0;
@@ -89,21 +93,41 @@ void GLCamera::zoomOut(void)
 
 void GLCamera::rotate_scene(void)
 {
-    // The following is not competible under Linux
-//	static int tick = GetTickCount();
-//	static int oldtick = GetTickCount();
-//	tick = GetTickCount();
-//	elapsedTick = tick - oldtick;
-//	oldtick = tick;
-    static clock_t oldtick = clock();
-    clock_t tick = clock();
-    clock_t elapsedTick = tick - oldtick;
-    oldtick = tick;
-    float elapsed = ((float)elapsedTick) / CLOCKS_PER_SEC;
+    double elapsed = 0.0;
+
+#if _MSC_VER && !__INTEL_COMPILER // if Windows OS
+    LARGE_INTEGER frequency;        // ticks per second
+    static LARGE_INTEGER t1, t2;    // ticks
+    // get ticks per second
+    QueryPerformanceFrequency(&frequency);
+    // get current time
+    QueryPerformanceCounter(&t2);
+    static bool flag = true;
+    if( flag ) {
+        t1 = t2; // t1 is initialized only once here
+        flag = false;
+    }
+    // compute and print the elapsed time in millisec
+    elapsed = 1000.0*(t2.QuadPart-t1.QuadPart)/frequency.QuadPart;
+    t1 = t2;
+#else // if Linux/Mac OS
+    static timeval t1, t2;
+    // get current time
+    gettimeofday(&t2, NULL);
+    static bool flag = true;
+    if( flag ) {
+        t1 = t2; // t1 is initialized only once here
+        flag = false;
+    }
+    // compute and print the elapsed time in millisec
+    elapsed = (t2.tv_sec - t1.tv_sec) * 1000.0; // sec to ms
+    elapsed += (t2.tv_usec - t1.tv_usec) / 1000.0;     // us to ms
+    t1 = t2;
+#endif
 
     // update the rotation matrix as well as the rotation axis
-    rotate_x( yrot * elapsed );
-    rotate_y( xrot * elapsed );
+    rotate_x( rot_y * elapsed );
+    rotate_y( rot_x * elapsed );
 }
 
 

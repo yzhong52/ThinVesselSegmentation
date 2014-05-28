@@ -17,16 +17,20 @@ using namespace std;
 
 namespace GLViewer
 {
-// objects that need to be render
+
+// an array of objects that need to be render
 vector<Object*> obj;
+// maximum number of viewports supported by the viewer
 const int maxNumViewports = 4;
+// number of viewports that is currently available
 int numViewports = 1;
+// isDisplayObject[i][j] indicates that whether or not display object i in viewport j
 vector<bool> isDisplayObject[maxNumViewports];
 
 // Size of the data
-unsigned int sx = 0;
-unsigned int sy = 0;
-unsigned int sz = 0;
+unsigned sx = 0;
+unsigned sy = 0;
+unsigned sz = 0;
 
 /////////////////////////////////////////
 // Camera Controls by Mouse
@@ -38,7 +42,7 @@ int mouse_pos_y = 0;
 /////////////////////////////////////////
 // Initial Window Size
 ///////////////////////
-int width = 1280 / 2 * numViewports;
+int width = 1280;
 int height = 720;
 
 VideoSaver* videoSaver = NULL;
@@ -47,20 +51,25 @@ bool isAxis = false;
 
 bool isSaveFrame = false;
 
-void render(void)									// Here's Where We Do All The Drawing
+void render(void)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	// Clear The Screen And The Depth Buffer
 
-    cam.pushMatrix();
+    cam.push_matrix();
     // rending viewports
     if( numViewports == 4 )
     {
+        // if there are 4 viewports, display the objects in two rows
+        // each row with 2 columns
         for( unsigned int i=0; i<2; i++ ) for( unsigned int j=0; j<2; j++ )
             {
                 glViewport (width/2*i, height/2*j, width/2, height/2);
                 unsigned int obj_index = i+2*(1-j);
                 if( obj_index < obj.size() ) obj[obj_index]->render();
                 else                         obj[0]->render();
+
+                // draw rotation axis
+                if( isAxis ) cam.draw_axis();
             }
     }
     else
@@ -73,24 +82,17 @@ void render(void)									// Here's Where We Do All The Drawing
             {
                 if( isDisplayObject[i][j] ) obj[j]->render();
             }
-            if( isAxis )
-            {
-                // draw rotation matrix
-                cam.draw_axis();
-            }
+
+            // draw rotation axis
+            if( isAxis ) cam.draw_axis();
         }
     }
-    cam.popMatrix();
+    cam.pop_matrix();
     cam.rotate_scene();
 
     // saving frame buffer as video
     if( videoSaver )
     {
-        if( videoSaver->isAutoRotate() )
-        {
-            // rotate the camera for 1 degree
-            cam.rotate_y(1);
-        }
         videoSaver->saveBuffer();
     }
 
@@ -290,16 +292,10 @@ void keyboard(unsigned char key, int x, int y)
 
 void go( vector<Object*> objects, int w, int h )
 {
-    if( numViewports == 4 )
-    {
-        width = w;
-        height = h;
-    }
-    else
-    {
-        width = w;
-        height = h;
-    }
+    cam.setNavigationMode( GLCamera::Rotate );
+
+    width = w;
+    height = h;
 
     if( objects.size()==0 )
     {

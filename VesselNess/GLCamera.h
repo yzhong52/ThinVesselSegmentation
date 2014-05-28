@@ -17,7 +17,7 @@
 class GLCamera
 {
 public:
-    GLCamera(void);
+    GLCamera(const float& rotation_speed = 0.01f);
     ~GLCamera(void);
 
     // Navigation Mode
@@ -28,23 +28,18 @@ public:
         MoveForward,
         Rotate
     } navigationMode;
-    // setter and getters
-    inline void setNavigationMode( NavigationMode nMode )
-    {
-        navigationMode = nMode;
-    }
-    inline NavigationMode getNavigationMode(void)
-    {
-        return navigationMode;
-    }
 
-    void pushMatrix()
+    // setter and getters
+    inline void setNavigationMode( NavigationMode nMode );
+    inline NavigationMode getNavigationMode(void);
+
+    inline void push_matrix()
     {
         glScalef( scale, scale, scale );
         glTranslatef( -t[0], -t[1], -t[2] );
     }
 
-    void popMatrix()
+    inline void pop_matrix()
     {
         glTranslatef( t[0], t[1], t[2] );
         glScalef( 1.0f/scale, 1.0f/scale, 1.0f/scale );
@@ -57,8 +52,8 @@ public:
 
     inline void setRotation( GLfloat rotation_x, GLfloat rotation_y )
     {
-        xrot = rotation_x * rotate_speed;
-        yrot = rotation_y * rotate_speed;
+        rot_x = rotation_x * rot_speed;
+        rot_y = rotation_y * rot_speed;
     }
 
     inline void translate_aside( int translate_x, int translate_y )
@@ -101,8 +96,8 @@ public:
         vec_x[1] = 0;
         vec_x[2] = 0;
         // rotation parameters
-        xrot = 0;
-        yrot = 0;
+        rot_x = 0;
+        rot_y = 0;
 
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity(); // clear the identity matrix.
@@ -129,12 +124,14 @@ public:
 
     void rotate_y( float degree );
     void rotate_x( float degree );
-public:
-    // Rotation
-    GLfloat	xrot;
-    GLfloat	yrot;
-    GLfloat rotate_speed;
 
+private:
+    // Rotation
+    GLfloat	rot_x;
+    GLfloat	rot_y;
+    GLfloat rot_speed;
+
+public:
     // Rotation Axis
     GLfloat vec_y[3];
     GLfloat vec_x[3];
@@ -145,4 +142,17 @@ public:
     int elapsedTick;
     float scale;
 };
+
+
+
+// setter and getters
+inline void GLCamera::setNavigationMode( NavigationMode nMode )
+{
+    navigationMode = nMode;
+}
+inline GLCamera::NavigationMode GLCamera::getNavigationMode(void)
+{
+    return navigationMode;
+}
+
 
