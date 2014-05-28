@@ -3,6 +3,7 @@
 #include "stdafx.h"
 #include "Image3D.h"
 #include "Kernel3D.h"
+#include <vector>
 
 class Vesselness;
 class Vesselness_Sig;
@@ -14,8 +15,8 @@ namespace ImageProcessing
 ///////////////////////////////////////////////////////////////////////////
 // Image Histogram
 void histogram( Data3D<short>& imageData,
-                Mat_<double>& range, Mat_<double>& hist, int number_of_bins = 512 );
-Mat histogram_with_opencv( Data3D<short>& imageData, int number_of_bins = 512 );
+                cv::Mat_<double>& range, cv::Mat_<double>& hist, int number_of_bins = 512 );
+cv::Mat histogram_with_opencv( Data3D<short>& imageData, int number_of_bins = 512 );
 void histogram_for_slice( Image3D<short>& imageData );
 
 ///////////////////////////////////////////////////////////////////////////
@@ -63,10 +64,10 @@ template<typename T>
 void threshold( const Data3D<T>& src, Data3D<unsigned char>& dst, T thresh );
 // threshold the data and return a binary mask and of a set of locations
 template<typename T>
-void threshold( const Data3D<T>& src, Data3D<unsigned char>& dst, vector<Vec3i>& pos, T thresh );
+void threshold( const Data3D<T>& src, Data3D<unsigned char>& dst, std::vector<cv::Vec3i>& pos, T thresh );
 // threshold the data and return a index map (dst) and of a set of locations
 template<typename T>
-void threshold( const Data3D<T>& src, Data3D<int>& indeces, vector<Vec3i>& pos, T thresh );
+void threshold( const Data3D<T>& src, Data3D<int>& indeces, std::vector<cv::Vec3i>& pos, T thresh );
 // threshold the data and suppress the point to zero if it is below threshold
 template<typename T>
 void threshold( const Data3D<T>& src, Data3D<T>& dst, T thresh );
@@ -148,13 +149,13 @@ bool ImageProcessing::GaussianBlur3D( const Data3D<T1>& src, Data3D<T2>& dst, in
     //   Calculate sigma from ksize:
     //         sigma = (size - 1)/6 = 0.17 * size - 0.17
 
-    Mat gk = cv::getGaussianKernel( ksize, sigma, CV_64F );
+    cv::Mat gk = cv::getGaussianKernel( ksize, sigma, CV_64F );
 
     int hsize = ksize/2;
     smart_assert( 2*hsize+1==ksize, "Alert: Bug!" );
 
-    Vec3i spos, epos;
-    spos = Vec3i(0, 0, 0);
+    cv::Vec3i spos, epos;
+    spos = cv::Vec3i(0, 0, 0);
     epos = src.get_size();
 
 
@@ -236,11 +237,11 @@ bool ImageProcessing::medianBlur3D( const Data3D<T1>& src, Data3D<T2>& dst, int 
 template<typename T1, typename T2>
 bool ImageProcessing::meanBlur3D( const Data3D<T1>& src, Data3D<T2>& dst, int ksize)
 {
-    cout << "Blurring Image with Mean Filter..." << endl;
+    std::cout << "Blurring Image with Mean Filter..." << std::endl;
 
-    Kernel3D<float> kx( Vec3i(ksize, 1, 1) );
-    Kernel3D<float> ky( Vec3i(1, ksize, 1) );
-    Kernel3D<float> kz( Vec3i(1, 1, ksize) );
+    Kernel3D<float> kx( cv::Vec3i(ksize, 1, 1) );
+    Kernel3D<float> ky( cv::Vec3i(1, ksize, 1) );
+    Kernel3D<float> kz( cv::Vec3i(1, 1, ksize) );
 
     float kvalue = 1.0f / ksize;
     for( int i=0; i<ksize; i++ )
@@ -255,25 +256,25 @@ bool ImageProcessing::meanBlur3D( const Data3D<T1>& src, Data3D<T2>& dst, int ks
     flag = filter3D_X( src, dst, kx );
     if(!flag)
     {
-        cout << "Failed." << endl << endl;
+        std::cout << "Failed." << std::endl << std::endl;
         return false;
     }
 
     flag = filter3D_Y( dst, tmp, ky );
     if(!flag)
     {
-        cout << "Failed." << endl << endl;
+        std::cout << "Failed." << std::endl << std::endl;
         return false;
     }
 
     flag = filter3D_Z( tmp, dst, kz );
     if(!flag)
     {
-        cout << "Failed." << endl << endl;
+        std::cout << "Failed." << std::endl << std::endl;
         return false;
     }
 
-    cout << "done." << endl << endl;
+    std::cout << "done." << std::endl << std::endl;
     return true;
 }
 
@@ -287,7 +288,7 @@ bool ImageProcessing::filter3D_X( const Data3D<T1>& src, Data3D<T2>& dst, const 
     dst.reset( src.get_size() );
 
     int x, y, z;
-    const Vec3i& size = src.get_size();
+    const cv::Vec3i& size = src.get_size();
     int ksize = kx.get_size_x();
     int hsize = kx.get_size_x()/2;
     for( z=0; z<size[2]; z++ ) for( y=0; y<size[1]; y++ ) for( x=0; x<size[0]; x++ )
@@ -315,7 +316,7 @@ bool ImageProcessing::filter3D_Y( const Data3D<T1>& src, Data3D<T2>& dst, const 
     dst.reset( src.get_size() );
 
     int x, y, z;
-    const Vec3i& size = src.get_size();
+    const cv::Vec3i& size = src.get_size();
     int ksize = ky.get_size_y();
     int hsize = ky.get_size_y()/2;
     for( z=0; z<size[2]; z++ ) for( y=0; y<size[1]; y++ ) for( x=0; x<size[0]; x++ )
@@ -344,7 +345,7 @@ bool ImageProcessing::filter3D_Z( const Data3D<T1>& src, Data3D<T2>& dst, const 
     dst.reset( src.get_size() );
 
     int x, y, z;
-    const Vec3i& size = src.get_size();
+    const cv::Vec3i& size = src.get_size();
     int ksize = kz.get_size_z();
     int hsize = kz.get_size_z()/2;
     for( z=0; z<size[2]; z++ ) for( y=0; y<size[1]; y++ ) for( x=0; x<size[0]; x++ )
@@ -367,7 +368,7 @@ bool ImageProcessing::filter3D_Z( const Data3D<T1>& src, Data3D<T2>& dst, const 
 template<typename T>
 void ImageProcessing::normalize( Data3D<T>& data, T norm_max )
 {
-    Vec<T, 2> min_max = data.get_min_max_value();
+    cv::Vec<T, 2> min_max = data.get_min_max_value();
     data.getMat() = 1.0 * norm_max / (min_max[1]-min_max[0]) * (data.getMat() - min_max[0]);
 }
 
@@ -375,7 +376,7 @@ void ImageProcessing::normalize( Data3D<T>& data, T norm_max )
 template<typename T>
 void ImageProcessing::quad_normalize( Data3D<T>& data, T norm_max )
 {
-    Vec<T, 2> min_max = data.get_min_max_value();
+    cv::Vec<T, 2> min_max = data.get_min_max_value();
     data.getMat() = (data.getMat() - min_max[0]) / (min_max[1]-min_max[0]);
 
     for( int z=0; z<data.get_size_z(); z++ )
@@ -415,7 +416,8 @@ void ImageProcessing::threshold( const Data3D<T>& src, Data3D<unsigned char>& ds
 }
 // threshold the data and return a binary mask and of a set of locations
 template<typename T>
-void ImageProcessing::threshold( const Data3D<T>& src, Data3D<unsigned char>& dst, vector<Vec3i>& pos, T thresh )
+void ImageProcessing::threshold( const Data3D<T>& src, Data3D<unsigned char>& dst,
+                                std::vector<cv::Vec3i>& pos, T thresh )
 {
     int x,y,z;
     dst.reset( src.get_size() );
@@ -424,13 +426,14 @@ void ImageProcessing::threshold( const Data3D<T>& src, Data3D<unsigned char>& ds
                 if( src.at(x,y,z) > thresh )
                 {
                     dst.at(x,y,z) = 255;
-                    pos.push_back( Vec3i(x,y,z) );
+                    pos.push_back( cv::Vec3i(x,y,z) );
                 }
             }
 }
 // threshold the data and return a index map (dst) and of a set of locations
 template<typename T>
-void ImageProcessing::threshold( const Data3D<T>& src, Data3D<int>& indeces, vector<Vec3i>& pos, T thresh )
+void ImageProcessing::threshold( const Data3D<T>& src, Data3D<int>& indeces, std::vector<cv::Vec3i>& pos,
+                                T thresh )
 {
     int x,y,z;
     indeces.reset( src.get_size() );
@@ -439,7 +442,7 @@ void ImageProcessing::threshold( const Data3D<T>& src, Data3D<int>& indeces, vec
                 if( src.at(x,y,z) > thresh )
                 {
                     indeces.at(x,y,z) = (int) pos.size();
-                    pos.push_back( Vec3i(x,y,z) );
+                    pos.push_back( cv::Vec3i(x,y,z) );
                 }
                 else
                 {

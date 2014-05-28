@@ -13,17 +13,22 @@ GLViewerExt viewer;
 #define INPUT_DIR "../data/"
 #define OUTPUT_DIR "../temp/"
 
+using namespace std;
+using namespace cv;
+
 namespace sample_code
 {
 // Compute vesselness measure
-int vesselness( bool isDisplay, string dataname = "data15" );
+int vesselness( bool isDisplay, std::string dataname = "data15" );
 
 // Extract Vessel centrelines with non-maximum suppression
-int centreline( bool isDisplay, string dataname = "data15" );
+int centreline( bool isDisplay, std::string dataname = "data15" );
 }
 
 int main(void){
     Data3D<short> im_short("../data/data15.data");
+    im_short.show();
+    return 0;
 
     sample_code::vesselness( true );
     return 0;

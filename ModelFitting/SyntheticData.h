@@ -4,6 +4,7 @@
 #include "../VesselNess/Data3D.h"
 #include <random>
 #include <cmath>
+#include <opencv2/core/core.hpp>
 
 namespace SyntheticData {
 	void Doughout( Data3D<short>& im_short ) {
@@ -13,7 +14,7 @@ namespace SyntheticData {
 		const double r1 = 5.5; // SX * 0.3;
 		const double r2 = 0.9;
 
-		im_short.reset( Vec3i(SX, SY, SZ) );
+		im_short.reset( cv::Vec3i(SX, SY, SZ) );
 
 		// center of the doughout
 		float cx = (float) SX / 2;
@@ -46,7 +47,7 @@ namespace SyntheticData {
 		const double r1 = 5.5; // SX * 0.3;
 		const double r2 = 1.9;
 
-		im_short.reset( Vec3i(SX, SY, SZ) );
+		im_short.reset( cv::Vec3i(SX, SY, SZ) );
 
 		// center of the doughout
 		float cx = (float) SX / 2;
@@ -70,7 +71,7 @@ namespace SyntheticData {
 	}
 
 	void Stick( Data3D<short>& im_short ) {
-		im_short.reset( Vec3i(20,20,20) );
+		im_short.reset( cv::Vec3i(20,20,20) );
 		for( int i=2; i<18; i++ ) {
 			im_short.at(i,  i,  i)   = 10000;
 			im_short.at(i,  i,  i+1) = 10000;
@@ -86,11 +87,11 @@ namespace SyntheticData {
 		const int SZ = 30;
 
 		std::vector<cv::Vec6f> intervals;
-		intervals.push_back( Vec6f(SX*0.5f, SY*0.5f, SZ*0.0f, SX*0.5f, SY*0.5f, SZ*0.5f) );
-		intervals.push_back( Vec6f(SX*0.0f, SY*0.5f, SZ*1.0f, SX*0.5f, SY*0.5f, SZ*0.5f) );
-		intervals.push_back( Vec6f(SX*1.0f, SY*0.5f, SZ*1.0f, SX*0.5f, SY*0.5f, SZ*0.5f) );
+		intervals.push_back( cv::Vec6f(SX*0.5f, SY*0.5f, SZ*0.0f, SX*0.5f, SY*0.5f, SZ*0.5f) );
+		intervals.push_back( cv::Vec6f(SX*0.0f, SY*0.5f, SZ*1.0f, SX*0.5f, SY*0.5f, SZ*0.5f) );
+		intervals.push_back( cv::Vec6f(SX*1.0f, SY*0.5f, SZ*1.0f, SX*0.5f, SY*0.5f, SZ*0.5f) );
 
-		im_short.reset( Vec3i(SX, SY, SZ), 0 );
+		im_short.reset( cv::Vec3i(SX, SY, SZ), 0 );
 		for( int z=0; z<im_short.SZ(); z++ ) for( int y=0; y<SY; y++ ) for( int x=0; x<SX; x++ ) {
 			cv::Vec3f point( 1.0f*x, 1.0f*y, 1.0f*z );
 			for( unsigned i=0; i<intervals.size(); i++ ) {
@@ -116,7 +117,7 @@ namespace SyntheticData {
 				if( ratio<0.0f ) ratio = 0.0f;
 				if( ratio>1.0f ) ratio = 1.0f;
 
-				im_short.at(x,y,z) = max( im_short.at(x,y,z), short(ratio * 1000) );
+				im_short.at(x,y,z) = std::max( im_short.at(x,y,z), short(ratio * 1000) );
 			}
 		}
 	}

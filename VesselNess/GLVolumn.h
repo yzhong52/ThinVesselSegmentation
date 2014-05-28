@@ -6,6 +6,7 @@
     #define _CRT_SECURE_NO_DEPRECATE
 #endif
 #include <queue>
+#include <new> // for no throw
 
 #include "Graph.h"
 #include "MinSpanTree.h"
@@ -60,10 +61,10 @@ public:
 
         // allocating memeory for texture
         int texture_size = texture_sx * texture_sy * texture_sz;
-        data = new (nothrow) unsigned char [ texture_size ];
+        data = new (std::nothrow) unsigned char [ texture_size ];
         if( data==NULL )
         {
-            cout << "Unable to allocate memory for OpenGL texture" << endl;
+            std::cout << "Unable to allocate memory for OpenGL texture" << std::endl;
             return;
         }
 
@@ -163,17 +164,17 @@ public:
             glEnable(GL_BLEND);
             glBlendFunc(GL_ONE, GL_ONE);
             glBlendEquation( GL_MAX_EXT );
-            cout << "Volumn Rendeing Mode is set to MIP" << endl;
+            std::cout << "Volumn Rendeing Mode is set to MIP" << std::endl;
             break;
         case CrossSection:
             glEnable(GL_DEPTH_TEST);
             glDisable(GL_BLEND);
-            cout << "Volumn Rendeing Mode is set to CrossSection" << endl;
+            std::cout << "Volumn Rendeing Mode is set to CrossSection" << std::endl;
             break;
         case Surface:
             glEnable(GL_DEPTH_TEST);
             glDisable(GL_BLEND);
-            cout << "Volumn Rendeing Mode is set to Surface" << endl;
+            std::cout << "Volumn Rendeing Mode is set to Surface" << std::endl;
             break;
         }
         render_mode = mode;
@@ -244,68 +245,68 @@ public:
         }
     };
 
-    vector<Vec3f> intersectPoints( const Vec3f& center, const Vec3f& norm )
+    std::vector<cv::Vec3f> intersectPoints( const cv::Vec3f& center, const cv::Vec3f& norm )
     {
         float t;
-        vector<Vec3f> result;
-        if( abs(norm.z) > 1.0e-3 )
+        std::vector<cv::Vec3f> result;
+        if( std::abs(norm[2]) > 1.0e-3 )
         {
             // (0, 0, t)
             t = center.dot(norm);
-            t /= norm.z;
-            if( t>=0 && t<=sz ) result.push_back( Vec3f(0,0,t) );
+            t /= norm[2];
+            if( t>=0 && t<=sz ) result.push_back( cv::Vec3f(0,0,t) );
             // (0, sy, t)
-            t = center.dot(norm)- norm.y * sy;
-            t /= norm.z;
-            if( t>=0 && t<=sz ) result.push_back( Vec3f(0,(float)sy,t) );
+            t = center.dot(norm)- norm[1] * sy;
+            t /= norm[2];
+            if( t>=0 && t<=sz ) result.push_back( cv::Vec3f(0,(float)sy,t) );
             // (sx, 0, t)
-            t = center.dot(norm) - norm.x * sx;
-            t /= norm.z;
-            if( t>=0 && t<=sz ) result.push_back( Vec3f((float)sx,0,t) );
+            t = center.dot(norm) - norm[0] * sx;
+            t /= norm[2];
+            if( t>=0 && t<=sz ) result.push_back( cv::Vec3f((float)sx,0,t) );
             // (sx, sy, t)
-            t = center.dot(norm) - norm.y * sy - norm.x * sx;
-            t /= norm.z;
-            if( t>=0 && t<=sz ) result.push_back( Vec3f((float)sx,(float)sy,t) );
+            t = center.dot(norm) - norm[1] * sy - norm[0] * sx;
+            t /= norm[2];
+            if( t>=0 && t<=sz ) result.push_back( cv::Vec3f((float)sx,(float)sy,t) );
         }
 
-        if( abs(norm.y) > 1.0e-3 )
+        if( std::abs(norm[1]) > 1.0e-3 )
         {
             // (0, t, 0)
             t = center.dot(norm);
-            t /= norm.y;
-            if( t>=0 && t<=sy ) result.push_back( Vec3f(0,t,0) );
+            t /= norm[1];
+            if( t>=0 && t<=sy ) result.push_back( cv::Vec3f(0,t,0) );
             // (sx, t, 0)
-            t = center.dot(norm) - norm.x * sx;
-            t /= norm.y;
-            if( t>=0 && t<=sy ) result.push_back( Vec3f((float)sx,t,0) );
+            t = center.dot(norm) - norm[0] * sx;
+            t /= norm[1];
+            if( t>=0 && t<=sy ) result.push_back( cv::Vec3f((float)sx,t,0) );
             // (0, t, sz)
-            t = center.dot(norm) - norm.z * sz;
-            t /= norm.y;
-            if( t>=0 && t<=sy ) result.push_back( Vec3f(0,t,(float)sz) );
+            t = center.dot(norm) - norm[2] * sz;
+            t /= norm[1];
+            if( t>=0 && t<=sy ) result.push_back( cv::Vec3f(0,t,(float)sz) );
             // (sx, t, sz)
-            t = center.dot(norm) - norm.z * sz - norm.x * sx;
-            t /= norm.y;
-            if( t>=0 && t<=sy ) result.push_back( Vec3f((float)sx,t,(float)sz) );
+            t = center.dot(norm) - norm[2] * sz - norm[0] * sx;
+            t /= norm[1];
+            if( t>=0 && t<=sy ) result.push_back( cv::Vec3f((float)sx,t,(float)sz) );
         }
 
-        if( abs(norm.x) > 1.0e-3 )
+        if( std::abs(norm[0]) > 1.0e-3 )
         {
             // (t, 0, 0)
             t = center.dot(norm);
-            t /= norm.x;
-            if( t>=0 && t<=sx ) result.push_back( Vec3f(t,0,0) );
+            t /= norm[0];
+            if( t>=0 && t<=sx ) result.push_back( cv::Vec3f(t,0,0) );
             // (t, sy, 0)
-            t = center.dot(norm) - norm.y * sy;
-            t /= norm.x;
-            if( t>=0 && t<=sx ) result.push_back( Vec3f(t,(float)sy,0) );
+            t = center.dot(norm) - norm[1] * sy;
+            t /= norm[0];
+            if( t>=0 && t<=sx ) result.push_back( cv::Vec3f(t,(float)sy,0) );
             // (t, 0, sz)
-            t = center.dot(norm) - norm.z * sz;
-            t /= norm.x;
-            if( t>=0 && t<=sx ) result.push_back( Vec3f(t,0,(float)sz) );
+            t = center.dot(norm) - norm[2] * sz;
+            t /= norm[0];
+            if( t>=0 && t<=sx ) result.push_back( cv::Vec3f(t,0,(float)sz) );
             // (t, sy, sz)
-            t = center.dot(norm) - norm.y * sy - norm.z * sz;
-            t /= norm.x;
-            if( t>=0 && t<=sx ) result.push_back( Vec3f(t,(float)sy,(float)sz) );
+            t = center.dot(norm) - norm[1] * sy - norm[2] * sz;
+            t /= norm[0];
+            if( t>=0 && t<=sx ) result.push_back( cv::Vec3f(t,(float)sy,(float)sz) );
         }
 
 
@@ -322,20 +323,22 @@ public:
             // sort them based on signed angle:
             // http://stackoverflow.com/questions/20387282/compute-the-cross-section-of-a-cube
 
-            Vec3f centroid(0,0,0);
+            cv::Vec3f centroid(0,0,0);
             for( unsigned int i=0; i<result.size(); i++ )
             {
                 centroid += result[i];
             }
-            centroid /= result.size();
+            centroid /= (float) result.size();
 
             // We are not using the first index
             static float signed_angle[6];
             for( unsigned int i=0; i<result.size(); i++ )
             {
-                static Vec3f va[6];
+                static cv::Vec3f va[6];
                 va[i] = result[i] - centroid;
-                float dotproduct = va[0].dot( va[i] )/( va[i].length()*va[0].length() );
+                float length_vai = std::sqrt( va[i].dot( va[i] ) );
+                float length_va0 = std::sqrt( va[0].dot( va[0] ) );
+                float dotproduct = va[0].dot( va[i] )/( length_vai*length_va0 );
                 // constraint the result of dotproduct be within -1 and 1 (it might
                 // sometime not with this range only because of floating point
                 // calculation accuracy )
@@ -350,7 +353,7 @@ public:
                 signed_angle[i] = acos( dotproduct );
                 if( abs( signed_angle[i] ) < 1e-3 ) continue;
 
-                Vec3f cross = va[0].cross( va[i] );
+                cv::Vec3f cross = va[0].cross( va[i] );
                 if( cross.dot( norm ) < 0 )
                 {
                     signed_angle[i] = -signed_angle[i];
@@ -371,7 +374,7 @@ public:
         }
         else
         {
-            cout << "Error (Volumn.h): There are at most six points" << endl;
+            std::cout << "Error (Volumn.h): There are at most six points" << std::endl;
         }
         return result;
     }
@@ -467,16 +470,16 @@ public:
         {
             if( ptrCam==NULL ) return;
             // retrive camera infomation
-            Vec3f center, vz;
-            center.x = ptrCam->t[0];
-            center.y = ptrCam->t[1];
-            center.z = ptrCam->t[2];
-            vz.x = ptrCam->vec_x[1]*ptrCam->vec_y[2] - ptrCam->vec_x[2]*ptrCam->vec_y[1];
-            vz.y = ptrCam->vec_x[2]*ptrCam->vec_y[0] - ptrCam->vec_x[0]*ptrCam->vec_y[2];
-            vz.z = ptrCam->vec_x[0]*ptrCam->vec_y[1] - ptrCam->vec_x[1]*ptrCam->vec_y[0];
+            cv::Vec3f center, vz;
+            center[0] = ptrCam->t[0];
+            center[1] = ptrCam->t[1];
+            center[2] = ptrCam->t[2];
+            vz[0] = ptrCam->vec_x[1]*ptrCam->vec_y[2] - ptrCam->vec_x[2]*ptrCam->vec_y[1];
+            vz[1] = ptrCam->vec_x[2]*ptrCam->vec_y[0] - ptrCam->vec_x[0]*ptrCam->vec_y[2];
+            vz[2] = ptrCam->vec_x[0]*ptrCam->vec_y[1] - ptrCam->vec_x[1]*ptrCam->vec_y[0];
             // get the cross section of cube
             // the cross section can vary from a point to hexagon
-            vector<Vec3f> points = intersectPoints( center, vz );
+            std::vector<cv::Vec3f> points = intersectPoints( center, vz );
 
             glEnable(GL_DEPTH_TEST);
 
@@ -487,10 +490,10 @@ public:
             for( unsigned int i=0; i<points.size(); i++ )
             {
                 glTexCoord3f(
-                    points[i].x / texture_sx,
-                    points[i].y / texture_sy,
-                    points[i].z / texture_sz );
-                glVertex3f( points[i].x, points[i].y, points[i].z );
+                    points[i][0] / texture_sx,
+                    points[i][1] / texture_sy,
+                    points[i][2] / texture_sz );
+                glVertex3f( points[i][0], points[i][1], points[i][2] );
             }
             glEnd();
             glBindTexture( GL_TEXTURE_3D, 0 );
@@ -506,7 +509,7 @@ public:
             glBegin( GL_LINE_LOOP );
             for( unsigned int i=0; i<points.size(); i++ )
             {
-                glVertex3f( points[i].x, points[i].y, points[i].z );
+                glVertex3f( points[i][0], points[i][1], points[i][2] );
             }
             glEnd();
 

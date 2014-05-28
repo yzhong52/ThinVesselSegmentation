@@ -25,7 +25,7 @@ class GLViewerExt
 {
 public:
     // a list of objects that to be rendered
-    vector<GLViewer::Object*> objs;
+    std::vector<GLViewer::Object*> objs;
 
 public:
     virtual ~GLViewerExt()

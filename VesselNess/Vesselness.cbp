@@ -18,9 +18,9 @@
 					<Add option="-Wno-comment" />
 				</Compiler>
 				<Linker>
+					<Add option="`pkg-config --libs opencv`" />
 					<Add library="libglut.a" />
 					<Add library="libGL.a" />
-					<Add library="libopencv_core.so" />
 					<Add library="libGLEW.a" />
 					<Add library="libGLU.a" />
 					<Add library="libgomp.a" />
@@ -59,7 +59,6 @@
 		<Unit filename="GLVideoSaver.cpp" />
 		<Unit filename="GLVideoSaver.h" />
 		<Unit filename="GLViewer.cpp" />
-		<Unit filename="GLViewer.h" />
 		<Unit filename="GLViewerExt.h" />
 		<Unit filename="GLViwerWrapper.h" />
 		<Unit filename="GLVolumn.h" />
@@ -82,7 +81,6 @@
 		<Unit filename="VesselDetector.h" />
 		<Unit filename="VesselnessTypes.cpp" />
 		<Unit filename="VesselnessTypes.h" />
-		<Unit filename="Viewer.cpp" />
 		<Unit filename="Viewer.h" />
 		<Unit filename="main.cpp" />
 		<Unit filename="nstdio.h" />

@@ -5,6 +5,7 @@
 #include "VesselnessTypes.h"
 #include "../EigenDecomp/eigen_decomp.h"
 
+using namespace std;
 
 Vesselness hessien_thread_func( const Data3D<float>& src,
                                 const int& x, const int& y, const int& z,
@@ -104,7 +105,7 @@ bool VesselDetector::hessien( const Data3D<short>& src, Data3D<Vesselness>& dst,
     }
     else
     {
-        cerr << "At lease ksize or sigma has to be set." << endl;
+        std::cerr << "At lease ksize or sigma has to be set." << std::endl;
         return false;
     }
 
@@ -141,8 +142,8 @@ int VesselDetector::compute_vesselness(
     float sigma_from, float sigma_to, float sigma_step, // INPUT
     float alpha, float beta, float gamma )				// INPUT
 {
-    cout << "Computing Vesselness, it will take a while... " << endl;
-    cout << "Vesselness will be computed from sigma = " << sigma_from << " to sigma = " << sigma_to << endl;
+    std::cout << "Computing Vesselness, it will take a while... " << std::endl;
+    std::cout << "Vesselness will be computed from sigma = " << sigma_from << " to sigma = " << sigma_to << std::endl;
 
 
     dst.reset( src.get_size() ); // reszie data, and it will also be clear to zero
@@ -176,16 +177,17 @@ int VesselDetector::compute_vesselness(
                         dst.at(x, y, z).rsp = vn.at(x, y, z).rsp;
                         dst.at(x, y, z).dir = vn.at(x, y, z).dir;
                         dst.at(x, y, z).sigma = sigma;
-                        max_sigma = max( sigma, max_sigma );
-                        min_sigma = min( sigma, min_sigma );
+                        max_sigma = std::max( sigma, max_sigma );
+                        min_sigma = std::min( sigma, min_sigma );
                     }
                 }
             }
         }
     }
 
-    cout << endl << "The minimum and maximum sigmas used for vesselness: " << min_sigma << ", " << max_sigma << endl;
-    cout << "done. " << endl << endl;
+    std::cout << std::endl << "The minimum and maximum sigmas used for vesselness: ";
+    std::cout << min_sigma << ", " << max_sigma << std::endl;
+    std::cout << "done. " << std::endl << std::endl;
 
     return 0;
 }

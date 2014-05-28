@@ -2,8 +2,11 @@
 #include "VesselnessTypes.h"
 #include <queue>
 
+using namespace std;
+using namespace cv;
+
 void ImageProcessing::histogram( Data3D<short>& data,
-                                 Mat_<double>& range, Mat_<double>& hist, int number_of_bins )
+                                 cv::Mat_<double>& range, Mat_<double>& hist, int number_of_bins )
 {
     cout << "Calculating Image Histogram" << endl;
 

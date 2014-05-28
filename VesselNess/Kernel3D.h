@@ -1,6 +1,5 @@
 #pragma once
-
-#include "stdafx.h"
+#include <opencv2/imgproc/imgproc.hpp>
 
 template<typename T> class Data3D;
 
@@ -9,12 +8,12 @@ class Kernel3D : public Data3D<T>
 {
     // operator overload
     template <typename U>
-    friend ostream& operator<<(ostream& out, const Kernel3D<U>& data);
+    friend std::ostream& operator<<(std::ostream& out, const Kernel3D<U>& data);
 
 public:
     // constructor and destructors
     Kernel3D() {};
-    Kernel3D( const Vec3i& n_size );
+    Kernel3D( const cv::Vec3i& n_size );
     virtual ~Kernel3D() {}
     // getters
     const int& min_pos(int i) const
@@ -35,24 +34,24 @@ public:
     }
 
     // setters
-    void reset( const Vec3i& n_size, Scalar scalar = Scalar(0));
+    void reset( const cv::Vec3i& n_size, cv::Scalar scalar = cv::Scalar(0));
 private:
     // minimun and maximum possition
-    Vec3i min_p, max_p, center;
+    cv::Vec3i min_p, max_p, center;
 public:
     // Some Global Functions for Getting 3D Kernel's that are commonly used.
-    static Kernel3D<T> GaussianFilter3D( Vec3i size );
+    static Kernel3D<T> GaussianFilter3D( cv::Vec3i size );
     inline static Kernel3D<T> GaussianFilter3D( int ksize )
     {
         smart_assert( typeid(T)==typeid(float) || typeid(T)==typeid(double),
                       "Can only use float or double" );
-        return GaussianFilter3D( Vec3i(ksize, ksize, ksize) );
+        return GaussianFilter3D( cv::Vec3i(ksize, ksize, ksize) );
     }
     inline static Kernel3D<T> dx()
     {
         smart_assert( typeid(T)==typeid(float) || typeid(T)==typeid(double),
                       "Can only use float or double" );
-        Kernel3D<T> dx( Vec3i(3,1,1) );
+        Kernel3D<T> dx( cv::Vec3i(3,1,1) );
         dx.at( 0, 0, 0 ) = -0.5;
         dx.at( 2, 0, 0 ) =  0.5;
         return dx;
@@ -61,7 +60,7 @@ public:
     {
         smart_assert( typeid(T)==typeid(float) || typeid(T)==typeid(double),
                       "Can only use float or double" );
-        Kernel3D<T> dy( Vec3i(1,3,1) );
+        Kernel3D<T> dy( cv::Vec3i(1,3,1) );
         dy.at( 0, 0, 0 ) = -0.5;
         dy.at( 0, 2, 0 ) =  0.5;
         return dy;
@@ -70,7 +69,7 @@ public:
     {
         smart_assert( typeid(T)==typeid(float) || typeid(T)==typeid(double),
                       "Can only use float or double" );
-        Kernel3D<T> dz( Vec3i(1,1,3) );
+        Kernel3D<T> dz( cv::Vec3i(1,1,3) );
         dz.at( 0, 0, 0 ) = -0.5;
         dz.at( 0, 0, 2 ) =  0.5;
         return dz;
@@ -81,14 +80,14 @@ public:
 
 
 template<typename T>
-Kernel3D<T>::Kernel3D( const Vec3i& n_size )
+Kernel3D<T>::Kernel3D( const cv::Vec3i& n_size )
 {
     reset( n_size );
 }
 
 
 template<typename T>
-void Kernel3D<T>::reset( const Vec3i& n_size, Scalar scalar )
+void Kernel3D<T>::reset( const cv::Vec3i& n_size, cv::Scalar scalar )
 {
     Data3D<T>::reset( n_size );
 
@@ -102,14 +101,14 @@ void Kernel3D<T>::reset( const Vec3i& n_size, Scalar scalar )
 
 
 template <typename U>
-ostream& operator<<(ostream& out, const Kernel3D<U>& data)
+std::ostream& operator<<(std::ostream& out, const Kernel3D<U>& data)
 {
     // diable output if the size is too big
     for( int i=0; i<3; i++ )
     {
         if ( data.get_size(i)>9 )
         {
-            cout << "I am so sorry. data size is too big to display." << endl;
+            std::cout << "I am so sorry. data size is too big to display." << std::endl;
             return out;
         }
     }
@@ -117,16 +116,16 @@ ostream& operator<<(ostream& out, const Kernel3D<U>& data)
     int x, y, z;
     for ( z=0; z<data.get_size(2); z++ )
     {
-        out << "Level " << z << endl;
+        out << "Level " << z << std::endl;
         for ( y=0; y<data.get_size(1); y++ )
         {
-            cout << "\t";
+            std::cout << "\t";
             for( x=0; x<data.get_size(0); x++ )
             {
                 out.precision(3);
                 out << std::scientific << data.at( x, y, z ) << " ";
             }
-            out << endl;
+            out << std::endl;
         }
     }
     return out;
@@ -135,7 +134,7 @@ ostream& operator<<(ostream& out, const Kernel3D<U>& data)
 
 
 template<typename T>
-Kernel3D<T> Kernel3D<T>::GaussianFilter3D( Vec3i size )
+Kernel3D<T> Kernel3D<T>::GaussianFilter3D( cv::Vec3i size )
 {
     smart_assert( typeid(T)==typeid(float) || typeid(T)==typeid(double),
                   "Can only use float or double" );
@@ -150,8 +149,8 @@ Kernel3D<T> Kernel3D<T>::GaussianFilter3D( Vec3i size )
     // If we calculate sigma based on 99.7% Rule:
     //         sigma = ( size - 1 ) /6 = 0.17 * size - 0.17
     // But we are flowing the definition of OpenCv here
-    Mat gaussian[3];
-    for( int i=0; i<3; i++ ) gaussian[i] = getGaussianKernel( size[i], 0, CV_64F );
+    cv::Mat gaussian[3];
+    for( int i=0; i<3; i++ ) gaussian[i] = cv::getGaussianKernel( size[i], 0, CV_64F );
 
     Kernel3D<T> kernel(size);
     int x, y, z;

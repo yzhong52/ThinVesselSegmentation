@@ -1,6 +1,7 @@
 #pragma once
 
-#include "stdafx.h"
+#include <opencv2/core/core.hpp>
+#include "smart_assert.h"
 
 // VesselnessTypes.h
 // Define 4 different vesselness data types
@@ -26,9 +27,9 @@ class Vesselness_All;
 struct Vesselness_Data
 {
     float rsp;			// vesselness response
-    Vec3f dir;			// vessel dirction
+    cv::Vec3f dir;			// vessel dirction
 
-    Vesselness_Data( float s = 0.0f ) : rsp( s ), dir( Vec3f(1,0,0) ) { }
+    Vesselness_Data( float s = 0.0f ) : rsp( s ), dir( cv::Vec3f(1,0,0) ) { }
     bool operator>( const Vesselness_Data& right ) const
     {
         return ( (this->rsp) > right.rsp );
@@ -48,13 +49,13 @@ struct Vesselness_Sig_Data : public Vesselness_Data
 
 struct Vesselness_Nor_Data : public Vesselness_Data
 {
-    Vec3f normals[2];	// normals of vessel orientation
+    cv::Vec3f normals[2];	// normals of vessel orientation
 };
 
 struct Vesselness_All_Data : public Vesselness_Data
 {
     float sigma;		// relative size of the vessel
-    Vec3f normals[2];	// normals of vessel orientation
+    cv::Vec3f normals[2];	// normals of vessel orientation
 };
 
 

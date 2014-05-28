@@ -1,9 +1,11 @@
 #pragma once
 
-#include "stdafx.h"
+//#include "stdafx.h"
 #include "TypeInfo.h"
 #include "nstdio.h"
 #include <fstream> // For reading and saving files
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
 
 template<typename T>
 class Data3D
@@ -12,11 +14,11 @@ public:
     //////////////////////////////////////////////////////////////////////
     // Constructors & Destructors
     // Default Constructor
-    Data3D( const Vec3i& n_size = Vec3i(0,0,0));
+    Data3D( const cv::Vec3i& n_size = cv::Vec3i(0,0,0));
     // Constructor with size and value
-    Data3D( const Vec3i& n_size, const T& value );
+    Data3D( const cv::Vec3i& n_size, const T& value );
     // Constructor from file
-    Data3D( string filename );
+    Data3D( const std::string& filename );
     // Copy Constructor - extremely similar to the copyTo function
     template <class T2>
     Data3D( const Data3D<T2>& src );
@@ -25,34 +27,34 @@ public:
 
     //////////////////////////////////////////////////////////////////////
     // reset the data
-    void reset( const Vec3i& n_size, const T& value )
+    void reset( const cv::Vec3i& n_size, const T& value )
     {
         resize( n_size );
-        for( MatIterator_<T> it=_mat.begin(); it<_mat.end(); it++ )
+        for( cv::MatIterator_<T> it=_mat.begin(); it<_mat.end(); it++ )
         {
             (*it) = value;
         }
     }
 
-    void reset( const Vec3i& n_size )
+    inline void reset( const cv::Vec3i& n_size )
     {
         _size = n_size;
         _size_slice = _size[0] * _size[1];
         _size_total = _size_slice * _size[2];
-        _mat = Mat_<T>( _size[2], _size_slice );
+        _mat = cv::Mat_<T>( _size[2], _size_slice );
         memset( _mat.data, 0, _size_total * sizeof(T) );
     }
-    void reset( void )
+    inline void reset( void )
     {
         memset( _mat.data, 0, _size_total * sizeof(T) );
     }
 
-    void resize( const Vec3i& n_size )
+    void resize( const cv::Vec3i& n_size )
     {
         _size = n_size;
         _size_slice = _size[0] * _size[1];
         _size_total = _size_slice * _size[2];
-        _mat = Mat_<T>( _size[2], _size_slice );
+        _mat = cv::Mat_<T>( _size[2], _size_slice );
     }
 
     // getters about the size of the data
@@ -104,7 +106,7 @@ public:
     {
         return _size_total;
     }
-    inline const Vec3i& get_size(void) const
+    inline const cv::Vec3i& get_size(void) const
     {
         return _size;
     }
@@ -126,32 +128,32 @@ public:
     {
         return _mat( z, y * _size[0] + x );
     }
-    virtual const inline T& at( const Vec3i& pos ) const
+    virtual const inline T& at( const cv::Vec3i& pos ) const
     {
         return at( pos[0], pos[1], pos[2] );
     }
-    virtual inline T& at( const Vec3i& pos )
+    virtual inline T& at( const cv::Vec3i& pos )
     {
         return at( pos[0], pos[1], pos[2] );
     }
 
     // getter of the data
-    inline Mat_<T>& getMat()
+    inline cv::Mat_<T>& getMat()
     {
         return _mat;
     }
-    inline const Mat_<T>& getMat() const
+    inline const cv::Mat_<T>& getMat() const
     {
         return _mat;
     }
 
     // loading/saving data from/to file
-    bool load( const string& file_name );
-    bool load( const string& file_name, const Vec3i& size, bool isBigEndian=true, bool isLoadPartial=false );
-    bool save( const string& file_name, const string& log = "",
+    bool load( const std::string& file_name );
+    bool load( const std::string& file_name, const cv::Vec3i& size, bool isBigEndian=true, bool isLoadPartial=false );
+    bool save( const std::string& file_name, const std::string& log = "",
                bool saveInfo = true, bool isBigEndian = false ) const;
-    void show( const string& window_name = "Show 3D Data by Slice", int current_slice = 0 ) const;
-    void show( const string& window_name, int current_slice, T max_value, T min_value ) const;
+    void show( const std::string& window_name = "Show 3D Data by Slice", int current_slice = 0 ) const;
+    void show( const std::string& window_name, int current_slice, T max_value, T min_value ) const;
 
     // overwrite operators
     template<typename T1, typename T2>
@@ -170,10 +172,10 @@ public:
     }
 
     // get minimum and maximum value of the data
-    Vec<T, 2> get_min_max_value() const
+    cv::Vec<T, 2> get_min_max_value() const
     {
-        Vec<T, 2> min_max;
-        Point minLoc, maxLoc;
+        cv::Vec<T, 2> min_max;
+        cv::Point minLoc, maxLoc;
         cv::minMaxLoc( _mat, NULL, NULL, &minLoc, &maxLoc);
         min_max[0] = _mat( minLoc );
         min_max[1] = _mat( maxLoc );
@@ -201,12 +203,12 @@ public:
     inline bool remove_margin( const int& margin );
     // remove some margin of the data
     // such that left_margin and right_margin are the same
-    inline bool remove_margin( const Vec3i& margin );
+    inline bool remove_margin( const cv::Vec3i& margin );
     // remove some margin of the data
-    bool remove_margin( const Vec3i& margin1, const Vec3i& margin2 );
+    bool remove_margin( const cv::Vec3i& margin1, const cv::Vec3i& margin2 );
     // Resize the data by cropping or padding
     // This is done through remove margin func
-    void remove_margin_to( const Vec3i& size );
+    void remove_margin_to( const cv::Vec3i& size );
 
 
     // return true if a index is valide for the data
@@ -216,7 +218,7 @@ public:
                  y>=0 && y<get_size_y() &&
                  z>=0 && z<get_size_z() );
     }
-    bool isValid( const Vec3i& v ) const
+    bool isValid( const cv::Vec3i& v ) const
     {
         return isValid( v[0], v[1], v[2] );
     }
@@ -233,39 +235,39 @@ public:
 
 protected:
     // Maximum size of the x, y and z direction respetively.
-    Vec3i _size;
+    cv::Vec3i _size;
     // int size_x, size_y, size_z;
     // size_x * size_y * size_z
     long _size_total;
     // size_x * size_y
     long _size_slice;
     // data <T>
-    Mat_<T> _mat;
+    cv::Mat_<T> _mat;
 
 private:
     // TODO: I will try yxml later
-    void save_info( const string& file_name, bool isBigEndian, const string& log )  const;
-    bool load_info( const string& file_name, Vec3i& size, bool& isBigEndian );
+    void save_info( const std::string& file_name, bool isBigEndian, const std::string& log )  const;
+    bool load_info( const std::string& file_name, cv::Vec3i& size, bool& isBigEndian );
 };
 
 
 // Default Constructor
 template <typename T>
-Data3D<T>::Data3D( const Vec3i& n_size )
+Data3D<T>::Data3D( const cv::Vec3i& n_size )
 {
     reset(n_size);
 }
 
 // Constructor with size and value
 template <typename T>
-Data3D<T>::Data3D( const Vec3i& n_size, const T& value )
+Data3D<T>::Data3D( const cv::Vec3i& n_size, const T& value )
 {
     reset(n_size, value);
 }
 
 // Constructor with a given file
 template<typename T>
-Data3D<T>::Data3D( string filename )
+Data3D<T>::Data3D( const std::string& filename )
 {
     bool flag = load( filename );
     if( !flag )
@@ -283,8 +285,8 @@ Data3D<T>::Data3D( const Data3D<T2>& src )
     // resize
     this->resize( src.get_size() );
     // copy the data over
-    MatIterator_<T>       this_it;
-    MatConstIterator_<T2> src_it;
+    cv::MatIterator_<T>       this_it;
+    cv::MatConstIterator_<T2> src_it;
     for( this_it = this->getMat().begin(), src_it = src.getMat().begin();
             this_it < this->getMat().end(),   src_it < src.getMat().end();
             this_it++, src_it++ )
@@ -295,23 +297,23 @@ Data3D<T>::Data3D( const Data3D<T2>& src )
 }
 
 template <typename T>
-bool Data3D<T>::save( const string& file_name, const string& log, bool saveInfo, bool isBigEndian ) const
+bool Data3D<T>::save( const std::string& file_name, const std::string& log, bool saveInfo, bool isBigEndian ) const
 {
     smart_return_value( _size_total, "Save File Failed: Data is empty", false );
 
-    cout << "Saving file to " << file_name << endl;
-    cout << "Data Size: " << (long) _size_total * sizeof(T) << " bytes "<< endl;
+    std::cout << "Saving file to " << file_name << std::endl;
+    std::cout << "Data Size: " << (long) _size_total * sizeof(T) << " bytes "<< std::endl;
 
     FILE* pFile = fopen( file_name.c_str(), "wb" );
     if( isBigEndian )
     {
         if( sizeof(T)!=2 )
         {
-            cout << "Save File Failed: Datatype does not supported Big Endian. ";
-            cout << "Please contact Yuchen for more detail. " << endl;
+            std::cout << "Save File Failed: Datatype does not supported Big Endian. ";
+            std::cout << "Please contact Yuchen for more detail. " << std::endl;
             return false;
         }
-        Mat temp_mat = _mat.clone();
+        cv::Mat temp_mat = _mat.clone();
         // swap the data
         unsigned char* temp = temp_mat.data;
         for(int i=0; i<_size_total; i++)
@@ -330,17 +332,17 @@ bool Data3D<T>::save( const string& file_name, const string& log, bool saveInfo,
     // saving the data information to a txt file
     if(saveInfo) save_info( file_name, isBigEndian, log );
 
-    cout << "done." << endl << endl;
+    std::cout << "done." << std::endl << std::endl;
     return true;
 }
 
 
 template <typename T>
-bool Data3D<T>::load( const string& file_name )
+bool Data3D<T>::load( const std::string& file_name )
 {
     // load data information
     bool isBigEndian;
-    Vec3i size;
+    cv::Vec3i size;
     bool flag = load_info( file_name, size, isBigEndian );
     if( !flag ) exit(0);
     // load data
@@ -348,9 +350,9 @@ bool Data3D<T>::load( const string& file_name )
 }
 
 template <typename T>
-bool Data3D<T>::load( const string& file_name, const Vec3i& size, bool isBigEndian, bool isLoadPartial )
+bool Data3D<T>::load( const std::string& file_name, const cv::Vec3i& size, bool isBigEndian, bool isLoadPartial )
 {
-    cout << "Loading Data '" << file_name << "'" << endl;
+    std::cout << "Loading Data '" << file_name << "'" << std::endl;
 
     // reset size of the data
     reset( size );
@@ -367,7 +369,7 @@ bool Data3D<T>::load( const string& file_name, const Vec3i& size, bool isBigEndi
     if( !feof(pFile) && !isLoadPartial )
     {
         fclose(pFile);
-        cout << "Data size is incorrect (too small)" << endl;
+        std::cout << "Data size is incorrect (too small)" << std::endl;
         return false;
     }
     fclose(pFile);
@@ -388,13 +390,13 @@ bool Data3D<T>::load( const string& file_name, const Vec3i& size, bool isBigEndi
         }
     }
 
-    cout << "Done." << endl << endl;
+    std::cout << "Done." << std::endl << std::endl;
     return true;
 }
 
 
 template<typename T>
-void Data3D<T>::show(const string& window_name, int current_slice, T min_value, T max_value ) const
+void Data3D<T>::show(const std::string& window_name, int current_slice, T min_value, T max_value ) const
 {
     smart_return( this->get_size_total(), "Data is empty." );
     smart_return(
@@ -405,30 +407,30 @@ void Data3D<T>::show(const string& window_name, int current_slice, T min_value, 
         typeid(T)==typeid(unsigned short),
         "Datatype cannot be visualized." );
 
-    namedWindow( window_name.c_str(), CV_WINDOW_AUTOSIZE );
+    cv::namedWindow( window_name.c_str(), CV_WINDOW_AUTOSIZE );
 
-    static const string instructions = string() + \
+    static const std::string instructions = std::string() + \
                                        "Instructions: \n" + \
                                        " n - next slice \n" + \
                                        " p - previous slice \n" +\
                                        " s - save the current slice \n" +\
                                        " Exc - exit ";
 
-    cout << "Displaying data by slice. " << endl;
-    cout << instructions << endl;
-    cout << "Displaying Slice #" << current_slice;
+    std::cout << "Displaying data by slice. " << std::endl;
+    std::cout << instructions << std::endl;
+    std::cout << "Displaying Slice #" << current_slice;
     if( current_slice > SZ() ) current_slice = SZ();
     do
     {
-        Mat mat_temp = _mat.row(current_slice).reshape( 0, get_height() ).clone();
+        cv::Mat  mat_temp = _mat.row(current_slice).reshape( 0, get_height() ).clone();
         // change the data type from whatever dataype it is to float for computation
-        mat_temp.convertTo(mat_temp, CV_32F);
+         mat_temp.convertTo(mat_temp, CV_32F);
         // normalize the data range from whatever it is to [0, 255];
-        mat_temp = 255.0f * ( mat_temp - min_value ) / (max_value - min_value);
+         mat_temp = 255.0f * (  mat_temp - min_value ) / (max_value - min_value);
         // convert back to CV_8U for visualizaiton
-        mat_temp.convertTo(mat_temp, CV_8U);
+         mat_temp.convertTo(mat_temp, CV_8U);
         // show in window
-        cv::imshow( window_name.c_str(), mat_temp );
+        cv::imshow( window_name.c_str(),  mat_temp );
         // cv::imshow( window_name.c_str(), _mat.row(current_slice).reshape( 0, get_height() ) );
         // key controls
         int key = cvWaitKey(0);
@@ -444,7 +446,7 @@ void Data3D<T>::show(const string& window_name, int current_slice, T min_value, 
             if( current_slice < get_depth()-1 )
             {
                 current_slice++;
-                cout << '\r' << "Displaying Slice #" << current_slice << "\t\t\t\t\t\t";
+                std::cout << '\r' << "Displaying Slice #" << current_slice << "\t\t\t\t\t\t";
             }
         }
         else if( key == 'p')
@@ -452,33 +454,33 @@ void Data3D<T>::show(const string& window_name, int current_slice, T min_value, 
             if( current_slice>0 )
             {
                 current_slice--;
-                cout << '\r' << "Displaying Slice #" << current_slice << "\t\t\t\t\t\t";
+                std::cout << '\r' << "Displaying Slice #" << current_slice << "\t\t\t\t\t\t";
             }
         }
         else if ( key =='s' )
         {
-            stringstream ss;
+            std::stringstream ss;
             ss << "output/" << window_name << "_Data_Slice_";
             ss.width(3);
             ss.fill('0');
             ss << current_slice << ".jpg";
-            cv::imwrite( ss.str(), mat_temp );
+            cv::imwrite( ss.str(),  mat_temp );
         }
         else
         {
-            cout << '\r' << "Unknow Input '"<< char(key) << "'. Please follow the instructions above.";
+            std::cout << '\r' << "Unknow Input '"<< char(key) << "'. Please follow the instructions above.";
         }
     }
     while( cvGetWindowHandle( window_name.c_str()) );
-    destroyWindow( window_name.c_str() );
-    cout << endl << "done." << endl << endl;
+    cv::destroyWindow( window_name.c_str() );
+    std::cout << std::endl << "done." << std::endl << std::endl;
 }
 
 template<typename T>
-void Data3D<T>::show(const string& window_name, int current_slice ) const
+void Data3D<T>::show(const std::string& window_name, int current_slice ) const
 {
     // find the maximum and minimum value (method3)
-    Point minLoc, maxLoc;
+    cv::Point minLoc, maxLoc;
     minMaxLoc( _mat, NULL, NULL, &minLoc, &maxLoc);
     T max_value = _mat( maxLoc );
     T min_value = _mat( minLoc );
@@ -488,33 +490,33 @@ void Data3D<T>::show(const string& window_name, int current_slice ) const
 
 
 template<typename T>
-void Data3D<T>::save_info( const string& file_name, bool isBigEndian, const string& log  ) const
+void Data3D<T>::save_info( const std::string& file_name, bool isBigEndian, const std::string& log  ) const
 {
-    string info_file = file_name + ".readme.txt";
-    cout << "Saving data information to '" << info_file << "' " << endl;
-    ofstream fout( info_file.c_str() );
+    std::string info_file = file_name + ".readme.txt";
+    std::cout << "Saving data information to '" << info_file << "' " << std::endl;
+    std::ofstream fout( info_file.c_str() );
     fout << _size[0] << " ";
     fout << _size[1] << " ";
-    fout << _size[2] << " - data size" << endl;
-    fout << TypeInfo<T>::str() << " - data type" << endl;
-    fout << isBigEndian << " - Big Endian (1 for yes, 0 for no)" << endl;
-    fout << "Log: " <<  log << endl;
+    fout << _size[2] << " - data size" << std::endl;
+    fout << TypeInfo<T>::str() << " - data type" << std::endl;
+    fout << isBigEndian << " - Big Endian (1 for yes, 0 for no)" << std::endl;
+    fout << "Log: " <<  log << std::endl;
     fout.close();
 }
 
 
 template<typename T>
-bool Data3D<T>::load_info( const string& file_name, Vec3i& size, bool& isBigEndian )
+bool Data3D<T>::load_info( const std::string& file_name, cv::Vec3i& size, bool& isBigEndian )
 {
     // data info name
-    string info_file = file_name + ".readme.txt";
-    cout << "Loading data information from '" << info_file << "' " << endl;
+    std::string info_file = file_name + ".readme.txt";
+    std::cout << "Loading data information from '" << info_file << "' " << std::endl;
 
     // open file
-    ifstream fin( info_file.c_str() );
+    std::ifstream fin( info_file.c_str() );
     if( !fin.is_open() )
     {
-        cout << "The readme file: '" << info_file << "' is not found." << endl;
+        std::cout << "The readme file: '" << info_file << "' is not found." << std::endl;
         return false;
     }
     // size of the data
@@ -523,13 +525,13 @@ bool Data3D<T>::load_info( const string& file_name, Vec3i& size, bool& isBigEndi
     fin >> size[2];
     fin.ignore(255, '\n');
     // data type
-    string str_type;
+    std::string str_type;
     fin >> str_type;
     fin.ignore(255, '\n');
     if( TypeInfo<T>::str().compare( str_type ) != 0 )
     {
-        cout << "Loading information error: ";
-        cout << "Data3D<" << TypeInfo<T>::str() << "> cannot load Data3D<" << str_type << ">. "<< endl;
+        std::cout << "Loading information error: ";
+        std::cout << "Data3D<" << TypeInfo<T>::str() << "> cannot load Data3D<" << str_type << ">. "<< std::endl;
         return false;
     }
     // endian of the data
@@ -555,7 +557,7 @@ template<typename T1, typename T2, typename T3>
 bool subtract3D( const Data3D<T1>& src1, const Data3D<T2>& src2, Data3D<T3>& dst )
 {
     smart_return_false( src1.get_size()==src2.get_size(),
-                        "Source sizes are supposed to be matched.");
+                        "Source sizes are supposed to be cv::Matched.");
 
     if( dst.get_size() != src1.get_size() )
     {
@@ -581,7 +583,7 @@ template<typename T1, typename T2, typename T3>
 bool multiply3D( const Data3D<T1>& src1, const Data3D<T2>& src2, Data3D<T3>& dst )
 {
     smart_return_false( src1.get_size()==src2.get_size(),
-                        "Source sizes are supposed to be matched.");
+                        "Source sizes are supposed to be cv::Matched.");
 
     if( dst.get_size() != src1.get_size() )
     {
@@ -608,28 +610,28 @@ bool multiply3D( const Data3D<T1>& src1, const Data3D<T2>& src2, Data3D<T3>& dst
 template<typename T>
 inline bool Data3D<T>::remove_margin( const int& margin )
 {
-    return remove_margin( Vec3i( margin, margin, margin) );
+    return remove_margin( cv::Vec3i( margin, margin, margin) );
 }
 
 // remove some margin of the data
 // such that left_margin and right_margin are the same
 template<typename T>
-inline bool Data3D<T>::remove_margin( const Vec3i& margin )
+inline bool Data3D<T>::remove_margin( const cv::Vec3i& margin )
 {
     return remove_margin( margin, margin );
 }
 
 // remove some margin of the data
 template<typename T>
-bool Data3D<T>::remove_margin( const Vec3i& margin1, const Vec3i& margin2 )
+bool Data3D<T>::remove_margin( const cv::Vec3i& margin1, const cv::Vec3i& margin2 )
 {
-    Vec3i n_size;
+    cv::Vec3i n_size;
     for( int i=0; i<3; i++ )
     {
         n_size[i] = _size[i] - margin1[i] - margin2[i];
         if( n_size[i] <= 0 )
         {
-            cout << "Margin is too big. Remove margin failed. " << endl;
+            std::cout << "Margin is too big. Remove margin failed. " << std::endl;
             return false;
         }
     }
@@ -637,19 +639,19 @@ bool Data3D<T>::remove_margin( const Vec3i& margin1, const Vec3i& margin2 )
     // allocate memory for new data
     int n_size_slice = n_size[0] * n_size[1];
     int n_size_total = n_size[2] * n_size_slice;
-    Mat_<T> n_mat = Mat_<T>( n_size[2], n_size_slice );
+    cv::Mat_<T> n_mat = cv::Mat_<T>( n_size[2], n_size_slice );
 
     // Remove a negetive margin is equivalent to
     // padding zeros around the data
-    Vec3i spos = Vec3i(
-                     max( margin1[0], 0),
-                     max( margin1[1], 0),
-                     max( margin1[2], 0)
+    cv::Vec3i spos = cv::Vec3i(
+                     std::max( margin1[0], 0),
+                     std::max( margin1[1], 0),
+                     std::max( margin1[2], 0)
                  );
-    Vec3i epos = Vec3i(
-                     min( _size[0]-margin2[0], _size[0] ),
-                     min( _size[1]-margin2[1], _size[1] ),
-                     min( _size[2]-margin2[2], _size[2] )
+    cv::Vec3i epos = cv::Vec3i(
+                     std::min( _size[0]-margin2[0], _size[0] ),
+                     std::min( _size[1]-margin2[1], _size[1] ),
+                     std::min( _size[2]-margin2[2], _size[2] )
                  );
     for( int z=spos[2]; z<epos[2]; z++ )
     {
@@ -674,9 +676,12 @@ bool Data3D<T>::remove_margin( const Vec3i& margin1, const Vec3i& margin2 )
 // Resize the data by cropping or padding
 // This is done through remove margin func
 template<typename T>
-void Data3D<T>::remove_margin_to( const Vec3i& size )
+void Data3D<T>::remove_margin_to( const cv::Vec3i& size )
 {
-    const Vec3i left( (int) floor(1.0f*(SX()-size[0])/2), (int) floor(1.0f*(SY()-size[1])/2), (int) floor(1.0f*(SZ()-size[2])/2) );
-    const Vec3i right( (int) ceil(1.0f*(SX()-size[0])/2),  (int) ceil(1.0f*(SY()-size[1])/2), (int) ceil(1.0f*(SZ()-size[2])/2)) ;
+    const cv::Vec3i left(
+                         (int) floor(1.0f*(SX()-size[0])/2),
+                         (int) floor(1.0f*(SY()-size[1])/2),
+                         (int) floor(1.0f*(SZ()-size[2])/2) );
+    const cv::Vec3i right( (int) ceil(1.0f*(SX()-size[0])/2),  (int) ceil(1.0f*(SY()-size[1])/2), (int) ceil(1.0f*(SZ()-size[2])/2)) ;
     remove_margin( left, right );
 }

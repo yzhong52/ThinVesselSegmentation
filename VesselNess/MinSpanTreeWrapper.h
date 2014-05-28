@@ -24,7 +24,7 @@ public:
         : Graph<EdgeType, NodeType>( g ), sx( g.sx ) , sy( g.sy ) , sz( g.sz ) {  }
 
     // get node id from position
-    inline int nodeid(const Vec3i& pos )
+    inline int nodeid(const cv::Vec3i& pos )
     {
         return nodeid(pos[0], pos[1], pos[2]);
     }
@@ -32,9 +32,9 @@ public:
     {
         return z*sx*sy + y*sx + x;
     }
-    inline Vec3i get_pos( const int& nodeid )
+    inline cv::Vec3i get_pos( const int& nodeid )
     {
-        return Vec3i( nodeid % (sx*sy) % sx, nodeid % (sx*sy) / sx, nodeid / (sx*sy) );
+        return cv::Vec3i( nodeid % (sx*sy) % sx, nodeid % (sx*sy) / sx, nodeid / (sx*sy) );
     }
 };
 }

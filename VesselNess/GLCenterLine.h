@@ -40,12 +40,12 @@ public:
             const Edge& e = ptrTree->get_edge(i);
             cv::Vec3i p1 = ptrTree->get_pos( e.node1 );
             cv::Vec3i p2 = ptrTree->get_pos( e.node2 );
-            sx = (int) max( sx, p1[0] );
-            sx = (int) max( sx, p2[0] );
-            sy = (int) max( sy, p1[1] );
-            sy = (int) max( sy, p2[1] );
-            sz = (int) max( sz, p1[2] );
-            sz = (int) max( sz, p2[2] );
+            sx = (int) std::max( sx, p1[0] );
+            sx = (int) std::max( sx, p2[0] );
+            sy = (int) std::max( sy, p1[1] );
+            sy = (int) std::max( sy, p2[1] );
+            sz = (int) std::max( sz, p1[2] );
+            sz = (int) std::max( sz, p2[2] );
         }
         // default color
         red = 0.0f;
@@ -90,8 +90,8 @@ public:
             for( int unsigned i=0; i<ptrTree->num_edges(); i++ )
             {
                 const Edge e = ptrTree->get_edge(i);
-                Vec3i p1 = ptrTree->get_pos( e.node1 );
-                Vec3i p2 = ptrTree->get_pos( e.node2 );
+                cv::Vec3i p1 = ptrTree->get_pos( e.node1 );
+                cv::Vec3i p2 = ptrTree->get_pos( e.node2 );
                 glVertex3i( p1[0], p1[1], p1[2] );
                 glVertex3i( p2[0], p2[1], p2[2] );
             }
@@ -103,8 +103,8 @@ public:
             for( int unsigned i=0; i<ptrTree->num_edges(); i++ )
             {
                 const Edge& e = ptrTree->get_edge(i);
-                Vec3i p1 = ptrTree->get_pos( e.node1 );
-                Vec3i p2 = ptrTree->get_pos( e.node2 );
+                cv::Vec3i p1 = ptrTree->get_pos( e.node1 );
+                cv::Vec3i p2 = ptrTree->get_pos( e.node2 );
                 glVertex3i( p1[0], p1[1], p1[2] );
                 glVertex3i( p2[0], p2[1], p2[2] );
             }
@@ -112,7 +112,7 @@ public:
         }
         else
         {
-            cout << "rendering mode is not defined" << endl;
+            std::cout << "rendering mode is not defined" << std::endl;
             return;
         }
     }
