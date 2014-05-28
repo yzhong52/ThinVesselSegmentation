@@ -245,13 +245,13 @@ void Image3D<T>::setROI(void)
     static const std::string window_name = "Setting Region of Interest...";
 
     static const std::string instructions = std::string() + \
-                                       "Instructions: \n" + \
-                                       " Left Button (mouse) - include a point \n" + \
-                                       " Right Button (mouse) - exclude a point \n" + \
-                                       " n - next slice \n" + \
-                                       " p - previous slice \n" +\
-                                       " Enter - done \n" +\
-                                       " Exs - reset ";
+                                            "Instructions: \n" + \
+                                            " Left Button (mouse) - include a point \n" + \
+                                            " Right Button (mouse) - exclude a point \n" + \
+                                            " n - next slice \n" + \
+                                            " p - previous slice \n" +\
+                                            " Enter - done \n" +\
+                                            " Exs - reset ";
 
     std::cout << "Setting Region of Interest" << std::endl;
     std::cout << instructions << std::endl;

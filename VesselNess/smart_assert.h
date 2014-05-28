@@ -21,6 +21,7 @@
 
 #define smart_assert( condition, message ) \
 	if( !(condition) ) { \
+        std::cout << message << std::endl; \
 		assert( condition ); \
 		system("pause"); \
 		exit(0); \
@@ -36,6 +37,7 @@
 
 #define smart_return_false( condition, message ) \
 	if( !(condition) ) { \
+        std::cout << message << std::endl; \
 		system("pause");  \
 		return false; \
 	}

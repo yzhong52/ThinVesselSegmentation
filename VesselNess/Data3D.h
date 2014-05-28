@@ -410,11 +410,11 @@ void Data3D<T>::show(const std::string& window_name, int current_slice, T min_va
     cv::namedWindow( window_name.c_str(), CV_WINDOW_AUTOSIZE );
 
     static const std::string instructions = std::string() + \
-                                       "Instructions: \n" + \
-                                       " n - next slice \n" + \
-                                       " p - previous slice \n" +\
-                                       " s - save the current slice \n" +\
-                                       " Exc - exit ";
+                                            "Instructions: \n" + \
+                                            " n - next slice \n" + \
+                                            " p - previous slice \n" +\
+                                            " s - save the current slice \n" +\
+                                            " Exc - exit ";
 
     std::cout << "Displaying data by slice. " << std::endl;
     std::cout << instructions << std::endl;
@@ -424,16 +424,22 @@ void Data3D<T>::show(const std::string& window_name, int current_slice, T min_va
     {
         cv::Mat  mat_temp = _mat.row(current_slice).reshape( 0, get_height() ).clone();
         // change the data type from whatever dataype it is to float for computation
-         mat_temp.convertTo(mat_temp, CV_32F);
+        mat_temp.convertTo(mat_temp, CV_32F);
         // normalize the data range from whatever it is to [0, 255];
-         mat_temp = 255.0f * (  mat_temp - min_value ) / (max_value - min_value);
+        mat_temp = 255.0f * (  mat_temp - min_value ) / (max_value - min_value);
         // convert back to CV_8U for visualizaiton
-         mat_temp.convertTo(mat_temp, CV_8U);
+        mat_temp.convertTo(mat_temp, CV_8U);
         // show in window
         cv::imshow( window_name.c_str(),  mat_temp );
-        // cv::imshow( window_name.c_str(), _mat.row(current_slice).reshape( 0, get_height() ) );
+
         // key controls
         int key = cvWaitKey(0);
+
+        // This following is in order to adjust an undocumented bug in
+        // OpenCV. See this post for more details:
+        // http://stackoverflow.com/questions/9172170/python-opencv-cv-waitkey-spits-back-weird-output-on-ubuntu-modulo-256-maps-corre
+        key = key & 255;
+
         // Yuchen: Program will stop at cvWaitKey above and User may
         // close the windows at this moment.
         if( !cvGetWindowHandle( window_name.c_str()) ) break;
@@ -479,7 +485,7 @@ void Data3D<T>::show(const std::string& window_name, int current_slice, T min_va
 template<typename T>
 void Data3D<T>::show(const std::string& window_name, int current_slice ) const
 {
-    // find the maximum and minimum value (method3)
+    // find the maximum and minimum values
     cv::Point minLoc, maxLoc;
     minMaxLoc( _mat, NULL, NULL, &minLoc, &maxLoc);
     T max_value = _mat( maxLoc );
@@ -644,15 +650,15 @@ bool Data3D<T>::remove_margin( const cv::Vec3i& margin1, const cv::Vec3i& margin
     // Remove a negetive margin is equivalent to
     // padding zeros around the data
     cv::Vec3i spos = cv::Vec3i(
-                     std::max( margin1[0], 0),
-                     std::max( margin1[1], 0),
-                     std::max( margin1[2], 0)
-                 );
+                         std::max( margin1[0], 0),
+                         std::max( margin1[1], 0),
+                         std::max( margin1[2], 0)
+                     );
     cv::Vec3i epos = cv::Vec3i(
-                     std::min( _size[0]-margin2[0], _size[0] ),
-                     std::min( _size[1]-margin2[1], _size[1] ),
-                     std::min( _size[2]-margin2[2], _size[2] )
-                 );
+                         std::min( _size[0]-margin2[0], _size[0] ),
+                         std::min( _size[1]-margin2[1], _size[1] ),
+                         std::min( _size[2]-margin2[2], _size[2] )
+                     );
     for( int z=spos[2]; z<epos[2]; z++ )
     {
         for( int y=spos[1]; y<epos[1]; y++ )
@@ -679,9 +685,9 @@ template<typename T>
 void Data3D<T>::remove_margin_to( const cv::Vec3i& size )
 {
     const cv::Vec3i left(
-                         (int) floor(1.0f*(SX()-size[0])/2),
-                         (int) floor(1.0f*(SY()-size[1])/2),
-                         (int) floor(1.0f*(SZ()-size[2])/2) );
+        (int) floor(1.0f*(SX()-size[0])/2),
+        (int) floor(1.0f*(SY()-size[1])/2),
+        (int) floor(1.0f*(SZ()-size[2])/2) );
     const cv::Vec3i right( (int) ceil(1.0f*(SX()-size[0])/2),  (int) ceil(1.0f*(SY()-size[1])/2), (int) ceil(1.0f*(SZ()-size[2])/2)) ;
     remove_margin( left, right );
 }

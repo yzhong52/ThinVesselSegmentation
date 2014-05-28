@@ -417,7 +417,7 @@ void ImageProcessing::threshold( const Data3D<T>& src, Data3D<unsigned char>& ds
 // threshold the data and return a binary mask and of a set of locations
 template<typename T>
 void ImageProcessing::threshold( const Data3D<T>& src, Data3D<unsigned char>& dst,
-                                std::vector<cv::Vec3i>& pos, T thresh )
+                                 std::vector<cv::Vec3i>& pos, T thresh )
 {
     int x,y,z;
     dst.reset( src.get_size() );
@@ -433,7 +433,7 @@ void ImageProcessing::threshold( const Data3D<T>& src, Data3D<unsigned char>& ds
 // threshold the data and return a index map (dst) and of a set of locations
 template<typename T>
 void ImageProcessing::threshold( const Data3D<T>& src, Data3D<int>& indeces, std::vector<cv::Vec3i>& pos,
-                                T thresh )
+                                 T thresh )
 {
     int x,y,z;
     indeces.reset( src.get_size() );

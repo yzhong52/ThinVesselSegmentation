@@ -25,7 +25,8 @@ int vesselness( bool isDisplay, std::string dataname = "data15" );
 int centreline( bool isDisplay, std::string dataname = "data15" );
 }
 
-int main(void){
+int main(void)
+{
     Data3D<short> im_short("../data/data15.data");
     im_short.show();
     return 0;
