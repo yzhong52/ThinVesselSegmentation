@@ -162,6 +162,7 @@ int VesselDetector::compute_vesselness(
     for( float sigma = sigma_from; sigma < sigma_to; sigma += sigma_step )
     {
         cout << '\r' << "Vesselness for sigma = " << sigma << "    " << "\b\b\b\b";
+        cout.flush();
         VesselDetector::hessien( src, vn, 0, sigma, alpha, beta, gamma );
         // compare the response, if it is greater, copy it to our dst
         const int margin = 1; // int( ceil(3 * sigma) );

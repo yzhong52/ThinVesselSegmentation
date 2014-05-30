@@ -12,6 +12,9 @@ GLViewerExt viewer;
 #define INPUT_DIR "../data/"
 #define OUTPUT_DIR "../temp/"
 
+// Linux header: provide system call functions such as sleep()
+#include <unistd.h>
+
 using namespace std;
 using namespace cv;
 
@@ -26,13 +29,6 @@ int centreline( bool isDisplay, std::string dataname = "data15" );
 
 int main(void)
 {
-    Data3D<short> im_short("../data/data15.data");
-
-    viewer.addObject( im_short );
-    viewer.go(200, 200, 1);
-
-    return 0;
-
     sample_code::vesselness( true );
     return 0;
 }
