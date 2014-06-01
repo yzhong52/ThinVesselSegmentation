@@ -23,14 +23,16 @@
 	if( !(condition) ) { \
         std::cout << message << std::endl; \
 		assert( condition ); \
-		system("pause"); \
+		int systemRet =  system("pause"); \
+		if( systemRet==-1 ) {} \
 		exit(0); \
 	}
 
 #define smart_return_value( condition, message, return_value ) \
 	if( !(condition) ) { \
 		std::cout << message << std::endl; \
-		system("pause"); \
+		int systemRet = system("pause"); \
+		if( systemRet==-1 ) {} \
 		return (return_value); \
 	}
 
@@ -38,14 +40,17 @@
 #define smart_return_false( condition, message ) \
 	if( !(condition) ) { \
         std::cout << message << std::endl; \
-		system("pause");  \
+		int systemRet = system("pause");  \
+		if( systemRet==-1 ) {} \
 		return false; \
 	}
 
 
-#define smart_return( condition, message ) if( !(condition) ) { \
-    system("pause"); \
+#define smart_return( condition, message ) \
+    if( !(condition) ) { \
+        int systemRet = system("pause"); \
 		std::cout << message << std::endl; \
+		if( systemRet==-1 ) {} \
 		return ; \
 	}
 

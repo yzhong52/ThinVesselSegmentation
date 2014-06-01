@@ -1,5 +1,5 @@
+#include <opencv2/core/core.hpp>
 #include "EnergyFunctions.h"
-#include "opencv2\core\core.hpp"
 #include "Line3D.h"
 #include "Neighbour26.h"
 #include "Data3D.h"

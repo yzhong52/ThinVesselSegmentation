@@ -6,6 +6,7 @@
 		<Option makefile="makefile" />
 		<Option pch_mode="2" />
 		<Option compiler="gnu_gcc_compiler_x64" />
+		<Option virtualFolders="GLViewer/;" />
 		<Build>
 			<Target title="Debug">
 				<Option output="bin/Debug/ModelFitting" prefix_auto="1" extension_auto="1" />
@@ -24,10 +25,17 @@
 					<Add directory="../dependencies/freeglut 2.8.1/include" />
 				</Compiler>
 				<Linker>
-					<Add library="libopencv_core248.dll.a" />
+					<Add option="-Wl,--no-as-needed" />
+					<Add option="-pthread" />
+					<Add option="`pkg-config --libs opencv`" />
 					<Add library="libSparseMatrixCV.a" />
 					<Add library="libSparseMatrix.a" />
 					<Add library="libgomp.a" />
+					<Add library="libGL.a" />
+					<Add library="libGL.a" />
+					<Add library="libGLU.a" />
+					<Add library="libglut.a" />
+					<Add library="libGLEW.a" />
 					<Add directory="../dependencies/opencv2.4.8/x64-mingw32-w64" />
 					<Add directory="../dependencies/glew-1.10.0/x64" />
 					<Add directory="../dependencies/freeglut 2.8.1/x64" />
@@ -43,6 +51,7 @@
 					<Add option="-O2" />
 					<Add option="-std=c++11" />
 					<Add option="-fopenmp" />
+					<Add option="-Wno-unused-result" />
 					<Add directory="../dependencies/opencv2.4.8/include" />
 					<Add directory="../VesselNess" />
 					<Add directory="./gco-v3.0/" />
@@ -52,10 +61,16 @@
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
-					<Add library="libopencv_core248.dll.a" />
+					<Add option="`pkg-config --libs opencv`" />
+					<Add option="-Wl,--no-as-needed" />
+					<Add option="-pthread" />
 					<Add library="libSparseMatrixCV.a" />
 					<Add library="libSparseMatrix.a" />
 					<Add library="libgomp.a" />
+					<Add library="libGL.a" />
+					<Add library="libGLU.a" />
+					<Add library="libglut.a" />
+					<Add library="libGLEW.a" />
 					<Add directory="../dependencies/opencv2.4.8/x64-mingw32-w64" />
 					<Add directory="../dependencies/glew-1.10.0/x64" />
 					<Add directory="../dependencies/freeglut 2.8.1/x64" />
@@ -67,7 +82,47 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
+		<Unit filename="../VesselNess/GLCamera.cpp">
+			<Option virtualFolder="GLViewer/" />
+		</Unit>
+		<Unit filename="../VesselNess/GLCamera.h">
+			<Option virtualFolder="GLViewer/" />
+		</Unit>
+		<Unit filename="../VesselNess/GLCenterLine.cpp">
+			<Option virtualFolder="GLViewer/" />
+		</Unit>
+		<Unit filename="../VesselNess/GLCenterLine.h">
+			<Option virtualFolder="GLViewer/" />
+		</Unit>
+		<Unit filename="../VesselNess/GLDirection.h">
+			<Option virtualFolder="GLViewer/" />
+		</Unit>
+		<Unit filename="../VesselNess/GLVideoSaver.cpp">
+			<Option virtualFolder="GLViewer/" />
+		</Unit>
+		<Unit filename="../VesselNess/GLVideoSaver.h">
+			<Option virtualFolder="GLViewer/" />
+		</Unit>
+		<Unit filename="../VesselNess/GLViewer.cpp">
+			<Option virtualFolder="GLViewer/" />
+		</Unit>
+		<Unit filename="../VesselNess/GLViewer.h">
+			<Option virtualFolder="GLViewer/" />
+		</Unit>
+		<Unit filename="../VesselNess/GLViewerExt.h">
+			<Option virtualFolder="GLViewer/" />
+		</Unit>
+		<Unit filename="../VesselNess/GLViwerWrapper.h">
+			<Option virtualFolder="GLViewer/" />
+		</Unit>
+		<Unit filename="../VesselNess/GLVolumn.cpp">
+			<Option virtualFolder="GLViewer/" />
+		</Unit>
+		<Unit filename="../VesselNess/GLVolumn.h">
+			<Option virtualFolder="GLViewer/" />
+		</Unit>
 		<Unit filename="EnergyFunctions.cpp" />
+		<Unit filename="GLLineModel.cpp" />
 		<Unit filename="LevenburgMaquart.cpp" />
 		<Unit filename="LevenburgMaquart.h" />
 		<Unit filename="Line3D.cpp" />
@@ -80,8 +135,6 @@
 		<Unit filename="init_models.cpp" />
 		<Unit filename="init_models.h" />
 		<Unit filename="main.cpp" />
-		<Unit filename="stdafx.cpp" />
-		<Unit filename="stdafx.h" />
 		<Unit filename="targetver.h" />
 		<Extensions>
 			<code_completion />

@@ -29,7 +29,8 @@ int centreline( bool isDisplay, std::string dataname = "data15" );
 
 int main(void)
 {
-    sample_code::vesselness( true );
+    sample_code::vesselness(false);
+    sample_code::centreline(false);
     return 0;
 }
 
@@ -50,7 +51,7 @@ int sample_code::vesselness( bool isDisplay, string dataname )
     // [sigma_from, sigma_to]: the potential size rang of the vessels
     // sigma_step: precision of computation
     float sigma_from = 1.0f;
-    float sigma_to = 8.10f;
+    float sigma_to   = 8.10f;
     float sigma_step = 0.3f;
     // Parameters for vesselness, please refer to Frangi's papaer
     // or this [blog](http://yzhong.co/?p=351)

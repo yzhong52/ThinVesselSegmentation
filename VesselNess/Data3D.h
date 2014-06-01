@@ -120,7 +120,7 @@ public:
     {
         return _mat( i );
     }
-    virtual const inline T& at( const int& x, const int& y, const int& z ) const
+    virtual inline const T& at( const int& x, const int& y, const int& z ) const
     {
         return _mat( z, y * _size[0] + x );
     }
@@ -128,7 +128,7 @@ public:
     {
         return _mat( z, y * _size[0] + x );
     }
-    virtual const inline T& at( const cv::Vec3i& pos ) const
+    virtual inline const T& at( const cv::Vec3i& pos ) const
     {
         return at( pos[0], pos[1], pos[2] );
     }
@@ -212,23 +212,23 @@ public:
 
 
     // return true if a index is valide for the data
-    bool isValid( const int& x, const int& y, const int& z ) const
+    inline bool isValid( const int& x, const int& y, const int& z ) const
     {
         return ( x>=0 && x<get_size_x() &&
                  y>=0 && y<get_size_y() &&
                  z>=0 && z<get_size_z() );
     }
-    bool isValid( const cv::Vec3i& v ) const
+    inline bool isValid( const cv::Vec3i& v ) const
     {
         return isValid( v[0], v[1], v[2] );
     }
 
-    const T* getData(void) const
+    inline const T* getData(void) const
     {
         return (T*) getMat().data;
     }
 
-    T* getData(void)
+    inline T* getData(void)
     {
         return (T*) getMat().data;
     }
@@ -245,7 +245,7 @@ protected:
     cv::Mat_<T> _mat;
 
 private:
-    // TODO: I will try yxml later
+    // TODO: I should try yxml later
     void save_info( const std::string& file_name, bool isBigEndian, const std::string& log )  const;
     bool load_info( const std::string& file_name, cv::Vec3i& size, bool& isBigEndian );
 };
@@ -419,6 +419,7 @@ void Data3D<T>::show(const std::string& window_name, int current_slice, T min_va
     std::cout << "Displaying data by slice. " << std::endl;
     std::cout << instructions << std::endl;
     std::cout << "Displaying Slice #" << current_slice;
+
     if( current_slice > SZ() ) current_slice = SZ();
     do
     {
@@ -479,6 +480,7 @@ void Data3D<T>::show(const std::string& window_name, int current_slice, T min_va
     }
     while( cvGetWindowHandle( window_name.c_str()) );
     cv::destroyWindow( window_name.c_str() );
+
     std::cout << std::endl << "done." << std::endl << std::endl;
 }
 

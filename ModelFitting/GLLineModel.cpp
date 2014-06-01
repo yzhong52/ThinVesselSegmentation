@@ -8,12 +8,12 @@ GLLineModel::GLLineModel( cv::Vec3i size )
 	: size( size ), render_mode(7)
 {
 	// creat a mutex
-	hMutex = CreateMutex( NULL, false, NULL );
+	// hMutex = CreateMutex( NULL, false, NULL );
 }
 
 GLLineModel::~GLLineModel( void ){
 	// destroy the mutex
-	CloseHandle( hMutex );
+	// CloseHandle( hMutex );
 }
 
 
@@ -38,7 +38,7 @@ void GLLineModel::render(void){
 	//glVertex3i( 0, 0, size[2] );
 	//glEnd();
 
-	WaitForSingleObject( hMutex, INFINITE );
+	// WaitForSingleObject( hMutex, INFINITE );
 
 	/////////////////////////////////////////////////
 	// draw the projection points
@@ -104,19 +104,19 @@ void GLLineModel::render(void){
 		glEnd();
 	}
 
-	ReleaseMutex( hMutex );
+	// ReleaseMutex( hMutex );
 }
 
 
 void GLLineModel::updatePoints( const vector<Vec3i>& pts ){
-	WaitForSingleObject( hMutex, INFINITE );
+	// WaitForSingleObject( hMutex, INFINITE );
 	dataPoints = pts;
-	ReleaseMutex( hMutex );
+	// ReleaseMutex( hMutex );
 }
 
 void GLLineModel::updateModel( const vector<Line3D*>& lns, const vector<int>& lbls )
 {
-	WaitForSingleObject( hMutex, INFINITE );
+	// WaitForSingleObject( hMutex, INFINITE );
 	if( lbls.size()==dataPoints.size() ) {
 		lines = lns;
 		labelings = lbls;
@@ -130,10 +130,10 @@ void GLLineModel::updateModel( const vector<Line3D*>& lns, const vector<int>& lb
 		}
 	} else {
 		cout << "Error: Update model fail." << endl;
-		// std::wcout << "  Location: file "<< _CRT_WIDE(__FILE__) << ", line " << __LINE__ << std::endl;
+		std::cout << "  Location: file "<< __FILE__ << ", line " << __LINE__ << std::endl;
 		system( "pause" );
 	}
-	ReleaseMutex( hMutex );
+	// ReleaseMutex( hMutex );
 }
 
 void GLLineModel::init(void){

@@ -36,9 +36,16 @@
 					<Add option="-O2" />
 					<Add option="-std=c++11" />
 					<Add option="-fopenmp" />
+					<Add option="-Wno-comment" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
+					<Add option="`pkg-config --libs opencv`" />
+					<Add library="libglut.a" />
+					<Add library="libGL.a" />
+					<Add library="libGLEW.a" />
+					<Add library="libGLU.a" />
+					<Add library="libgomp.a" />
 				</Linker>
 			</Target>
 		</Build>
@@ -46,7 +53,6 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
-		<Unit filename="Data3D.cpp" />
 		<Unit filename="Data3D.h" />
 		<Unit filename="DataTypes.h" />
 		<Unit filename="DisjointSet.cpp" />
@@ -84,11 +90,9 @@
 			<Option virtualFolder="Visualization/" />
 		</Unit>
 		<Unit filename="Graph.h" />
-		<Unit filename="Image3D.cpp" />
 		<Unit filename="Image3D.h" />
 		<Unit filename="ImageProcessing.h" />
 		<Unit filename="ImageProcessor.cpp" />
-		<Unit filename="Kernel3D.cpp" />
 		<Unit filename="Kernel3D.h" />
 		<Unit filename="MinSpanTree.cpp" />
 		<Unit filename="MinSpanTree.h" />
@@ -106,7 +110,6 @@
 		<Unit filename="main.cpp" />
 		<Unit filename="nstdio.h" />
 		<Unit filename="smart_assert.h" />
-		<Unit filename="stdafx.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />
