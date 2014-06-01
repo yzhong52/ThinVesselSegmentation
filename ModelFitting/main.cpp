@@ -31,16 +31,14 @@
 
 using namespace std;
 
-
-
-
 const double DATA_COST = 1.0;
 const double PAIRWISE_SMOOTH = 7.0;
 const double DATA_COST2 = DATA_COST * DATA_COST;
 const double PAIRWISE_SMOOTH2 = PAIRWISE_SMOOTH * PAIRWISE_SMOOTH;
 
-
+// thead for visualization
 std::thread visualization_thread;
+
 #define IS_VISUAL
 #ifdef IS_VISUAL // add visualization model
 #include "GLViwerModel.h"
@@ -71,8 +69,8 @@ void initViwer( const vector<cv::Vec3i>& dataPoints,
     vis.objs.push_back( model );
 
     int numViewports = 2;
-    numViewports += (im2!=NULL);
-    numViewports += (im3!=NULL);
+    numViewports += (im2!=nullptr);
+    numViewports += (im3!=nullptr);
 
     // create visualiztion thread
     visualization_thread = std::thread(visualization_func, numViewports );
@@ -87,17 +85,17 @@ void initViwer( const vector<cv::Vec3i>& dataPoints,
                 const vector<Line3D*>& lines, const vector<int>& labelings,
                 const Data3D<T1>* im1,
                 const Data3D<T2>* im2 = nullptr,
-                const Data3D<T3>* im3 = nullptr){ }
+                const Data3D<T3>* im3 = nullptr ){ }
 #endif
 
 namespace experiments
 {
 
-void saving_video( void )
+void start_levernberg_marquart( const string& dataname = "data15", bool isDisplay = false )
 {
     // Vesselness measure with sigma
     Image3D<Vesselness_Sig> vn_et_sig;
-    vn_et_sig.load( "../temp/data15.et.vn_sig" );
+    vn_et_sig.load( dataname + ".et.vn_sig" );
 
     // threshold the data and put the data points into a vector
     Data3D<int> labelID3d;
@@ -105,61 +103,27 @@ void saving_video( void )
     ModelSet<Line3D> model;
     vector<int> labelID;
     each_model_per_point( vn_et_sig, labelID3d, tildaP, model, labelID );
-
-    Data3D<Vesselness_Sig> vn_sig( "../temp/data15.vn_sig" );
-    Data3D<short> im_short( "../data/data15.data" );
-
-    // create a thread for rendering
-    initViwer( tildaP, model.models, labelID, &im_short, &vn_sig, &vn_et_sig );
-
     cout << "Number of data points: " << tildaP.size() << endl;
+
+    if( isDisplay ){
+        // create a thread for rendering
+        Data3D<Vesselness_Sig> vn_sig( dataname + ".vn_sig" );
+        Data3D<short> im_short( dataname + ".data" );
+        initViwer( tildaP, model.models, labelID, &im_short, &vn_sig, &vn_et_sig );
+    }
 
     // Levenberg-Marquart
     LevenburgMaquart lm( tildaP, labelID, model, labelID3d );
     lm.reestimate( 4000, LevenburgMaquart::Quadratic );
-
-    cout << "Main Thread is Done. " << endl;
-    //WaitForSingleObject( thread_render, INFINITE);
-}
-
-void whole_volumn( void )
-{
-    // Vesselness measure with sigma
-    Image3D<Vesselness_Sig> vn_et_sig;
-    bool flag = vn_et_sig.load( "../temp/vessel3d.rd.19.crop0.5.et.vn_sig" );
-    if( !flag ) return;
-
-    vn_et_sig.remove_margin(
-        Vec3i(0,0,vn_et_sig.SZ()*3/6),
-        Vec3i(0,0,0) );
-
-    // threshold the data and put the data points into a vector
-    Data3D<int> labelID3d;
-    vector<cv::Vec3i> tildaP;
-    ModelSet<Line3D> model;
-    vector<int> labelID;
-    each_model_per_point( vn_et_sig, labelID3d, tildaP, model, labelID, 0.5f );
-
-    // create a thread for rendering
-    initViwer( tildaP, model.models, labelID, &vn_et_sig );
-
-    cout << "Number of data points: " << tildaP.size() << endl;
-
-    // Levenberg-Marquart
-    LevenburgMaquart lm( tildaP, labelID, model, labelID3d );
-    lm.reestimate( 4000, LevenburgMaquart::Quadratic );
-
-    cout << "Main Thread is Done. " << endl;
-    //WaitForSingleObject( thread_render, INFINITE);
 }
 }
 
 
 int main(int argc, char* argv[])
 {
-    experiments::saving_video();
-    //experiments::whole_volumn();
+    experiments::start_levernberg_marquart();
 
+    cout << "Main Thread is Done. " << endl;
     visualization_thread.join();
     return 0;
 }

@@ -33,12 +33,10 @@ CFLAGS = -g -pg
 CC = g++ -std=c++11 -m64
 
 # define any directories containing header files other than /usr/include
-#
 INCLUDES  = -I ./
 INCLUDES += -I ../
 INCLUDES += -I "../dependencies/opencv2.4.8/include"
 INCLUDES += -I "../VesselNess"
-INCLUDES += -I "gco-v3.0"
 
 
 # define library paths in addition to /usr/lib
@@ -72,7 +70,6 @@ OBJS = $(SRCS:%.cpp=%.o)
 # The following files are downloaded from:
 #  - http://www.netlib.org/clapack/cblas/
 # They will be compile to CBLAS_ddot.o, CBLAS_daxpy.o, and etc. 
-CBLAS_SRCS = ddot.c daxpy.c dscal.c dcopy.c
 CBLAS_OBJS = $(CBLAS_SRCS:%.c=CBLAS_%.o) 
 
 # define the executable file 
@@ -82,9 +79,7 @@ TARGET = executable.exe
 # It is for Windoes only. Under Linux, ti will be something 
 # like the following (which is not tested): 
 #	rm -f
-RM = del 
-
-TEXTEDITOR = "C:/Program Files/Sublime Text 2/sublime_text.exe"
+RM = rm 
 
 all: $(CBLAS_OBJS) $(OBJS)
 	@echo.
@@ -105,9 +100,6 @@ prof:
 #	gprof executable.exe gmon.out > analysis.txt
 	
 
-# Show the txt files
-prof-show-txt: 
-	$(TEXTEDITOR) analysis.txt
 
 # Analysise the txt file and gerate call graph
 # In order to run the follow script 'prof-show-graph', you have to install the following:
