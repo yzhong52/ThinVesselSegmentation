@@ -121,7 +121,7 @@ void start_levernberg_marquart( const string& dataname = "data15", bool isDispla
 
 int main(int argc, char* argv[])
 {
-    experiments::start_levernberg_marquart();
+    experiments::start_levernberg_marquart("data/data15", true);
 
     cout << "Main Thread is Done. " << endl;
     visualization_thread.join();
@@ -147,57 +147,3 @@ int main(int argc, char* argv[])
 //	cout << "Probably because of errors while deserializing the data. " << endl;
 //	return 0;
 //}
-
-
-namespace test
-{
-void twopoints( void )
-{
-    // Vesselness measure with sigma
-    Data3D<char> im_uchar( Vec3i(10, 10, 10), 0 );
-    im_uchar.at(5,5,5) = 20;
-    im_uchar.at(5,6,6) = 20;
-    im_uchar.at(6,7,7) = 20;
-
-    // threshold the data and put the data points into a vector
-    Data3D<int> labelID3d( im_uchar.get_size(), -1 );
-
-    vector<cv::Vec3i> tildaP;
-    ModelSet<Line3D> model;
-    vector<int> labelID;
-
-    for(int z=0; z<im_uchar.SZ(); z++) for ( int y=0; y<im_uchar.SY(); y++) for(int x=0; x<im_uchar.SX(); x++)
-            {
-                if( im_uchar.at(x,y,z) > 10 )   // a thread hold
-                {
-                    int lid = (int) model.models.size();
-
-                    labelID3d.at(x,y,z) = lid;
-
-                    labelID.push_back( lid );
-
-                    tildaP.push_back( Vec3i(x,y,z) );
-
-                    const Vec3d pos(x,y,z);
-                    const Vec3d dir( rand()%100, rand()%100, rand()%100 + 1);
-                    dir / sqrt( dir.dot( dir ) );
-                    const double sigma = 1;
-                    Line3DTwoPoint *line  = new Line3DTwoPoint();
-                    line->setPositions( pos-dir, pos+dir );
-                    line->setSigma( sigma );
-                    model.models.push_back( line );
-                }
-            }
-
-    // Levenberg-Marquart
-    cout << "Number of data points: " << tildaP.size() << endl;
-
-    LevenburgMaquart lm( tildaP, labelID, model, labelID3d );
-    lm.reestimate( 1000, LevenburgMaquart::Quadratic );
-    system( "pause" );
-    lm.reestimate( 4000, LevenburgMaquart::Linear );
-
-    cout << "Main Thread is Done. " << endl;
-    //WaitForSingleObject( thread_render, INFINITE);
-}
-}
