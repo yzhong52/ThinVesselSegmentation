@@ -32,7 +32,6 @@
 					<Add library="libSparseMatrix.a" />
 					<Add library="libgomp.a" />
 					<Add library="libGL.a" />
-					<Add library="libGL.a" />
 					<Add library="libGLU.a" />
 					<Add library="libglut.a" />
 					<Add library="libGLEW.a" />
