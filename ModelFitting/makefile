@@ -6,7 +6,8 @@
 #  -pg   adds profiling information to the executable file
 #  -m64  compile for 64-bit
 CFLAGS = -g -Wall -m64 -fopenmp 
-#-Wall  -fno-omit-frame-pointer 
+
+CPPFLAGS = -IS_NOT_VISUAL
 
 # for C++ define  CC = g++
 #  -m64  compile for 64 bits
@@ -21,19 +22,35 @@ AR = ar -r -s
 # define any directories containing header files other than /usr/include
 INCLUDES  = -I ./
 INCLUDES += -I ../
+INCLUDES += -I ../Vesselness
 
 # define library paths in addition to /usr/lib
 #   if I wanted to include libraries not in /usr/lib I'd specify
 #   their path using -Lpath, something like:
-LFLAGS    = -L ./
+LFLAGS  = -L ./
+LFLAGS += -L ../libs
+LFLAGS += `pkg-config --libs opencv` -Wl,--no-as-needed -pthread
 
 # define any libraries to link into executable:
 #   if I want to link in libraries (libx.so or libx.a) I use the -llibname 
 #   option, something like (this will link in libmylib.so and libm.so:
-LIBS = 
+LIBS  = libSparseMatrixCV.a libSparseMatrix.a
+LIBS += -lGL -lGLU -lglut -lGLEW
 
 # define the cpp source files
-SRCS  = Line3D.cpp Line3DTwoPoint.cpp Line3DPointDir.cpp LevenburgMaquart.cpp
+SRCS  = Line3D.cpp Line3DTwoPoint.cpp LevenburgMaquart.cpp EnergyFunctions.cpp init_models.cpp
+# SRCS += GLLineModel.cpp GLViwerModel.cpp 
+
+# define the C object files 
+#
+# This uses Suffix Replacement within a macro:
+#   $(name:string1=string2)
+#         For each word in 'name' replace 'string1' with 'string2'
+# Below we are replacing the suffix .c of all words in the macro SRCS
+# with the .o suffix
+#
+# $(SRCS:.cpp=.o) 
+OBJS = $(SRCS:%.cpp=%.o) 
 
 # define the executable file 
 TARGET = modelfitting
@@ -45,7 +62,7 @@ TARGET = modelfitting
 RM = rm 
 
 all: $(CBLAS_OBJS) $(OBJS)
-	$(CC) $(CFLAGS) $(INCLUDES) $(OBJS) $(CBLAS_OBJS) main.cpp -o $(TARGET) $(LFLAGS) $(LIBS)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(INCLUDES) $(OBJS) main.cpp -o $(TARGET) $(LFLAGS) $(LIBS)
 
 # Yuchen: these following command will compile the other cpp files in the project
 # For example, if there is a file SparseMatrix.cpp in the current directory, it will 
@@ -57,5 +74,5 @@ all: $(CBLAS_OBJS) $(OBJS)
 
 # Yuchen: Removes all .o files and the excutable file, so that the next make rebuilds them
 clean: 
-	$(RM) *.o $(TARGET) analysis.dot analysis.png analysis.txt gmon.out
+	$(RM) *.o $(TARGET)
 

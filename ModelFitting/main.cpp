@@ -39,7 +39,7 @@ const double PAIRWISE_SMOOTH2 = PAIRWISE_SMOOTH * PAIRWISE_SMOOTH;
 // thead for visualization
 std::thread visualization_thread;
 
-#define IS_VISUAL
+//#define IS_VISUAL
 #ifdef IS_VISUAL // add visualization model
 #include "GLViwerModel.h"
 
