@@ -1,7 +1,7 @@
 #ifndef SYNTHETICDATA_H
 #define  SYNTHETICDATA_H
 
-#include "../VesselNess/Data3D.h"
+#include "../Vesselness/Data3D.h"
 #include <random>
 #include <cmath>
 #include <opencv2/core/core.hpp>

@@ -52,7 +52,7 @@
 					<Add option="-fopenmp" />
 					<Add option="-Wno-unused-result" />
 					<Add directory="../dependencies/opencv2.4.8/include" />
-					<Add directory="../VesselNess" />
+					<Add directory="../Vesselness" />
 					<Add directory="./gco-v3.0/" />
 					<Add directory="../" />
 					<Add directory="../dependencies/glew-1.10.0/include" />
@@ -81,43 +81,43 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
-		<Unit filename="../VesselNess/GLCamera.cpp">
+		<Unit filename="../Vesselness/GLCamera.cpp">
 			<Option virtualFolder="GLViewer/" />
 		</Unit>
-		<Unit filename="../VesselNess/GLCamera.h">
+		<Unit filename="../Vesselness/GLCamera.h">
 			<Option virtualFolder="GLViewer/" />
 		</Unit>
-		<Unit filename="../VesselNess/GLCenterLine.cpp">
+		<Unit filename="../Vesselness/GLCenterLine.cpp">
 			<Option virtualFolder="GLViewer/" />
 		</Unit>
-		<Unit filename="../VesselNess/GLCenterLine.h">
+		<Unit filename="../Vesselness/GLCenterLine.h">
 			<Option virtualFolder="GLViewer/" />
 		</Unit>
-		<Unit filename="../VesselNess/GLDirection.h">
+		<Unit filename="../Vesselness/GLDirection.h">
 			<Option virtualFolder="GLViewer/" />
 		</Unit>
-		<Unit filename="../VesselNess/GLVideoSaver.cpp">
+		<Unit filename="../Vesselness/GLVideoSaver.cpp">
 			<Option virtualFolder="GLViewer/" />
 		</Unit>
-		<Unit filename="../VesselNess/GLVideoSaver.h">
+		<Unit filename="../Vesselness/GLVideoSaver.h">
 			<Option virtualFolder="GLViewer/" />
 		</Unit>
-		<Unit filename="../VesselNess/GLViewer.cpp">
+		<Unit filename="../Vesselness/GLViewer.cpp">
 			<Option virtualFolder="GLViewer/" />
 		</Unit>
-		<Unit filename="../VesselNess/GLViewer.h">
+		<Unit filename="../Vesselness/GLViewer.h">
 			<Option virtualFolder="GLViewer/" />
 		</Unit>
-		<Unit filename="../VesselNess/GLViewerExt.h">
+		<Unit filename="../Vesselness/GLViewerExt.h">
 			<Option virtualFolder="GLViewer/" />
 		</Unit>
-		<Unit filename="../VesselNess/GLViwerWrapper.h">
+		<Unit filename="../Vesselness/GLViwerWrapper.h">
 			<Option virtualFolder="GLViewer/" />
 		</Unit>
-		<Unit filename="../VesselNess/GLVolumn.cpp">
+		<Unit filename="../Vesselness/GLVolumn.cpp">
 			<Option virtualFolder="GLViewer/" />
 		</Unit>
-		<Unit filename="../VesselNess/GLVolumn.h">
+		<Unit filename="../Vesselness/GLVolumn.h">
 			<Option virtualFolder="GLViewer/" />
 		</Unit>
 		<Unit filename="EnergyFunctions.cpp" />
