@@ -6,5 +6,6 @@
 		<Project filename="ModelFitting/ModelFitting.cbp" />
 		<Project filename="install/install.cbp" />
 		<Project filename="Vesselness/Vesselness.cbp" />
+		<Project filename="EigenDecomp/EigenDecomp.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>

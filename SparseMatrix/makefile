@@ -10,7 +10,7 @@ CFLAGS = -Wall -m64 -fopenmp -Wno-comment -O2
 
 # for C++ define  CC = g++
 #  -m64  compile for 64 bits
-CC = g++ -std=c++11 
+CC = g++ -std=c++0x 
 
 # for c compiler
 CCC = gcc
