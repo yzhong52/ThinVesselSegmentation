@@ -26,7 +26,7 @@ public:
     // lamda - damping function for levenburg maquart
     //    the smaller lambda is, the faster it converges
     //    the bigger lambda is, the slower it converges
-    void reestimate( double lambda = 1e2, SmoothCostType whatSmoothCost = Linear );
+    void reestimate( double lambda = 1e2, SmoothCostType whatSmoothCost = Linear, string dataname = "" );
 
 private:
     const vector<Vec3i>& tildaP;   // original points

@@ -18,7 +18,7 @@
 					<Add option="-g" />
 					<Add option="-fopenmp" />
 					<Add directory="../dependencies/opencv2.4.8/include" />
-					<Add directory="../VesselNess" />
+					<Add directory="../Vesselness" />
 					<Add directory="./gco-v3.0/" />
 					<Add directory="../" />
 					<Add directory="../dependencies/glew-1.10.0/include" />

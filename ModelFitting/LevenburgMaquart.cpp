@@ -623,7 +623,7 @@ void LevenburgMaquart::update_lines( const Mat_<double>& delta )
     }
 }
 
-void LevenburgMaquart::reestimate( double lambda, SmoothCostType whatSmoothCost )
+void LevenburgMaquart::reestimate( double lambda, SmoothCostType whatSmoothCost, string dataname )
 {
     smart_assert( lines.size()!=0, "No line models available" );
 
@@ -722,15 +722,15 @@ void LevenburgMaquart::reestimate( double lambda, SmoothCostType whatSmoothCost 
         }
 
         cout << " New Energy = "  << energy_before << endl << endl;
+
+        cout << "Serialization begin. " << endl;
+        modelset.serialize( dataname + ".Line3DTwoPoint.model" );
+        cout << "Serialization done. " << endl  << endl;
     }
 }
 
 
-//for( int i=2; i>=0; i-- ){
-//	cout << '\r' << "Serializing models in " << i << " seconds... "; Sleep( 1000 );
-//}
-//modelset.serialize( "output/Line3DTwoPoint.model" );
-//cout << "Serialization done. " << endl;
+
 
 //for( int i=0; i<X.rows; i++ ) {
 //	std::cout << std::setw(14) << std::scientific << X.at<double>(i) << "  ";

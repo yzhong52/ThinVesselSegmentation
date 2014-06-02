@@ -79,6 +79,18 @@
 		<Linker>
 			<Add library="libopencv_core248.dll.a" />
 		</Linker>
+		<Unit filename="../SparseMatrix/CBLAS/daxpy.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../SparseMatrix/CBLAS/dcopy.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../SparseMatrix/CBLAS/ddot.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../SparseMatrix/CBLAS/dscal.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="SparseMatrixCV-lsover.cpp" />
 		<Unit filename="SparseMatrixCV.cpp" />
 		<Unit filename="SparseMatrixCV.h" />

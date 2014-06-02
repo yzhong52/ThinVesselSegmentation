@@ -6,11 +6,11 @@
 #  -pg   adds profiling information to the executable file
 #  -m64  compile for 64-bit
 #  -Wno-comment disable warnings about multiline comments
-CFLAGS = -Wall -m64 -fopenmp -Wno-comment -O2
+CFLAGS = -Wall -m64 -fopenmp -Wno-comment -std=c++11 -O2 -Wl,--no-as-needed
 
 # for C++ define  CC = g++
 #  -m64  compile for 64 bits
-CC = g++ -std=c++11 
+CC = g++ 
 
 # for c compiler
 CCC = gcc
@@ -20,21 +20,24 @@ AR = ar -r -s
 
 # define any directories containing header files other than /usr/include
 INCLUDES  = -I ./
-INCLUDES += -I ./CBLAS
+INCLUDES += -I ../
 
 # define library paths in addition to /usr/lib
 #   if I wanted to include libraries not in /usr/lib I'd specify
 #   their path using -Lpath, something like:
 LFLAGS  = -L ./
-LFLAGS  = -L ../libs/
+LFLAGS += `pkg-config --libs opencv` -Wl,--no-as-needed -pthread
 
 # define any libraries to link into executable:
 #   if I want to link in libraries (libx.so or libx.a) I use the -llibname 
 #   option, something like (this will link in libmylib.so and libm.so:
-LIBS = libSparseMatrix.a
+# LIBS  = libSparseMatrixCV.a libSparseMatrix.a
+# LIBS += -lGL -lGLU -lglut -lGLEW
 
 # define the cpp source files
-SRCS = SparseMatrixCV-lsover.cpp SparseMatrixCV.cpp
+SRCS  = VesselnessTypes.cpp VesselDetector.cpp RingsDeduction.cpp MinSpanTree.cpp 
+SRCS += ImageProcessor.cpp Edge.cpp DisjointSet.cpp
+# SRCS += GLLineModel.cpp GLViwerModel.cpp 
 
 # define the C object files 
 #
@@ -48,7 +51,7 @@ SRCS = SparseMatrixCV-lsover.cpp SparseMatrixCV.cpp
 OBJS = $(SRCS:%.cpp=./obj/%.o) 
 
 # define the executable file 
-TARGET = ../libs/libSparseMatrixCV.a
+TARGET = ../bin/vesselness
 
 # Yuchen: The remove command.
 # It is for Windoes only. Under Linux, ti will be something 
@@ -57,8 +60,9 @@ TARGET = ../libs/libSparseMatrixCV.a
 RM = rm -f
 
 all: $(CBLAS_OBJS) $(OBJS)
-	mkdir -p ../libs
-	$(AR) $(TARGET) $(OBJS)
+	mkdir -p ../bin
+	mkdir -p ./obj
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(INCLUDES) $(OBJS) main_nvis.cpp -o $(TARGET) $(LFLAGS) $(LIBS)
 
 # Yuchen: these following command will compile the other cpp files in the project
 # For example, if there is a file SparseMatrix.cpp in the current directory, it will 

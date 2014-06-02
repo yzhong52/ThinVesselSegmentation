@@ -5,8 +5,8 @@
 #  -Wall turns on most, but not all, compiler warnings
 #  -pg   adds profiling information to the executable file
 #  -m64  compile for 64-bit
-CFLAGS = -g -Wall -m64 -fopenmp 
-#-Wall  -fno-omit-frame-pointer 
+#  -Wno-comment disable warnings about multiline comments
+CFLAGS = -Wall -m64 -fopenmp -Wno-comment -O2
 
 # for C++ define  CC = g++
 #  -m64  compile for 64 bits
@@ -44,7 +44,7 @@ SRCS = SparseMatrix.cpp SparseMatrixData.cpp
 # with the .o suffix
 #
 # $(SRCS:.cpp=.o) 
-OBJS = $(SRCS:%.cpp=%.o) 
+OBJS = $(SRCS:%.cpp=./obj/%.o) 
 
 CBLAS_SRCS = daxpy.c dcopy.c ddot.c dscal.c 
 
@@ -52,7 +52,7 @@ CBLAS_SRCS = daxpy.c dcopy.c ddot.c dscal.c
 # The following files are downloaded from:
 #  - http://www.netlib.org/clapack/cblas/
 # They will be compile to CBLAS_ddot.o, CBLAS_daxpy.o, and etc. 
-CBLAS_OBJS = $(CBLAS_SRCS:%.c=CBLAS_%.o) 
+CBLAS_OBJS = $(CBLAS_SRCS:%.c=./obj/CBLAS_%.o) 
 
 # define the executable file 
 TARGET = ../libs/libSparseMatrix.a
@@ -61,26 +61,27 @@ TARGET = ../libs/libSparseMatrix.a
 # It is for Windoes only. Under Linux, ti will be something 
 # like the following (which is not tested): 
 #	rm -f
-RM = rm 
+RM = rm -f
 
 all: $(CBLAS_OBJS) $(OBJS)
+	mkdir -p ../libs
 	$(AR) $(TARGET) $(OBJS)
-
-# A pattern rule ‘%.o : %.c’ says how to make any file stem.o from another file stem.c
-# Reference: http://www.gnu.org/software/make/manual/make.html#Pattern-Rules
-# Yuchen: this following command will compile these following objects daxpy.o dscal.o ddot.o daxpy.o
-CBLAS_%.o : CBLAS/%.c
-	$(CCC) -m64 $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 # Yuchen: these following command will compile the other cpp files in the project
 # For example, if there is a file SparseMatrix.cpp in the current directory, it will 
 #   be compiled to SparseMatrix.o. That is equivalent to the following two lines of code. 
 # SparseMatrix.o: SparseMatrix.cpp
 #	$(CC) $(CFLAGS) $(INCLUDES) -c SparseMatrix.cpp -o SparseMatrix.o
-%.o: %.cpp
+./obj/%.o: %.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
+# A pattern rule ‘%.o : %.c’ says how to make any file stem.o from another file stem.c
+# Reference: http://www.gnu.org/software/make/manual/make.html#Pattern-Rules
+# Yuchen: this following command will compile these following objects daxpy.o dscal.o ddot.o daxpy.o
+./obj/CBLAS_%.o : CBLAS/%.c
+	$(CCC) -m64 $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 # Yuchen: Removes all .o files and the excutable file, so that the next make rebuilds them
 clean: 
-	$(RM) *.o $(TARGET)
+	$(RM) ./obj/*.o $(TARGET)
 

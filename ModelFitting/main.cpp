@@ -114,14 +114,14 @@ void start_levernberg_marquart( const string& dataname = "data15", bool isDispla
 
     // Levenberg-Marquart
     LevenburgMaquart lm( tildaP, labelID, model, labelID3d );
-    lm.reestimate( 4000, LevenburgMaquart::Quadratic );
+    lm.reestimate( 4000, LevenburgMaquart::Quadratic, dataname );
 }
 }
 
 
 int main(int argc, char* argv[])
 {
-    experiments::start_levernberg_marquart("data/data15", true);
+    experiments::start_levernberg_marquart("data15", true);
 
     cout << "Main Thread is Done. " << endl;
     visualization_thread.join();
