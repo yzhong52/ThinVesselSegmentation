@@ -272,8 +272,7 @@ Data3D<T>::Data3D( const std::string& filename )
     bool flag = load( filename );
     if( !flag )
     {
-        std::cout << "Cannot load the file. " << std::endl;
-        system( "pause" );
+        std::cerr << "Data3D<T>::Data3D::Cannot load the file. " << std::endl;
     }
 }
 

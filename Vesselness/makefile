@@ -6,7 +6,7 @@
 #  -pg   adds profiling information to the executable file
 #  -m64  compile for 64-bit
 #  -Wno-comment disable warnings about multiline comments
-CFLAGS = -Wall -m64 -fopenmp -Wno-comment -std=c++11 -O2 -Wl,--no-as-needed
+CFLAGS = -Wall -m64 -fopenmp -Wno-comment -std=c++0x -O2 -Wl,--no-as-needed
 
 # for C++ define  CC = g++
 #  -m64  compile for 64 bits
