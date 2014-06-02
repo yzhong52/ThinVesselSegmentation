@@ -1,149 +1,163 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "SparseMatrixData.h"
 
-SparseMatrixData::SparseMatrixData( int num_rows, int num_cols, const double non_zero_value[], 
-	const int col_index[], const int row_pointer[], int N ) 
-	: ncol( num_cols ), nrow( num_rows ), datarow( NULL ), datacol( NULL )
-{
-	// N==0, then this is a zero matrix, then don't allocate matrix data
-	if( N == 0 ) return;
+#include <iostream>
 
-	datarow = new SparseMatrixDataRow( num_rows, num_cols, non_zero_value, col_index, row_pointer, N ); 
-}
+using namespace std;
 
-SparseMatrixData::SparseMatrixData( int num_rows, int num_cols, double non_zero_value[], 
-	int col_index[], int row_pointer[], int N ) 
-	: ncol( num_cols ), nrow( num_rows ), datarow( NULL ), datacol( NULL )
-{
-	// N==0, then this is a zero matrix, then don't allocate matrix data
-	if( N == 0 ) return;
-
-	datarow = new SparseMatrixDataRow( num_rows, num_cols, non_zero_value, col_index, row_pointer, N ); 
-}
-
-
-SparseMatrixData::SparseMatrixData( int num_rows, int num_cols ) 
-	: ncol( num_cols ), nrow( num_rows ), datarow( NULL ), datacol( NULL )
+SparseMatrixData::SparseMatrixData( unsigned num_rows, unsigned num_cols )
+    : ncol( num_cols ), nrow( num_rows )
 {
 
 }
 
-SparseMatrixData::~SparseMatrixData(){
-	// destro matrix data
-	if( datacol ) delete datacol;
-	if( datarow ) delete datarow; 
+SparseMatrixData::SparseMatrixData( unsigned num_rows, unsigned num_cols, const double non_zero_value[],
+                                    const unsigned col_index[], const unsigned row_pointer[], unsigned N )
+    : ncol( num_cols ), nrow( num_rows )
+{
+    // N==0, then this is a zero matrix, then don't allocate matrix data
+    if( N != 0 )
+    {
+
+        datarow.nnz = N;
+
+        // non-zero values
+        datarow.nzval = new double[N];
+        memcpy( datarow.nzval, non_zero_value, sizeof(double) * N );
+
+        // column index
+        datarow.colind = new unsigned[N];
+        memcpy( datarow.colind, col_index, sizeof(unsigned) * N );
+
+        // row pointer
+        datarow.rowptr = new unsigned[nrow+1];
+        memcpy( datarow.rowptr, row_pointer, sizeof(unsigned) * nrow );
+        datarow.rowptr[nrow] = N;
+    }
 }
 
-const SparseMatrixDataCol* const SparseMatrixData::getCol(){ 
-	if( datarow==NULL || datacol ) return datacol; 
 
-	// memory of the following arrays will be allocated in func dCompRow_to_CompCol
-	double* nzval = NULL; 
-	int *rowidx = NULL;
-	int *colptr = NULL; 
 
-	dCompRow_to_CompCol( 
-		nrow,						// number of rows
-		ncol,						// number of cols
-		datarow->getData()->nnz,    // number of non-zero entries
-		datarow->nzvel(),           // non-zero entries
-		datarow->colinx(),          // column index
-		datarow->rowptr(),          // row pointers
-		&nzval,                     // non-zero entries (for column-order matrix)
-		&rowidx,                    // row indeces
-		&colptr );                  // column pointers
-
-	datacol = new SparseMatrixDataCol( nrow, ncol, nzval, rowidx, colptr, datarow->getData()->nnz );
-
-	return datacol;
+SparseMatrixData::~SparseMatrixData()
+{
+    datarow.release();
+    datacol.release();
 }
 
-const SparseMatrixDataRow* const SparseMatrixData::getRow(){
-	if( datacol==NULL || datarow ) return datarow;
 
-	// memory of the following arrays will be allocated in func dCompRow_to_CompCol
-	double* nzval = NULL; 
-	int *colidx = NULL;
-	int *rowptr = NULL; 
-
-	// IMPORTANT!: ncol and nrow is reversed in the following function. 
-	// This is because dCompRow_to_CompCol is a function for converting 
-	// row-order sparse matrix to col-order matrix. But it can also be 
-	// used to comvert a col matrix into a row one if it is carefully used. 
-	dCompRow_to_CompCol( 
-		ncol,						// number of rows
-		nrow,						// number of cols
-		datacol->getData()->nnz,    // number of non-zero entries
-		datacol->nzvel(),           // non-zero entries
-		datacol->rowinx(),          // pretend it is column index array
-		datacol->colptr(),          // pretend it is row pointers arrays
-		&nzval,                     // non-zero entries (for row-order matrix)
-		&colidx,                    // column indeces
-		&rowptr );                  // row pointers
-
-	datarow = new SparseMatrixDataRow( nrow, ncol, nzval, colidx, rowptr, datacol->getData()->nnz );
-
-	return datarow;
+void SparseMatrixData::getCol( unsigned& N, const double*& nzval, const unsigned *&rowind, const unsigned*& colptr )
+{
+    if( !datarow.isEmpty() && datacol.isEmpty() )
+    {
+        RowMatrix_to_ColMatrix( nrow, ncol,
+                                datarow.nnz, datarow.nzval, datarow.colind, datarow.rowptr,
+                                datacol.nnz, datacol.nzval, datacol.rowind, datacol.colptr );
+    }
+    N = datacol.nnz;
+    nzval  = datacol.nzval;
+    rowind = datacol.rowind;
+    colptr = datacol.colptr;
 }
 
-void SparseMatrixData::transpose( void ) {
-	// tanspose number of rows and columns
-	std::swap( nrow, ncol ); 
+void SparseMatrixData::getRow(unsigned& N, const double*& nzval, const unsigned *&colind, const unsigned*& rowptr )
+{
+    if( datarow.isEmpty() && !datacol.isEmpty() )
+    {
+        // IMPORTANT!: ncol and nrow is reversed in the following function.
+        // This is because dCompRow_to_CompCol is a function for converting
+        // row-order sparse matrix to col-order matrix. But it can also be
+        // used to comvert a col matrix into a row one if it is carefully used.
+        RowMatrix_to_ColMatrix(
+            ncol,						// number of rows
+            nrow,						// number of cols
+            datacol.nnz, datacol.nzval, datacol.rowind, datacol.colptr,
+            datarow.nnz, datarow.nzval, datarow.colind, datarow.rowptr );                  // row pointers
+    }
 
-	if( datarow && datacol ) {
-		// if the matrix is stored as both row-order and col-order
-		std::swap( datarow->supermatrix->Store, datacol->supermatrix->Store ); 
-		if( datarow ) std::swap( datarow->supermatrix->ncol, datarow->supermatrix->nrow ); 
-		if( datacol ) std::swap( datacol->supermatrix->ncol, datacol->supermatrix->nrow ); 
-	} 
-	else if( datarow ) 
-	{
-		// If the matrix is stored as row-order only
-		// convert the matrix from row-order to col-order
-		datacol = new SparseMatrixDataCol( 
-			nrow,   // number of rows
-			ncol,   // number of cols
-			datarow->nzvel(),    // non-zero values
-			datarow->colinx(),   // row index
-			datarow->rowptr(),   // col pointer
-			datarow->getData()->nnz );
-		
-		// destroy row-order data 
-		// IMPORTANT: the matrix data stored in supermatrix won't be destroyed. 
-		//  as they are used in datacol->sparsematrix
-		delete datarow->supermatrix;    datarow->supermatrix = NULL; 
-		delete datarow;                 datarow = NULL; 
-	} 
-	else if( datacol ) 
-	{
-		// if the matrix is stored as col-order only
-		// convert the matrix from col-order to row-order
-		datarow = new SparseMatrixDataRow( 
-			nrow,   // number of rows
-			ncol,   // number of cols
-			datacol->nzvel(),    // non-zero values
-			datacol->rowinx(),   // column index
-			datacol->colptr(),   // row pointer
-			datacol->getData()->nnz );
-
-		// destroy col-order data
-		// IMPORTANT: the matrix data stored in supermatrix won't be destroyed. 
-		//  as they are used in datarow->sparsematrix
-		delete datacol->supermatrix;    datacol->supermatrix = NULL; 
-		delete datacol;                 datacol = NULL; 
-	} 
-	else 
-	{
-		// both datacol and datarow are NULL
-		// this is a empty matrix, nothing to transpose
-	}
+    N = datarow.nnz;
+    nzval  = datarow.nzval;
+    colind = datarow.colind;
+    rowptr = datarow.rowptr;
 }
 
-void SparseMatrixData::multiply( const double& value ){
-	if( datarow ) {
-		for( int i=0; i<datarow->nnz(); i++ ) datarow->nzvel()[i] *= value; 
-	}
-	if( datacol ) {
-		for( int i=0; i<datacol->nnz(); i++ ) datacol->nzvel()[i] *= value; 
-	}
+void SparseMatrixData::transpose( void )
+{
+    // tanspose number of rows and columns
+    std::swap( nrow, ncol );
+
+    if( this->isCol() && this->isRow() )
+    {
+        // if the matrix is stored as both row-order and col-order
+        std::swap( datarow, datacol );
+    }
+    else if( this->isRow() )
+    {
+        datacol = datarow;
+        datarow.clear();
+    }
+    else if( this->isCol() )
+    {
+        datarow = datacol;
+        datacol.clear();
+    }
+    else
+    {
+        // both datacol and datarow are NULL
+        // this is a empty matrix, nothing to transpose
+    }
+}
+
+void SparseMatrixData::multiply( const double& value )
+{
+    for( unsigned i=0; i<datarow.nnz; i++ ) datarow.nzval[i] *= value;
+    for( unsigned i=0; i<datacol.nnz; i++ ) datacol.nzval[i] *= value;
+}
+
+
+void SparseMatrixData::RowMatrix_to_ColMatrix(unsigned m, unsigned n,
+        const unsigned& nnz1, const double * const nzval1, const unsigned * const colind1, const unsigned * const rowptr1,
+        unsigned& nnz2, double *&nzval2, unsigned *&rowind2, unsigned *&colptr2)
+{
+    nnz2 = nnz1;
+
+    register unsigned i, j;
+
+    /* Allocate storage for another copy of the matrix. */
+    nzval2 = new double[nnz1];
+    rowind2 = new unsigned[nnz1];
+    colptr2 = new unsigned[n+1];
+    unsigned *marker = new unsigned[n];
+    memset(marker, 0, sizeof(unsigned)*n );
+
+    /* Get counts of each column of A, and set up column pointers */
+    for (i = 0; i < m; ++i)
+    {
+        for (j = rowptr1[i]; j < rowptr1[i+1]; ++j)
+        {
+            ++marker[colind1[j]];
+        }
+    }
+
+    colptr2[0] = 0;
+    for (j = 0; j < n; ++j)
+    {
+        colptr2[j+1] = colptr2[j] + marker[j];
+        marker[j] = colptr2[j];
+    }
+
+    /* Transfer the matrix into the compressed column storage. */
+    unsigned col, relpos;
+    for (i = 0; i < m; ++i)
+    {
+        for (j = rowptr1[i]; j < rowptr1[i+1]; ++j)
+        {
+            col = colind1[j];
+            relpos = marker[col];
+            rowind2[relpos] = i;
+            nzval2[relpos] = nzval1[j];
+            ++marker[col];
+        }
+    }
+
+    delete[] marker;
 }

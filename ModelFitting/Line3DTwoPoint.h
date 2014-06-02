@@ -1,32 +1,41 @@
 #pragma once
-#include "line3d.h"
+#include "Line3D.h"
 class Line3DTwoPoint :
-	public Line3D
+    public Line3D
 {
-	Vec6d data; 
+    cv::Vec6d data;
 public:
-	Line3DTwoPoint(void);
-	virtual ~Line3DTwoPoint(void);
+    Line3DTwoPoint(void);
+    virtual ~Line3DTwoPoint(void);
 
-	// Give a point, calculat the distance from the point to the line 
-	virtual double distanceToLine( const Vec3d& point ) const; 
+    // Give a point, calculat the distance from the point to the line
+    virtual double distanceToLine( const cv::Vec3d& point ) const;
 
-	// Given a point calculate the negative log likihood of a point being asign to this line
-	virtual double loglikelihood( const Vec3d& point ) const; 
-	virtual inline int getNumOfParameters( void ) { return 6; }
+    // Given a point calculate the negative log likihood of a point being asign to this line
+    virtual double loglikelihood( const cv::Vec3d& point ) const;
+    virtual inline int getNumOfParameters( void )
+    {
+        return 6;
+    }
 
-	// Given a point, return the projection point on the line
-	virtual Vec3d projection( const Vec3d& point ) const;
-	
-	virtual inline void setPositions( const Vec3d& pos1, const Vec3d& pos2 );
+    // Given a point, return the projection point on the line
+    virtual cv::Vec3d projection( const cv::Vec3d& point ) const;
 
-	virtual void updateParameterWithDelta( int i, double delta ); 
-	
-	virtual Vec3d getDirection( void ) const;
+    virtual inline void setPositions( const cv::Vec3d& pos1, const cv::Vec3d& pos2 );
 
-	virtual void getEndPoints( Vec3d& p1, Vec3d& p2 ) const; 
+    virtual void updateParameterWithDelta( int i, double delta );
 
-	virtual void serialize( std::ostream& out ) const;
-	virtual void deserialize( std::istream& in );
+    virtual cv::Vec3d getDirection( void ) const;
+
+    virtual void getEndPoints( cv::Vec3d& p1, cv::Vec3d& p2 ) const;
+
+    virtual void serialize( std::ostream& out ) const;
+    virtual void deserialize( std::istream& in );
 };
 
+
+inline void Line3DTwoPoint::setPositions( const cv::Vec3d& pos1, const cv::Vec3d& pos2 )
+{
+    memcpy( &data[0], &pos1[0], sizeof(double) * 3 );
+    memcpy( &data[3], &pos2[0], sizeof(double) * 3 );
+}

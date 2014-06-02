@@ -1,150 +1,149 @@
 // ModelFitting.cpp : Defines the entry point for the console application.
 //
-
-#include "stdafx.h"
-#include <Windows.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include "Line3D.h"
 
 // For multithreading
-#include <Windows.h>
-#include <process.h>
 #include <iomanip>
-
-// This project is build after VesselNess. 
-// Some of the building blocks (Data3D, Visualization) are borrowed from VesselNess. 
-#include "Data3D.h" 
-
-#include "MinSpanTree.h" 
-
-// For the use of graph cut
-#include "GCoptimization.h"
-typedef GCoptimization GC; 
-
-#include "Line3DTwoPoint.h" 
-#include "LevenburgMaquart.h" 
-#include "GraphCut.h"
-#include "SyntheticData.h" 
-#include "ImageProcessing.h"
-#include "Timer.h"
-
-
+#include <opencv2/core/core.hpp>
 #include <assert.h>
 #include <iostream>
-#include <limits> 
+#include <limits>
 
-const double LOGLIKELIHOOD = 1.0; 
-const double PAIRWISESMOOTH = 7.0; 
+// This project is build after VesselNess.
+// Some of the building blocks (Data3D, Visualization) are borrowed from VesselNess.
+#include "Data3D.h"
 
+#include "MinSpanTree.h"
 
-// if IS_PROFILING is defined, rendering is disabled
-//#define IS_PROFILING
-HANDLE thread_render = NULL; 
-#ifndef IS_PROFILING // NOT profiling, add visualization model
-	#include "GLViwerModel.h"
-	GLViwerModel ver;
-	// thread function for rendering
-	void visualization_func( void* data ) {
-		GLViwerModel& ver = *(GLViwerModel*) data; 
-		ver.go( 720, 480, 2 );
-	}
-	template<class T>
-	void initViwer( const Data3D<T>& im, const vector<cv::Vec3i>& dataPoints, 
-		const vector<Line3D*>& lines, const vector<int>& labelings )
-	{
-		GLViewer::GLLineModel *model = new GLViewer::GLLineModel( im.get_size() );
-		model->updatePoints( dataPoints ); 
-		model->updateModel( lines, labelings ); 
-		ver.objs.push_back( model );
+#include "Line3DTwoPoint.h"
+#include "LevenburgMaquart.h"
+#include "SyntheticData.h"
+#include "ImageProcessing.h"
+#include "Timer.h"
+#include "Neighbour26.h"
+#include "SparseMatrix/SparseMatrix.h"
+#include "ModelSet.h"
+#include "init_models.h"
+#include "GLLineModel.h"
+#include <thread> // C++11
 
-		ver.addObject( im ); 
+using namespace std;
 
-		thread_render = (HANDLE) _beginthread( visualization_func, 0, (void*)&ver ); 
-		// Give myself sometime to decide whether we need to render a video
-		Sleep( 1000 ); 
-	}
+const double DATA_COST = 1.0;
+const double PAIRWISE_SMOOTH = 7.0;
+const double DATA_COST2 = DATA_COST * DATA_COST;
+const double PAIRWISE_SMOOTH2 = PAIRWISE_SMOOTH * PAIRWISE_SMOOTH;
+
+// thead for visualization
+std::thread visualization_thread;
+
+//#define IS_VISUAL
+#ifdef IS_VISUAL // add visualization model
+#include "GLViwerModel.h"
+
+GLViwerModel vis;
+// thread function for rendering
+void visualization_func( int numViewports )
+{
+    vis.go( 1280, 768, numViewports );
+}
+
+// function template default type C++11
+template<class T1, class T2=char, class T3=char>
+void initViwer( const vector<cv::Vec3i>& dataPoints,
+                const vector<Line3D*>& lines, const vector<int>& labelings,
+                const Data3D<T1>* im1,
+                const Data3D<T2>* im2 = nullptr,
+                const Data3D<T3>* im3 = nullptr)
+{
+    vis.addObject( *im1 );
+
+    if( im2 ) vis.addObject( *im2 );
+    if( im3 ) vis.addObject( *im3 );
+
+    GLViewer::GLLineModel *model = new GLViewer::GLLineModel( im1->get_size() );
+    model->updatePoints( dataPoints );
+    model->updateModel( lines, labelings );
+    vis.objs.push_back( model );
+
+    int numViewports = 2;
+    numViewports += (im2!=nullptr);
+    numViewports += (im3!=nullptr);
+
+    // create visualiztion thread
+    visualization_thread = std::thread(visualization_func, numViewports );
+
+}
+
 #else
-	void initViwer( const Image3D<short>& im_short, const vector<cv::Vec3i>& dataPoints, 
-		const vector<Line3D*>& lines, const vector<int>& labelings )
-	{
 
-	}
+// function template default type C++11
+template<class T1, class T2=char, class T3=char>
+void initViwer( const vector<cv::Vec3i>& dataPoints,
+                const vector<Line3D*>& lines, const vector<int>& labelings,
+                const Data3D<T1>* im1,
+                const Data3D<T2>* im2 = nullptr,
+                const Data3D<T3>* im3 = nullptr ){ }
 #endif
 
+namespace experiments
+{
 
+void start_levernberg_marquart( const string& dataname = "data15", bool isDisplay = false )
+{
+    // Vesselness measure with sigma
+    Image3D<Vesselness_Sig> vn_et_sig;
+    vn_et_sig.load( dataname + ".et.vn_sig" );
 
-#include "SparseMatrix\SparseMatrix.h"
-#include "ModelSet.h"
+    // threshold the data and put the data points into a vector
+    Data3D<int> labelID3d;
+    vector<cv::Vec3i> tildaP;
+    ModelSet<Line3D> model;
+    vector<int> labelID;
+    each_model_per_point( vn_et_sig, labelID3d, tildaP, model, labelID );
+    cout << "Number of data points: " << tildaP.size() << endl;
+
+    if( isDisplay ){
+        // create a thread for rendering
+        Data3D<Vesselness_Sig> vn_sig( dataname + ".vn_sig" );
+        Data3D<short> im_short( dataname + ".data" );
+        initViwer( tildaP, model.models, labelID, &im_short, &vn_sig, &vn_et_sig );
+    }
+
+    // Levenberg-Marquart
+    LevenburgMaquart lm( tildaP, labelID, model, labelID3d );
+    lm.reestimate( 4000, LevenburgMaquart::Quadratic, dataname );
+}
+}
+
 
 int main(int argc, char* argv[])
 {
-	srand( 3 ); 
+    experiments::start_levernberg_marquart("data15", true);
 
-	// TODO: not compatible with MinGW? 
-	CreateDirectory(L"./output", NULL);
-	
-	// Vesselness measure with sigma
-	Image3D<Vesselness_Sig> vn_sig;
-	Image3D<short> im_short;
-	vn_sig.load( "../temp/roi15.vn_sig" ); 
-	vn_sig.remove_margin_to( Vec3i(50, 50, 50) );
-	
-	// threshold the data and put the data points into a vector
-	Data3D<int> indeces;
-	vector<cv::Vec3i> dataPoints;
-	Data3D<float> vn = vn_sig; 
-	IP::normalize( vn, 1.0f ); 
-	
-	IP::threshold( vn, indeces, dataPoints, 0.10f );
-	cout << "Number of data points: " << dataPoints.size() << endl;
-	
-	//////////////////////////////////////////////////
-	// Initial Samplings
-	//////////////////////////////////////////////////
-	const int num_init_labels = (int) dataPoints.size(); 
-	ModelSet<Line3D> model; 
-	vector<Line3D*>& lines = model.models; 
-	for( int i=0; i<num_init_labels; i++ ) {
-		const Vec3d& dir = vn_sig.at( dataPoints[i] ).dir;
-		const double& sigma = vn_sig.at( dataPoints[i] ).sigma;
-		
-		Line3DTwoPoint *line  = new Line3DTwoPoint();
-		line->setPositions( (Vec3d) dataPoints[i] - dir, (Vec3d) dataPoints[i] + dir ); 
-		line->setSigma( sigma ); 
-		lines.push_back( line ); 
-	}
-
-	//////////////////////////////////////////////////
-	// Loading serialized data
-	//////////////////////////////////////////////////
-	//model.deserialize<Line3DTwoPoint>( "output/Line3DTwoPoint.model" ); 
-	//if( lines.size()!=dataPoints.size() ) {
-	//	cout << "Number of models is not corret. " << endl; 
-	//	cout << "Probably because of errors while deserializing the data. " << endl;
-	//	return 0; 
-	//}
-
-	vector<int> labelings = vector<int>( dataPoints.size(), 0 ); 
-	// randomly assign label for each point separatedly 
-	for( int i=0; i<num_init_labels; i++ ) labelings[i] = i; 
-	
-	//////////////////////////////////////////////////
-	// create a thread for rendering
-	//////////////////////////////////////////////////
-	cout << lines.size() << endl; 
-	initViwer( vn_sig, dataPoints, lines, labelings);
-	
-	Timer::begin( "Levenburg Maquart" ); 
-	LevenburgMaquart lm( dataPoints, labelings, model, indeces );
-	lm.reestimate(); 
-	Timer::end( "Levenburg Maquart" ); 
-
-	cout << "Main Thread is Done. " << endl; 
-	cout << Timer::summery() << endl; 
-
-	model.serialize( "output/Line3DTwoPoint.model" ); 
-
-	WaitForSingleObject( thread_render, INFINITE);
-	return 0; 
+    cout << "Main Thread is Done. " << endl;
+    visualization_thread.join();
+    return 0;
 }
+
+
+
+
+
+
+
+
+//// TODO: not compatible with MinGW?
+//CreateDirectory(L"./output", NULL);
+
+//////////////////////////////////////////////////
+// Loading serialized data
+//////////////////////////////////////////////////
+//model.deserialize<Line3DTwoPoint>( "output/Line3DTwoPoint.model" );
+//if( lines.size()!=dataPoints.size() ) {
+//	cout << "Number of models is not corret. " << endl;
+//	cout << "Probably because of errors while deserializing the data. " << endl;
+//	return 0;
+//}

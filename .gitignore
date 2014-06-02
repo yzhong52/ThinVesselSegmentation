@@ -1,3 +1,6 @@
+/ModelFitting/modelfitting
+/ModelFitting/libSparseMatrixCV.a
+/ModelFitting/libSparseMatrix.a
 #################
 ## Yuchen
 #################
@@ -27,6 +30,13 @@ VesselNess/output
 */My Amplifier XE Results - ModelFitting/*
 
 
+
+
+libs/
+
+# for code::block
+*.layout
+*.depend
 
 
 
@@ -215,5 +225,4 @@ UpgradeLog*.htm
 # Microsoft Fakes
 FakesAssemblies/
 
-
-
+/.project
