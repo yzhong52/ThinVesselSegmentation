@@ -1,6 +1,6 @@
 #pragma once
 
-#include <opencv2/core/core.hpp>
+#include <opencv/cv.h>
 #include "../SparseMatrix/SparseMatrix.h"
 #include <vector>
 

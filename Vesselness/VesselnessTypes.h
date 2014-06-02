@@ -1,6 +1,6 @@
 #pragma once
 
-#include <opencv2/core/core.hpp>
+#include <opencv/cv.h>
 #include "smart_assert.h"
 
 // VesselnessTypes.h

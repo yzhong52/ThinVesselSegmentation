@@ -1,4 +1,4 @@
-#include <opencv2/core/core.hpp>
+#include <opencv/cv.h>
 #include <iostream>
 #include "SparseMatrixCV.h"
 

@@ -1,6 +1,6 @@
 #pragma once
 #include "SparseMatrixCV/SparseMatrixCV.h"
-#include <opencv2/core/core.hpp>
+#include <opencv/cv.h>
 #include "ModelSet.h"
 #include "EnergyFunctions.h"
 #include <array>

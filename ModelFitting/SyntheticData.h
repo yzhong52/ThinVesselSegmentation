@@ -4,7 +4,7 @@
 #include "../Vesselness/Data3D.h"
 #include <random>
 #include <cmath>
-#include <opencv2/core/core.hpp>
+#include <opencv/cv.h>
 
 namespace SyntheticData
 {
