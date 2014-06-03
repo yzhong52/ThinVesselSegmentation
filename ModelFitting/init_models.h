@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include <opencv/cv.h>
+#include <opencv2/core/core.hpp>
 
 
 class Line3D;

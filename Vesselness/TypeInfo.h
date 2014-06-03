@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <opencv/cv.h>
+#include <opencv2/core/core.hpp>
 #include "VesselnessTypes.h"
 class Vesselness;
 class Vesselness_Sig;

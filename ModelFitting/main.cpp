@@ -6,7 +6,7 @@
 
 // For multithreading
 #include <iomanip>
-#include <opencv/cv.h>
+#include <opencv2/core/core.hpp>
 #include <assert.h>
 #include <iostream>
 #include <limits>

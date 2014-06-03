@@ -1,11 +1,11 @@
 #define _CRT_SECURE_NO_DEPRECATE
 #include "GLVideoSaver.h"
-#include <iostream>
 
 // Using OpenCV ot Save the Scene to video
-#include <opencv/cv.h>
-#include <opencv/highgui.h>
-#include <opencv2/video/video.hpp>// This is only compatible with later version of opencv
+#include <opencv2/core/core.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/video/video.hpp>
+#include <opencv2/highgui/highgui.hpp>
 
 /////////////////////////////////////
 // Glew Library
@@ -16,9 +16,11 @@
 // OpenGL Library
 #if _MSC_VER && !__INTEL_COMPILER
 #include <windows.h>		// Header File For Windows
-#include <GL/GL.h>			// Header File For The OpenGL32 Library
-#include <GL/glu.h>			// Header File For The GLu32 Library
+#include <GL\GL.h>			// Header File For The OpenGL32 Library
+#include <GL\glu.h>			// Header File For The GLu32 Library
 #endif
+
+#include <iostream>
 
 using namespace cv;
 using namespace std;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include <opencv/cv.h>
+#include <opencv2/core/core.hpp>
 #include "smart_assert.h"
 
 class Neighbour26

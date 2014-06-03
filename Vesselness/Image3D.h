@@ -2,7 +2,7 @@
 
 #include "Data3D.h"
 #include <fstream>
-#include <opencv/cv.h>
+#include <opencv2/imgproc/imgproc.hpp>
 
 // Image Data (3D, short int)
 template<typename T = short>

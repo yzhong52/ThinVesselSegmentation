@@ -1,6 +1,6 @@
 #pragma once
 #include <iostream>
-#include <opencv/cv.h>
+#include <opencv2/core/core.hpp>
 
 // Line3D is a general abstract class
 // For a line in 3D, there are many different representations:

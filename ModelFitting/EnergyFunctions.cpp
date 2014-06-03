@@ -1,4 +1,4 @@
-#include <opencv/cv.h>
+#include <opencv2/core/core.hpp>
 #include "EnergyFunctions.h"
 #include "Line3D.h"
 #include "Neighbour26.h"
