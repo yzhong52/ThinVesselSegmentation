@@ -7,19 +7,18 @@
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
-				<Option output="core" prefix_auto="1" extension_auto="1" />
+				<Option output="../libs/Debug/core" prefix_auto="1" extension_auto="1" />
 				<Option working_dir="" />
 				<Option object_output="obj/Debug/" />
-				<Option type="1" />
+				<Option type="2" />
 				<Option compiler="gcc" />
-				<Option use_console_runner="0" />
 				<Compiler>
 					<Add option="-Wall" />
 					<Add option="-g" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
-				<Option output="core" prefix_auto="1" extension_auto="1" />
+				<Option output="../libs/Release/core" prefix_auto="1" extension_auto="1" />
 				<Option working_dir="" />
 				<Option object_output="obj/Release/" />
 				<Option type="2" />
@@ -34,24 +33,15 @@
 				</Linker>
 			</Target>
 			<Target title="test">
-				<Option output="core" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/Debug/core" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option use_console_runner="0" />
 				<Option projectCompilerOptionsRelation="2" />
 				<Compiler>
 					<Add option="-Wall" />
 					<Add option="-g" />
 				</Compiler>
-				<Linker>
-					<Add option="&apos;pkg-config --libs opencv&apos;" />
-					<Add library="libglut.a" />
-					<Add library="libGL.a" />
-					<Add library="libGLU.a" />
-					<Add library="libGLEW.a" />
-					<Add library="libomp.a" />
-				</Linker>
 			</Target>
 		</Build>
 		<Compiler>
@@ -59,11 +49,11 @@
 			<Add option="-Wno-comment" />
 		</Compiler>
 		<Linker>
-			<Add option="&apos;pkg-config --libs opencv&apos;" />
+			<Add option="`pkg-config --libs opencv`" />
 			<Add library="libGL.a" />
 			<Add library="libGLU.a" />
 			<Add library="libGLEW.a" />
-			<Add library="libomp.a" />
+			<Add library="libgomp.a" />
 			<Add library="libglut.a" />
 		</Linker>
 		<Unit filename="Data3D.h" />
@@ -71,12 +61,12 @@
 		<Unit filename="GLCamera.h" />
 		<Unit filename="GLCenterLine.cpp" />
 		<Unit filename="GLCenterLine.h" />
-		<Unit filename="GLDirection.h" />
 		<Unit filename="GLVideoSaver.cpp" />
 		<Unit filename="GLVideoSaver.h" />
 		<Unit filename="GLViewer.cpp" />
 		<Unit filename="GLViewer.h" />
 		<Unit filename="GLViewerExt.h" />
+		<Unit filename="GLViwerCore.h" />
 		<Unit filename="GLViwerWrapper.h" />
 		<Unit filename="GLVolumn.cpp" />
 		<Unit filename="GLVolumn.h" />

@@ -379,7 +379,7 @@ bool Data3D<T>::load( const std::string& file_name, const cv::Vec3i& size, bool 
 
     // if the size we read is not as big as the size we expected, fail
     smart_return( size_read==_size_total*sizeof(T),
-                        "Data size is incorrect (too big)", false );
+                  "Data size is incorrect (too big)", false );
 
     if( isBigEndian )
     {

@@ -111,7 +111,8 @@ void GLCamera::rotate_scene(void)
     // get current time
     QueryPerformanceCounter(&t2);
     static bool flag = true;
-    if( flag ) {
+    if( flag )
+    {
         t1 = t2; // t1 is initialized only once here
         flag = false;
     }
@@ -123,7 +124,8 @@ void GLCamera::rotate_scene(void)
     // get current time
     gettimeofday(&t2, NULL);
     static bool flag = true;
-    if( flag ) {
+    if( flag )
+    {
         t1 = t2; // t1 is initialized only once here
         flag = false;
     }

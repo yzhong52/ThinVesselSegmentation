@@ -20,15 +20,15 @@
 #include <iostream>
 
 // The following color is defined using [ANSI colour codes](http://en.wikipedia.org/wiki/ANSI_escape_code)
-const char* RED   = "\033[0;31m";
-const char* BLACK = "\x1b[0;49m";
+#define SMA_RED   "\033[0;31m"
+#define SMA_BLACK "\x1b[0;49m"
 
 #define smart_assert( condition, message ) \
 	if( !(condition) ) { \
-		std::cerr << RED << "Assertion failed: " << (#condition) << std::endl; \
+		std::cerr << SMA_RED << "Assertion failed: " << (#condition) << std::endl; \
 		std::cerr << "  Messages: " << message << std::endl; \
 		std::cerr << "  Location: file "<< __FILE__ << ", line " << __LINE__ << std::endl; \
-		std::cerr << BLACK << std::endl;\
+		std::cerr << SMA_BLACK << std::endl;\
 	}
 
 #define smart_return( condition, message, return_value ) \
