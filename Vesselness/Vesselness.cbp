@@ -3,9 +3,9 @@
 	<FileVersion major="1" minor="6" />
 	<Project>
 		<Option title="Vesselness" />
+		<Option makefile="makefile" />
 		<Option pch_mode="2" />
 		<Option compiler="gnu_gcc_compiler_x64" />
-		<Option virtualFolders="Visualization/;" />
 		<Build>
 			<Target title="Debug">
 				<Option output="bin/Debug/Vesselness" prefix_auto="1" extension_auto="1" />
@@ -60,40 +60,20 @@
 		<Unit filename="DisjointSet.h" />
 		<Unit filename="Edge.cpp" />
 		<Unit filename="Edge.h" />
-		<Unit filename="GLCamera.cpp">
-			<Option virtualFolder="Visualization/" />
-		</Unit>
-		<Unit filename="GLCamera.h">
-			<Option virtualFolder="Visualization/" />
-		</Unit>
-		<Unit filename="GLCenterLine.h">
-			<Option virtualFolder="Visualization/" />
-		</Unit>
-		<Unit filename="GLDirection.h">
-			<Option virtualFolder="Visualization/" />
-		</Unit>
-		<Unit filename="GLVideoSaver.cpp">
-			<Option virtualFolder="Visualization/" />
-		</Unit>
-		<Unit filename="GLVideoSaver.h">
-			<Option virtualFolder="Visualization/" />
-		</Unit>
-		<Unit filename="GLViewer.cpp">
-			<Option virtualFolder="Visualization/" />
-		</Unit>
-		<Unit filename="GLViewerExt.h">
-			<Option virtualFolder="Visualization/" />
-		</Unit>
-		<Unit filename="GLViwerWrapper.h">
-			<Option virtualFolder="Visualization/" />
-		</Unit>
-		<Unit filename="GLVolumn.h">
-			<Option virtualFolder="Visualization/" />
-		</Unit>
+		<Unit filename="GLCamera.cpp" />
+		<Unit filename="GLCamera.h" />
+		<Unit filename="GLCenterLine.h" />
+		<Unit filename="GLDirection.h" />
+		<Unit filename="GLVideoSaver.cpp" />
+		<Unit filename="GLVideoSaver.h" />
+		<Unit filename="GLViewer.cpp" />
+		<Unit filename="GLViewerExt.h" />
+		<Unit filename="GLViwerWrapper.h" />
+		<Unit filename="GLVolumn.h" />
 		<Unit filename="Graph.h" />
 		<Unit filename="Image3D.h" />
+		<Unit filename="ImageProcessing.cpp" />
 		<Unit filename="ImageProcessing.h" />
-		<Unit filename="ImageProcessor.cpp" />
 		<Unit filename="Kernel3D.h" />
 		<Unit filename="MinSpanTree.cpp" />
 		<Unit filename="MinSpanTree.h" />
