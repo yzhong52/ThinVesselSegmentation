@@ -238,7 +238,7 @@ void Image3D<T>::setROI( const cv::Vec3i& roi_corner_0, const cv::Vec3i& roi_cor
 template<typename T>
 void Image3D<T>::setROI(void)
 {
-    smart_return( this->get_size_total(), "Image data is not set. ");
+    smart_assert( this->get_size_total(), "Image data is not set. ");
 
     is_roi_set = false;
 
@@ -466,7 +466,7 @@ void Image3D<T>::showSlice(int i, const std::string& name )
 template<typename T>
 void Image3D<T>::shrink_by_half(void)
 {
-    smart_return( this->_size_total, "Image data is not set. ");
+    smart_assert( this->_size_total, "Image data is not set. ");
 
     cv::Vec3i n_size = (Data3D<T>::_size - cv::Vec3i(1,1,1)) / 2; // TODO: why do I have to minute cv::Vec3i(1,1,1) here?
     int n_size_slice = n_size[0] * n_size[1];

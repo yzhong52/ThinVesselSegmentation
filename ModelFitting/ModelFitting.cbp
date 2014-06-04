@@ -38,7 +38,7 @@
 					<Add directory="../dependencies/opencv2.4.8/x64-mingw32-w64" />
 					<Add directory="../dependencies/glew-1.10.0/x64" />
 					<Add directory="../dependencies/freeglut 2.8.1/x64" />
-					<Add directory="../libs" />
+					<Add directory="../libs/Debug" />
 				</Linker>
 			</Target>
 			<Target title="Release">
@@ -73,7 +73,7 @@
 					<Add directory="../dependencies/opencv2.4.8/x64-mingw32-w64" />
 					<Add directory="../dependencies/glew-1.10.0/x64" />
 					<Add directory="../dependencies/freeglut 2.8.1/x64" />
-					<Add directory="../libs" />
+					<Add directory="../libs/Release" />
 				</Linker>
 			</Target>
 		</Build>

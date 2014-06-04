@@ -7,5 +7,9 @@
 		<Project filename="install/install.cbp" />
 		<Project filename="Vesselness/Vesselness.cbp" />
 		<Project filename="EigenDecomp/EigenDecomp.cbp" />
+		<Project filename="RingsReduction/RingsReduction.cbp">
+			<Depends filename="core/core.cbp" />
+		</Project>
+		<Project filename="core/core.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>

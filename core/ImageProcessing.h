@@ -130,7 +130,7 @@ void ImageProcessing::conv3( const Data3D<T1>& src, Data3D<T2>& dst, const Kerne
 template<typename T1, typename T2>
 bool ImageProcessing::GaussianBlur3D( const Data3D<T1>& src, Data3D<T2>& dst, int ksize, double sigma )
 {
-    smart_return_value( ksize%2!=0, "kernel size should be odd number", false );
+    smart_return( ksize%2!=0, "kernel size should be odd number", false );
 
     //////////////////////////////////////////////////////////////////////////////////////
     // Relationship between Sigma and Kernal Size (ksize)
@@ -156,7 +156,6 @@ bool ImageProcessing::GaussianBlur3D( const Data3D<T1>& src, Data3D<T2>& dst, in
     cv::Vec3i spos, epos;
     spos = cv::Vec3i(0, 0, 0);
     epos = src.get_size();
-
 
     // gaussian on x-direction
     Data3D<T2> tmp1( src.get_size(), T2(0) ); // the data will be set to zero
@@ -229,7 +228,7 @@ bool ImageProcessing::GaussianBlur3D( const Data3D<T1>& src, Data3D<T2>& dst, in
 template<typename T1, typename T2>
 bool ImageProcessing::medianBlur3D( const Data3D<T1>& src, Data3D<T2>& dst, int ksize)
 {
-    smart_assert(0, "Not Implemented!" );
+    smart_return(0, "Not Implemented!", false );
 }
 
 // mean filter

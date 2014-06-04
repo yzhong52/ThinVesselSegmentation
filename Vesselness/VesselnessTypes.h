@@ -243,3 +243,60 @@ template< > class DataType< Vesselness_All > : public DataType< Vec<float, Vesse
 //           fmt = ((channels-1)<<8) + DataDepth<channel_type>::fmt,
 //           type = CV_MAKETYPE(depth, channels) };
 //};
+
+
+template <> struct TypeInfo <Vesselness>
+{
+    static std::string str()
+    {
+        std::stringstream ss;
+        ss << "float," << Vesselness::_size;
+        return ss.str();
+    }
+    static int CV_TYPE()
+    {
+        return CV_32FC( Vesselness::_size );
+    }
+};
+
+template <> struct TypeInfo <Vesselness_Sig>
+{
+    static std::string str()
+    {
+        std::stringstream ss;
+        ss << "float," << Vesselness_Sig::_size;
+        return ss.str();
+    }
+    static int CV_TYPE()
+    {
+        return CV_32FC( Vesselness_Sig::_size );
+    }
+};
+
+template <> struct TypeInfo <Vesselness_Nor>
+{
+    static std::string str()
+    {
+        std::stringstream ss;
+        ss << "float," << Vesselness_Nor::_size;
+        return ss.str();
+    }
+    static int CV_TYPE()
+    {
+        return CV_32FC( Vesselness_Nor::_size );
+    }
+};
+
+template <> struct TypeInfo <Vesselness_All>
+{
+    static std::string str()
+    {
+        std::stringstream ss;
+        ss << "float," << Vesselness_All::_size;
+        return ss.str();
+    }
+    static int CV_TYPE()
+    {
+        return CV_32FC( Vesselness_All::_size );
+    }
+};
