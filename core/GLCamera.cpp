@@ -11,6 +11,13 @@ using namespace std;
 #include <sys/time.h>
 #endif // _MSC_VER && !__INTEL_COMPILER
 
+
+#include <GL/glut.h>
+#include <GL/glew.h>
+#include <GL/freeglut.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
+
 void rotate_axis(
     float u, float v, float w,        /*Axis*/
     float x, float y, float z,        /*The Point That We Want to Roate */

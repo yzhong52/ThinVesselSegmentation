@@ -1,6 +1,7 @@
 #pragma once
 
 #include <opencv2/core/core.hpp>
+#include "TypeInfo.h"
 #include "smart_assert.h"
 
 // VesselnessTypes.h
@@ -82,13 +83,13 @@ public:
 
     const float& operator[]( const int& i ) const
     {
-        smart_return_value( i>=0&&i<_size, "index invalid", *(float*)(this) );
+        smart_return( i>=0&&i<_size, "index invalid", *(float*)(this) );
         return *((float*)(this)+i);
     }
 
     float& operator[]( const int& i )
     {
-        smart_return_value( i>=0&&i<_size, "index invalid", *(float*)(this) );
+        smart_return( i>=0&&i<_size, "index invalid", *(float*)(this) );
         return *((float*)(this)+i);
     }
 };
@@ -101,13 +102,13 @@ public:
 
     const float& operator[]( const int& i ) const
     {
-        smart_return_value( i>=0&&i<_size, "index invalid", *(float*)(this) );
+        smart_return( i>=0&&i<_size, "index invalid", *(float*)(this) );
         return *((float*)(this)+i);
     }
 
     float& operator[]( const int& i )
     {
-        smart_return_value( i>=0&&i<_size, "index invalid", *(float*)(this) );
+        smart_return( i>=0&&i<_size, "index invalid", *(float*)(this) );
         return *((float*)(this)+i);
     }
 };
@@ -130,13 +131,13 @@ public:
 
     const float& operator[]( const int& i ) const
     {
-        smart_return_value( i>=0&&i<_size, "index invalid", *(float*)(this) );
+        smart_return( i>=0&&i<_size, "index invalid", *(float*)(this) );
         return *((float*)(this)+i);
     }
 
     float& operator[]( const int& i )
     {
-        smart_return_value( i>=0&&i<_size, "index invalid", *(float*)(this) );
+        smart_return( i>=0&&i<_size, "index invalid", *(float*)(this) );
         return *((float*)(this)+i);
     }
 };
@@ -179,13 +180,13 @@ public:
 
     const float& operator[]( const int& i ) const
     {
-        smart_return_value( i>=0&&i<_size, "index invalid", *(float*)(this) );
+        smart_return( i>=0&&i<_size, "index invalid", *(float*)(this) );
         return *((float*)(this)+i);
     }
 
     float& operator[]( const int& i )
     {
-        smart_return_value( i>=0&&i<_size, "index invalid", *(float*)(this) );
+        smart_return( i>=0&&i<_size, "index invalid", *(float*)(this) );
         return *((float*)(this)+i);
     }
 };

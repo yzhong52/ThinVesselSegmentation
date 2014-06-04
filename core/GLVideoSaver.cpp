@@ -16,9 +16,11 @@
 // OpenGL Library
 #if _MSC_VER && !__INTEL_COMPILER
 #include <windows.h>		// Header File For Windows
-#include <GL\GL.h>			// Header File For The OpenGL32 Library
-#include <GL\glu.h>			// Header File For The GLu32 Library
 #endif
+
+#include <GL/gl.h>			// Header File For The OpenGL Library
+#include <GL/glu.h>			// Header File For The GLu Library
+#include <GL/glut.h>
 
 #include <iostream>
 
