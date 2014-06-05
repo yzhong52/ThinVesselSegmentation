@@ -48,11 +48,22 @@
 			<Add library="libglut.a" />
 			<Add library="libgomp.a" />
 		</Linker>
+		<Unit filename="RingsReduction.cpp" />
+		<Unit filename="RingsReduction.h" />
 		<Unit filename="main.cpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />
 			<debugger />
+			<DoxyBlocks>
+				<comment_style block="0" line="0" />
+				<doxyfile_project />
+				<doxyfile_build />
+				<doxyfile_warnings />
+				<doxyfile_output />
+				<doxyfile_dot />
+				<general />
+			</DoxyBlocks>
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>

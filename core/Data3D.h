@@ -447,7 +447,6 @@ void Data3D<T>::show(const std::string& window_name, int current_slice, T min_va
         // OpenCV. See this post for more details:
         // http://stackoverflow.com/questions/9172170/python-opencv-cv-waitkey-spits-back-weird-output-on-ubuntu-modulo-256-maps-corre
         key = key & 255;
-        std::cout << key << std::endl;
 
         // Yuchen: Program will stop at cvWaitKey above and User may
         // close the windows at this moment.
