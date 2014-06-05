@@ -25,6 +25,7 @@
 
 #define smart_assert( condition, message ) \
 	if( !(condition) ) { \
+		std::cerr << std::endl; \
 		std::cerr << SMA_RED << "Assertion failed: " << (#condition) << std::endl; \
 		std::cerr << "  Messages: " << message << std::endl; \
 		std::cerr << "  Location: file "<< __FILE__ << ", line " << __LINE__ << std::endl; \

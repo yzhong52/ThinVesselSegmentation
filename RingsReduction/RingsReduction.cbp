@@ -35,8 +35,8 @@
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
-			<Add option="-fexceptions" />
 			<Add option="-fopenmp" />
+			<Add option="-Wno-comment" />
 			<Add directory="../core" />
 		</Compiler>
 		<Linker>
