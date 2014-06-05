@@ -150,6 +150,10 @@ public:
     {
         return _mat;
     }
+    inline cv::Mat_<T> getMat( int slice ) const
+    {
+        return _mat.row(slice).reshape( 0, get_height() ).clone();
+    }
 
     // loading/saving data from/to file
     bool load( const std::string& file_name );
@@ -443,6 +447,7 @@ void Data3D<T>::show(const std::string& window_name, int current_slice, T min_va
         // OpenCV. See this post for more details:
         // http://stackoverflow.com/questions/9172170/python-opencv-cv-waitkey-spits-back-weird-output-on-ubuntu-modulo-256-maps-corre
         key = key & 255;
+        std::cout << key << std::endl;
 
         // Yuchen: Program will stop at cvWaitKey above and User may
         // close the windows at this moment.
@@ -451,30 +456,41 @@ void Data3D<T>::show(const std::string& window_name, int current_slice, T min_va
         {
             break;
         }
-        else if( key == 'n' )
+        else if( key == 'n' || key=='N' )
         {
             if( current_slice < get_depth()-1 )
             {
                 current_slice++;
                 std::cout << '\r' << "Displaying Slice #" << current_slice << "\t\t\t\t\t\t";
+                std::cout.flush();
             }
         }
-        else if( key == 'p')
+        else if( key=='p' || key=='P' )
         {
             if( current_slice>0 )
             {
                 current_slice--;
                 std::cout << '\r' << "Displaying Slice #" << current_slice << "\t\t\t\t\t\t";
+                std::cout.flush();
             }
         }
-        else if ( key =='s' )
+        else if ( key=='s' || key=='S' )
         {
             std::stringstream ss;
             ss << "output/" << window_name << "_Data_Slice_";
             ss.width(3);
             ss.fill('0');
             ss << current_slice << ".jpg";
-            cv::imwrite( ss.str(),  mat_temp );
+            bool flag = cv::imwrite( ss.str(),  mat_temp );
+            if( flag )
+            {
+                std::cout << "A screen shot is save as: '" << ss.str() << "'" << std::endl;
+            }
+            else
+            {
+                std::cerr << "Failed to save a screen shot is save as: '" << ss.str() << "'" << std::endl;
+            }
+            std::cout.flush();
         }
         else
         {

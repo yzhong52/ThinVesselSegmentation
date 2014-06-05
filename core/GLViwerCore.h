@@ -11,7 +11,7 @@ class GLViewerCore
 public:
     // a list of objects that to be rendered
     std::vector<GLViewer::Object*> objs;
-   virtual ~GLViewerCore()
+    virtual ~GLViewerCore()
     {
         for( unsigned int i=0; i<objs.size(); i++ )
             delete objs[i];

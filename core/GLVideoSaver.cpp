@@ -66,9 +66,8 @@ void VideoSaver::init(int w, int h, string filename, int maxNumFrames )
                                        true);                      /*Yuchen: Is Color                 */
     if (!outputVideo->isOpened())
     {
-        cout  << "Could not open the output video for write: " << endl;
+        cout  << "Could not open the output video '" << video_file_name << "'. " << endl;
         state = isStopped;
-        exit(0);
     }
 }
 

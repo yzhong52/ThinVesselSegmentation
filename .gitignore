@@ -16,8 +16,8 @@ ModelFitting/*.readme.txt
 VesselNess/*data
 VesselNess/output
 
-*/temp
-/temp
+*temp
+*/output
 */*.o
 */analysis.txt
 */log.txt
