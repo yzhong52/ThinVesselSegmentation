@@ -6,7 +6,7 @@
 class RingsReduction
 {
 public:
-    static void a_dummy_method( const Data3D<short>& src, Data3D<short>& dst );
+    static void unname_method( const Data3D<short>& src, Data3D<short>& dst );
 
     static void mm_filter( const Data3D<short>& src, Data3D<short>& dst );
 
@@ -20,6 +20,11 @@ private:
                                  const cv::Vec2i& ring_center,
                                  const double& r,
                                  const double& dr = 1.0 );
+
+    static void correct_image( const Data3D<short>& src, Data3D<short>& dst,
+                               const std::vector<double>& correction,
+                               const int& slice,
+                               const cv::Vec2i& ring_center );
 };
 
 typedef RingsReduction RR;

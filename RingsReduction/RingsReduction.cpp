@@ -83,7 +83,7 @@ double RingsReduction::avgI_on_rings( const cv::Mat_<short>& m,
                 if( pixel_x >= 0 && pixel_x < im_size_x
                         && pixel_y >= 0 && pixel_y < im_size_y )
                 {
-                    sumI += m(pixel_x, pixel_y) * percentage;
+                    sumI += m(pixel_y, pixel_x) * percentage;
                     pixel_count += percentage;
                 }
             }
@@ -103,7 +103,7 @@ double RingsReduction::avgI_on_rings( const cv::Mat_<short>& m,
         if( pixel_x >= 0 && pixel_x < im_size_x
                 && pixel_y >= 0 && pixel_y < im_size_y )
         {
-            sumI += m(pixel_x, pixel_y);
+            sumI += m(pixel_y, pixel_x);
             pixel_count += 1.0;
         }
     }
@@ -117,8 +117,46 @@ double RingsReduction::avgI_on_rings( const cv::Mat_<short>& m,
     return sumI / pixel_count;
 }
 
-void RingsReduction::a_dummy_method( const Data3D<short>& src, Data3D<short>& dst )
+
+void RingsReduction::correct_image( const Data3D<short>& src,
+                                    Data3D<short>& dst,
+                                    const vector<double>& correction,
+                                    const int& slice,
+                                    const cv::Vec2i& ring_center )
 {
+    dst.reset( src.get_size(), short(0) );
+
+    for( int x=0; x<src.SX(); x++ )
+    {
+        for( int y=0; y<src.SY(); y++ )
+        {
+            for( int z=0; z<src.SZ(); z++ )
+            {
+                double diff_x = x - ring_center[0];
+                double diff_y = y - ring_center[1];
+                double radius = sqrt( diff_x*diff_x + diff_y*diff_y );
+                int flo = (int) std::floor( radius );
+                int cei = (int) std::ceil( radius );
+                double c = 0;
+                if( flo!=cei )
+                {
+                    c = correction[flo] * ( cei - radius ) +
+                        correction[cei] * ( radius - flo );
+                }
+                else
+                {
+                    c = correction[flo];
+                }
+                dst.at(x,y,z) = src.at(x,y,z) - c;
+            }
+        }
+    }
+}
+
+void RingsReduction::unname_method( const Data3D<short>& src, Data3D<short>& dst )
+{
+    smart_assert( &src!=&dst, "The destination file is the same as the orignal. " );
+
     // TODO: set the center as parameters
     const int center_x = 234; // 234;
     const int center_y = 270; // 270;
@@ -128,26 +166,24 @@ void RingsReduction::a_dummy_method( const Data3D<short>& src, Data3D<short>& ds
 
     const Mat_<short> slice = src.getMat(center_z);
 
-
     const Vec2i ring_center( center_x, center_y );
     const Vec2i im_size( slice.rows, slice.cols );
 
     int max_radius = max_ring_radius( ring_center, im_size );
 
+    vector<double> correction( max_radius, 10 );
+
     // average intensity at radius r
-    double avgIr = src.at( center_x, center_y, center_z );
-
-    // average intensity at radius r+1
-    double avgIr1 = 0;
-
+    double avgIr = avgI_on_rings( slice, ring_center, 100 );
 
     for( int r = 1; r<max_radius; r++ )
     {
-        avgIr1 = avgI_on_rings( slice, ring_center, r );
-        cout << avgIr1 << " \t ";
+        // average intensity at radius r + 1
+        double avgIr1 = avgI_on_rings( slice, ring_center, r );
+        correction[r] = avgIr1 - avgIr;
     }
 
-    dst = src;
+    correct_image( src, dst, correction, center_z, ring_center );
 }
 
 // helper structure
