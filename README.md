@@ -149,6 +149,7 @@ Requirements
 	    Download [OpenCV](http://opencv.org/). Generate makefile with cmake, build and install the liabrary. 
 	
 	    ```
+	    cmake ./
 	    make
 	    make install
 	    ```
