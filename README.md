@@ -37,7 +37,7 @@ Modules
         float alpha = 1.0e-1f;	
     	float beta  = 5.0e0f;     
         float gamma = 3.5e5f; 
-	```
+        ```
 
     - Laoding data
 
@@ -54,13 +54,13 @@ Modules
         VesselDetector::compute_vesselness( im_short, vn_sig,         
                 sigma_from, sigma_to, sigma_step,        
                 alpha, beta, gamma );
-	```
+        ```
 	
     - Saving Data
 
         ```
-	vn_sig.save( "dataname.vn_sig" );
-	```
+        vn_sig.save( "dataname.vn_sig" );
+        ```
 
     - If you want to visulize the data using maximum-intensity projection
 
