@@ -1,54 +1,161 @@
 Thin Vessels Segmentation
 ========================
 
-Vesselness
----------------
-Compute vesselness measure using [Frangi](http://link.springer.com/chapter/10.1007/BFb0056195#page-1)'s method. 
-Please refer to `/Thin_Vessel_Segmentation/VesselNess` for more details. 
-
-ModelFitting
----------------
-Fitting geometric models (lines) to the 3D vessel data using Levenberg-Marquardt algorithm. 
-Please refer to `/Thin_Vessel_Segmentation/ModelFitting` for more details. 
-
-Others
----------------
-The following are important components using in the projects:
-
--  SparseMatrix: Sparse matrix representation, contains all necessary matrix manipulations
--  SparseMatrixCV: A wrapper of SparseMatrix for OpenCV
--  Vesselness-cuda: CUDA version of the vesselness measure (under construction)
--  RingsReduction: Rings reduction of CT image (under developing)
--  EigenDecomp: eigenvalue decomposition of a 3 by 3 symmetric matrix
-
-
-
-
-Requirements (Linux)
+Modules
 ---------------
 
-1. Install `freeglut`
+-   **Core**
 
-	`sudo apt-get install freeglut3-dev`
+    Including general data stuctures for 3D volume, data I/O, data visualization, simple 3D image processing and etc. 
 
-2. Install the X Window System (X11, X, and sometimes informally X-Windows), which is a windowing system for bitmap displays
+-   **Vesselness**
 
-	`sudo apt-get install libxmu-dev`
+    This is a C++ implementation of Vesselness Measure for 3D volume based on the following paper [Frangi](http://link.springer.com/chapter/10.1007/BFb0056195#page-1). 
 
-	`sudo apt-get install libxi-dev`
+    - Frangi, Alejandro F., et al. "Multiscale vessel enhancement filtering." Medical Image Computing and Computer-Assisted Interventation—MICCAI’98. Springer Berlin Heidelberg, 1998. 130-137.
 
-3. Install glew
+    Two sample code is provided in `main.cpp`:
+    
+    - Computing vesselness measure
+    - Extracting the vessel centrelines with non-maximum suppression
 
-	`sudo apt-get install libglew-dev`
+    Sample Usage: 
 
-4. Install OpenGL
+    - Setting parameters: 
+    
+      
+      [`sigma_from`, `sigma_to`]: the potential size rang of the vessels
+      
+      `sigma_step`: precision of computation
+      
+      For other parameters `alpha`, `beta`, `gamma`, please refer to Frangi's papaer or this [blog](http://yzhong.co/?p=351) or Frangi's paper. 
 
-	`sudo apt-get install mesa-common-dev`
+        ```
+        float sigma_from = 1.0f;  
+        float sigma_to = 8.10f;   
+        float sigma_step = 0.5f;  
+        float alpha = 1.0e-1f;	
+    	float beta  = 5.0e0f;     
+        float gamma = 3.5e5f; 
+        ```
 
-5. Install OpenCV 2.4.9
+    - Laoding data
 
-	Download [OpenCV](http://opencv.org/). Generate makefile witl cmake, build and install the liabrary. 
+        ```
+        Data3D<short> im_short;       
+        bool flag = im_short.load( "dataname.data" );         
+        if(!flag) return 0;       
+        ```
+		
+    - Compute Vesselness
 
-	`make`
+        ```
+        Data3D<Vesselness_Sig> vn_sig;        
+        VesselDetector::compute_vesselness( im_short, vn_sig,         
+                sigma_from, sigma_to, sigma_step,        
+                alpha, beta, gamma );
+        ```
+	
+    - Saving Data
 
-	`make install`
+        ```
+        vn_sig.save( "dataname.vn_sig" );
+        ```
+
+    - If you want to visulize the data using maximum-intensity projection
+
+        ```
+        viewer.addObject( vn_sig,  GLViewer::Volumn::MIP );
+        viewer.addDiretionObject( vn_sig );
+        viewer.go(600, 400, 2);
+        ```
+
+-   **ModelFitting (Levenberg Marquardt)**
+
+    Fitting geometric models (lines) to the 3D vessel data using Levenberg-Marquardt algorithm. 
+
+    Using Levenberg Marquardt algorithm for energy minimization. 
+
+    Energy contains two parts:
+
+    - Data cost
+      Distance to the center of a line model
+    - Pair-wise smooth cost
+      Complicated. Please refer to this [paper](http://www.csd.uwo.ca/~yuri/Abstracts/cvpr12-abs.shtml) for more details
+
+    Levenberg Marquardt algorithm requires to compute the Jacobin matrix for both the data cost and the smooth cost. This computation is very time-consuming and the computation has been highly paralleled in this version. 
+
+-   **SparseMatrix**
+
+    Sparse matrix representation, contains all necessary matrix manipulations such as: 
+    
+      - addtion
+      - subtraction
+      - multiplication
+      - transpose
+   
+-   **SparseMatrixCV**
+
+    OpenCV warper for SparseMatrix. For matrix multiplication between sparse matrix and dense matrix. For example, 
+
+    ```
+    template <class _Tp, int m, int n>    
+    SparseMatrixCV operator*( const cv::Matx<_Tp,m,n>& vec, const SparseMatrixCV& sm );     
+    ```
+    ```
+    Mat_<double> operator*( const SparseMatrixCV& sm, const Mat_<double>& sm );    
+    ```
+
+-   **Vesselness-cuda** 
+
+    CUDA version of the vesselness measure (under development)
+    
+-   **RingsReduction**
+
+    Rings reduction of CT images (under development)
+    
+-   **EigenDecomp**
+
+    Eigenvalue decomposition of a 3 by 3 symmetric matrix
+
+
+
+Requirements
+---------------
+
+-  **Linux**
+
+	1. **freeglut**
+	
+	    `sudo apt-get install freeglut3-dev`
+	
+	2. **X Window System** (X11, X, and sometimes informally X-Windows), which is a windowing system for bitmap displays
+	
+	    ```
+	    sudo apt-get install libxmu-dev
+	    sudo apt-get install libxi-dev
+	    ```
+	
+	3. **glew**
+	
+	    `sudo apt-get install libglew-dev`
+	
+	4. **OpenGL**
+	
+	    `sudo apt-get install mesa-common-dev`
+	
+	5. **OpenCV 2.4.9**
+	
+	    Download [OpenCV](http://opencv.org/). Generate makefile with cmake, build and install the liabrary. 
+	
+	    ```
+	    make
+	    make install
+	    ```
+
+	6. **Code::Blocks**
+
+
+-  **Windows coming soon**
+
+ 

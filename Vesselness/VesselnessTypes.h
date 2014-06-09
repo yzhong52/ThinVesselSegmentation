@@ -1,6 +1,7 @@
 #pragma once
 
 #include <opencv2/core/core.hpp>
+#include "TypeInfo.h"
 #include "smart_assert.h"
 
 // VesselnessTypes.h
@@ -82,13 +83,13 @@ public:
 
     const float& operator[]( const int& i ) const
     {
-        smart_return_value( i>=0&&i<_size, "index invalid", *(float*)(this) );
+        smart_return( i>=0&&i<_size, "index invalid", *(float*)(this) );
         return *((float*)(this)+i);
     }
 
     float& operator[]( const int& i )
     {
-        smart_return_value( i>=0&&i<_size, "index invalid", *(float*)(this) );
+        smart_return( i>=0&&i<_size, "index invalid", *(float*)(this) );
         return *((float*)(this)+i);
     }
 };
@@ -101,13 +102,13 @@ public:
 
     const float& operator[]( const int& i ) const
     {
-        smart_return_value( i>=0&&i<_size, "index invalid", *(float*)(this) );
+        smart_return( i>=0&&i<_size, "index invalid", *(float*)(this) );
         return *((float*)(this)+i);
     }
 
     float& operator[]( const int& i )
     {
-        smart_return_value( i>=0&&i<_size, "index invalid", *(float*)(this) );
+        smart_return( i>=0&&i<_size, "index invalid", *(float*)(this) );
         return *((float*)(this)+i);
     }
 };
@@ -130,13 +131,13 @@ public:
 
     const float& operator[]( const int& i ) const
     {
-        smart_return_value( i>=0&&i<_size, "index invalid", *(float*)(this) );
+        smart_return( i>=0&&i<_size, "index invalid", *(float*)(this) );
         return *((float*)(this)+i);
     }
 
     float& operator[]( const int& i )
     {
-        smart_return_value( i>=0&&i<_size, "index invalid", *(float*)(this) );
+        smart_return( i>=0&&i<_size, "index invalid", *(float*)(this) );
         return *((float*)(this)+i);
     }
 };
@@ -179,13 +180,13 @@ public:
 
     const float& operator[]( const int& i ) const
     {
-        smart_return_value( i>=0&&i<_size, "index invalid", *(float*)(this) );
+        smart_return( i>=0&&i<_size, "index invalid", *(float*)(this) );
         return *((float*)(this)+i);
     }
 
     float& operator[]( const int& i )
     {
-        smart_return_value( i>=0&&i<_size, "index invalid", *(float*)(this) );
+        smart_return( i>=0&&i<_size, "index invalid", *(float*)(this) );
         return *((float*)(this)+i);
     }
 };
@@ -194,7 +195,6 @@ public:
 // Reference: http://stackoverflow.com/questions/2282349/specialization-of-templateclass-tp-struct-stdless-in-different-namespace
 namespace cv
 {
-// Yuchen: I should understand these better
 template< > class DataType< Vesselness     > : public DataType< Vec<float, Vesselness::_size> > { };
 
 template< > class DataType< Vesselness_Sig > : public DataType< Vec<float, Vesselness_Sig::_size> > { };
@@ -243,3 +243,60 @@ template< > class DataType< Vesselness_All > : public DataType< Vec<float, Vesse
 //           fmt = ((channels-1)<<8) + DataDepth<channel_type>::fmt,
 //           type = CV_MAKETYPE(depth, channels) };
 //};
+
+
+template <> struct TypeInfo <Vesselness>
+{
+    static std::string str()
+    {
+        std::stringstream ss;
+        ss << "float," << Vesselness::_size;
+        return ss.str();
+    }
+    static int CV_TYPE()
+    {
+        return CV_32FC( Vesselness::_size );
+    }
+};
+
+template <> struct TypeInfo <Vesselness_Sig>
+{
+    static std::string str()
+    {
+        std::stringstream ss;
+        ss << "float," << Vesselness_Sig::_size;
+        return ss.str();
+    }
+    static int CV_TYPE()
+    {
+        return CV_32FC( Vesselness_Sig::_size );
+    }
+};
+
+template <> struct TypeInfo <Vesselness_Nor>
+{
+    static std::string str()
+    {
+        std::stringstream ss;
+        ss << "float," << Vesselness_Nor::_size;
+        return ss.str();
+    }
+    static int CV_TYPE()
+    {
+        return CV_32FC( Vesselness_Nor::_size );
+    }
+};
+
+template <> struct TypeInfo <Vesselness_All>
+{
+    static std::string str()
+    {
+        std::stringstream ss;
+        ss << "float," << Vesselness_All::_size;
+        return ss.str();
+    }
+    static int CV_TYPE()
+    {
+        return CV_32FC( Vesselness_All::_size );
+    }
+};
