@@ -6,12 +6,6 @@ INCLUDES  = -I ./
 INCLUDES += -I ../
 INCLUDES += -I ../core
 
-# define library paths in addition to /usr/lib
-#   if I wanted to include libraries not in /usr/lib I'd specify
-#   their path using -Lpath, something like:
-LFLAGS  = -L ./
-LFLAGS += `pkg-config --libs opencv` -Wl,--no-as-needed -pthread
-
 # define any libraries to link into executable:
 #   if I want to link in libraries (libx.so or libx.a) I use the -llibname 
 #   option, something like (this will link in libmylib.so and libm.so:

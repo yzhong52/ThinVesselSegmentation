@@ -6,7 +6,15 @@
 #  -pg   adds profiling information to the executable file
 #  -m64  compile for 64-bit
 #  -Wno-comment disable warnings about multiline comments
-CFLAGS = -Wall -m64 -fopenmp -Wno-comment -std=c++0x -O2 -Wl,--no-as-needed
+CFLAGS  = -Wall -m64 -fopenmp -Wno-comment -std=c++0x -O2 -Wl,--no-as-needed
+# Add OpenCV include path
+CFLAGS +=`pkg-config --cflags opencv`
+
+# define library paths in addition to /usr/lib
+#   if I wanted to include libraries not in /usr/lib I'd specify
+#   their path using -Lpath, something like:
+LFLAGS  = -L ./
+LFLAGS += `pkg-config --libs opencv` -Wl,--no-as-needed -pthread
 
 # for C++ define  CC = g++
 #  -m64  compile for 64 bits
