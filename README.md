@@ -16,48 +16,57 @@ Modules
 
     Two sample code is provided in `main.cpp`:
     
-    - computing vesselness measure
-    - extracting the vessel centrelines with non-maximum suppression
+    - Computing vesselness measure
+    - Extracting the vessel centrelines with non-maximum suppression
 
     Sample Usage: 
 
-    - Sigma: Parameters for Vesselness [sigma_from, sigma_to]: the potential size rang of the vessels
-  sigma_step: precision of computation
+    - Setting parameters: 
+    
+      Sigma: Parameters for Vesselness
+      [sigma_from, sigma_to]: the potential size rang of the vessels
+      sigma_step: precision of computation
+      For other parameters, please refer to Frangi's papaer or this [blog](http://yzhong.co/?p=351) or Frangi's paper. 
 
-		float sigma_from = 1.0f;  
-		float sigma_to = 8.10f;   
-		float sigma_step = 0.5f;  
-
-    - Parameters for vesselness, please refer to Frangi's papaer or this [blog](http://yzhong.co/?p=351)
-
-		float alpha = 1.0e-1f;	
-    		float beta  = 5.0e0f;     
-		float gamma = 3.5e5f; 
+        ```
+        float sigma_from = 1.0f;  
+        float sigma_to = 8.10f;   
+        float sigma_step = 0.5f;  
+        float alpha = 1.0e-1f;	
+    	float beta  = 5.0e0f;     
+        float gamma = 3.5e5f; 
+	```
 
     - laoding data
 
-		Data3D<short> im_short;       
-		bool flag = im_short.load( "../data/" + dataname + ".data" );         
-		if(!flag) return 0;       
+        ```
+        Data3D<short> im_short;       
+        bool flag = im_short.load( "../data/" + dataname + ".data" );         
+        if(!flag) return 0;       
+        ```
 		
     - Compute Vesselness
 
-		Data3D<Vesselness_Sig> vn_sig;        
-		VesselDetector::compute_vesselness( im_short, vn_sig,         
-		    sigma_from, sigma_to, sigma_step,        
-		    alpha, beta, gamma );
-			
+        ```
+        Data3D<Vesselness_Sig> vn_sig;        
+        VesselDetector::compute_vesselness( im_short, vn_sig,         
+                sigma_from, sigma_to, sigma_step,        
+                alpha, beta, gamma );
+	```
+	
     - Saving Data
 
-		vn_sig.save( "../temp/" + dataname + ".vn_sig" );
+        ```
+	vn_sig.save( "../temp/" + dataname + ".vn_sig" );
+	```
 
     - If you want to visulize the data using Maximum-Intensity Projection
 
-
-			viewer.addObject( vn_sig,  GLViewer::Volumn::MIP );
-			viewer.addDiretionObject( vn_sig );
-			viewer.go(600, 400, 2);
-
+        ```
+        viewer.addObject( vn_sig,  GLViewer::Volumn::MIP );
+        viewer.addDiretionObject( vn_sig );
+        viewer.go(600, 400, 2);
+        ```
 
 -   **ModelFitting (Levenberg Marquardt)**
 
@@ -69,7 +78,6 @@ Modules
 
     - Data cost
       Distance to the center of a line model
-   
     - Pair-wise smooth cost
       Complicated. Please refer to this [paper](http://www.csd.uwo.ca/~yuri/Abstracts/cvpr12-abs.shtml) for more details
 
@@ -86,14 +94,13 @@ Modules
    
 -   **SparseMatrixCV**
 
-    A wrapper of SparseMatrix for OpenCV
-    
     OpenCV warper for SparseMatrix. For matrix multiplication between sparse matrix and dense matrix. For example, 
 
-	template <class _Tp, int m, int n>    
-	SparseMatrixCV operator*( const cv::Matx<_Tp,m,n>& vec, const SparseMatrixCV& sm );     
-
-	Mat_<double> operator*( const SparseMatrixCV& sm, const Mat_<double>& sm );    
+        ```
+        template <class _Tp, int m, int n>    
+        SparseMatrixCV operator*( const cv::Matx<_Tp,m,n>& vec, const SparseMatrixCV& sm );     
+        Mat_<double> operator*( const SparseMatrixCV& sm, const Mat_<double>& sm );    
+	```
 
 -   **Vesselness-cuda** 
 
@@ -118,9 +125,10 @@ Requirements (Linux)
 
 2. **X Window System** (X11, X, and sometimes informally X-Windows), which is a windowing system for bitmap displays
 
-	`sudo apt-get install libxmu-dev`
-
-	`sudo apt-get install libxi-dev`
+        ```
+        sudo apt-get install libxmu-dev
+        sudo apt-get install libxi-dev
+	```
 
 3. **glew**
 
@@ -128,12 +136,13 @@ Requirements (Linux)
 
 4. **OpenGL**
 
-	`sudo apt-get install mesa-common-dev`
+        `sudo apt-get install mesa-common-dev`
 
 5. **OpenCV 2.4.9**
 
 	Download [OpenCV](http://opencv.org/). Generate makefile witl cmake, build and install the liabrary. 
 
-	`make`
-
-	`make install`
+        ```
+	make
+	make install
+	```
