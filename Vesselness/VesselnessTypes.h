@@ -195,7 +195,6 @@ public:
 // Reference: http://stackoverflow.com/questions/2282349/specialization-of-templateclass-tp-struct-stdless-in-different-namespace
 namespace cv
 {
-// Yuchen: I should understand these better
 template< > class DataType< Vesselness     > : public DataType< Vec<float, Vesselness::_size> > { };
 
 template< > class DataType< Vesselness_Sig > : public DataType< Vec<float, Vesselness_Sig::_size> > { };

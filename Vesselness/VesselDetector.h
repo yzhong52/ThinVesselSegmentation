@@ -1,4 +1,7 @@
-#pragma once
+#ifndef VESSELDETECTOR_H
+#define VESSELDETECTOR_H
+
+#include "VesselnessTypes.h"
 
 template<typename T> class Data3D;
 template<typename T> class Image3D;
@@ -27,3 +30,8 @@ int compute_vesselness(
 
 namespace VD = VesselDetector;
 namespace VF = VesselDetector;
+
+
+#endif // VESSELDETECTOR_H
+
+
