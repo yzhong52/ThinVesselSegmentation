@@ -23,10 +23,12 @@ Modules
 
     - Setting parameters: 
     
-      Sigma: Parameters for Vesselness
-      [sigma_from, sigma_to]: the potential size rang of the vessels
-      sigma_step: precision of computation
-      For other parameters, please refer to Frangi's papaer or this [blog](http://yzhong.co/?p=351) or Frangi's paper. 
+      
+      [`sigma_from`, `sigma_to`]: the potential size rang of the vessels
+      
+      `sigma_step`: precision of computation
+      
+      For other parameters `alpha`, `beta`, `gamma`, please refer to Frangi's papaer or this [blog](http://yzhong.co/?p=351) or Frangi's paper. 
 
         ```
         float sigma_from = 1.0f;  
@@ -37,11 +39,11 @@ Modules
         float gamma = 3.5e5f; 
 	```
 
-    - laoding data
+    - Laoding data
 
         ```
         Data3D<short> im_short;       
-        bool flag = im_short.load( "../data/" + dataname + ".data" );         
+        bool flag = im_short.load( "dataname.data" );         
         if(!flag) return 0;       
         ```
 		
@@ -57,10 +59,10 @@ Modules
     - Saving Data
 
         ```
-	vn_sig.save( "../temp/" + dataname + ".vn_sig" );
+	vn_sig.save( "dataname.vn_sig" );
 	```
 
-    - If you want to visulize the data using Maximum-Intensity Projection
+    - If you want to visulize the data using maximum-intensity projection
 
         ```
         viewer.addObject( vn_sig,  GLViewer::Volumn::MIP );
@@ -99,6 +101,8 @@ Modules
     ```
     template <class _Tp, int m, int n>    
     SparseMatrixCV operator*( const cv::Matx<_Tp,m,n>& vec, const SparseMatrixCV& sm );     
+    ```
+    ```
     Mat_<double> operator*( const SparseMatrixCV& sm, const Mat_<double>& sm );    
     ```
 
@@ -121,7 +125,7 @@ Requirements (Linux)
 
 1. **freeglut**
 
-	`sudo apt-get install freeglut3-dev`
+    `sudo apt-get install freeglut3-dev`
 
 2. **X Window System** (X11, X, and sometimes informally X-Windows), which is a windowing system for bitmap displays
 
