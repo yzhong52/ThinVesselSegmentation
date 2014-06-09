@@ -23,7 +23,6 @@ int main()
     cv::normalize(im_short.getMat( im_short.SZ()/2 ), src_norm,
                   0, 255, NORM_MINMAX, CV_8UC1);
     cv::imwrite("output/before_redution.png", src_norm );
-
     double minVal = 0, maxVal = 0;
     cv::minMaxLoc( im_short.getMat( im_short.SZ()/2 ), &minVal, &maxVal );
 

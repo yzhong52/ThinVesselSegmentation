@@ -65,9 +65,7 @@
 		<Unit filename="GLVideoSaver.h" />
 		<Unit filename="GLViewer.cpp" />
 		<Unit filename="GLViewer.h" />
-		<Unit filename="GLViewerExt.h" />
 		<Unit filename="GLViwerCore.h" />
-		<Unit filename="GLViwerWrapper.h" />
 		<Unit filename="GLVolumn.cpp" />
 		<Unit filename="GLVolumn.h" />
 		<Unit filename="Image3D.h" />

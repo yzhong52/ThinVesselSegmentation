@@ -17,14 +17,10 @@
 					<Add option="-g" />
 					<Add option="-fopenmp" />
 					<Add option="-Wno-comment" />
+					<Add directory="../libs/Debug" />
 				</Compiler>
 				<Linker>
-					<Add option="`pkg-config --libs opencv`" />
-					<Add library="libglut.a" />
-					<Add library="libGL.a" />
-					<Add library="libGLEW.a" />
-					<Add library="libGLU.a" />
-					<Add library="libgomp.a" />
+					<Add directory="../libs/Debug" />
 				</Linker>
 			</Target>
 			<Target title="Release">
@@ -40,13 +36,7 @@
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
-					<Add option="`pkg-config --libs opencv`" />
-					<Add option="-Wl,--no-as-needed" />
-					<Add library="libglut.a" />
-					<Add library="libGL.a" />
-					<Add library="libGLEW.a" />
-					<Add library="libGLU.a" />
-					<Add library="libgomp.a" />
+					<Add directory="../libs/Release" />
 				</Linker>
 			</Target>
 		</Build>
@@ -55,26 +45,25 @@
 			<Add option="-fexceptions" />
 			<Add directory="../core" />
 		</Compiler>
-		<Unit filename="DataTypes.h" />
-		<Unit filename="DisjointSet.cpp" />
-		<Unit filename="DisjointSet.h" />
-		<Unit filename="Edge.cpp" />
-		<Unit filename="Edge.h" />
-		<Unit filename="Graph.h" />
-		<Unit filename="MinSpanTree.cpp" />
-		<Unit filename="MinSpanTree.h" />
-		<Unit filename="MinSpanTreeWrapper.h" />
-		<Unit filename="Ooops.h" />
-		<Unit filename="RingsDeduction.cpp" />
-		<Unit filename="RingsDeduction.h" />
+		<Linker>
+			<Add option="`pkg-config --libs opencv`" />
+			<Add option="-Wl,--no-as-needed" />
+			<Add library="libcore.a" />
+			<Add library="libglut.a" />
+			<Add library="libGL.a" />
+			<Add library="libGLEW.a" />
+			<Add library="libGLU.a" />
+			<Add library="libgomp.a" />
+		</Linker>
+		<Unit filename="GLDirection.h" />
+		<Unit filename="GLViewerVesselness.h" />
+		<Unit filename="ImageProcessing-Vesselness.cpp" />
+		<Unit filename="ImageProcessing-Vesselness.h" />
 		<Unit filename="VesselDetector.cpp" />
 		<Unit filename="VesselDetector.h" />
 		<Unit filename="VesselnessTypes.cpp" />
 		<Unit filename="VesselnessTypes.h" />
-		<Unit filename="Viewer.h" />
 		<Unit filename="main.cpp" />
-		<Unit filename="nstdio.h" />
-		<Unit filename="smart_assert.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />

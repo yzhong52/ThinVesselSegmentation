@@ -1,8 +1,12 @@
-
+#include <opencv2/core/core.hpp>
+#include <queue>
+#include <iostream>
 #include "VesselnessTypes.h"
 
+#include "ImageProcessing-Vesselness.h"
 
-
+using namespace cv;
+using namespace std;
 
 void ImageProcessing::non_max_suppress( const Data3D<Vesselness_Sig>& src, Data3D<Vesselness_Sig>& dst )
 {

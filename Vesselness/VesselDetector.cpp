@@ -111,7 +111,7 @@ bool VesselDetector::hessien( const Data3D<short>& src, Data3D<Vesselness>& dst,
 
     Image3D<float> im_blur;
     bool flag = ImageProcessing::GaussianBlur3D( src, im_blur, ksize, sigma );
-    smart_return_value( flag, "Gaussian Blur Failed.", false );
+    smart_return( flag, "Gaussian Blur Failed.", false );
     im_blur *= sigma; //Normalizing for different scale
 
     dst.reset( im_blur.get_size(), Vesselness(0.0f) );
@@ -149,9 +149,9 @@ int VesselDetector::compute_vesselness(
     dst.reset( src.get_size() ); // reszie data, and it will also be clear to zero
 
     // Error for input parameters
-    smart_return_value( sigma_from < sigma_to,
+    smart_return( sigma_from < sigma_to,
                         "sigma_from should be smaller than sigma_to ", 0 );
-    smart_return_value( sigma_step > 0,
+    smart_return( sigma_step > 0,
                         "sigma_step should be greater than 0 ", 0 );
 
     int x,y,z;

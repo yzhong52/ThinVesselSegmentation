@@ -176,7 +176,7 @@ void RingsReduction::unname_method( const Data3D<short>& src, Data3D<short>& dst
     // average intensity at radius r
     double avgIr = avgI_on_rings( slice, ring_center, 100 );
 
-    for( int r = 1; r<max_radius; r++ )
+    for( int r = 1; r<=max_radius; r++ )
     {
         // average intensity at radius r + 1
         double avgIr1 = avgI_on_rings( slice, ring_center, r );
