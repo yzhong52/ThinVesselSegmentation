@@ -8,10 +8,13 @@
 #include <queue>
 #include <new> // for no throw
 
-#include "Graph.h"
-#include "MinSpanTree.h"
-#include "MinSpanTreeWrapper.h"
-#include "DataTypes.h"
+//#include "Graph.h"
+//#include "MinSpanTree.h"
+//#include "MinSpanTreeWrapper.h"
+//#include "DataTypes.h"
+
+#include <opencv2/core/core.hpp>
+#include <iostream>
 
 #include "GLViewer.h"
 #include "GLCamera.h"

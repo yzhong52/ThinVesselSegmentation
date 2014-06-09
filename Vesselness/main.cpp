@@ -1,22 +1,27 @@
 #define _CRT_SECURE_NO_DEPRECATE
 #include <iostream>
-#include <time.h>
-#include "VesselDetector.h" // For computing vesselness
-#include "GLViwerWrapper.h" // For visualization
-#include "../ModelFitting/SyntheticData.h"
-#include "GLViwerWrapper.h"
-class GLViewerExt;
 
-GLViewerExt viewer;
+#include <opencv2/core/core.hpp>
 
-#define INPUT_DIR "../data/"
-#define OUTPUT_DIR "../temp/"
+// For computing vesselness
+#include "VesselnessTypes.h"
+#include "VesselDetector.h"
+
+// For visualization
+#include "GLViewerVesselness.h"
 
 // Linux header: provide system call functions such as sleep()
 #include <unistd.h>
 
+
+#define INPUT_DIR "../data/"
+#define OUTPUT_DIR "../temp/"
+
+
 using namespace std;
 using namespace cv;
+
+GLViewerVesselness viewer;
 
 namespace sample_code
 {
@@ -29,18 +34,14 @@ int centreline( bool isDisplay, std::string dataname = "data15" );
 
 int main(void)
 {
-    sample_code::vesselness(false);
+    Mat temp = Mat(200, 200, CV_8UC3);
+    cv::imshow( "", temp );
+
+
+    sample_code::vesselness(true);
     sample_code::centreline(false);
     return 0;
 }
-
-
-namespace experiment
-{
-void synthetic_yes();
-}
-
-
 
 int sample_code::vesselness( bool isDisplay, string dataname )
 {
@@ -109,12 +110,3 @@ int sample_code::centreline( bool isDisplay, string dataname )
 
 
 
-
-void experiment::synthetic_yes()
-{
-    Data3D<short> im_short;
-    SyntheticData::Yes( im_short );
-    im_short.save( "../temp/yes.data" );
-    sample_code::vesselness( false, "../temp/yes" );
-    sample_code::centreline( true, "../temp/yes" );
-}

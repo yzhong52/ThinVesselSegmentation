@@ -1,11 +1,11 @@
 #pragma once
 
-#include "GLViwerWrapper.h"
+#include "GLViewerVesselness.h"
 #include "GLLineModel.h"
 
 class Line3D;
 
-class GLViwerModel : public GLViewerExt
+class GLViwerModel : public GLViewerVesselness
 {
 public:
 	GLViwerModel(void){}

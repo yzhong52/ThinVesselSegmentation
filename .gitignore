@@ -1,6 +1,3 @@
-/ModelFitting/modelfitting
-/ModelFitting/libSparseMatrixCV.a
-/ModelFitting/libSparseMatrix.a
 #################
 ## Yuchen
 #################
@@ -8,16 +5,19 @@
 # Yuchen: Ignore Files
 
 ModelFitting/*dll
-VesselNess/*dll
-
+ModelFitting/*.data
+ModelFitting/*.readme.txt
 ModelFitting/data
-VesselNess/data
-
 ModelFitting/output
+
+VesselNess/*dll
+VesselNess/data
+ModelFitting/*.readme.txt
+VesselNess/*data
 VesselNess/output
 
-*/temp
-/temp
+*temp
+*/output
 */*.o
 */analysis.txt
 */log.txt
@@ -37,6 +37,20 @@ libs/
 # for code::block
 *.layout
 *.depend
+
+# for using GitEye (Git GUI client under Ubuntu)
+/.project
+
+
+
+# Data files
+*.model
+*.a
+*.vn_sig
+*.o
+
+
+
 
 
 
@@ -225,4 +239,3 @@ UpgradeLog*.htm
 # Microsoft Fakes
 FakesAssemblies/
 
-/.project

@@ -130,7 +130,7 @@ void ImageProcessing::conv3( const Data3D<T1>& src, Data3D<T2>& dst, const Kerne
 template<typename T1, typename T2>
 bool ImageProcessing::GaussianBlur3D( const Data3D<T1>& src, Data3D<T2>& dst, int ksize, double sigma )
 {
-    smart_return_value( ksize%2!=0, "kernel size should be odd number", false );
+    smart_return( ksize%2!=0, "kernel size should be odd number", false );
 
     //////////////////////////////////////////////////////////////////////////////////////
     // Relationship between Sigma and Kernal Size (ksize)
@@ -156,7 +156,6 @@ bool ImageProcessing::GaussianBlur3D( const Data3D<T1>& src, Data3D<T2>& dst, in
     cv::Vec3i spos, epos;
     spos = cv::Vec3i(0, 0, 0);
     epos = src.get_size();
-
 
     // gaussian on x-direction
     Data3D<T2> tmp1( src.get_size(), T2(0) ); // the data will be set to zero
@@ -229,7 +228,7 @@ bool ImageProcessing::GaussianBlur3D( const Data3D<T1>& src, Data3D<T2>& dst, in
 template<typename T1, typename T2>
 bool ImageProcessing::medianBlur3D( const Data3D<T1>& src, Data3D<T2>& dst, int ksize)
 {
-    smart_assert(0, "Not Implemented!" );
+    smart_return(0, "Not Implemented!", false );
 }
 
 // mean filter
@@ -280,9 +279,9 @@ bool ImageProcessing::meanBlur3D( const Data3D<T1>& src, Data3D<T2>& dst, int ks
 template<typename T1, typename T2, typename T3 >
 bool ImageProcessing::filter3D_X( const Data3D<T1>& src, Data3D<T2>& dst, const Kernel3D<T3>& kx )
 {
-    smart_return_false( (&src)!=(&dst), "src and dst should be different." );
-    smart_return_false( kx.get_size_x()>0 && kx.get_size_y()==1 && kx.get_size_z()==1,
-                        "kernel size should be (X,1,1) where X > 0" );
+    smart_return( (&src)!=(&dst), "src and dst should be different.", false );
+    smart_return( kx.get_size_x()>0 && kx.get_size_y()==1 && kx.get_size_z()==1,
+                        "kernel size should be (X,1,1) where X > 0", false );
 
     dst.reset( src.get_size() );
 
@@ -308,9 +307,9 @@ bool ImageProcessing::filter3D_X( const Data3D<T1>& src, Data3D<T2>& dst, const 
 template<typename T1, typename T2, typename T3 >
 bool ImageProcessing::filter3D_Y( const Data3D<T1>& src, Data3D<T2>& dst, const Kernel3D<T3>& ky )
 {
-    smart_return_false( (&src)!=(&dst), "src and dst should be different." );
-    smart_return_false( ky.get_size_x()==1 && ky.get_size_y()>0 && ky.get_size_z()==1,
-                        "kernel size should be (1,Y,1) where Y > 0" );
+    smart_return( (&src)!=(&dst), "src and dst should be different.", false );
+    smart_return( ky.get_size_x()==1 && ky.get_size_y()>0 && ky.get_size_z()==1,
+                        "kernel size should be (1,Y,1) where Y > 0", false );
 
     dst.reset( src.get_size() );
 
@@ -337,9 +336,9 @@ bool ImageProcessing::filter3D_Y( const Data3D<T1>& src, Data3D<T2>& dst, const 
 template<typename T1, typename T2, typename T3 >
 bool ImageProcessing::filter3D_Z( const Data3D<T1>& src, Data3D<T2>& dst, const Kernel3D<T3>& kz )
 {
-    smart_return_false( (&src)!=(&dst), "src and dst should be different." );
-    smart_return_false( kz.get_size_x()==1 && kz.get_size_y()==1 && kz.get_size_z()>0,
-                        "kernel size should be (1,1,Z) where Z > 0 " );
+    smart_return( (&src)!=(&dst), "src and dst should be different.", false );
+    smart_return( kz.get_size_x()==1 && kz.get_size_y()==1 && kz.get_size_z()>0,
+                        "kernel size should be (1,1,Z) where Z > 0 ", false );
 
     dst.reset( src.get_size() );
 

@@ -3,9 +3,13 @@
 //#include "stdafx.h"
 #include "TypeInfo.h"
 #include "nstdio.h"
+
+#include <iostream>
 #include <fstream> // For reading and saving files
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
+#include <typeinfo>
+#include "smart_assert.h"
 
 template<typename T>
 class Data3D
@@ -145,6 +149,10 @@ public:
     inline const cv::Mat_<T>& getMat() const
     {
         return _mat;
+    }
+    inline cv::Mat_<T> getMat( int slice ) const
+    {
+        return _mat.row(slice).reshape( 0, get_height() ).clone();
     }
 
     // loading/saving data from/to file
@@ -298,7 +306,7 @@ Data3D<T>::Data3D( const Data3D<T2>& src )
 template <typename T>
 bool Data3D<T>::save( const std::string& file_name, const std::string& log, bool saveInfo, bool isBigEndian ) const
 {
-    smart_return_value( _size_total, "Save File Failed: Data is empty", false );
+    smart_return( _size_total, "Save File Failed: Data is empty", false );
 
     std::cout << "Saving file to " << file_name << std::endl;
     std::cout << "Data Size: " << (long) _size_total * sizeof(T) << " bytes "<< std::endl;
@@ -358,7 +366,7 @@ bool Data3D<T>::load( const std::string& file_name, const cv::Vec3i& size, bool 
 
     // loading data from file
     FILE* pFile=fopen( file_name.c_str(), "rb" );
-    smart_return_value( pFile!=0, "File not found", false );
+    smart_return( pFile!=0, "File not found", false );
 
     unsigned long long size_read = fread_big( _mat.data, sizeof(T), _size_total, pFile);
 
@@ -374,12 +382,12 @@ bool Data3D<T>::load( const std::string& file_name, const cv::Vec3i& size, bool 
     fclose(pFile);
 
     // if the size we read is not as big as the size we expected, fail
-    smart_return_value( size_read==_size_total*sizeof(T),
-                        "Data size is incorrect (too big)", false );
+    smart_return( size_read==_size_total*sizeof(T),
+                  "Data size is incorrect (too big)", false );
 
     if( isBigEndian )
     {
-        smart_return_value( sizeof(T)==2, "Datatype does not support big endian.", false );
+        smart_return( sizeof(T)==2, "Datatype does not support big endian.", false );
         // swap the data
         unsigned char* temp = _mat.data;
         for(int i=0; i<_size_total; i++)
@@ -397,8 +405,8 @@ bool Data3D<T>::load( const std::string& file_name, const cv::Vec3i& size, bool 
 template<typename T>
 void Data3D<T>::show(const std::string& window_name, int current_slice, T min_value, T max_value ) const
 {
-    smart_return( this->get_size_total(), "Data is empty." );
-    smart_return(
+    smart_assert( this->get_size_total(), "Data is empty." );
+    smart_assert(
         typeid(T)==typeid(float)||
         typeid(T)==typeid(short)||
         typeid(T)==typeid(int)||
@@ -447,30 +455,41 @@ void Data3D<T>::show(const std::string& window_name, int current_slice, T min_va
         {
             break;
         }
-        else if( key == 'n' )
+        else if( key == 'n' || key=='N' )
         {
             if( current_slice < get_depth()-1 )
             {
                 current_slice++;
                 std::cout << '\r' << "Displaying Slice #" << current_slice << "\t\t\t\t\t\t";
+                std::cout.flush();
             }
         }
-        else if( key == 'p')
+        else if( key=='p' || key=='P' )
         {
             if( current_slice>0 )
             {
                 current_slice--;
                 std::cout << '\r' << "Displaying Slice #" << current_slice << "\t\t\t\t\t\t";
+                std::cout.flush();
             }
         }
-        else if ( key =='s' )
+        else if ( key=='s' || key=='S' )
         {
             std::stringstream ss;
             ss << "output/" << window_name << "_Data_Slice_";
             ss.width(3);
             ss.fill('0');
             ss << current_slice << ".jpg";
-            cv::imwrite( ss.str(),  mat_temp );
+            bool flag = cv::imwrite( ss.str(),  mat_temp );
+            if( flag )
+            {
+                std::cout << "A screen shot is save as: '" << ss.str() << "'" << std::endl;
+            }
+            else
+            {
+                std::cerr << "Failed to save a screen shot is save as: '" << ss.str() << "'" << std::endl;
+            }
+            std::cout.flush();
         }
         else
         {
@@ -563,8 +582,8 @@ const Data3D<T>& operator*=( Data3D<T>& left, const T2& right )
 template<typename T1, typename T2, typename T3>
 bool subtract3D( const Data3D<T1>& src1, const Data3D<T2>& src2, Data3D<T3>& dst )
 {
-    smart_return_false( src1.get_size()==src2.get_size(),
-                        "Source sizes are supposed to be cv::Matched.");
+    smart_return( src1.get_size()==src2.get_size(),
+                        "Source sizes are supposed to be cv::Matched.", false);
 
     if( dst.get_size() != src1.get_size() )
     {

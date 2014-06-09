@@ -5,7 +5,7 @@
 		<Option title="Vesselness" />
 		<Option makefile="makefile" />
 		<Option pch_mode="2" />
-		<Option compiler="gnu_gcc_compiler_x64" />
+		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
 				<Option output="bin/Debug/Vesselness" prefix_auto="1" extension_auto="1" />
@@ -17,14 +17,10 @@
 					<Add option="-g" />
 					<Add option="-fopenmp" />
 					<Add option="-Wno-comment" />
+					<Add directory="../libs/Debug" />
 				</Compiler>
 				<Linker>
-					<Add option="`pkg-config --libs opencv`" />
-					<Add library="libglut.a" />
-					<Add library="libGL.a" />
-					<Add library="libGLEW.a" />
-					<Add library="libGLU.a" />
-					<Add library="libgomp.a" />
+					<Add directory="../libs/Debug" />
 				</Linker>
 			</Target>
 			<Target title="Release">
@@ -40,57 +36,34 @@
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
-					<Add option="`pkg-config --libs opencv`" />
-					<Add option="-Wl,--no-as-needed" />
-					<Add library="libglut.a" />
-					<Add library="libGL.a" />
-					<Add library="libGLEW.a" />
-					<Add library="libGLU.a" />
-					<Add library="libgomp.a" />
+					<Add directory="../libs/Release" />
 				</Linker>
 			</Target>
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
+			<Add directory="../core" />
 		</Compiler>
-		<Unit filename="Data3D.h" />
-		<Unit filename="DataTypes.h" />
-		<Unit filename="DisjointSet.cpp" />
-		<Unit filename="DisjointSet.h" />
-		<Unit filename="Edge.cpp" />
-		<Unit filename="Edge.h" />
-		<Unit filename="GLCamera.cpp" />
-		<Unit filename="GLCamera.h" />
-		<Unit filename="GLCenterLine.h" />
+		<Linker>
+			<Add option="`pkg-config --libs opencv`" />
+			<Add option="-Wl,--no-as-needed" />
+			<Add library="libcore.a" />
+			<Add library="libglut.a" />
+			<Add library="libGL.a" />
+			<Add library="libGLEW.a" />
+			<Add library="libGLU.a" />
+			<Add library="libgomp.a" />
+		</Linker>
 		<Unit filename="GLDirection.h" />
-		<Unit filename="GLVideoSaver.cpp" />
-		<Unit filename="GLVideoSaver.h" />
-		<Unit filename="GLViewer.cpp" />
-		<Unit filename="GLViewerExt.h" />
-		<Unit filename="GLViwerWrapper.h" />
-		<Unit filename="GLVolumn.h" />
-		<Unit filename="Graph.h" />
-		<Unit filename="Image3D.h" />
-		<Unit filename="ImageProcessing.cpp" />
-		<Unit filename="ImageProcessing.h" />
-		<Unit filename="Kernel3D.h" />
-		<Unit filename="MinSpanTree.cpp" />
-		<Unit filename="MinSpanTree.h" />
-		<Unit filename="MinSpanTreeWrapper.h" />
-		<Unit filename="Ooops.h" />
-		<Unit filename="RingsDeduction.cpp" />
-		<Unit filename="RingsDeduction.h" />
-		<Unit filename="TypeInfo.h" />
-		<Unit filename="Validation.h" />
+		<Unit filename="GLViewerVesselness.h" />
+		<Unit filename="ImageProcessing-Vesselness.cpp" />
+		<Unit filename="ImageProcessing-Vesselness.h" />
 		<Unit filename="VesselDetector.cpp" />
 		<Unit filename="VesselDetector.h" />
 		<Unit filename="VesselnessTypes.cpp" />
 		<Unit filename="VesselnessTypes.h" />
-		<Unit filename="Viewer.h" />
 		<Unit filename="main.cpp" />
-		<Unit filename="nstdio.h" />
-		<Unit filename="smart_assert.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />

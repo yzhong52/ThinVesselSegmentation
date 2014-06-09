@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="core" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="../libs/Debug/core" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="obj/Debug/" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="../libs/Release/core" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="obj/Release/" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+			<Target title="test">
+				<Option output="bin/Debug/core" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option projectCompilerOptionsRelation="2" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-fopenmp" />
+			<Add option="-Wno-comment" />
+		</Compiler>
+		<Linker>
+			<Add option="`pkg-config --libs opencv`" />
+			<Add library="libGL.a" />
+			<Add library="libGLU.a" />
+			<Add library="libGLEW.a" />
+			<Add library="libgomp.a" />
+			<Add library="libglut.a" />
+		</Linker>
+		<Unit filename="Data3D.h" />
+		<Unit filename="GLCamera.cpp" />
+		<Unit filename="GLCamera.h" />
+		<Unit filename="GLCenterLine.cpp" />
+		<Unit filename="GLCenterLine.h" />
+		<Unit filename="GLVideoSaver.cpp" />
+		<Unit filename="GLVideoSaver.h" />
+		<Unit filename="GLViewer.cpp" />
+		<Unit filename="GLViewer.h" />
+		<Unit filename="GLViwerCore.h" />
+		<Unit filename="GLVolumn.cpp" />
+		<Unit filename="GLVolumn.h" />
+		<Unit filename="Image3D.h" />
+		<Unit filename="ImageProcessing.cpp" />
+		<Unit filename="ImageProcessing.h" />
+		<Unit filename="Kernel3D.h" />
+		<Unit filename="main.cpp">
+			<Option compilerVar="CC" />
+			<Option target="test" />
+		</Unit>
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef NSTAIO_H
+#define NSTAIO_H
 
 #include <stdio.h>
 
@@ -52,3 +53,5 @@ inline long long fread_big( void* _DstBuf, size_t _ElementSize, unsigned long lo
     size_read_total += size_read;
     return size_read_total;
 };
+
+#endif

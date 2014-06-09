@@ -2,10 +2,10 @@
 #include "GLVideoSaver.h"
 
 // Using OpenCV ot Save the Scene to video
-#include <opencv2/core/core.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/video/video.hpp>
-#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/opencv.hpp>
+//#include <opencv2/imgproc/imgproc.hpp>
+//#include <opencv2/video/video.hpp>
+//#include <opencv2/highgui/highgui.hpp>
 
 /////////////////////////////////////
 // Glew Library
@@ -16,9 +16,11 @@
 // OpenGL Library
 #if _MSC_VER && !__INTEL_COMPILER
 #include <windows.h>		// Header File For Windows
-#include <GL\GL.h>			// Header File For The OpenGL32 Library
-#include <GL\glu.h>			// Header File For The GLu32 Library
 #endif
+
+#include <GL/gl.h>			// Header File For The OpenGL Library
+#include <GL/glu.h>			// Header File For The GLu Library
+#include <GL/glut.h>
 
 #include <iostream>
 
@@ -64,9 +66,8 @@ void VideoSaver::init(int w, int h, string filename, int maxNumFrames )
                                        true);                      /*Yuchen: Is Color                 */
     if (!outputVideo->isOpened())
     {
-        cout  << "Could not open the output video for write: " << endl;
+        cout  << "Could not open the output video '" << video_file_name << "'. " << endl;
         state = isStopped;
-        exit(0);
     }
 }
 

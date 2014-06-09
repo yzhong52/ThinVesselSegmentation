@@ -15,6 +15,9 @@ using namespace std;
 #pragma comment(lib, "freeglut.lib")
 #endif
 
+
+#include "GLVideoSaver.h"
+
 namespace GLViewer
 {
 
