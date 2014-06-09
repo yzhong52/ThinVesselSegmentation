@@ -96,11 +96,11 @@ Modules
 
     OpenCV warper for SparseMatrix. For matrix multiplication between sparse matrix and dense matrix. For example, 
 
-        ```
-        template <class _Tp, int m, int n>    
-        SparseMatrixCV operator*( const cv::Matx<_Tp,m,n>& vec, const SparseMatrixCV& sm );     
-        Mat_<double> operator*( const SparseMatrixCV& sm, const Mat_<double>& sm );    
-	```
+    ```
+    template <class _Tp, int m, int n>    
+    SparseMatrixCV operator*( const cv::Matx<_Tp,m,n>& vec, const SparseMatrixCV& sm );     
+    Mat_<double> operator*( const SparseMatrixCV& sm, const Mat_<double>& sm );    
+    ```
 
 -   **Vesselness-cuda** 
 
@@ -125,24 +125,24 @@ Requirements (Linux)
 
 2. **X Window System** (X11, X, and sometimes informally X-Windows), which is a windowing system for bitmap displays
 
-        ```
-        sudo apt-get install libxmu-dev
-        sudo apt-get install libxi-dev
-	```
+    ```
+    sudo apt-get install libxmu-dev
+    sudo apt-get install libxi-dev
+    ```
 
 3. **glew**
 
-	`sudo apt-get install libglew-dev`
+    `sudo apt-get install libglew-dev`
 
 4. **OpenGL**
 
-        `sudo apt-get install mesa-common-dev`
+    `sudo apt-get install mesa-common-dev`
 
 5. **OpenCV 2.4.9**
 
 	Download [OpenCV](http://opencv.org/). Generate makefile witl cmake, build and install the liabrary. 
 
-        ```
-	make
-	make install
-	```
+    ```
+    make
+    make install
+    ```
