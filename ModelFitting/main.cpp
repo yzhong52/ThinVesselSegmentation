@@ -15,8 +15,6 @@
 // Some of the building blocks (Data3D, Visualization) are borrowed from VesselNess.
 #include "Data3D.h"
 
-#include "MinSpanTree.h"
-
 #include "Line3DTwoPoint.h"
 #include "LevenburgMaquart.h"
 #include "SyntheticData.h"
@@ -121,6 +119,9 @@ void start_levernberg_marquart( const string& dataname = "data15", bool isDispla
 
 int main(int argc, char* argv[])
 {
+    Mat temp = Mat(200, 200, CV_8UC3);
+    cv::imshow( "", temp );
+
     experiments::start_levernberg_marquart("data15", true);
 
     cout << "Main Thread is Done. " << endl;

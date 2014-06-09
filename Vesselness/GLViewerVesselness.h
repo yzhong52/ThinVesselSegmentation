@@ -4,7 +4,7 @@
 #include "GLViwerCore.h"
 #include "GLDirection.h"
 
-class GLViwerVesselness : public GLViewerCore {
+class GLViewerVesselness : public GLViewerCore {
 public:
     void addDiretionObject( Data3D<Vesselness_Sig>& vn_sig )
     {

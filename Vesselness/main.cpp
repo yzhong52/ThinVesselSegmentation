@@ -21,7 +21,7 @@
 using namespace std;
 using namespace cv;
 
-GLViwerVesselness viewer;
+GLViewerVesselness viewer;
 
 namespace sample_code
 {
