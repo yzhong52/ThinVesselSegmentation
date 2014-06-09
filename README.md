@@ -120,33 +120,42 @@ Modules
 
 
 
-Requirements (Linux)
+Requirements
 ---------------
 
-1. **freeglut**
+-  **Linux**
 
-    `sudo apt-get install freeglut3-dev`
+	1. **freeglut**
+	
+	    `sudo apt-get install freeglut3-dev`
+	
+	2. **X Window System** (X11, X, and sometimes informally X-Windows), which is a windowing system for bitmap displays
+	
+	    ```
+	    sudo apt-get install libxmu-dev
+	    sudo apt-get install libxi-dev
+	    ```
+	
+	3. **glew**
+	
+	    `sudo apt-get install libglew-dev`
+	
+	4. **OpenGL**
+	
+	    `sudo apt-get install mesa-common-dev`
+	
+	5. **OpenCV 2.4.9**
+	
+	    Download [OpenCV](http://opencv.org/). Generate makefile with cmake, build and install the liabrary. 
+	
+	    ```
+	    make
+	    make install
+	    ```
 
-2. **X Window System** (X11, X, and sometimes informally X-Windows), which is a windowing system for bitmap displays
+	6. **Code::Blocks**
 
-    ```
-    sudo apt-get install libxmu-dev
-    sudo apt-get install libxi-dev
-    ```
 
-3. **glew**
+-  **Windows coming soon**
 
-    `sudo apt-get install libglew-dev`
-
-4. **OpenGL**
-
-    `sudo apt-get install mesa-common-dev`
-
-5. **OpenCV 2.4.9**
-
-	Download [OpenCV](http://opencv.org/). Generate makefile witl cmake, build and install the liabrary. 
-
-    ```
-    make
-    make install
-    ```
+ 
