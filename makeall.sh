@@ -5,6 +5,8 @@
 #
 ####################################
 
+mkdir -p bin libs
+
 echo ""
 echo "####################################"
 echo "# Compiling Vesselness"

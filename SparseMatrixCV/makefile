@@ -1,22 +1,5 @@
-# define some Makefile variables for the compiler and compiler flags
-# to use Makefile variables later in the Makefile: $()
-#
-#  -g    adds debugging information to the executable file
-#  -Wall turns on most, but not all, compiler warnings
-#  -pg   adds profiling information to the executable file
-#  -m64  compile for 64-bit
-#  -Wno-comment disable warnings about multiline comments
-CFLAGS = -Wall -m64 -fopenmp -Wno-comment -O2
-
-# for C++ define  CC = g++
-#  -m64  compile for 64 bits
-CC = g++ -std=c++0x
-
-# for c compiler
-CCC = gcc
-
-# archive (compile to lib*.a)
-AR = ar -r -s
+# Inlcude general makefile settings
+include ../makefile-common.make
 
 # define any directories containing header files other than /usr/include
 INCLUDES  = -I ./
