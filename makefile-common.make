@@ -14,7 +14,9 @@ CFLAGS +=`pkg-config --cflags opencv`
 #   if I wanted to include libraries not in /usr/lib I'd specify
 #   their path using -Lpath, something like:
 LFLAGS  = -L ./
-LFLAGS += `pkg-config --libs opencv` -Wl,--no-as-needed -pthread
+LFLAGS += -Wl,--no-as-needed -pthread
+# Add OpenCV libs
+LFLAGS += `pkg-config --libs opencv`
 
 # for C++ define  CC = g++
 #  -m64  compile for 64 bits
