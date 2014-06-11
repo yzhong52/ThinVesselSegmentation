@@ -4,11 +4,11 @@ using namespace std;
 
 // The following not supported by g++
 #if _MSC_VER && !__INTEL_COMPILER
-    #ifdef _DEBUG
-        #pragma comment(lib,"../x64/Debug/SparseMatrix.lib")
-    #else
-        #pragma comment(lib,"../x64/Release/SparseMatrix.lib")
-    #endif
+#ifdef _DEBUG
+#pragma comment(lib,"../x64/Debug/SparseMatrix.lib")
+#else
+#pragma comment(lib,"../x64/Release/SparseMatrix.lib")
+#endif
 #endif
 
 SparseMatrixCV::SparseMatrixCV( unsigned nrow, unsigned ncol, const unsigned index[][2], const double value[], unsigned N )
@@ -134,3 +134,14 @@ void SparseMatrixCV::convertTo( cv::Mat_<double>& m )
         }
     }
 }
+
+
+void solve( const SparseMatrixCV& A, const cv::Mat_<double>& B,
+            cv::Mat_<double>& X, double acuracy,
+            SparseMatrix::Options o )
+{
+    X = cv::Mat_<double>::zeros( A.row(), 1 );
+
+    solve(A, (double*)B.data, (double*)X.data, acuracy, o);
+}
+

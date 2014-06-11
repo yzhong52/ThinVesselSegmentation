@@ -109,6 +109,6 @@ public:
     // // // // // // // // // // // // // // // // // // // // // //
     enum Options { BICGSQ, SUPERLU };
     friend void mult( const SparseMatrix& A, const double *v, double *w );
-    friend void solve( const SparseMatrix& A, double* B, double* X,
+    friend void solve( const SparseMatrix& A, const double* const B, double* X,
                        double acuracy = 1e-3, Options o = BICGSQ );
 };

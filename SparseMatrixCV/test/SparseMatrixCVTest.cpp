@@ -83,14 +83,17 @@ void SparseMatrixCVTest::test_equal( cv::Mat_<double> m0, SparseMatrixCV m1 )
     }
 }
 
-void SparseMatrixCVTest::test_equal( cv::Mat_<double> m0, cv::Mat_<double> m1 ){
+void SparseMatrixCVTest::test_equal( cv::Mat_<double> m0, cv::Mat_<double> m1 )
+{
     EXPECT_EQ(m0.rows, m1.rows );
     EXPECT_EQ(m0.cols, m1.cols );
 
-    for( int r=0; r<m1.rows; r++ ) {
-         for( int c=0; c<m1.cols; c++ ) {
+    for( int r=0; r<m1.rows; r++ )
+    {
+        for( int c=0; c<m1.cols; c++ )
+        {
             ASSERT_NEAR( m0[r][c], m1[r][c], 1e-5 );
-         }
+        }
     }
 }
 

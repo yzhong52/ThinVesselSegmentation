@@ -50,7 +50,9 @@ public:
     static SparseMatrixCV I( unsigned rows );
 
     void convertTo( cv::Mat_<double>& m );
-
+    friend void solve( const SparseMatrixCV& A, const cv::Mat_<double>& B,
+            cv::Mat_<double>& X, double acuracy,
+            SparseMatrix::Options o );
 };
 
 

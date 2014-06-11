@@ -7,6 +7,7 @@ else
 fi
 
 TEMP_DIR=temp
+DEST_DIR=../../../libs/gtest
 
 # -o overwrite the files if they already exists under $TEMP_DIR
 unzip -o gtest-1.7.0.zip -d "$TEMP_DIR"
@@ -17,11 +18,17 @@ cmake ./
 
 make
 
-mkdir -p ../../../libs
+mkdir -p "$DEST_DIR"
 
-cp ./libgtest.a ../../../libs/libgtest.a
+cp ./libgtest.a "$DEST_DIR"/libgtest.a
 
-cp ./libgtest_main.a ../../../libs/libgtest_main.a
+cp ./libgtest_main.a "$DEST_DIR"/libgtest_main.a
+
+
+# -a : Preserve the specified attributes such as directory an file mode, ownership, timestamps, if possible additional attributes: context, links, xattr, all.
+# -v : Explain what is being done.
+# -r : Copy directories recursively.
+cp -avr ./include "$DEST_DIR"/include
 
 cd ../../
 
