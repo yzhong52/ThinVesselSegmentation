@@ -5,44 +5,48 @@
 #
 ####################################
 
-echo "\n"
+echo ""
 echo "####################################"
 echo "# Compiling Vesselness"
 echo "####################################"
-echo "\n"
+echo ""
 
 cd ./Vesselness
 make clean
+mkdir -p bin obj
 make
 
-echo "\n"
+echo ""
 echo "####################################"
 echo "# Compiling SparseMatrix"
 echo "####################################"
-echo "\n"
+echo ""
 
 cd ../SparseMatrix
 make clean
+mkdir -p bin obj
 make
 
-echo "\n"
+echo ""
 echo "####################################"
 echo "# Compiling SparseMatrixCV"
 echo "####################################"
-echo "\n"
+echo ""
 
 cd ../SparseMatrixCV
 make clean
+mkdir -p bin obj
 make
 
-echo "\n"
+echo ""
 echo "####################################"
 echo "# Compiling ModelFitting"
 echo "####################################"
-echo "\n"
+echo ""
 
 cd ../ModelFitting
 make clean
+mkdir -p bin obj
 make
 
 
