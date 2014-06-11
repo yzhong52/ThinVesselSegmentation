@@ -13,11 +13,11 @@ LFLAGS  = -L ../libs/
 
 # define any libraries to link into executable:
 #   if I want to link in libraries (libx.so or libx.a) I use the -llibname 
-#   option, something like (this will link in libmylib.so and libm.so:
-LIBS = libSparseMatrix.a
+#   option, something like (this will link in libmylib.so and libm.so):
+LIBS = -libSparseMatrix.a
 
 # define the cpp source files
-SRCS = SparseMatrixCV-lsover.cpp SparseMatrixCV.cpp
+SRCS = SparseMatrixCV-lsover.cpp SparseMatrixCV.cpp 
 
 # define the C object files 
 #
@@ -32,12 +32,6 @@ OBJS = $(SRCS:%.cpp=./obj/%.o)
 
 # define the executable file 
 TARGET = ../libs/libSparseMatrixCV.a
-
-# Yuchen: The remove command.
-# It is for Windoes only. Under Linux, ti will be something 
-# like the following (which is not tested): 
-#	rm -f
-RM = rm -f
 
 all: $(CBLAS_OBJS) $(OBJS)
 	mkdir -p ../libs

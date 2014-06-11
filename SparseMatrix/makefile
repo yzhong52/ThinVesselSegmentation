@@ -48,7 +48,7 @@ RM = rm -f
 
 all: $(CBLAS_OBJS) $(OBJS)
 	mkdir -p ../libs
-	$(AR) $(TARGET) $(OBJS)
+	$(AR) $(TARGET) $(OBJS) $(CBLAS_OBJS)
 
 # Yuchen: these following command will compile the other cpp files in the project
 # For example, if there is a file SparseMatrix.cpp in the current directory, it will 

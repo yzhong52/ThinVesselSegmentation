@@ -51,13 +51,6 @@ public:
 
     void convertTo( cv::Mat_<double>& m );
 
-    /////////////////////////////////////////////////////////////////
-    // friends function for liner sover
-    // // // // // // // // // // // // // // // // // // // // // //
-    enum Options { BICGSQ, SUPERLU };
-    friend void mult( const SparseMatrixCV &A, const double *v, double *w );
-    friend void solve( const SparseMatrixCV& A, const cv::Mat_<double>& B, cv::Mat_<double>& X,
-                       double acuracy = 1e-3, Options o = BICGSQ );
 };
 
 

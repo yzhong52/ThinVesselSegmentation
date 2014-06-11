@@ -1,6 +1,6 @@
 #include <opencv2/core/core.hpp>
 #include <iostream>
-#include "SparseMatrixCV.h"
+#include "SparseMatrix.h"
 
 using namespace std;
 
@@ -8,7 +8,7 @@ using namespace std;
 // http://aam.mathematik.uni-freiburg.de/IAM/Research/projectskr/lin_solver/
 #include "lsolver/bicgsq.h"
 
-void mult( const SparseMatrixCV &A, const double *v, double *w )
+void mult( const SparseMatrix &A, const double *v, double *w )
 {
     unsigned N = 0;
     const double* non_zero_value = NULL;
@@ -27,16 +27,15 @@ void mult( const SparseMatrixCV &A, const double *v, double *w )
     }
 }
 
-void solve( const SparseMatrixCV& A, const cv::Mat_<double>& B, cv::Mat_<double>& X,
-           double acuracy, SparseMatrixCV::Options o )
+void solve( const SparseMatrix& A, const double* const B, double* X,
+           double acuracy, SparseMatrix::Options o )
 {
-    X = cv::Mat_<double>::zeros( A.row(), 1 );
     switch( o )
     {
-    case SparseMatrixCV::BICGSQ:
-        bicgsq( A.row(), A, (double*)B.data, (double*)X.data, acuracy );
+    case SparseMatrix::BICGSQ:
+        bicgsq( A.row(), A, B, X, acuracy );
         break;
-    case SparseMatrixCV::SUPERLU:
+    case SparseMatrix::SUPERLU:
 
         break;
     }
