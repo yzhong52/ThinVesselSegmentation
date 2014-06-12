@@ -28,8 +28,11 @@ OBJS_CBLAS = $(SRCS_CBLAS:%.c=./obj/CBLAS_%.o)
 # define the executable file 
 TARGET = ../libs/Release/libSparseMatrix.a
 
-all: $(OBJS_CBLAS) $(OBJS)
+all: BUILD_DIR $(OBJS_CBLAS) $(OBJS)
 	$(AR) $(TARGET) $(OBJS) $(OBJS_CBLAS)
+
+BUILD_DIR: 
+	mkdir -p ../libs/Release/
 
 # Yuchen: these following command will compile the other cpp files in the project
 # For example, if there is a file SparseMatrix.cpp in the current directory, it will 

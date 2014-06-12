@@ -18,4 +18,6 @@ module list
 
 cd /scratch/yzhong52/thin-structure-segmentation/
 
+git pull
+
 sh ./makeall.sh

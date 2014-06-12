@@ -43,11 +43,11 @@ TARGET_TEST = bin/SparseMatrixCV-test
 all: $(OBJS)
 	$(AR) $(TARGET) $(OBJS)
 
-test: make-dir $(OBJS) $(OBJS_TEST) 
+test: BUILD_DIR $(OBJS) $(OBJS_TEST) 
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(INCLUDES) $(OBJS) $(OBJS_TEST) -o $(TARGET_TEST) $(LFLAGS) $(LIBS)
 	$(TARGET_TEST)
 
-make-dir: 
+BUILD_DIR: 
 	mkdir -p bin
 	mkdir -p obj/test
 
