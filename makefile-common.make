@@ -29,7 +29,4 @@ CCC = gcc -std=c99
 AR = ar -r -s
 
 # Yuchen: The remove command.
-# It is for Windoes only. Under Linux, ti will be something 
-# like the following (which is not tested): 
-#	rm -f
 RM = rm -f

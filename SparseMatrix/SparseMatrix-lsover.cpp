@@ -27,7 +27,7 @@ void mult( const SparseMatrix &A, const double *v, double *w )
     }
 }
 
-void solve( const SparseMatrix& A, const double* const B, double* X,
+void solve( const SparseMatrix& A, const double* B, double* X,
            double acuracy, SparseMatrix::Options o )
 {
     switch( o )

@@ -2,8 +2,6 @@
 include ../makefile-common.make
 
 # define any directories containing header files other than /usr/include
-INCLUDES  = -I ./
-INCLUDES += -I ../
 INCLUDES += -I ../core
 
 # define any libraries to link into executable:

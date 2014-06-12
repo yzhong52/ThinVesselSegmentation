@@ -9,7 +9,7 @@ INCLUDES += -I ../core
 # define library paths in addition to /usr/lib
 #   if I wanted to include libraries not in /usr/lib I'd specify
 #   their path using -Lpath, something like:
-LFLAGS += -L../libs
+LFLAGS += -L../libs/Release
 LFLAGS += `pkg-config --libs opencv` -Wl,--no-as-needed -pthread
 
 # define any libraries to link into executable:
@@ -36,8 +36,6 @@ OBJS = $(SRCS:%.cpp=./obj/%.o)
 TARGET = ../bin/modelfitting
 
 all: $(CBLAS_OBJS) $(OBJS)
-	mkdir -p ../bin
-	mkdir -p ./obj
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(INCLUDES) $(OBJS) main_nvis.cpp -o $(TARGET) $(LFLAGS) $(LIBS)
 
 # Yuchen: these following command will compile the other cpp files in the project

@@ -54,7 +54,6 @@ int main(int argc, char **argv)
 {
     testing::InitGoogleTest(&argc, argv);
     int flag = RUN_ALL_TESTS();
-    system("pause");
     return flag;
 }
 
