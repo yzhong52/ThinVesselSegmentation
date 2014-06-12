@@ -2,9 +2,9 @@
 include ../makefile-common.make
 
 # define any directories containing header files other than /usr/include
-INCLUDES += -I ../
 INCLUDES += -I ../Vesselness
 INCLUDES += -I ../core
+INCLUDES += -I ..
 
 # define library paths in addition to /usr/lib
 #   if I wanted to include libraries not in /usr/lib I'd specify
@@ -15,7 +15,7 @@ LFLAGS += `pkg-config --libs opencv` -Wl,--no-as-needed -pthread
 # define any libraries to link into executable:
 #   if I want to link in libraries (libx.so or libx.a) I use the -llibname 
 #   option, something like (this will link in libmylib.so and libm.so:
-LIBS  = -lSparseMatrix -lSparseMatrixCV
+LIBS  = -lSparseMatrixCV -lSparseMatrix
 LIBS += -lGL -lGLU -lglut -lGLEW
 
 # define the cpp source files
