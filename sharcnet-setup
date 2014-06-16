@@ -8,16 +8,40 @@ module load opencv/2.4.9
 
 export PKG_CONFIG_PATH=/opt/sharcnet/opencv/2.4.9/lib/pkgconfig
 
+# Checking OpenCV versions
+
 pkg-config --modversion opencv
 
 pkg-config --cflags opencv
 
 pkg-config --libs opencv
 
+# Checking current module list
+
 module list
+
+# chang directory to the working directory
 
 cd /scratch/yzhong52/thin-structure-segmentation/
 
+# syn the project
+
 git pull
 
+# make
+
 sh ./makeall.sh
+
+# submit a job
+# Fromate:
+#    sqsub –q queue_name -r run_time [ additional_sq_options ] your_program [ your_args ]
+# queue_name:
+# 	1) threaded, system dependent, 8 CPUs for saw
+# run_time:
+# 	e.g.: 7d, or 7m, or 7h
+sqsub -r 7m -q mpi --test -n 24 ./simula
+sqsub -r 5m -q threaded -n 24 -N 6 -o std.out ./vesselness
+sqsub -r 5m -q threaded -n 8 -o std.out ./vesselness
+
+# check the status of a job
+sqjobs

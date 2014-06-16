@@ -1,22 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_workspace_file>
 	<Workspace title="Thin Structure Segmentation">
-		<Project filename="core/core.cbp" />
-		<Project filename="SparseMatrix/SparseMatrix.cbp" />
-		<Project filename="SparseMatrixCV/SparseMatrixCV.cbp">
-			<Depends filename="SparseMatrix/SparseMatrix.cbp" />
-		</Project>
 		<Project filename="ModelFitting/ModelFitting.cbp">
 			<Depends filename="core/core.cbp" />
-			<Depends filename="SparseMatrix/SparseMatrix.cbp" />
 			<Depends filename="SparseMatrixCV/SparseMatrixCV.cbp" />
+			<Depends filename="SparseMatrix/SparseMatrix.cbp" />
 		</Project>
-		<Project filename="Vesselness/Vesselness.cbp">
-			<Depends filename="core/core.cbp" />
-		</Project>
+		<Project filename="Vesselness/Vesselness.cbp" />
 		<Project filename="EigenDecomp/EigenDecomp.cbp" />
-		<Project filename="RingsReduction/RingsReduction.cbp">
-			<Depends filename="core/core.cbp" />
-		</Project>
+		<Project filename="RingsReduction/RingsReduction.cbp" />
+		<Project filename="core/core.cbp" />
+		<Project filename="SparseMatrixCV/SparseMatrixCV.cbp" />
+		<Project filename="SparseMatrix/SparseMatrix.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>

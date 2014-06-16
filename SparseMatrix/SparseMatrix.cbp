@@ -18,6 +18,7 @@
 					<Add option="-Wall" />
 					<Add option="-g" />
 					<Add directory="../SparseMatrix" />
+					<Add directory="include" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -32,6 +33,7 @@
 					<Add option="-std=c++11" />
 					<Add option="-Wall" />
 					<Add directory="../SparseMatrix" />
+					<Add directory="include" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -50,6 +52,7 @@
 					<Add option="-g" />
 					<Add directory="../libs/gtest/include" />
 					<Add directory="../SparseMatrix" />
+					<Add directory="include" />
 				</Compiler>
 				<Linker>
 					<Add library="libgtest.a" />
@@ -81,6 +84,7 @@
 		<Unit filename="SparseMatrix.h" />
 		<Unit filename="SparseMatrixData.cpp" />
 		<Unit filename="SparseMatrixData.h" />
+		<Unit filename="include/GLObject.h" />
 		<Unit filename="test/SparseMatrixTest.cpp">
 			<Option target="Test" />
 		</Unit>

@@ -1,4 +1,5 @@
 #pragma once
+#include <vector>
 
 /////////////////////////////////////
 // Glew Library
@@ -12,44 +13,23 @@
 #include <GL\glu.h>			// Header File For The GLu32 Library
 #endif
 
-
-
-
-#include <vector>
+#include "GLObject.h"
 
 class GLCamera;
 
 namespace GLViewer
 {
-// derive the following virtual class in order to render your own objects
-class Object
-{
-public:
-    Object() {}
-    virtual ~Object() {}
-    // Pure virtual functions
-    // you have to implement these virtual functions in order to render it
-    // with GLViewer
-    virtual void render(void) = 0;				 // render the object
-    virtual unsigned int size_x(void) const = 0; // size of the object
-    virtual unsigned int size_y(void) const = 0; // size of the object
-    virtual unsigned int size_z(void) const = 0; // size of the object
 
-    // Optional funtions to overide
-    // init function for OpenGL, excuted before rendering loop
-    virtual void init(void) { }
-    // render function for OpenGL
-    // keyboard function for OpenGL
-    virtual void keyboard( unsigned char key ) { }
-};
+extern GLCamera camera;
 
-// camera infos
-extern GLCamera cam;
+// number of viewports
 extern int numViewports;
-void go( std::vector<Object*> objects, int w=1280, int h = 720  );
 
+// given a list of objects, display then using OpenGL
+void dispay( std::vector<Object*> objects, int w=1280, int h = 720  );
+
+// API for start capture a video clip
 void startCaptureVideo( int maxNumFrames = 3600 );
 
-// TODO: visualize color texture
 }
 

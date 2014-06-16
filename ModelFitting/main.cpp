@@ -43,7 +43,7 @@ GLViwerModel vis;
 // thread function for rendering
 void visualization_func( int numViewports )
 {
-    vis.go( 1280, 768, numViewports );
+    vis.display( 1280, 768, numViewports );
 }
 
 // function template default type C++11

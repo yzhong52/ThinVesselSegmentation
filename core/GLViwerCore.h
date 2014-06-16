@@ -30,10 +30,10 @@ public:
         addObject( im_uchar, mode );
     }
 
-    void go( int w = 1280, int h = 720, int numViewports = 1 )
+    void display( int w = 1280, int h = 720, int numViewports = 1 )
     {
         GLViewer::numViewports = numViewports;
-        GLViewer::go( objs, w, h );
+        GLViewer::dispay( objs, w, h );
     }
 };
 
@@ -47,7 +47,7 @@ void GLViewerCore::addObject( const Data3D<unsigned char>& im_uchar, GLViewer::V
         im_uchar.getMat().data,
         im_uchar.SX(),
         im_uchar.SY(),
-        im_uchar.SZ(), &GLViewer::cam );
+        im_uchar.SZ(), &GLViewer::camera );
     vObj->render_mode = mode;
     objs.push_back( vObj );
 }

@@ -77,7 +77,7 @@ int sample_code::vesselness( bool isDisplay, string dataname )
     {
         viewer.addObject( vn_sig,  GLViewer::Volumn::MIP );
         viewer.addDiretionObject( vn_sig );
-        viewer.go(600, 400, 2);
+        viewer.display(600, 400, 2);
     }
 
     return 0;
@@ -103,7 +103,7 @@ int sample_code::centreline( bool isDisplay, string dataname )
     {
         viewer.addObject( vn_sig_et,  GLViewer::Volumn::MIP );
         viewer.addDiretionObject( vn_sig_et );
-        viewer.go(600, 400, 2);
+        viewer.display(600, 400, 2);
     }
     return 0;
 }
