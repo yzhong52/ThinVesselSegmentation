@@ -13,5 +13,5 @@ int main( void )
 
     GLViewerCore viewer;
     viewer.addObject( im_short,  GLViewer::Volumn::MIP );
-    viewer.dispay(400, 400, 1);
+    viewer.display(400, 400, 1);
 }

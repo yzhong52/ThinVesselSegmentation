@@ -583,7 +583,7 @@ template<typename T1, typename T2, typename T3>
 bool subtract3D( const Data3D<T1>& src1, const Data3D<T2>& src2, Data3D<T3>& dst )
 {
     smart_return( src1.get_size()==src2.get_size(),
-                        "Source sizes are supposed to be cv::Matched.", false);
+                  "Source sizes are supposed to be cv::Matched.", false);
 
     if( dst.get_size() != src1.get_size() )
     {

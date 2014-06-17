@@ -281,7 +281,7 @@ bool ImageProcessing::filter3D_X( const Data3D<T1>& src, Data3D<T2>& dst, const 
 {
     smart_return( (&src)!=(&dst), "src and dst should be different.", false );
     smart_return( kx.get_size_x()>0 && kx.get_size_y()==1 && kx.get_size_z()==1,
-                        "kernel size should be (X,1,1) where X > 0", false );
+                  "kernel size should be (X,1,1) where X > 0", false );
 
     dst.reset( src.get_size() );
 
@@ -309,7 +309,7 @@ bool ImageProcessing::filter3D_Y( const Data3D<T1>& src, Data3D<T2>& dst, const 
 {
     smart_return( (&src)!=(&dst), "src and dst should be different.", false );
     smart_return( ky.get_size_x()==1 && ky.get_size_y()>0 && ky.get_size_z()==1,
-                        "kernel size should be (1,Y,1) where Y > 0", false );
+                  "kernel size should be (1,Y,1) where Y > 0", false );
 
     dst.reset( src.get_size() );
 
@@ -338,7 +338,7 @@ bool ImageProcessing::filter3D_Z( const Data3D<T1>& src, Data3D<T2>& dst, const 
 {
     smart_return( (&src)!=(&dst), "src and dst should be different.", false );
     smart_return( kz.get_size_x()==1 && kz.get_size_y()==1 && kz.get_size_z()>0,
-                        "kernel size should be (1,1,Z) where Z > 0 ", false );
+                  "kernel size should be (1,1,Z) where Z > 0 ", false );
 
     dst.reset( src.get_size() );
 

@@ -293,9 +293,9 @@ void keyboard(unsigned char key, int x, int y)
         break;
     case '\t':
         // increment the number of viewports: 1, 2, 3...
-    	numViewports = numViewports % maxNumViewports + 1;
-    	reset_projection();
-    	break;
+        numViewports = numViewports % maxNumViewports + 1;
+        reset_projection();
+        break;
     case 's':
     case 'S':
         isSaveFrame = true;
