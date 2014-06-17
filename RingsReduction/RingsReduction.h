@@ -12,14 +12,15 @@ public:
 
 private:
     // compute maximum number of rings
-    static int max_ring_radius( const cv::Vec2i& ring_center,
-                                const cv::Vec2i& im_size );
+    static float max_ring_radius( const cv::Vec2f& center,
+                                  const cv::Vec2f& im_size );
 
-    // average intensity on ring r
+    // average intensity on ring rid
+    // The actual radius of the ring will be rid * dr
     static double avgI_on_rings( const cv::Mat_<short>& m,
-                                 const cv::Vec2i& ring_center,
-                                 const double& r,
-                                 const double& dr = 1.0 );
+                                 const cv::Vec2f& ring_center,
+                                 const int& rid,
+                                 const double& dr );
 
     static void correct_image( const Data3D<short>& src, Data3D<short>& dst,
                                const std::vector<double>& correction,

@@ -41,6 +41,7 @@
 		<Compiler>
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
+			<Add option="-Wno-comment" />
 			<Add directory="../Vesselness" />
 			<Add directory="../core" />
 			<Add directory="../" />

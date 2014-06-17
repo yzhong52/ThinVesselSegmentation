@@ -159,7 +159,7 @@ bool Image3D<T>::saveVideo( const std::string& file_name, cv::Vec<T,2> min_max )
 }
 
 
-inline void setROI_mouseEvent(int evt, int x, int y, int flags, void* param)
+inline void setROI_mouseEvent(int evt, int x, int y, int, void* param)
 {
     // get parameters
     int& z = **(int**)param;

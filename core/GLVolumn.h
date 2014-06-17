@@ -185,6 +185,8 @@ public:
 
     virtual void keyboard( unsigned char key )
     {
+        if( key!='\t' ) return;
+
         switch (render_mode)
         {
         case MIP:
@@ -244,7 +246,7 @@ public:
         }
         inline float length() const
         {
-            return sqrt(x*x + y*y + z*z);
+            return (float)sqrt(x*x + y*y + z*z);
         }
     };
 
@@ -259,15 +261,15 @@ public:
             t /= norm[2];
             if( t>=0 && t<=sz ) result.push_back( cv::Vec3f(0,0,t) );
             // (0, sy, t)
-            t = center.dot(norm)- norm[1] * sy;
+            t = center.dot(norm)- norm[1] * (float)sy;
             t /= norm[2];
             if( t>=0 && t<=sz ) result.push_back( cv::Vec3f(0,(float)sy,t) );
             // (sx, 0, t)
-            t = center.dot(norm) - norm[0] * sx;
+            t = center.dot(norm) - norm[0] * (float)sx;
             t /= norm[2];
             if( t>=0 && t<=sz ) result.push_back( cv::Vec3f((float)sx,0,t) );
             // (sx, sy, t)
-            t = center.dot(norm) - norm[1] * sy - norm[0] * sx;
+            t = center.dot(norm) - norm[1] * (float)sy - norm[0] * (float)sx;
             t /= norm[2];
             if( t>=0 && t<=sz ) result.push_back( cv::Vec3f((float)sx,(float)sy,t) );
         }
@@ -279,15 +281,15 @@ public:
             t /= norm[1];
             if( t>=0 && t<=sy ) result.push_back( cv::Vec3f(0,t,0) );
             // (sx, t, 0)
-            t = center.dot(norm) - norm[0] * sx;
+            t = center.dot(norm) - norm[0] * (float)sx;
             t /= norm[1];
             if( t>=0 && t<=sy ) result.push_back( cv::Vec3f((float)sx,t,0) );
             // (0, t, sz)
-            t = center.dot(norm) - norm[2] * sz;
+            t = center.dot(norm) - norm[2] * (float)sz;
             t /= norm[1];
             if( t>=0 && t<=sy ) result.push_back( cv::Vec3f(0,t,(float)sz) );
             // (sx, t, sz)
-            t = center.dot(norm) - norm[2] * sz - norm[0] * sx;
+            t = center.dot(norm) - norm[2] * (float)sz - norm[0] * (float)sx;
             t /= norm[1];
             if( t>=0 && t<=sy ) result.push_back( cv::Vec3f((float)sx,t,(float)sz) );
         }
@@ -299,15 +301,15 @@ public:
             t /= norm[0];
             if( t>=0 && t<=sx ) result.push_back( cv::Vec3f(t,0,0) );
             // (t, sy, 0)
-            t = center.dot(norm) - norm[1] * sy;
+            t = center.dot(norm) - norm[1] * (float)sy;
             t /= norm[0];
             if( t>=0 && t<=sx ) result.push_back( cv::Vec3f(t,(float)sy,0) );
             // (t, 0, sz)
-            t = center.dot(norm) - norm[2] * sz;
+            t = center.dot(norm) - norm[2] * (float)sz;
             t /= norm[0];
             if( t>=0 && t<=sx ) result.push_back( cv::Vec3f(t,0,(float)sz) );
             // (t, sy, sz)
-            t = center.dot(norm) - norm[1] * sy - norm[2] * sz;
+            t = center.dot(norm) - norm[1] * (float)sy - norm[2] * (float)sz;
             t /= norm[0];
             if( t>=0 && t<=sx ) result.push_back( cv::Vec3f(t,(float)sy,(float)sz) );
         }
@@ -353,8 +355,8 @@ public:
                 {
                     dotproduct = 1;
                 }
-                signed_angle[i] = acos( dotproduct );
-                if( abs( signed_angle[i] ) < 1e-3 ) continue;
+                signed_angle[i] = (float)acos( dotproduct );
+                if( std::abs( signed_angle[i] ) < 1e-3 ) continue;
 
                 cv::Vec3f cross = va[0].cross( va[i] );
                 if( cross.dot( norm ) < 0 )
@@ -383,42 +385,61 @@ public:
     }
 
 
-    void render_volumn( const float& x_increase = 1.0f, const float& y_increase = 1.0f, const float& z_increase = 1.0f )
+    void render_volumn( const float& x_increase = 1.0f,
+                        const float& y_increase = 1.0f,
+                        const float& z_increase = 1.0f )
     {
         glBindTexture(GL_TEXTURE_3D, texture);
         glBegin(GL_QUADS);
         for( float i=0.0f; i<=sx-1; i+=x_increase )
         {
-            glTexCoord3f( 1.0f*(i+0.5f)/texture_sx, 0.0f,                      0.0f );
+            glTexCoord3f( 1.0f*(i+0.5f)/(float)texture_sx, 0.0f,                      0.0f );
             glVertex3f( i, 0.0f,        0.0f );
-            glTexCoord3f( 1.0f*(i+0.5f)/texture_sx, 1.0f*(sy-0.5f)/texture_sy, 0.0f );
-            glVertex3f( i, 1.0f*(sy-1), 0.0f );
-            glTexCoord3f( 1.0f*(i+0.5f)/texture_sx, 1.0f*(sy-0.5f)/texture_sy, 1.0f*(sz-0.5f)/texture_sz );
-            glVertex3f( i, 1.0f*(sy-1), 1.0f*(sz-1) );
-            glTexCoord3f( 1.0f*(i+0.5f)/texture_sx, 0.0f,                      1.0f*(sz-0.5f)/texture_sz );
-            glVertex3f( i, 0.0f,        1.0f*(sz-1) );
+            glTexCoord3f( 1.0f*(i+0.5f)/(float)texture_sx,
+                          1.0f*((float)sy-0.5f)/(float)texture_sy, 0.0f );
+            glVertex3f( i, 1.0f*((float)sy-1), 0.0f );
+            glTexCoord3f( 1.0f*(i+0.5f)/(float)texture_sx,
+                          1.0f*((float)sy-0.5f)/(float)texture_sy,
+                          1.0f*((float)sz-0.5f)/(float)texture_sz );
+            glVertex3f( i, 1.0f*((float)sy-1), 1.0f*((float)sz-1) );
+            glTexCoord3f( 1.0f*(i+0.5f)/(float)texture_sx, 0.0f,
+                          1.0f*((float)sz-0.5f)/(float)texture_sz );
+            glVertex3f( i, 0.0f,        1.0f*((float)sz-1) );
         }
         for( float i=0.0f; i<=sy-1; i+=y_increase )
         {
-            glTexCoord3f( 0.0f,                      1.0f*(i+0.5f)/texture_sy, 0.0f );
+            glTexCoord3f( 0.0f,
+                          1.0f*(i+0.5f)/(float)texture_sy, 0.0f );
             glVertex3f( 0.0f,        i, 0.0f );
-            glTexCoord3f( 1.0f*(sx-0.5f)/texture_sx, 1.0f*(i+0.5f)/texture_sy, 0.0f );
-            glVertex3f( 1.0f*(sx-1), i, 0.0f );
-            glTexCoord3f( 1.0f*(sx-0.5f)/texture_sx, 1.0f*(i+0.5f)/texture_sy, 1.0f*(sz-0.5f)/texture_sz );
-            glVertex3f( 1.0f*(sx-1), i, 1.0f*(sz-1) );
-            glTexCoord3f( 0.0f,                      1.0f*(i+0.5f)/texture_sy, 1.0f*(sz-0.5f)/texture_sz );
-            glVertex3f( 0.0f,        i, 1.0f*(sz-1) );
+            glTexCoord3f( 1.0f*((float)sx-0.5f)/(float)texture_sx,
+                          1.0f*(i+0.5f)/(float)texture_sy, 0.0f );
+            glVertex3f( 1.0f*((float)sx-1), i, 0.0f );
+            glTexCoord3f( 1.0f*((float)sx-0.5f)/(float)texture_sx,
+                          1.0f*(i+0.5f)/(float)texture_sy,
+                          1.0f*((float)sz-0.5f)/(float)texture_sz );
+            glVertex3f( 1.0f*((float)sx-1), i, 1.0f*((float)sz-1) );
+            glTexCoord3f( 0.0f,
+                          1.0f*(i+0.5f)/(float)texture_sy,
+                          1.0f*((float)sz-0.5f)/(float)texture_sz );
+            glVertex3f( 0.0f,        i, 1.0f*((float)sz-1) );
         }
         for( float i=0.0f; i<=sz-1; i+=z_increase )
         {
-            glTexCoord3f( 0.0f,                      0.0f,                      1.0f*(i+0.5f)/texture_sz );
+            glTexCoord3f( 0.0f,                      0.0f,
+                          1.0f*(i+0.5f)/(float)texture_sz );
             glVertex3f( 0.0f,        0.0f,        i );
-            glTexCoord3f( 1.0f*(sx-0.5f)/texture_sx, 0.0f,                      1.0f*(i+0.5f)/texture_sz );
-            glVertex3f( 1.0f*(sx-1), 0.0f,        i );
-            glTexCoord3f( 1.0f*(sx-0.5f)/texture_sx, 1.0f*(sy-0.5f)/texture_sy, 1.0f*(i+0.5f)/texture_sz );
-            glVertex3f( 1.0f*(sx-1), 1.0f*(sy-1), i );
-            glTexCoord3f( 0.0f,                      1.0f*(sy-0.5f)/texture_sy, 1.0f*(i+0.5f)/texture_sz );
-            glVertex3f( 0.0f,        1.0f*(sy-1), i );
+            glTexCoord3f( 1.0f*((float)sx-0.5f)/(float)texture_sx, 0.0f,
+                          1.0f*(i+0.5f)/(float)texture_sz );
+            glVertex3f( 1.0f*((float)sx-1), 0.0f,        i );
+            glTexCoord3f( 1.0f*((float)sx-0.5f)/(float)texture_sx,
+                          1.0f*((float)sy-0.5f)/(float)texture_sy,
+                          1.0f*(i+0.5f)/(float)texture_sz );
+            glVertex3f( 1.0f*((float)sx-1),
+                       1.0f*((float)sy-1), i );
+            glTexCoord3f( 0.0f,
+                         1.0f*((float)sy-0.5f)/(float)texture_sy,
+                          1.0f*(i+0.5f)/(float)texture_sz );
+            glVertex3f( 0.0f,        1.0f*((float)sy-1), i );
         }
         glEnd();
         glBindTexture( GL_TEXTURE_3D, 0 );
@@ -429,9 +450,9 @@ public:
         float x_min = -0.5f;
         float y_min = -0.5f;
         float z_min = -0.5f;
-        float X_MAX = sx-1 - x_min;
-        float Y_MAX = sy-1 - y_min;
-        float Z_MAX = sz-1 - z_min;
+        float X_MAX = (float)sx-1 - x_min;
+        float Y_MAX = (float)sy-1 - y_min;
+        float Z_MAX = (float)sz-1 - z_min;
         // left borders
         glBegin(GL_LINE_LOOP);
         glVertex3f( x_min, y_min, z_min );
@@ -493,9 +514,9 @@ public:
             for( unsigned int i=0; i<points.size(); i++ )
             {
                 glTexCoord3f(
-                    points[i][0] / texture_sx,
-                    points[i][1] / texture_sy,
-                    points[i][2] / texture_sz );
+                    points[i][0] / (float)texture_sx,
+                    points[i][1] / (float)texture_sy,
+                    points[i][2] / (float)texture_sz );
                 glVertex3f( points[i][0], points[i][1], points[i][2] );
             }
             glEnd();
@@ -520,7 +541,9 @@ public:
         else if ( render_mode==Surface )
         {
             glColor3f( 1.0f, 1.0f, 1.0f );
-            render_volumn( sx-1.0f, sy-1.0f, sz-1.f );
+            render_volumn( (float)sx-1.0f,
+                           (float)sy-1.0f,
+                           (float)sz-1.f );
             glColor3f( 0.2f, 0.2f, 0.2f );
             render_outline();
         }

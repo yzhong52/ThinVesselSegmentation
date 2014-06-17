@@ -29,7 +29,10 @@ public:
     virtual void init(void) { }
 
     // keyboard function for OpenGL
-    virtual void keyboard( unsigned char key ) { }
+    virtual void keyboard( unsigned char key )
+    {
+        std::cout << "Key " << key << " is not defined for the object." << std::endl;
+    }
 };
 
 }

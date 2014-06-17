@@ -28,6 +28,7 @@ int main()
 
     Data3D<short> im_rduct;
 
+    // rings resuction
     RR::unname_method( im_short, im_rduct );
 
     Mat dst_norm = im_rduct.getMat( im_rduct.SZ()/2 );

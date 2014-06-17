@@ -121,8 +121,8 @@ inline void GLCamera::setRotation( GLfloat rotation_x, GLfloat rotation_y )
 
 inline void GLCamera::translate_aside( int translate_x, int translate_y )
 {
-    GLfloat tx = -translate_x * translate_speed;
-    GLfloat ty =  translate_y * translate_speed;
+    GLfloat tx = (GLfloat)-translate_x * translate_speed;
+    GLfloat ty = (GLfloat) translate_y * translate_speed;
     // update the position of the center
     t[0] += tx * vec_x[0];
     t[1] += tx * vec_x[1];
@@ -134,8 +134,9 @@ inline void GLCamera::translate_aside( int translate_x, int translate_y )
 
 inline void GLCamera::translate_forward( int translate_x, int translate_y )
 {
-    GLfloat tx = translate_x * translate_speed;
-    GLfloat ty = translate_y * translate_speed;
+    GLfloat tx = GLfloat(translate_x) * translate_speed;
+    GLfloat ty = GLfloat(translate_y) * translate_speed;
+
     GLfloat vec_z[3];
     vec_z[0] = vec_x[1]*vec_y[2] - vec_x[2]*vec_y[1];
     vec_z[1] = vec_x[2]*vec_y[0] - vec_x[0]*vec_y[2];
