@@ -51,6 +51,7 @@
 		<Compiler>
 			<Add option="-fopenmp" />
 			<Add option="-Wno-comment" />
+			<Add option="`pkg-config --cflags opencv`" />
 		</Compiler>
 		<Linker>
 			<Add option="`pkg-config --libs opencv`" />

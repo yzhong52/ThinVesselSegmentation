@@ -1,6 +1,8 @@
 #ifndef GLOBJECT_H
 #define GLOBJECT_H
 
+#include <iostream>
+
 namespace GLViewer
 {
 
@@ -31,7 +33,9 @@ public:
     // keyboard function for OpenGL
     virtual void keyboard( unsigned char key )
     {
-        std::cout << "Key " << key << " is not defined for the object." << std::endl;
+        if( key=='i' || key=='I' ) {
+            std::cout << "This object does not have a keyboard function." << std::endl;
+        }
     }
 };
 

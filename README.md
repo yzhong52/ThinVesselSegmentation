@@ -153,6 +153,11 @@ Requirements
 	    make
 	    make install
 	    ```
+	    One more thing. Make sure you have added the OpenCV lib direcory to PATH by the following.
+
+	    `export LD_LIBRARY_PATH=/usr/local/lib/`
+
+	    `/usr/local/lib` is where the OpenCV libs are located. You could double check by viewing the output of `pkg-config --libs opencv`. 
 
 	6. **Code::Blocks**
 
