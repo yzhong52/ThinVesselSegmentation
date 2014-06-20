@@ -125,24 +125,24 @@ Requirements
 
 -  **Linux**
 
-	1. **freeglut**
-	
-	    `sudo apt-get install freeglut3-dev`
-	
-	2. **X Window System** (X11, X, and sometimes informally X-Windows), which is a windowing system for bitmap displays
+	1. **X Window System** (X11, X, and sometimes informally X-Windows), which is a windowing system for bitmap displays
 	
 	    ```
 	    sudo apt-get install libxmu-dev
 	    sudo apt-get install libxi-dev
 	    ```
 	
+	2. **OpenGL**
+	
+	    `sudo apt-get install mesa-common-dev`
+
 	3. **glew**
 	
 	    `sudo apt-get install libglew-dev`
 	
-	4. **OpenGL**
+	4. **freeglut**
 	
-	    `sudo apt-get install mesa-common-dev`
+	    `sudo apt-get install freeglut3-dev`
 	
 	5. **OpenCV 2.4.9**
 	
