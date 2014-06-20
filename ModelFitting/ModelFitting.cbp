@@ -73,7 +73,6 @@
 		<Unit filename="init_models.cpp" />
 		<Unit filename="init_models.h" />
 		<Unit filename="main.cpp" />
-		<Unit filename="targetver.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />

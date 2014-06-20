@@ -84,7 +84,6 @@
 		<Unit filename="SparseMatrix.h" />
 		<Unit filename="SparseMatrixData.cpp" />
 		<Unit filename="SparseMatrixData.h" />
-		<Unit filename="include/GLObject.h" />
 		<Unit filename="test/SparseMatrixTest.cpp">
 			<Option target="Test" />
 		</Unit>
