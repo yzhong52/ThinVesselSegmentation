@@ -15,8 +15,6 @@
 					<Add option="-Wextra" />
 					<Add option="-Wall" />
 					<Add option="-g" />
-					<Add option="-Wno-comment" />
-					<Add option="-Wno-unused-result" />
 				</Compiler>
 				<Linker>
 					<Add directory="../libs/Debug" />
@@ -40,6 +38,8 @@
 		<Compiler>
 			<Add option="-Wall" />
 			<Add option="-fopenmp" />
+			<Add option="-Wno-unused-result" />
+			<Add option="-Wconversion" />
 			<Add option="-Wno-comment" />
 			<Add directory="../core" />
 		</Compiler>
