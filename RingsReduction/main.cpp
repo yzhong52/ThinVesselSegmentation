@@ -30,7 +30,7 @@ int main()
     cv::minMaxLoc( im_short.getMat( im_short.SZ()/2 ), &minVal, &maxVal );
 
     // rings resuction - unname method
-    if( 0 )
+    if( 1 )
     {
         Data3D<short> im_rduct;
         RR::unname_method( im_short, im_rduct );

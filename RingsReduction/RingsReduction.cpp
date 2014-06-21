@@ -146,7 +146,7 @@ void RingsReduction::correct_image( const Data3D<short>& src,
             // result in a few of the pixels near the corner of the image corner
             // being ignored. But it will prevend the function from crashing if
             // it was not used properly.
-            const double rid = min( radius /dr, (double) correction.size()-1 );
+            const double rid = min( radius/dr, (double) correction.size()-1 );
 
             const int flo = (int) std::floor( rid );
             const int cei = (int) std::ceil( rid );
@@ -197,11 +197,7 @@ void RingsReduction::unname_method( const Data3D<short>& src, Data3D<short>& dst
         // average intensity at radius r * dr
         double avgIr1 = avgI_on_rings( slice, ring_center, ri, dr );
         correction[ri] = avgIr1 - avgIr;
-
-        cout.width(10);
-        cout << correction[ri];
     }
-    cout << endl << endl;
 
     // correct_image( src, dst, correction, center_z, ring_center, dr );
 }
@@ -224,7 +220,7 @@ void RingsReduction::polar_avg_diff( const Data3D<short>& src, Data3D<short>& ds
 
     float max_radius = max_ring_radius( ring_center, im_size );
 
-    const float dr = 0.1f;
+    const float dr = 0.5f;
 
     int num_of_rings = int( max_radius / dr );
 
@@ -232,15 +228,14 @@ void RingsReduction::polar_avg_diff( const Data3D<short>& src, Data3D<short>& ds
 
     for( int ri = 0; ri<num_of_rings-1; ri++ )
     {
-        correction[ri+1] = avg_diff( src.getMat(center_z),
-                                     ring_center, ri, 100, dr );
+        correction[ri] = avg_diff( src.getMat(center_z), ring_center, ri, 100, dr );
     }
 
     correct_image( src, dst, correction, center_z, ring_center, dr );
 }
 
 
-double RingsReduction::get( const cv::Mat_<short>& m, double x, double y )
+double RingsReduction::interpolate( const cv::Mat_<short>& m, double x, double y )
 {
     const int fx = (int) floor( x );
     const int cx = (int) ceil( x );
@@ -303,8 +298,8 @@ double RingsReduction::avg_diff( const cv::Mat_<short>& m,
 
         if( x1<m.cols && y1<m.rows && x<m.cols && y<m.rows )
         {
-            const double val = get( m, x, y );
-            const double val1 = get( m, x1, y1 );
+            const double val  = interpolate( m, x, y );
+            const double val1 = interpolate( m, x1, y1 );
             sum += val - val1;
             count++;
         }

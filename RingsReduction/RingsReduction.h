@@ -34,7 +34,8 @@ public:
                                const int& rid2,
                                const double& dr );
 private:
-    static double get( const cv::Mat_<short>& m, double x, double y );
+    //get the interpolation of the image data
+    static double interpolate( const cv::Mat_<short>& m, double x, double y );
 
     // give original image and a destination slice, correct_image (reduce rings)
     static void correct_image( const Data3D<short>& src, Data3D<short>& dst,
