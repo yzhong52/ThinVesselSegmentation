@@ -435,9 +435,9 @@ public:
                           1.0f*((float)sy-0.5f)/(float)texture_sy,
                           1.0f*(i+0.5f)/(float)texture_sz );
             glVertex3f( 1.0f*((float)sx-1),
-                       1.0f*((float)sy-1), i );
+                        1.0f*((float)sy-1), i );
             glTexCoord3f( 0.0f,
-                         1.0f*((float)sy-0.5f)/(float)texture_sy,
+                          1.0f*((float)sy-0.5f)/(float)texture_sy,
                           1.0f*(i+0.5f)/(float)texture_sz );
             glVertex3f( 0.0f,        1.0f*((float)sy-1), i );
         }

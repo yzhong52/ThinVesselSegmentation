@@ -33,7 +33,8 @@ public:
     // keyboard function for OpenGL
     virtual void keyboard( unsigned char key )
     {
-        if( key=='i' || key=='I' ) {
+        if( key=='i' || key=='I' )
+        {
             std::cout << "This object does not have a keyboard function." << std::endl;
         }
     }
