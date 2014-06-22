@@ -26,7 +26,7 @@ private:
                                  const cv::Vec2f& ring_center,
                                  const int& rid,
                                  const double& dr );
-public:
+
     /// Average difference between two rings
     static double avg_diff( const cv::Mat_<short>& m,
                             const cv::Vec2f& ring_center,
@@ -67,6 +67,10 @@ public:
 private:
     //get the interpolation of the image data
     static double interpolate( const cv::Mat_<short>& m, double x, double y );
+
+    static inline bool isvalid( const cv::Mat_<short>& m, double x, double y ) {
+        return x>=0 && x<=m.cols-1 && y>=0 && y<=m.rows-1;
+    }
 
     // give original image and a destination slice, correct_image (reduce rings)
     static void correct_image( const Data3D<short>& src, Data3D<short>& dst,

@@ -372,7 +372,7 @@ double RingsReduction::avg_on_ring( const cv::Mat_<short>& m,
         const double x = radius * cos_angle + ring_center[0];
         const double y = radius * sin_angle + ring_center[1];
 
-        if( x<m.cols-1 && y<m.rows-1 )
+        if( isvalid( m, x, y) )
         {
             sum += interpolate( m, x, y );
             count++;
@@ -408,12 +408,14 @@ double RingsReduction::med_on_ring( const cv::Mat_<short>& m,
         const double x = radius * cos_angle + ring_center[0];
         const double y = radius * sin_angle + ring_center[1];
 
-        if( x<m.cols-1 && y<m.rows-1 )
+        if( isvalid( m, x, y) )
         {
             const double val = interpolate( m, x, y );
             med.push_back( val );
         }
     }
+
+    std::sort( med.begin(), med.end() );
 
     const double size = 0.5 * (double) med.size();
     const int id1 = (int) std::floor( size );
