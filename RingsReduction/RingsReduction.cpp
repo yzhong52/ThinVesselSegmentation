@@ -121,6 +121,60 @@ double RingsReduction::avgI_on_rings( const cv::Mat_<short>& m,
 }
 
 
+void RingsReduction::sijbers( const Data3D<short>& src, Data3D<short>& dst )
+{
+    // TODO: set the center as parameters
+    const int center_x = 234;
+    const int center_y = 270;
+    const int wsize = 15;
+
+
+    if( &dst!=&src)
+    {
+        dst.resize( src.get_size() );
+    }
+
+    // blur the image with mean blur
+    Data3D<short> mean( src.get_size() );
+    IP::meanBlur3D( src, mean, wsize );
+
+    Data3D<int> diff( src.get_size() );
+    subtract3D( src, mean, diff );
+
+    //// Uncomment the following code if you want to use variance
+    //Data3D<int> variance_sum( im.get_size() );
+    //multiply3D(diff, diff, variance_sum);
+    //Data3D<int> variance( im.get_size() );
+    //IP::meanBlur3D( variance_sum, variance, wsize );
+
+    const Vec2f ring_center( center_x, center_y );
+    const Vec2f im_size( (float) src.SX(), (float) src.SY() );
+
+    float max_radius = max_ring_radius( ring_center, im_size );
+
+    const float dr = 1;
+    int num_of_rings = int( max_radius / dr );
+
+    vector<double> correction( num_of_rings, 0 );
+
+    for( int z=0; z<src.SZ(); z++ )
+    {
+        // rings reduction is done slice by slice
+        cout << '\r' << "Rings Reduction: " << 100 * z / src.SZ() << "%";
+        cout.flush();
+
+        for( int ri = 0; ri<num_of_rings-1; ri++ )
+        {
+            correction[ri] = med_diff_v2( src.getMat(z),
+                                          ring_center,
+                                          ri, 100, dr );
+        }
+
+        correct_image( src, dst, correction, z, ring_center, dr );
+    }
+    cout << endl;
+}
+
 void RingsReduction::correct_image( const Data3D<short>& src,
                                     Data3D<short>& dst,
                                     const vector<double>& correction,
@@ -197,11 +251,7 @@ void RingsReduction::unname_method( const Data3D<short>& src, Data3D<short>& dst
         // average intensity at radius r * dr
         double avgIr1 = avgI_on_rings( slice, ring_center, ri, dr );
         correction[ri] = avgIr1 - avgIr;
-
-        cout.width(10);
-        cout << correction[ri];
     }
-    cout << endl << endl;
 
     // correct_image( src, dst, correction, center_z, ring_center, dr );
 }
@@ -236,10 +286,7 @@ void RingsReduction::polar_avg_diff( const Data3D<short>& src, Data3D<short>& ds
         correction[ri] = med_diff_v2( src.getMat(center_z),
                                       ring_center,
                                       ri, 100, dr );
-        cout.width(10);
-        cout << correction[ri];
     }
-    cout << endl << endl;
 
     correct_image( src, dst, correction, center_z, ring_center, dr );
 }
@@ -420,9 +467,12 @@ double RingsReduction::med_on_ring( const cv::Mat_<short>& m,
     const double size = 0.5 * (double) med.size();
     const int id1 = (int) std::floor( size );
     const int id2 = (int) std::ceil( size );
-    if( id1 == id2 ) {
+    if( id1 == id2 )
+    {
         return med[id1];
-    } else {
+    }
+    else
+    {
         return 0.5 * ( med[id1] + med[id2] );
     }
 }

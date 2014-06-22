@@ -12,8 +12,11 @@ public:
     // average intensities between rings
     static void polar_avg_diff( const Data3D<short>& src, Data3D<short>& dst );
 
-    static void mm_filter( const Data3D<short>& src, Data3D<short>& dst );
+    /// rings reduction using sijbers's methods
+    static void sijbers( const Data3D<short>& src, Data3D<short>& dst );
 
+    /// rings reduction using sijbers's methods (olde implementation)
+    static void mm_filter( const Data3D<short>& src, Data3D<short>& dst );
 private:
     // compute maximum radius of the rings, distance from the centre of the ring
     // to four corners of the image.
@@ -68,11 +71,13 @@ private:
     //get the interpolation of the image data
     static double interpolate( const cv::Mat_<short>& m, double x, double y );
 
-    static inline bool isvalid( const cv::Mat_<short>& m, double x, double y ) {
-        return x>=0 && x<=m.cols-1 && y>=0 && y<=m.rows-1;
+    static inline bool isvalid( const cv::Mat_<short>& m, double x, double y )
+    {
+        return (x>=0 && x<=m.cols-1 && y>=0 && y<=m.rows-1);
     }
 
-    // give original image and a destination slice, correct_image (reduce rings)
+    // give original image and a destination slice, correct the image or reduce
+    // the rings artifacts
     static void correct_image( const Data3D<short>& src, Data3D<short>& dst,
                                const std::vector<double>& correction,
                                const int& slice,
