@@ -17,10 +17,12 @@ public:
         MED_DIFF
     };
     static void polarRD( const Data3D<short>& src, Data3D<short>& dst,
-                         const PolarRDOption& o, const float dr = 1.0f );
+                         const PolarRDOption& o, const float dr = 1.0f,
+                         std::vector<double>* pCorrection = nullptr );
 
     /// rings reduction using sijbers's methods
-    static void sijbers( const Data3D<short>& src, Data3D<short>& dst );
+    static void sijbers( const Data3D<short>& src, Data3D<short>& dst,
+                        std::vector<double>* pCorrection = nullptr );
 
     // rings reduction using sijbers's methods (olde implementation)
     static void mm_filter( const Data3D<short>& src, Data3D<short>& dst );
@@ -71,7 +73,8 @@ private:
                                const double& dr);
 
     /// median intensity on ring
-    static double med_on_ring( const cv::Mat_<short>& m,
+    template<class T>
+    static double med_on_ring( const cv::Mat_<T>& m,
                                const cv::Vec2f& ring_center,
                                const int& rid,
                                const double& dr);
@@ -97,5 +100,54 @@ private:
 
 typedef RingsReduction RR;
 
+
+
+template<class T>
+double RingsReduction::med_on_ring( const cv::Mat_<T>& m,
+                                    const cv::Vec2f& ring_center,
+                                    const int& rid,
+                                    const double& dr)
+{
+    // radius of the circle
+    const double radius = rid * dr;
+
+    // the number of pixels on the circumference approximatly
+    const int circumference = std::max( 8, int( 2 * M_PI * radius ) );
+
+    std::vector<double> med;
+    med.push_back( 0 );
+
+    for( int i=0; i<circumference; i++ )
+    {
+        // angle in radian
+        const double angle = 2 * M_PI * i / circumference;
+        const double sin_angle = sin( angle );
+        const double cos_angle = cos( angle );
+
+        // image possition for inner circle
+        const double x = radius * cos_angle + ring_center[0];
+        const double y = radius * sin_angle + ring_center[1];
+
+        if( isvalid( m, x, y) )
+        {
+            const double val = interpolate( m, x, y );
+            med.push_back( val );
+        }
+    }
+
+    std::sort( med.begin(), med.end() );
+
+    const double size = 0.5 * (double) med.size();
+    const int id1 = (int) std::floor( size );
+    const int id2 = (int) std::ceil( size );
+    if( id1 == id2 )
+    {
+        return med[id1];
+    }
+    else
+    {
+        return 0.5 * ( med[id1] + med[id2] );
+    }
+}
 
 #endif // RINGSREDUCTION_H

@@ -8,7 +8,9 @@
 		</Project>
 		<Project filename="Vesselness/Vesselness.cbp" />
 		<Project filename="EigenDecomp/EigenDecomp.cbp" />
-		<Project filename="RingsReduction/RingsReduction.cbp" />
+		<Project filename="RingsReduction/RingsReduction.cbp">
+			<Depends filename="core/core.cbp" />
+		</Project>
 		<Project filename="core/core.cbp" />
 		<Project filename="SparseMatrixCV/SparseMatrixCV.cbp" />
 		<Project filename="SparseMatrix/SparseMatrix.cbp" />

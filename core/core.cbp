@@ -61,6 +61,8 @@
 			<Add library="libgomp.a" />
 			<Add library="libglut.a" />
 		</Linker>
+		<Unit filename="CVPlot.cpp" />
+		<Unit filename="CVPlot.h" />
 		<Unit filename="Data3D.h" />
 		<Unit filename="GLCamera.cpp">
 			<Option virtualFolder="GLViewer/" />

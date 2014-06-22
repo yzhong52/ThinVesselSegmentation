@@ -48,10 +48,10 @@ bool draw( const string& name, vector<vector<double> >& funcs,
     double minVal = funcs[0][0];
     double maxVal = funcs[0][0];
     for( unsigned i=0; i<numY; i++ ) for( unsigned j=0; j<numX; j++ )
-    {
-        maxVal = std::max( maxVal, funcs[i][j] );
-        minVal = std::min( minVal, funcs[i][j] );
-    }
+        {
+            maxVal = std::max( maxVal, funcs[i][j] );
+            minVal = std::min( minVal, funcs[i][j] );
+        }
     const double max_min_gap = maxVal - minVal;
 
     // draw the plot on a mat
@@ -76,7 +76,7 @@ bool draw( const string& name, vector<vector<double> >& funcs,
                 p2.x = int( j * scale );
                 p2.y = int( im_height * ( margin + (1-2*margin)*(1.0 - (v2-minVal)/max_min_gap ) ) );
 
-                cv::line( temp, p1, p2, colors[i], 3, CV_AA );
+                cv::line( temp, p1, p2, colors[i], 1.3, CV_AA );
             }
         }
         // color blending
@@ -87,8 +87,8 @@ bool draw( const string& name, vector<vector<double> >& funcs,
     // show result in window and save to file
 
     cv::imwrite( "output/" + name + ".png", im_result );
-    cv::imshow( name.c_str(), im_result );
-    cv::waitKey(0);
+//    cv::imshow( name.c_str(), im_result );
+//    cv::waitKey(0);
 
     return true;
 }

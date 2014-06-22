@@ -1,8 +1,10 @@
 #pragma once
 
+#include <vector>
 #include "Image3D.h"
 #include "Kernel3D.h"
-#include <vector>
+#include "smart_assert.h"
+
 
 class Vesselness;
 class Vesselness_Sig;
@@ -279,7 +281,8 @@ bool ImageProcessing::meanBlur3D( const Data3D<T1>& src, Data3D<T2>& dst, int ks
 template<typename T1, typename T2, typename T3 >
 bool ImageProcessing::filter3D_X( const Data3D<T1>& src, Data3D<T2>& dst, const Kernel3D<T3>& kx )
 {
-    smart_return( (&src)!=(&dst), "src and dst should be different.", false );
+    smart_return( (void*)&src!=(void*)&dst,
+                  "src and dst should be different.", false );
     smart_return( kx.get_size_x()>0 && kx.get_size_y()==1 && kx.get_size_z()==1,
                   "kernel size should be (X,1,1) where X > 0", false );
 

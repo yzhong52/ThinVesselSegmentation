@@ -3,6 +3,7 @@
 #include "Data3D.h"
 #include "GLViwerCore.h"
 #include "RingsReduction.h"
+#include "CVPlot.h"
 
 #include <opencv2/opencv.hpp>
 
@@ -41,16 +42,20 @@ int main()
     save_slice( im_short, im_short.SZ()/2, minVal, maxVal, "original.png" );
 
     Data3D<short> im_rduct;
+    vector<double> correction;
 
-    RR::polarRD( im_short, im_rduct, RR::AVG_DIFF, 1.0f );
+    RR::polarRD( im_short, im_rduct, RR::AVG_DIFF, 1.0f, &correction );
     save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "polar_avg_diff.png" );
+    CVPlot::draw( "polar_avg_diff_plot.png", correction );
 
-    RR::polarRD( im_short, im_rduct, RR::MED_DIFF, 1.0f );
+    RR::polarRD( im_short, im_rduct, RR::MED_DIFF, 1.0f, &correction );
     save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "polar_med_diff.png" );
+    CVPlot::draw( "polar_med_diff_plot.png", correction );
 
 
-    RR::sijbers( im_short, im_rduct );
+    RR::sijbers( im_short, im_rduct, &correction );
     save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "sijbers.png" );
+    CVPlot::draw( "sijbers_plot.png", correction );
 
     return 0;
 }

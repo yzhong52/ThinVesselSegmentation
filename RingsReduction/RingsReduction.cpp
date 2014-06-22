@@ -1,7 +1,11 @@
 #include "RingsReduction.h"
-#include "ImageProcessing.h"
+
 #include <opencv2/opencv.hpp>
 #include <iostream>
+
+#include "ImageProcessing.h"
+#include "CVPlot.h"
+
 using namespace cv;
 using namespace std;
 
@@ -121,7 +125,8 @@ double RingsReduction::avgI_on_rings( const cv::Mat_<short>& m,
 }
 
 
-void RingsReduction::sijbers( const Data3D<short>& src, Data3D<short>& dst )
+void RingsReduction::sijbers( const Data3D<short>& src, Data3D<short>& dst,
+                             std::vector<double>* pCorrection )
 {
     // TODO: set the center as parameters
     const float center_x = 234;
@@ -134,7 +139,7 @@ void RingsReduction::sijbers( const Data3D<short>& src, Data3D<short>& dst )
     }
 
     // blur the image with mean blur
-    Data3D<int> mean( src.get_size() );
+    Data3D<short> mean( src.get_size() );
     IP::meanBlur3D( src, mean, wsize );
 
     Data3D<int> diff( src.get_size() );
@@ -154,27 +159,26 @@ void RingsReduction::sijbers( const Data3D<short>& src, Data3D<short>& dst )
     const float dr = 1;
     int num_of_rings = int( max_radius / dr );
 
-    vector<double> correction( num_of_rings, 0 );
+
 
     for( int z=0; z<src.SZ(); z++ )
     {
         z = src.SZ() / 2;
+        vector<double> correction( num_of_rings, 0 );
 
         // rings reduction is done slice by slice
         cout << '\r' << "Rings Reduction: " << 100 * z / src.SZ() << "%";
         cout.flush();
 
-        cout << endl;
         for( int ri = 0; ri<num_of_rings-1; ri++ )
         {
             correction[ri] = med_on_ring( diff.getMat(z),
                                           ring_center,
                                           ri, dr );
-            cout.width(10); cout << correction[ri];
         }
 
         correct_image( src, dst, correction, z, ring_center, dr );
-
+        if( pCorrection ) *pCorrection = correction;
         break;
     }
     cout << endl;
@@ -263,7 +267,8 @@ void RingsReduction::unname_method( const Data3D<short>& src, Data3D<short>& dst
 
 
 void RingsReduction::polarRD( const Data3D<short>& src, Data3D<short>& dst,
-                              const PolarRDOption& o, const float dr )
+                              const PolarRDOption& o, const float dr,
+                              vector<double>* pCorrection )
 {
     smart_assert( &src!=&dst,
                   "The destination file is the same as the orignal. " );
@@ -309,11 +314,14 @@ void RingsReduction::polarRD( const Data3D<short>& src, Data3D<short>& dst,
     {
         correction[ri] = diff_func( src.getMat(center_z),
                                     ring_center, ri, 100, dr );
-        cout.width(10); cout << correction[ri];
+        cout.width(10);
+        cout << correction[ri];
     }
     cout << endl << endl;
 
     correct_image( src, dst, correction, center_z, ring_center, dr );
+
+    if( pCorrection!=nullptr ) *pCorrection = correction;
 }
 
 double RingsReduction::interpolate( const cv::Mat_<short>& m, double x, double y )
@@ -457,52 +465,7 @@ double RingsReduction::avg_on_ring( const cv::Mat_<short>& m,
 }
 
 
-double RingsReduction::med_on_ring( const cv::Mat_<short>& m,
-                                    const cv::Vec2f& ring_center,
-                                    const int& rid,
-                                    const double& dr)
-{
-    // radius of the circle
-    const double radius = rid * dr;
 
-    // the number of pixels on the circumference approximatly
-    const int circumference = max( 8, int( 2 * M_PI * radius ) );
-
-    vector<double> med;
-    med.push_back( 0 );
-
-    for( int i=0; i<circumference; i++ )
-    {
-        // angle in radian
-        const double angle = 2 * M_PI * i / circumference;
-        const double sin_angle = sin( angle );
-        const double cos_angle = cos( angle );
-
-        // image possition for inner circle
-        const double x = radius * cos_angle + ring_center[0];
-        const double y = radius * sin_angle + ring_center[1];
-
-        if( isvalid( m, x, y) )
-        {
-            const double val = interpolate( m, x, y );
-            med.push_back( val );
-        }
-    }
-
-    std::sort( med.begin(), med.end() );
-
-    const double size = 0.5 * (double) med.size();
-    const int id1 = (int) std::floor( size );
-    const int id2 = (int) std::ceil( size );
-    if( id1 == id2 )
-    {
-        return med[id1];
-    }
-    else
-    {
-        return 0.5 * ( med[id1] + med[id2] );
-    }
-}
 
 
 
