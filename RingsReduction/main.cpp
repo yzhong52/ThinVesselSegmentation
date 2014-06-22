@@ -41,8 +41,16 @@ int main()
     save_slice( im_short, im_short.SZ()/2, minVal, maxVal, "original.png" );
 
     Data3D<short> im_rduct;
-    RR::polar_avg_diff( im_short, im_rduct );
+
+    RR::polarRD( im_short, im_rduct, RR::AVG_DIFF, 1.0f );
     save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "polar_avg_diff.png" );
+
+    RR::polarRD( im_short, im_rduct, RR::MED_DIFF, 1.0f );
+    save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "polar_med_diff.png" );
+
+
+    RR::sijbers( im_short, im_rduct );
+    save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "sijbers.png" );
 
     return 0;
 }

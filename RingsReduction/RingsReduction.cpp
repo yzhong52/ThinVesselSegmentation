@@ -124,10 +124,9 @@ double RingsReduction::avgI_on_rings( const cv::Mat_<short>& m,
 void RingsReduction::sijbers( const Data3D<short>& src, Data3D<short>& dst )
 {
     // TODO: set the center as parameters
-    const int center_x = 234;
-    const int center_y = 270;
+    const float center_x = 234;
+    const float center_y = 270;
     const int wsize = 15;
-
 
     if( &dst!=&src)
     {
@@ -135,13 +134,13 @@ void RingsReduction::sijbers( const Data3D<short>& src, Data3D<short>& dst )
     }
 
     // blur the image with mean blur
-    Data3D<short> mean( src.get_size() );
+    Data3D<int> mean( src.get_size() );
     IP::meanBlur3D( src, mean, wsize );
 
     Data3D<int> diff( src.get_size() );
     subtract3D( src, mean, diff );
 
-    //// Uncomment the following code if you want to use variance
+    /// TODO: Uncomment the following code if you want to use variance
     //Data3D<int> variance_sum( im.get_size() );
     //multiply3D(diff, diff, variance_sum);
     //Data3D<int> variance( im.get_size() );
@@ -159,18 +158,24 @@ void RingsReduction::sijbers( const Data3D<short>& src, Data3D<short>& dst )
 
     for( int z=0; z<src.SZ(); z++ )
     {
+        z = src.SZ() / 2;
+
         // rings reduction is done slice by slice
         cout << '\r' << "Rings Reduction: " << 100 * z / src.SZ() << "%";
         cout.flush();
 
+        cout << endl;
         for( int ri = 0; ri<num_of_rings-1; ri++ )
         {
-            correction[ri] = med_diff_v2( src.getMat(z),
+            correction[ri] = med_on_ring( diff.getMat(z),
                                           ring_center,
-                                          ri, 100, dr );
+                                          ri, dr );
+            cout.width(10); cout << correction[ri];
         }
 
         correct_image( src, dst, correction, z, ring_center, dr );
+
+        break;
     }
     cout << endl;
 }
@@ -256,7 +261,9 @@ void RingsReduction::unname_method( const Data3D<short>& src, Data3D<short>& dst
     // correct_image( src, dst, correction, center_z, ring_center, dr );
 }
 
-void RingsReduction::polar_avg_diff( const Data3D<short>& src, Data3D<short>& dst )
+
+void RingsReduction::polarRD( const Data3D<short>& src, Data3D<short>& dst,
+                              const PolarRDOption& o, const float dr )
 {
     smart_assert( &src!=&dst,
                   "The destination file is the same as the orignal. " );
@@ -272,25 +279,42 @@ void RingsReduction::polar_avg_diff( const Data3D<short>& src, Data3D<short>& ds
     const Vec2f ring_center( center_x, center_y );
     const Vec2f im_size( (float)src.SX(), (float)src.SY() );
 
-    float max_radius = max_ring_radius( ring_center, im_size );
+    const float max_radius = max_ring_radius( ring_center, im_size );
 
-    const float dr = 0.999f;
+    const int num_of_rings = int( max_radius / dr );
 
-    int num_of_rings = int( max_radius / dr );
+    double (*diff_func)(const cv::Mat_<short>&,
+                        const cv::Vec2f&,
+                        const int&,
+                        const int&,
+                        const double&) = nullptr;
+    switch (o )
+    {
+    case AVG_DIFF:
+        diff_func = &avg_diff_v2;
+        break;
+    case MED_DIFF:
+        diff_func = &med_diff_v2;
+        break;
+    default:
+        cerr << "Undefined method option. " << endl;
+        break;
+    }
 
-    // correction vector
+    cout << endl;
+
+    // compute correction vector
     vector<double> correction( num_of_rings, 0 );
-
     for( int ri = 0; ri<num_of_rings-1; ri++ )
     {
-        correction[ri] = med_diff_v2( src.getMat(center_z),
-                                      ring_center,
-                                      ri, 100, dr );
+        correction[ri] = diff_func( src.getMat(center_z),
+                                    ring_center, ri, 100, dr );
+        cout.width(10); cout << correction[ri];
     }
+    cout << endl << endl;
 
     correct_image( src, dst, correction, center_z, ring_center, dr );
 }
-
 
 double RingsReduction::interpolate( const cv::Mat_<short>& m, double x, double y )
 {
@@ -299,7 +323,10 @@ double RingsReduction::interpolate( const cv::Mat_<short>& m, double x, double y
     const int fy = (int) floor( y );
     const int cy = (int) ceil( y );
 
-    smart_assert( cx<m.cols && cy<m.rows, "Invalid input image position. " );
+    smart_assert( fx>=0 && cx<m.cols && fy>=0 && cy<m.rows,
+                  "Invalid input image position. Please call the following " <<
+                  "fucntion before computing interpolation. " << endl <<
+                  "\t bool isvalid( cv::Mat_<short>&, double, double ); " );
 
     if( fx==cx && fy==cy )
     {
