@@ -197,7 +197,11 @@ void RingsReduction::unname_method( const Data3D<short>& src, Data3D<short>& dst
         // average intensity at radius r * dr
         double avgIr1 = avgI_on_rings( slice, ring_center, ri, dr );
         correction[ri] = avgIr1 - avgIr;
+
+        cout.width(10);
+        cout << correction[ri];
     }
+    cout << endl << endl;
 
     // correct_image( src, dst, correction, center_z, ring_center, dr );
 }
@@ -220,16 +224,22 @@ void RingsReduction::polar_avg_diff( const Data3D<short>& src, Data3D<short>& ds
 
     float max_radius = max_ring_radius( ring_center, im_size );
 
-    const float dr = 0.5f;
+    const float dr = 0.999f;
 
     int num_of_rings = int( max_radius / dr );
 
+    // correction vector
     vector<double> correction( num_of_rings, 0 );
 
     for( int ri = 0; ri<num_of_rings-1; ri++ )
     {
-        correction[ri] = avg_diff( src.getMat(center_z), ring_center, ri, 100, dr );
+        correction[ri] = med_diff_v2( src.getMat(center_z),
+                                      ring_center,
+                                      ri, 100, dr );
+        cout.width(10);
+        cout << correction[ri];
     }
+    cout << endl << endl;
 
     correct_image( src, dst, correction, center_z, ring_center, dr );
 }
@@ -241,6 +251,8 @@ double RingsReduction::interpolate( const cv::Mat_<short>& m, double x, double y
     const int cx = (int) ceil( x );
     const int fy = (int) floor( y );
     const int cy = (int) ceil( y );
+
+    smart_assert( cx<m.cols && cy<m.rows, "Invalid input image position. " );
 
     if( fx==cx && fy==cy )
     {
@@ -296,7 +308,7 @@ double RingsReduction::avg_diff( const cv::Mat_<short>& m,
         const double x1 = radius1 * cos_angle + ring_center[0];
         const double y1 = radius1 * sin_angle + ring_center[1];
 
-        if( x1<m.cols && y1<m.rows && x<m.cols && y<m.rows )
+        if( x1<m.cols-1 && y1<m.rows-1 && x<m.cols-1 && y<m.rows-1 )
         {
             const double val  = interpolate( m, x, y );
             const double val1 = interpolate( m, x1, y1 );
@@ -310,10 +322,108 @@ double RingsReduction::avg_diff( const cv::Mat_<short>& m,
 
 
 
+double RingsReduction::avg_diff_v2( const cv::Mat_<short>& m,
+                                    const cv::Vec2f& ring_center,
+                                    const int& rid1,
+                                    const int& rid2,
+                                    const double& dr )
+{
+    const double avg1 = avg_on_ring( m, ring_center, rid1, dr );
+    const double avg2 = avg_on_ring( m, ring_center, rid2, dr );
+    return avg1 - avg2;
+}
+
+
+double RingsReduction::med_diff_v2( const cv::Mat_<short>& m,
+                                    const cv::Vec2f& ring_center,
+                                    const int& rid1,
+                                    const int& rid2,
+                                    const double& dr )
+{
+    const double med1 = med_on_ring( m, ring_center, rid1, dr );
+    const double med2 = med_on_ring( m, ring_center, rid2, dr );
+    return med1 - med2;
+}
 
 
 
+double RingsReduction::avg_on_ring( const cv::Mat_<short>& m,
+                                    const cv::Vec2f& ring_center,
+                                    const int& rid,
+                                    const double& dr)
+{
+    // radius of the circle
+    const double radius = rid * dr;
 
+    // the number of pixels on the circumference approximatly
+    const int circumference = max( 8, int( 2 * M_PI * radius ) );
+
+    int count = 0;
+    double sum = 0.0;
+
+    for( int i=0; i<circumference; i++ )
+    {
+        // angle in radian
+        const double angle = 2 * M_PI * i / circumference;
+        const double sin_angle = sin( angle );
+        const double cos_angle = cos( angle );
+
+        // image possition for inner circle
+        const double x = radius * cos_angle + ring_center[0];
+        const double y = radius * sin_angle + ring_center[1];
+
+        if( x<m.cols-1 && y<m.rows-1 )
+        {
+            sum += interpolate( m, x, y );
+            count++;
+        }
+    }
+
+    return (count>0) ? sum/count : 0;
+}
+
+
+double RingsReduction::med_on_ring( const cv::Mat_<short>& m,
+                                    const cv::Vec2f& ring_center,
+                                    const int& rid,
+                                    const double& dr)
+{
+    // radius of the circle
+    const double radius = rid * dr;
+
+    // the number of pixels on the circumference approximatly
+    const int circumference = max( 8, int( 2 * M_PI * radius ) );
+
+    vector<double> med;
+    med.push_back( 0 );
+
+    for( int i=0; i<circumference; i++ )
+    {
+        // angle in radian
+        const double angle = 2 * M_PI * i / circumference;
+        const double sin_angle = sin( angle );
+        const double cos_angle = cos( angle );
+
+        // image possition for inner circle
+        const double x = radius * cos_angle + ring_center[0];
+        const double y = radius * sin_angle + ring_center[1];
+
+        if( x<m.cols-1 && y<m.rows-1 )
+        {
+            const double val = interpolate( m, x, y );
+            med.push_back( val );
+        }
+    }
+
+    const double size = 0.5 * (double) med.size();
+    const int id1 = (int) std::floor( size );
+    const int id2 = (int) std::ceil( size );
+    if( id1 == id2 ) {
+        return med[id1];
+    } else {
+        return 0.5 * ( med[id1] + med[id2] );
+    }
+}
 
 
 

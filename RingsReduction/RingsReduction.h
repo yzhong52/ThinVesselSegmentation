@@ -27,12 +27,43 @@ private:
                                  const int& rid,
                                  const double& dr );
 public:
-    // average difference between two rings
+    /// Average difference between two rings
     static double avg_diff( const cv::Mat_<short>& m,
+                            const cv::Vec2f& ring_center,
+                            const int& rid1,
+                            const int& rid2,
+                            const double& dr );
+
+
+    /// Average difference between two rings
+    // This version (v2) is different from the one above that
+    // it computes the average intensity of the rings seperately and then
+    // compute the difference. the above version compute them togeter.
+    static double avg_diff_v2( const cv::Mat_<short>& m,
                                const cv::Vec2f& ring_center,
                                const int& rid1,
                                const int& rid2,
                                const double& dr );
+
+    static double med_diff_v2( const cv::Mat_<short>& m,
+                               const cv::Vec2f& ring_center,
+                               const int& rid1,
+                               const int& rid2,
+                               const double& dr );
+
+    /// average intensity on rings
+    static double avg_on_ring( const cv::Mat_<short>& m,
+                               const cv::Vec2f& ring_center,
+                               const int& rid,
+                               const double& dr);
+
+    /// median intensity on ring
+    static double med_on_ring( const cv::Mat_<short>& m,
+                               const cv::Vec2f& ring_center,
+                               const int& rid,
+                               const double& dr);
+
+
 private:
     //get the interpolation of the image data
     static double interpolate( const cv::Mat_<short>& m, double x, double y );
