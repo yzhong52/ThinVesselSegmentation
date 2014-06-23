@@ -42,7 +42,7 @@ bool draw( const string& name, vector<vector<double> >& funcs,
 
     if( im_width==0 ) im_width = std::max(numX, (unsigned) 400);
 
-    double scale = 2.0f * im_width / numX;
+    double scale = (double) im_width / numX;
 
     // find the min max value in all the functions
     double minVal = funcs[0][0];
@@ -56,7 +56,7 @@ bool draw( const string& name, vector<vector<double> >& funcs,
 
     // draw the plot on a mat
     Mat im_bg( im_height, im_width, CV_8UC3,
-               /*Default Background Color*/ Scalar(55, 0, 0) );
+               /*Default Background Color*/ Scalar(155, 255, 155) );
 
     Mat im_result = im_bg.clone();
     for( unsigned it = 0; it < funcs.size(); it++ )

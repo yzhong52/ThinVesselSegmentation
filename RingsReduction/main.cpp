@@ -53,15 +53,16 @@ int main()
     if( !flag ) return 0;
 
     vector<double> diffs = RR::distri_of_diff( im_short.getMat( im_short.SZ()/2 ),
-                                      cv::Vec2f( 234, 270 ), 10, 101, 1.0f );
+                           cv::Vec2f( 234, 270 ), 50, 51, 1.0f );
     CVPlot::draw( "distri_of_diff.png", diffs );
 
+    const unsigned num_of_bins = 200;
     const unsigned num_of_diffs = (unsigned) diffs.size();
-    unsigned num_of_bins = 100;
     std::sort( diffs.begin(), diffs.end() );
     vector<double> bins(num_of_bins, 0);
     double diff_range = diffs.back() - diffs.front();
-    for( unsigned i=0; i<num_of_diffs; i++ ){
+    for( unsigned i=0; i<num_of_diffs; i++ )
+    {
         unsigned binid = (unsigned) (num_of_bins * (diffs[i] - diffs.front()) / diff_range);
         binid = std::min( binid, num_of_bins-1);
         bins[binid]++;
@@ -78,22 +79,31 @@ int main()
     // save the original data with centre point
     Mat m = im_short.getMat( im_short.SZ()/2 );
     save_slice( m, minVal, maxVal, "original.png", Vec2i(234, 270) );
-    return 0;
+
 
     Data3D<short> im_rduct;
     vector<double> correction;
 
-    RR::polarRD_accumulate( im_short, im_rduct, RR::MED_DIFF, 1.0f, &correction );
+    RR::polarRD_accumulate( im_short, im_rduct, RR::MED_DIFF, 0.2f, &correction );
     save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "polar_med_diff_v1.png" );
-    CVPlot::draw( "polar_med_diff_v1_plot.png", correction );
 
-    RR::polarRD( im_short, im_rduct, RR::AVG_DIFF, 1.0f, &correction );
+    RR::polarRD_accumulate( im_short, im_rduct, RR::MED_DIFF, 0.2f, &correction );
+    save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "polar_med_diff_v1_2.png" );
+
+    RR::polarRD( im_short, im_rduct, RR::AVG_DIFF, 0.2f, &correction );
     save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "polar_avg_diff.png" );
-    CVPlot::draw( "polar_avg_diff_plot.png", correction );
 
-    RR::polarRD( im_short, im_rduct, RR::MED_DIFF, 1.0f, &correction );
+    RR::polarRD( im_short, im_rduct, RR::AVG_DIFF, 0.2f, &correction );
+    save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "polar_avg_diff_2.png" );
+
+    RR::polarRD( im_short, im_rduct, RR::MED_DIFF, 0.2f, &correction );
     save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "polar_med_diff.png" );
-    CVPlot::draw( "polar_med_diff_plot.png", correction );
+
+    RR::polarRD( im_short, im_rduct, RR::MED_DIFF, 0.2f, &correction );
+    save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "polar_med_diff.png" );
+
+
+    return 0;
 
     RR::sijbers( im_short, im_rduct, &correction );
     save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "sijbers.png" );

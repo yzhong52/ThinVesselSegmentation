@@ -299,7 +299,7 @@ bool ImageProcessing::filter3D_X( const Data3D<T1>& src, Data3D<T2>& dst, const 
                 {
                     int x2 = x+i-hsize;
                     if( x2<0 || x2>=size[0] ) continue;
-                    dst.at(x, y, z) += T2( kx.at(i,0,0) * src.at(x2, y, z) );
+                    dst.at(x, y, z) = T2( dst.at(x, y, z) + kx.at(i,0,0) * src.at(x2, y, z) );
                     sum += kx.at(i,0,0);
                 }
                 dst.at(x, y, z) = T2( dst.at(x, y, z)/sum );
@@ -328,7 +328,7 @@ bool ImageProcessing::filter3D_Y( const Data3D<T1>& src, Data3D<T2>& dst,
                 {
                     int y2 = y+i-hsize;
                     if( y2<0 || y2>=size[1] ) continue;
-                    dst.at(x, y, z) += T2( ky.at(0,i,0) * src.at(x, y2, z) );
+                    dst.at(x, y, z) = T2( dst.at(x, y, z) + ky.at(0,i,0) * src.at(x, y2, z) );
                     sum += ky.at(0,i,0);
                 }
                 dst.at(x, y, z) = T2( dst.at(x, y, z)/sum );
@@ -357,7 +357,7 @@ bool ImageProcessing::filter3D_Z( const Data3D<T1>& src, Data3D<T2>& dst, const 
                 {
                     int z2 = z+i-hsize;
                     if( z2<0 || z2>=size[2] ) continue;
-                    dst.at(x, y, z) += T2( kz.at(0,0,i) * src.at(x, y, z2) );
+                    dst.at(x, y, z) = T2( dst.at(x, y, z) + kz.at(0,0,i) * src.at(x, y, z2) );
                     sum += kz.at(0,0,i);
                 }
                 dst.at(x, y, z) = T2( dst.at(x, y, z)/sum );

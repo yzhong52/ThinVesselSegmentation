@@ -98,14 +98,14 @@ private:
                                const double& dr );
 private:
     /// get the interpolation of the image data
-    static double interpolate( const cv::Mat_<short>& m, double x, double y );
+    template<class T>
+    static double interpolate( const cv::Mat_<T>& m,
+                               const double& x, const double& y );
 
     /// Test if a image point (x,y) is valid or not
-    static inline bool isvalid( const cv::Mat_<short>& m,
-                                const double& x, const double& y )
-    {
-        return (x>=0 && x<=m.cols-1 && y>=0 && y<=m.rows-1);
-    }
+    template<class T>
+    static inline bool isvalid( const cv::Mat_<T>& m,
+                                const double& x, const double& y );
 
     /// compute the median values in the vector
     // the order of the values in the vector will be altered
@@ -117,9 +117,9 @@ public:
     // 1) Can I see the distribution of the difference of neiboring
     //    rings as histograms? Yes.
     static std::vector<double> distri_of_diff( const cv::Mat_<short>& m,
-                                const cv::Vec2f& ring_center,
-                                const int& rid1, const int& rid2,
-                                const double& dr );
+            const cv::Vec2f& ring_center,
+            const int& rid1, const int& rid2,
+            const double& dr );
 };
 
 typedef RingsReduction RR;
@@ -171,6 +171,52 @@ double RingsReduction::med_on_ring( const cv::Mat_<T>& m,
     {
         return 0.5 * ( med[id1] + med[id2] );
     }
+}
+
+
+template<class T>
+double RingsReduction::interpolate( const cv::Mat_<T>& m,
+                                    const double& x, const double& y )
+{
+    const int fx = (int) floor( x );
+    const int cx = (int) ceil( x );
+    const int fy = (int) floor( y );
+    const int cy = (int) ceil( y );
+
+    smart_assert( fx>=0 && cx<m.cols && fy>=0 && cy<m.rows,
+                  "Invalid input image position. Please call the following " <<
+                  "fucntion before computing interpolation. " << std::endl <<
+                  "\t bool isvalid( cv::Mat_<short>&, double, double ); " );
+
+    if( fx==cx && fy==cy )
+    {
+        return m(fy, fx);
+    }
+    else if( fx==cx )
+    {
+        return m(fy, fx) * (cy - y) +
+               m(cy, fx) * (y - fy);
+    }
+    else if ( fy==cy )
+    {
+        return m(fy, fx) * (cx - x) +
+               m(fy, cx) * (x - fx);
+    }
+    else
+    {
+        return m(fy, fx) * (cx - x) * (cy - y) +
+               m(cy, fx) * (cx - x) * (y - fy) +
+               m(fy, cx) * (x - fx) * (cy - y) +
+               m(cy, cx) * (x - fx) * (y - fy);
+    }
+}
+
+
+template<class T>
+inline bool RingsReduction::isvalid( const cv::Mat_<T>& m,
+                                     const double& x, const double& y )
+{
+    return (x>=0 && x<=m.cols-1 && y>=0 && y<=m.rows-1);
 }
 
 #endif // RINGSREDUCTION_H

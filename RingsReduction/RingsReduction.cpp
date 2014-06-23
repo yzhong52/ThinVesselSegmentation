@@ -320,8 +320,8 @@ void RingsReduction::polarRD( const Data3D<short>& src, Data3D<short>& dst,
 
 
 void RingsReduction::polarRD_accumulate( const Data3D<short>& src, Data3D<short>& dst,
-                         const PolarRDOption& o, const float dr,
-                         std::vector<double>* pCorrection )
+        const PolarRDOption& o, const float dr,
+        std::vector<double>* pCorrection )
 {
     smart_assert( &src!=&dst,
                   "The destination file is the same as the orignal. " );
@@ -366,7 +366,8 @@ void RingsReduction::polarRD_accumulate( const Data3D<short>& src, Data3D<short>
                                     ring_center, ri, ri+1, dr );
     }
 
-    for( unsigned ri = num_of_rings-2; ri>0; ri-- ){
+    for( unsigned ri = num_of_rings-2; ri>0; ri-- )
+    {
         correction[ri] += correction[ri+1];
     }
 
@@ -376,40 +377,7 @@ void RingsReduction::polarRD_accumulate( const Data3D<short>& src, Data3D<short>
 
 }
 
-double RingsReduction::interpolate( const cv::Mat_<short>& m, double x, double y )
-{
-    const int fx = (int) floor( x );
-    const int cx = (int) ceil( x );
-    const int fy = (int) floor( y );
-    const int cy = (int) ceil( y );
 
-    smart_assert( fx>=0 && cx<m.cols && fy>=0 && cy<m.rows,
-                  "Invalid input image position. Please call the following " <<
-                  "fucntion before computing interpolation. " << endl <<
-                  "\t bool isvalid( cv::Mat_<short>&, double, double ); " );
-
-    if( fx==cx && fy==cy )
-    {
-        return m(fy, fx);
-    }
-    else if( fx==cx )
-    {
-        return m(fy, fx) * (cy - y) +
-               m(cy, fx) * (y - fy);
-    }
-    else if ( fy==cy )
-    {
-        return m(fy, fx) * (cx - x) +
-               m(fy, cx) * (x - fx);
-    }
-    else
-    {
-        return m(fy, fx) * (cx - x) * (cy - y) +
-               m(cy, fx) * (cx - x) * (y - fy) +
-               m(fy, cx) * (x - fx) * (cy - y) +
-               m(cy, cx) * (x - fx) * (y - fy);
-    }
-}
 
 double RingsReduction::avg_diff( const cv::Mat_<short>& m,
                                  const cv::Vec2f& ring_center,
@@ -559,6 +527,8 @@ double RingsReduction::avg_on_ring( const cv::Mat_<short>& m,
 
 double RingsReduction::median( std::vector<double>& values )
 {
+    if( values.size()==0 ) return 0.0;
+
     std::sort( values.begin(), values.end() );
 
     const double numVal = 0.5 * (double) values.size();
@@ -575,9 +545,9 @@ double RingsReduction::median( std::vector<double>& values )
 }
 
 std::vector<double> RingsReduction::distri_of_diff( const cv::Mat_<short>& m,
-                                const cv::Vec2f& ring_center,
-                                const int& rid1, const int& rid2,
-                                const double& dr )
+        const cv::Vec2f& ring_center,
+        const int& rid1, const int& rid2,
+        const double& dr )
 {
     // radius of the two circles
     const double radius  = rid1 * dr;
@@ -586,10 +556,9 @@ std::vector<double> RingsReduction::distri_of_diff( const cv::Mat_<short>& m,
     // the number of pixels on the circumference approximatly
     const double bigger = std::min( radius, radius1 );
     const int circumference = std::max( 8, int( 2 * M_PI * bigger ) );
-    cout << "circumference = " << circumference << endl;
 
-    std::vector<double> diffs(1, 0);
-    for( int i=0; i<circumference * 2 /*10% of overlap*/; i++ )
+    std::vector<double> diffs;
+    for( int i=0; i<(circumference*2) /*100% of overlap*/; i++ )
     {
         // angle in radian
         const double angle = 2 * M_PI * i / circumference;
@@ -600,7 +569,7 @@ std::vector<double> RingsReduction::distri_of_diff( const cv::Mat_<short>& m,
         const double x = radius * cos_angle + ring_center[0];
         const double y = radius * sin_angle + ring_center[1];
 
-        cout << "( " << radius * cos_angle << " , " << radius * sin_angle << ") " << endl;
+        // cout << "( " << radius * cos_angle << " , " << radius * sin_angle << ") " << endl;
 
         // image position for outter circle
         const double x1 = radius1 * cos_angle + ring_center[0];
@@ -610,9 +579,10 @@ std::vector<double> RingsReduction::distri_of_diff( const cv::Mat_<short>& m,
         {
             const double val  = interpolate( m, x, y );
             const double val1 = interpolate( m, x1, y1 );
-            diffs.push_back( val - val1 );
+            diffs.push_back( val-val1 );
         }
     }
+
     return diffs;
 }
 
