@@ -85,8 +85,10 @@ bool draw( const string& name, vector<vector<double> >& funcs,
     }
 
     // show result in window and save to file
-    if( name.find('.')!=-1 ) cv::imwrite( "output/" + name, im_result );
-    else cv::imwrite( "output/" + name + ".png", im_result );
+    if( name.find('.')!=std::string::npos )
+        cv::imwrite( "output/" + name, im_result );
+    else
+        cv::imwrite( "output/" + name + ".png", im_result );
 
 //    cv::imshow( name.c_str(), im_result );
 //    cv::waitKey(0);

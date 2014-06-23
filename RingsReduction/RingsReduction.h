@@ -115,7 +115,7 @@ private:
 public:
     /// Utility functions for Yuri
     // 1) Can I see the distribution of the difference of neiboring
-    //    rings? Yes.
+    //    rings as histograms? Yes.
     static std::vector<double> distri_of_diff( const cv::Mat_<short>& m,
                                 const cv::Vec2f& ring_center,
                                 const int& rid1, const int& rid2,

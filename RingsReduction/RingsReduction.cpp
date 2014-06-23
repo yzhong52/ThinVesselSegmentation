@@ -124,7 +124,6 @@ double RingsReduction::avgI_on_rings( const cv::Mat_<short>& m,
     else return 0.0;
 }
 
-
 void RingsReduction::sijbers( const Data3D<short>& src, Data3D<short>& dst,
                               std::vector<double>* pCorrection )
 {
@@ -585,11 +584,12 @@ std::vector<double> RingsReduction::distri_of_diff( const cv::Mat_<short>& m,
     const double radius1 = rid2 * dr;
 
     // the number of pixels on the circumference approximatly
-    const double bigger = std::max( radius, radius1 );
-    const int circumference = max( 8, int( 2 * M_PI * bigger ) );
+    const double bigger = std::min( radius, radius1 );
+    const int circumference = std::max( 8, int( 2 * M_PI * bigger ) );
+    cout << "circumference = " << circumference << endl;
 
     std::vector<double> diffs(1, 0);
-    for( int i=0; i<circumference; i++ )
+    for( int i=0; i<circumference * 2 /*10% of overlap*/; i++ )
     {
         // angle in radian
         const double angle = 2 * M_PI * i / circumference;
@@ -599,6 +599,8 @@ std::vector<double> RingsReduction::distri_of_diff( const cv::Mat_<short>& m,
         // image possition for inner circle
         const double x = radius * cos_angle + ring_center[0];
         const double y = radius * sin_angle + ring_center[1];
+
+        cout << "( " << radius * cos_angle << " , " << radius * sin_angle << ") " << endl;
 
         // image position for outter circle
         const double x1 = radius1 * cos_angle + ring_center[0];
