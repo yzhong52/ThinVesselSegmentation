@@ -34,6 +34,13 @@ int main()
     bool flag = im_short.load( "../temp/vessel3d.data", Vec3i(585, 525, 10), true, true );
     if( !flag ) return 0;
 
+
+    vector<double> temp = RR::distri_of_diff( im_short.getMat( im_short.SZ()/2 ),
+                                      cv::Vec2f( 234, 270 ), 100, 101, 1.0f );
+    CVPlot::draw( "distri_of_diff.png", temp );
+
+    return 0;
+
     // compute the minimum value and maximum value in the centre slice
     double minVal = 0, maxVal = 0;
     cv::minMaxLoc( im_short.getMat( im_short.SZ()/2 ), &minVal, &maxVal );
@@ -44,6 +51,10 @@ int main()
     Data3D<short> im_rduct;
     vector<double> correction;
 
+    RR::polarRD_accumulate( im_short, im_rduct, RR::MED_DIFF, 1.0f, &correction );
+    save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "polar_med_diff_v1.png" );
+    CVPlot::draw( "polar_med_diff_v1_plot.png", correction );
+
     RR::polarRD( im_short, im_rduct, RR::AVG_DIFF, 1.0f, &correction );
     save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "polar_avg_diff.png" );
     CVPlot::draw( "polar_avg_diff_plot.png", correction );
@@ -51,7 +62,6 @@ int main()
     RR::polarRD( im_short, im_rduct, RR::MED_DIFF, 1.0f, &correction );
     save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "polar_med_diff.png" );
     CVPlot::draw( "polar_med_diff_plot.png", correction );
-
 
     RR::sijbers( im_short, im_rduct, &correction );
     save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "sijbers.png" );

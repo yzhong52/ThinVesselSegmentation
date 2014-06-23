@@ -19,10 +19,15 @@ public:
     static void polarRD( const Data3D<short>& src, Data3D<short>& dst,
                          const PolarRDOption& o, const float dr = 1.0f,
                          std::vector<double>* pCorrection = nullptr );
+    // an mutation of the above function
+    // computing the correction in a accumulative manner
+    static void polarRD_accumulate( const Data3D<short>& src, Data3D<short>& dst,
+                                    const PolarRDOption& o, const float dr = 1.0f,
+                                    std::vector<double>* pCorrection = nullptr );
 
     /// rings reduction using sijbers's methods
     static void sijbers( const Data3D<short>& src, Data3D<short>& dst,
-                        std::vector<double>* pCorrection = nullptr );
+                         std::vector<double>* pCorrection = nullptr );
 
     // rings reduction using sijbers's methods (olde implementation)
     static void mm_filter( const Data3D<short>& src, Data3D<short>& dst );
@@ -48,6 +53,12 @@ private:
                             const int& rid2,
                             const double& dr );
 
+    /// Median difference between two rings
+    static double med_diff( const cv::Mat_<short>& m,
+                            const cv::Vec2f& ring_center,
+                            const int& rid1,
+                            const int& rid2,
+                            const double& dr );
 
     /// Average difference between two rings
     // This version (v2) is different from the one above that
@@ -79,6 +90,12 @@ private:
                                const int& rid,
                                const double& dr);
 
+    /// Adjust image with give correction vector
+    static void correct_image( const Data3D<short>& src, Data3D<short>& dst,
+                               const std::vector<double>& correction,
+                               const int& slice,
+                               const cv::Vec2i& ring_center,
+                               const double& dr );
 private:
     /// get the interpolation of the image data
     static double interpolate( const cv::Mat_<short>& m, double x, double y );
@@ -90,12 +107,19 @@ private:
         return (x>=0 && x<=m.cols-1 && y>=0 && y<=m.rows-1);
     }
 
-    /// Adjust image with give correction vector
-    static void correct_image( const Data3D<short>& src, Data3D<short>& dst,
-                               const std::vector<double>& correction,
-                               const int& slice,
-                               const cv::Vec2i& ring_center,
-                               const double& dr );
+    /// compute the median values in the vector
+    // the order of the values in the vector will be altered
+    static double median( std::vector<double>& values );
+
+
+public:
+    /// Utility functions for Yuri
+    // 1) Can I see the distribution of the difference of neiboring
+    //    rings? Yes.
+    static std::vector<double> distri_of_diff( const cv::Mat_<short>& m,
+                                const cv::Vec2f& ring_center,
+                                const int& rid1, const int& rid2,
+                                const double& dr );
 };
 
 typedef RingsReduction RR;
@@ -114,8 +138,7 @@ double RingsReduction::med_on_ring( const cv::Mat_<T>& m,
     // the number of pixels on the circumference approximatly
     const int circumference = std::max( 8, int( 2 * M_PI * radius ) );
 
-    std::vector<double> med;
-    med.push_back( 0 );
+    std::vector<double> med(1, 0);
 
     for( int i=0; i<circumference; i++ )
     {
