@@ -81,26 +81,28 @@ int main()
     save_slice( m, minVal, maxVal, "original.png", Vec2i(234, 270) );
 
 
-    Data3D<short> im_rduct;
+    Data3D<short> im_rduct, im_rduct2;
     vector<double> correction;
 
     RR::polarRD_accumulate( im_short, im_rduct, RR::MED_DIFF, 0.2f, &correction );
     save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "polar_med_diff_v1.png" );
 
-    RR::polarRD_accumulate( im_short, im_rduct, RR::MED_DIFF, 0.2f, &correction );
-    save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "polar_med_diff_v1_2.png" );
+//    RR::polarRD_accumulate( im_rduct, im_rduct2, RR::MED_DIFF, 0.2f, &correction );
+//    save_slice( im_rduct2, im_rduct2.SZ()/2, minVal, maxVal, "polar_med_diff_v1_2.png" );
+
 
     RR::polarRD( im_short, im_rduct, RR::AVG_DIFF, 0.2f, &correction );
     save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "polar_avg_diff.png" );
 
-    RR::polarRD( im_short, im_rduct, RR::AVG_DIFF, 0.2f, &correction );
-    save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "polar_avg_diff_2.png" );
+//    RR::polarRD( im_rduct, im_rduct2, RR::AVG_DIFF, 0.2f, &correction );
+//    save_slice( im_rduct2, im_rduct2.SZ()/2, minVal, maxVal, "polar_avg_diff_2.png" );
+
 
     RR::polarRD( im_short, im_rduct, RR::MED_DIFF, 0.2f, &correction );
     save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "polar_med_diff.png" );
 
-    RR::polarRD( im_short, im_rduct, RR::MED_DIFF, 0.2f, &correction );
-    save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "polar_med_diff.png" );
+//    RR::polarRD( im_rduct, im_rduct2, RR::MED_DIFF, 0.2f, &correction );
+//    save_slice( im_rduct2, im_rduct2.SZ()/2, minVal, maxVal, "polar_med_diff_2.png" );
 
 
     return 0;

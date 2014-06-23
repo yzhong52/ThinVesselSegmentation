@@ -328,8 +328,8 @@ void RingsReduction::polarRD_accumulate( const Data3D<short>& src, Data3D<short>
 
     // TODO: set the center as parameters
     // TODO: change them to float
-    const float center_x = 234; // 234;
-    const float center_y = 270; // 270;
+    const float center_x = 233.5; // 234;
+    const float center_y = 269.5; // 270;
 
     // TODO: do it on a 3D volume
     const unsigned center_z = src.SZ() / 2;
@@ -369,6 +369,11 @@ void RingsReduction::polarRD_accumulate( const Data3D<short>& src, Data3D<short>
     for( unsigned ri = num_of_rings-2; ri>0; ri-- )
     {
         correction[ri] += correction[ri+1];
+    }
+
+    double offset = correction[100];
+    for( unsigned ri = 0; ri<num_of_rings; ri++ ){
+        correction[ri] -= offset;
     }
 
     correct_image( src, dst, correction, center_z, ring_center, dr );
