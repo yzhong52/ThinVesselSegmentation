@@ -15,12 +15,16 @@ bool draw( const std::string& name,    // name of the output image
            unsigned im_width = 0 );         // image width, will be computed based on the size of mat_ys if left empty
 
 inline bool draw( const std::string& name, std::vector<double>& func,
-                  unsigned im_height = 200, unsigned im_width = 0 )
+                  unsigned im_height = 200, unsigned im_width = 0 );
+
+} // namespace CVPlot
+
+
+inline bool CVPlot::draw( const std::string& name, std::vector<double>& func,
+                          unsigned im_height, unsigned im_width )
 {
     std::vector<std::vector<double> > funcs(1, func);
     return draw( name, funcs, im_height, im_width );
-}
-
 }
 
 #endif // CVPLOT_H

@@ -340,11 +340,8 @@ void RingsReduction::AccumulatePolarRD( const Data3D<short>& src, Data3D<short>&
 
     const unsigned num_of_rings = unsigned( max_radius / dr );
 
-    double (*diff_func)(const cv::Mat_<short>&,
-                        const cv::Vec2f&,
-                        const int&,
-                        const int&,
-                        const double&) = nullptr;
+    double (*diff_func)(const cv::Mat_<short>&, const cv::Vec2f&,
+                        const int&, const int&, const double&) = nullptr;
 
     switch (o )
     {
@@ -365,7 +362,7 @@ void RingsReduction::AccumulatePolarRD( const Data3D<short>& src, Data3D<short>&
                                     ring_center, ri, ri+1, dr );
     }
 
-    for( unsigned ri = num_of_rings-2; ri>0; ri-- )
+    for( int ri = num_of_rings-2; ri>=0; ri-- )
     {
         correction[ri] += correction[ri+1];
     }

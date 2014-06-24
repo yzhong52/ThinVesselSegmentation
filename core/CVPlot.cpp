@@ -7,12 +7,16 @@
 using namespace std;
 using namespace cv;
 
-namespace CVPlot
-{
 
-bool draw( const string& name, vector<vector<double> >& funcs,
-           unsigned im_height,        // image height
-           unsigned im_width )           // image width, will be computed based on the size of mat_ys if left empty
+// API for draw chart functions
+static bool draw_line_chart( void );
+static bool draw_scatter_chart( void );
+static bool draw_bar_chart( void );
+
+
+bool CVPlot::draw( const string& name, vector<vector<double> >& funcs,
+                   unsigned im_height,        // image height
+                   unsigned im_width )           // image width, will be computed based on the size of mat_ys if left empty
 
 {
     // Maximum number of groups supported by the function
@@ -95,5 +99,3 @@ bool draw( const string& name, vector<vector<double> >& funcs,
 
     return true;
 }
-}
-

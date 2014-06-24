@@ -309,7 +309,7 @@ bool ImageProcessing::filter3D_X( const Data3D<T1>& src, Data3D<T2>& dst, const 
 
 template<typename T1, typename T2, typename T3 >
 bool ImageProcessing::filter3D_Y( const Data3D<T1>& src, Data3D<T2>& dst,
-                                 const Kernel3D<T3>& ky )
+                                  const Kernel3D<T3>& ky )
 {
     smart_return( (&src)!=(&dst), "src and dst should be different.", false );
     smart_return( ky.get_size_x()==1 && ky.get_size_y()>0 && ky.get_size_z()==1,
