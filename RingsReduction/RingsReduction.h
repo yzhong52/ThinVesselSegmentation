@@ -6,7 +6,7 @@
 class RingsReduction
 {
 public:
-    static void unname_method(   const Data3D<short>& src, Data3D<short>& dst );
+    static void unname_method( const Data3D<short>& src, Data3D<short>& dst );
 
     /// rings reduction in polar coordinates
     enum PolarRDOption
@@ -21,9 +21,11 @@ public:
                          std::vector<double>* pCorrection = nullptr );
     // an mutation of the above function
     // computing the correction in a accumulative manner
-    static void polarRD_accumulate( const Data3D<short>& src, Data3D<short>& dst,
-                                    const PolarRDOption& o, const float dr = 1.0f,
-                                    std::vector<double>* pCorrection = nullptr );
+    static void AccumulatePolarRD( const Data3D<short>& src, Data3D<short>& dst,
+                                   const PolarRDOption& o, const float dr = 1.0f,
+                                   const float& center_x = 234,
+                                   const float& center_y = 270,
+                                   std::vector<double>* pCorrection = nullptr );
 
     /// rings reduction using sijbers's methods
     static void sijbers( const Data3D<short>& src, Data3D<short>& dst,

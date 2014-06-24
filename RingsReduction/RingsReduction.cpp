@@ -319,17 +319,16 @@ void RingsReduction::polarRD( const Data3D<short>& src, Data3D<short>& dst,
 
 
 
-void RingsReduction::polarRD_accumulate( const Data3D<short>& src, Data3D<short>& dst,
-        const PolarRDOption& o, const float dr,
-        std::vector<double>* pCorrection )
+void RingsReduction::AccumulatePolarRD( const Data3D<short>& src, Data3D<short>& dst,
+                                        const PolarRDOption& o, const float dr,
+                                        const float& center_x,
+                                        const float& center_y,
+                                        std::vector<double>* pCorrection )
 {
     smart_assert( &src!=&dst,
                   "The destination file is the same as the orignal. " );
 
-    // TODO: set the center as parameters
-    // TODO: change them to float
-    const float center_x = 233.5; // 234;
-    const float center_y = 269.5; // 270;
+
 
     // TODO: do it on a 3D volume
     const unsigned center_z = src.SZ() / 2;
@@ -372,7 +371,8 @@ void RingsReduction::polarRD_accumulate( const Data3D<short>& src, Data3D<short>
     }
 
     double offset = correction[100];
-    for( unsigned ri = 0; ri<num_of_rings; ri++ ){
+    for( unsigned ri = 0; ri<num_of_rings; ri++ )
+    {
         correction[ri] -= offset;
     }
 

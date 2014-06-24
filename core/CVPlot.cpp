@@ -65,11 +65,11 @@ bool draw( const string& name, vector<vector<double> >& funcs,
         Mat temp = im_bg.clone();
         for( unsigned int it2 = 0; it2 < funcs.size(); it2++ )
         {
-            unsigned i = (it+it2) % numY;
+            const unsigned i = (it+it2) % numY;
             for( unsigned j=1; j < numX; j++ )
             {
-                double v1 = funcs[i][j-1];
-                double v2 = funcs[i][j];
+                const double v1 = funcs[i][j-1];
+                const double v2 = funcs[i][j];
                 Point p1, p2;
                 p1.x = int( (j-1) * scale );
                 p1.y = int( im_height * ( margin + (1-2*margin)*(1.0 - (v1-minVal)/max_min_gap ) ) );
@@ -80,7 +80,7 @@ bool draw( const string& name, vector<vector<double> >& funcs,
             }
         }
         // color blending
-        double weight = 1.0 * it / numY;
+        const double weight = 1.0 * it / numY;
         cv::addWeighted(im_result, weight, temp, 1 - weight, 0, im_result);
     }
 
