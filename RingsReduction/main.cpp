@@ -52,6 +52,14 @@ int main()
     bool flag = im_short.load( "../temp/vessel3d.data", Vec3i(585, 525, 10), true, true );
     if( !flag ) return 0;
 
+
+    // calculating the centre of the ring
+    Vec2f rcentre = RR::get_ring_centre( im_short );
+    cout << rcentre << endl;
+    return 0;
+
+
+
     vector<double> diffs = RR::distri_of_diff( im_short.getMat( im_short.SZ()/2 ),
                            cv::Vec2f( 234, 270 ), 50, 51, 1.0f );
     CVPlot::draw( "distri_of_diff.png", diffs );
