@@ -34,8 +34,16 @@ public:
     // rings reduction using sijbers's methods (olde implementation)
     static void mm_filter( const Data3D<short>& src, Data3D<short>& dst );
 
+public:
+
     // Center of ring detection
     static cv::Vec2f get_ring_centre( const Data3D<short>& src );
+
+private:
+
+    static double dist( const double& x, const double& y,
+                        const double& x0, const double& y0,
+                        const double& dx, const double& dy );
 
 private:
 

@@ -622,7 +622,10 @@ cv::Vec2f RingsReduction::get_ring_centre( const Data3D<short>& src )
     cv::waitKey(0);
 
 
-    cv::Mat mask( m.rows, m.cols, CV_8U, Scalar(0) 0)0;
+    cv::Mat mask( m.rows, m.cols, CV_8U, Scalar(0) );
+    cv::imshow( "mask", mask );
+    cv::waitKey(0);
+
 
     return Vec2f(0,0);
 }
@@ -630,7 +633,22 @@ cv::Vec2f RingsReduction::get_ring_centre( const Data3D<short>& src )
 
 
 
-
+double RingsReduction::dist( const double& x, const double& y,
+                             const double& x0, const double& y0,
+                             const double& dx, const double& dy )
+{
+    // an arbitrary point on the line (x0 + t * dx, y0 + t * dy )
+    // distance from point (x, y) to a point on the line:
+    //         (x0 + t * dx - x)^2 + (y0 + t * dy - y)^2
+    // Derivative over t:
+    //         2 * (x0 + t * dx - x) * dx + 2 * (y0 + t * dy - y) * dy = 0
+    // Therefore t:
+    //         t = ( (x-x0)*dx + (y-y0)*dy ) / ( dx*dx + dy*dy )
+    const double t = ( (x-x0)*dx + (y-y0)*dy ) / ( dx*dx + dy*dy );
+    const double dist_x = x0 + t * dx - x;
+    const double dist_y = y0 + t * dy - y;
+    return sqrt( dist_x*dist_x + dist_y*dist_y );
+}
 
 
 
