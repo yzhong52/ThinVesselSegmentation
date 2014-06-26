@@ -596,7 +596,6 @@ void RingsReduction::get_derivative( const cv::Mat_<short>& m,
                                      Mat_<float>& grad_y,
                                      const int& gksize )
 {
-
     /// Computing the gradient of the iamge
     cv::Mat src_gray;
     m.convertTo( src_gray, CV_32F );
@@ -623,14 +622,14 @@ void RingsReduction::get_derivative( const cv::Mat_<short>& m,
     addWeighted( abs_grad_x, 0.5, abs_grad_y, 0.5, 0, grad );
 
     cv::imshow( "Gradient", grad );
-    cv::waitKey(0);
 }
 
 
 
 cv::Vec2f RingsReduction::get_ring_centre( const Data3D<short>& src,
         const Vec2i& approx_center,
-        const int gksize )
+        const int& gksize,
+        const float& threshold )
 {
     cv::Mat_<short> m = src.getMat( src.SZ()/2 );
 
@@ -638,6 +637,7 @@ cv::Vec2f RingsReduction::get_ring_centre( const Data3D<short>& src,
     Mat_<float> grad_x, grad_y;
     get_derivative( m, grad_x, grad_y, gksize );
 
+    // TODO: the mask is not necessary, only for validation
     cv::Mat mask( m.rows, m.cols, CV_8U, Scalar(0) );
 
     // get the approximate rings center
@@ -652,23 +652,16 @@ cv::Vec2f RingsReduction::get_ring_centre( const Data3D<short>& src,
             const float& dy = grad_y.at<float>(y,x);
 
             // skip if there is no gradient
-            if( abs(dx)<1e-10 && abs(dy)<1e-10 ) continue;
-
-            double d = dist( x, y, x0, y0, dx, dy );
-            if( d < 10 )
+            if( abs(dx)>1e-10 || abs(dy)>1e-10 )
             {
-                cout.width( 12 );
-                cout << d;
-                mask.at<char>(y,x) = (char) 255;
+                if( dist( x, y, x0, y0, dx, dy ) < threshold )
+                {
+                    mask.at<char>(y,x) = (char) 255;
+                }
             }
         }
     }
-    cout << endl;
-
-
     cv::imshow( "mask", mask );
-
-
 
     // visulize some arbitrary point on the mask and the gradient direction
     cv::Mat grad_dir_sample( m.rows, m.cols, CV_8UC3, Scalar(0) );
@@ -682,22 +675,52 @@ cv::Vec2f RingsReduction::get_ring_centre( const Data3D<short>& src,
         const float& dx = grad_x.at<float>(y,x);
         const float& dy = grad_y.at<float>(y,x);
 
-        if( mask.at<char>(y,x)==0 ) {
-            i--; continue;
+        if( mask.at<char>(y,x)==0 )
+        {
+            i--;
         }
+        else
+        {
 
-        Vec2f dir( dx, dy );
-        dir /= sqrt( dir.dot(dir) );
-        cv::line( grad_dir_sample,
-                 Point( x, y ),
-                 Point( (int)( (float)x + dir[0] * 10), (int)( (float)y + dir[1] * 10 ) ),
-                  Scalar( 255, 0, 255), /*thickness*/2, /*antialiased line*/8, 0 );
+            Vec2f dir( dx, dy );
+            dir /= sqrt( dir.dot(dir) );
+            cv::line( grad_dir_sample,
+                      Point( x, y ),
+                      Point( (int)( (float)x + dir[0] * 10), (int)( (float)y + dir[1] * 10 ) ),
+                      Scalar( 255, 0, 255), /*thickness*/2, /*antialiased line*/8, 0 );
+        }
     }
     cv::imshow( "grad_dir", grad_dir_sample );
-    cv::waitKey(0);
 
+    // computing the centre by solvign the linear system A * X = B
+    Mat_<float> A(0, 2);
+    Mat_<float> B(0, 1);
+    Mat_<float> X; // result (2, 1) matrix
+    for( int y=0; y<m.rows; y++ )
+    {
+        for( int x=0; x<m.cols; x++ )
+        {
+            if( mask.at<char>(y,x) != (char) 255 ) continue;
 
-    return cv::Vec2f(0,0);
+            const float& dx = grad_x.at<float>(y,x);
+            const float& dy = grad_y.at<float>(y,x);
+
+            const float sqrt_dx2_dy2 = sqrt( dx*dx + dy*dy );
+
+            Mat_<float> Arow(1, 2, 0.0f);
+            Arow(0, 0) =  dy / sqrt_dx2_dy2;
+            Arow(0, 1) = -dx / sqrt_dx2_dy2;
+            A.push_back( Arow );
+
+            Mat_<float> Brow(1, 1, 0.0f);
+            Brow(0, 0) = float( (float)x * dy - (float)y * dx ) / sqrt_dx2_dy2;
+            B.push_back( Brow );
+        }
+    }
+
+    solve(A, B, X, DECOMP_SVD);
+
+    return cv::Vec2f(X);
 }
 
 

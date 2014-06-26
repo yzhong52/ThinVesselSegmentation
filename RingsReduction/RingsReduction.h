@@ -39,7 +39,8 @@ public:
     // Center of ring detection
     static cv::Vec2f get_ring_centre( const Data3D<short>& src,
                                       const cv::Vec2i& approx_center,
-                                      const int gksize = 11 );
+    const int& gksize = 11,
+    const float& threshold = 10.0f );
 
 public:
 
