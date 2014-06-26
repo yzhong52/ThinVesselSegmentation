@@ -37,13 +37,20 @@ public:
 public:
 
     // Center of ring detection
-    static cv::Vec2f get_ring_centre( const Data3D<short>& src );
+    static cv::Vec2f get_ring_centre( const Data3D<short>& src,
+                                      const cv::Vec2i& approx_center,
+                                      const int gksize = 11 );
 
-private:
+public:
 
-    static double dist( const double& x, const double& y,
-                        const double& x0, const double& y0,
-                        const double& dx, const double& dy );
+    static double dist( const int& x, const int& y,
+                        const int& x0, const int& y0,
+                        const float& dx, const float& dy );
+
+    static void get_derivative( const cv::Mat_<short>& m,
+                                cv::Mat_<float>& grad_x,
+                                cv::Mat_<float>& grad_y,
+                                const int& gksize  );
 
 private:
 

@@ -588,24 +588,28 @@ std::vector<double> RingsReduction::distri_of_diff( const cv::Mat_<short>& m,
     return diffs;
 }
 
-cv::Vec2f RingsReduction::get_ring_centre( const Data3D<short>& src )
+
+
+
+void RingsReduction::get_derivative( const cv::Mat_<short>& m,
+                                     Mat_<float>& grad_x,
+                                     Mat_<float>& grad_y,
+                                     const int& gksize )
 {
-    cv::Mat_<short> m = src.getMat( src.SZ()/2 );
 
     /// Computing the gradient of the iamge
     cv::Mat src_gray;
     m.convertTo( src_gray, CV_32F );
-    GaussianBlur( src_gray, src_gray, Size(3,3), 0, 0, BORDER_DEFAULT );
+    GaussianBlur( src_gray, src_gray, Size(gksize, gksize), 0, 0, BORDER_DEFAULT );
 
     /// Generate grad_x and grad_y
     Mat grad;
-    Mat grad_x, grad_y;
     Mat abs_grad_x, abs_grad_y;
 
     /// Gradient X
     int scale = 1;
     int delta = 0;
-    int ddepth = CV_16S;
+    int ddepth = CV_32F;
     //Scharr( src_gray, grad_x, ddepth, 1, 0, scale, delta, BORDER_DEFAULT );
     Sobel( src_gray, grad_x, ddepth, 1, 0, 3, scale, delta, BORDER_DEFAULT );
     convertScaleAbs( grad_x, abs_grad_x );
@@ -620,22 +624,88 @@ cv::Vec2f RingsReduction::get_ring_centre( const Data3D<short>& src )
 
     cv::imshow( "Gradient", grad );
     cv::waitKey(0);
+}
 
+
+
+cv::Vec2f RingsReduction::get_ring_centre( const Data3D<short>& src,
+        const Vec2i& approx_center,
+        const int gksize )
+{
+    cv::Mat_<short> m = src.getMat( src.SZ()/2 );
+
+    // compute the derivatives (gradient) of the image
+    Mat_<float> grad_x, grad_y;
+    get_derivative( m, grad_x, grad_y, gksize );
 
     cv::Mat mask( m.rows, m.cols, CV_8U, Scalar(0) );
+
+    // get the approximate rings center
+    const int& x0 = approx_center[0];
+    const int& y0 = approx_center[1];
+
+    for( int y=0; y<m.rows; y++ )
+    {
+        for( int x=0; x<m.cols; x++ )
+        {
+            const float& dx = grad_x.at<float>(y,x);
+            const float& dy = grad_y.at<float>(y,x);
+
+            // skip if there is no gradient
+            if( abs(dx)<1e-10 && abs(dy)<1e-10 ) continue;
+
+            double d = dist( x, y, x0, y0, dx, dy );
+            if( d < 10 )
+            {
+                cout.width( 12 );
+                cout << d;
+                mask.at<char>(y,x) = (char) 255;
+            }
+        }
+    }
+    cout << endl;
+
+
     cv::imshow( "mask", mask );
+
+
+
+    // visulize some arbitrary point on the mask and the gradient direction
+    cv::Mat grad_dir_sample( m.rows, m.cols, CV_8UC3, Scalar(0) );
+    cvtColor( mask, grad_dir_sample, CV_GRAY2BGR );
+
+    for( int i=0; i<50; i++ )
+    {
+        int x = rand() % m.cols;
+        int y = rand() % m.rows;
+
+        const float& dx = grad_x.at<float>(y,x);
+        const float& dy = grad_y.at<float>(y,x);
+
+        if( mask.at<char>(y,x)==0 ) {
+            i--; continue;
+        }
+
+        Vec2f dir( dx, dy );
+        dir /= sqrt( dir.dot(dir) );
+        cv::line( grad_dir_sample,
+                 Point( x, y ),
+                 Point( (int)( (float)x + dir[0] * 10), (int)( (float)y + dir[1] * 10 ) ),
+                  Scalar( 255, 0, 255), /*thickness*/2, /*antialiased line*/8, 0 );
+    }
+    cv::imshow( "grad_dir", grad_dir_sample );
     cv::waitKey(0);
 
 
-    return Vec2f(0,0);
+    return cv::Vec2f(0,0);
 }
 
 
 
 
-double RingsReduction::dist( const double& x, const double& y,
-                             const double& x0, const double& y0,
-                             const double& dx, const double& dy )
+double RingsReduction::dist( const int& x, const int& y,
+                             const int& x0, const int& y0,
+                             const float& dx, const float& dy )
 {
     // an arbitrary point on the line (x0 + t * dx, y0 + t * dy )
     // distance from point (x, y) to a point on the line:
@@ -644,7 +714,7 @@ double RingsReduction::dist( const double& x, const double& y,
     //         2 * (x0 + t * dx - x) * dx + 2 * (y0 + t * dy - y) * dy = 0
     // Therefore t:
     //         t = ( (x-x0)*dx + (y-y0)*dy ) / ( dx*dx + dy*dy )
-    const double t = ( (x-x0)*dx + (y-y0)*dy ) / ( dx*dx + dy*dy );
+    const double t = (double) ( float(x-x0)*dx + float(y-y0)*dy ) / ( dx*dx + dy*dy );
     const double dist_x = x0 + t * dx - x;
     const double dist_y = y0 + t * dy - y;
     return sqrt( dist_x*dist_x + dist_y*dist_y );

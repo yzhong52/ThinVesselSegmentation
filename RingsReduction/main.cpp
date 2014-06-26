@@ -54,11 +54,9 @@ int main()
 
 
     // calculating the centre of the ring
-    Vec2f rcentre = RR::get_ring_centre( im_short );
+    Vec2f rcentre = RR::get_ring_centre( im_short, cv::Vec2i( 234, 270 ) );
     cout << rcentre << endl;
     return 0;
-
-
 
     vector<double> diffs = RR::distri_of_diff( im_short.getMat( im_short.SZ()/2 ),
                            cv::Vec2f( 234, 270 ), 50, 51, 1.0f );
