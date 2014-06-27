@@ -125,11 +125,11 @@ double RingsReduction::avgI_on_rings( const cv::Mat_<short>& m,
 }
 
 void RingsReduction::sijbers( const Data3D<short>& src, Data3D<short>& dst,
+                                const float& dr,
+                              const float& center_x,
+                              const float& center_y,
                               std::vector<double>* pCorrection )
 {
-    // TODO: set the center as parameters
-    const float center_x = 234;
-    const float center_y = 270;
     const int wsize = 15;
 
     if( &dst!=&src)
@@ -154,7 +154,7 @@ void RingsReduction::sijbers( const Data3D<short>& src, Data3D<short>& dst,
     const Vec2f im_size( (float) src.SX(), (float) src.SY() );
 
     const float max_radius = max_ring_radius( ring_center, im_size );
-    const float dr = 1;
+
     const unsigned num_of_rings = unsigned( max_radius / dr );
 
     for( int z=0; z<src.SZ(); z++ )
@@ -266,15 +266,12 @@ void RingsReduction::unname_method( const Data3D<short>& src, Data3D<short>& dst
 
 void RingsReduction::polarRD( const Data3D<short>& src, Data3D<short>& dst,
                               const PolarRDOption& o, const float dr,
+                              const float& center_x,
+                              const float& center_y,
                               vector<double>* pCorrection )
 {
     smart_assert( &src!=&dst,
                   "The destination file is the same as the orignal. " );
-
-    // TODO: set the center as parameters
-    // TODO: change them to float
-    const float center_x = 234; // 234;
-    const float center_y = 270; // 270;
 
     // TODO: do it on a 3D volume
     const int center_z = src.SZ() / 2;
@@ -309,7 +306,7 @@ void RingsReduction::polarRD( const Data3D<short>& src, Data3D<short>& dst,
     for( int ri = 0; ri<num_of_rings-1; ri++ )
     {
         correction[ri] = diff_func( src.getMat(center_z),
-                                    ring_center, ri, 100, dr );
+                                    ring_center, ri, 100/dr, dr );
     }
 
     correct_image( src, dst, correction, center_z, ring_center, dr );
@@ -367,7 +364,7 @@ void RingsReduction::AccumulatePolarRD( const Data3D<short>& src, Data3D<short>&
         correction[ri] += correction[ri+1];
     }
 
-    double offset = correction[100];
+    double offset = correction[100/dr];
     for( unsigned ri = 0; ri<num_of_rings; ri++ )
     {
         correction[ri] -= offset;
