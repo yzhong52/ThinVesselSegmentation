@@ -55,10 +55,10 @@ int main()
     if( !flag ) return 0;
 
     // calculating the centre of the ring
-    Vec2f centre = RR::get_ring_centre( im_short, cv::Vec2i( 234, 270 ), 21, 20 );
-    cout << centre << endl;
-    waitKey(0);
-    return 0;
+    Vec2f centre = RR::get_ring_centre( im_short, cv::Vec2i( 234, 270 ), 31, 20 );
+//    cout << centre << endl;
+//    waitKey(0);
+//    return 0;
 
 
 
@@ -100,7 +100,7 @@ int main()
     save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "polar_med_diff_v1.png" );
 
     RR::AccumulatePolarRD( im_short, im_rduct, RR::MED_DIFF,
-                           0.2f, 233.75f, 269.75f );
+                           0.2f, 233.6f, 269.6f );
     save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal,
                 "polar_med_diff_v1_subpixel.png" );
 
@@ -112,14 +112,14 @@ int main()
                 "polar_avg_diff.png" );
 
     RR::polarRD( im_short, im_rduct, RR::AVG_DIFF,
-                 1.0f, 233.75f, 269.75f  );
+                 1.0f, 233.6f, 269.6f  );
     save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal,
                 "polar_avg_diff_subpixel.png" );
 
     RR::polarRD( im_short, im_rduct, RR::AVG_DIFF,
-                 0.2f, 233.75f, 269.75f  );
+                 0.2f, 233.6f, 269.6f, 0.2f );
     save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal,
-                "polar_avg_diff_subpixel.png" );
+                "polar_avg_diff_subpixel_0.2gap.png" );
 
 
 
@@ -134,9 +134,9 @@ int main()
                 "polar_med_diff_subpixel.png" );
 
     RR::polarRD( im_short, im_rduct, RR::MED_DIFF,
-                 0.2f, 233.75f, 269.75f  );
+                 0.2f, 233.6f, 269.6f, 0.2f  );
     save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal,
-                "polar_med_diff_0.2dr_subpixel.png" );
+                "polar_med_diff_subpixel_0.2gap.png" );
 
 
 
@@ -144,11 +144,11 @@ int main()
     RR::sijbers( im_short, im_rduct, 1.0f );
     save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "sijbers.png" );
 
-    RR::sijbers( im_short, im_rduct, 1.0f, 233.75f, 269.75f );
+    RR::sijbers( im_short, im_rduct, 1.0f, 233.6f, 269.6f );
     save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "sijbers_subpixel.png" );
 
-    RR::sijbers( im_short, im_rduct, 0.2f, 233.75f, 269.75f );
-    save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "sijbers_0.2dr_subpixel.png" );
+    RR::sijbers( im_short, im_rduct, 0.2f, 233.6f, 269.6f );
+    save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "sijbers_subpixel_0.2dr.png" );
 
     return 0;
 }

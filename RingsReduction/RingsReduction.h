@@ -20,6 +20,7 @@ public:
                          const PolarRDOption& o, const float dr = 1.0f,
                          const float& center_x = 234,
                          const float& center_y = 270,
+                         const float& subpixel_on_ring = 1.0f,
                          std::vector<double>* pCorrection = nullptr );
     // an mutation of the above function
     // computing the correction in a accumulative manner
@@ -95,27 +96,31 @@ private:
                                const cv::Vec2f& ring_center,
                                const int& rid1,
                                const int& rid2,
-                               const double& dr );
+                               const double& dr,
+                               const float& subpixel_on_ring = 1.0f );
 
     /// Median difference between two rings
     static double med_diff_v2( const cv::Mat_<short>& m,
                                const cv::Vec2f& ring_center,
                                const int& rid1,
                                const int& rid2,
-                               const double& dr );
+                               const double& dr,
+                               const float& subpixel_on_ring = 1.0f );
 
     /// average intensity on rings
     static double avg_on_ring( const cv::Mat_<short>& m,
                                const cv::Vec2f& ring_center,
                                const int& rid,
-                               const double& dr);
+                               const double& dr,
+                               const float& subpixel_on_ring = 1.0f );
 
     /// median intensity on ring
     template<class T>
     static double med_on_ring( const cv::Mat_<T>& m,
                                const cv::Vec2f& ring_center,
                                const int& rid,
-                               const double& dr);
+                               const double& dr,
+                               const float& subpixel_on_ring = 1.0f );
 
     /// Adjust image with give correction vector
     static void correct_image( const Data3D<short>& src, Data3D<short>& dst,
@@ -157,13 +162,14 @@ template<class T>
 double RingsReduction::med_on_ring( const cv::Mat_<T>& m,
                                     const cv::Vec2f& ring_center,
                                     const int& rid,
-                                    const double& dr)
+                                    const double& dr,
+                                    const float& subpixel_on_ring )
 {
     // radius of the circle
     const double radius = rid * dr;
 
     // the number of pixels on the circumference approximatly
-    const int circumference = std::max( 8, int( 2 * M_PI * radius ) );
+    const int circumference = std::max( 8, int( 2 * M_PI * radius / subpixel_on_ring ) );
 
     std::vector<double> med(1, 0);
 

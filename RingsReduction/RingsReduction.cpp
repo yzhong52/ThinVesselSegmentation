@@ -268,6 +268,7 @@ void RingsReduction::polarRD( const Data3D<short>& src, Data3D<short>& dst,
                               const PolarRDOption& o, const float dr,
                               const float& center_x,
                               const float& center_y,
+                              const float& subpixel_on_ring,
                               vector<double>* pCorrection )
 {
     smart_assert( &src!=&dst,
@@ -283,11 +284,9 @@ void RingsReduction::polarRD( const Data3D<short>& src, Data3D<short>& dst,
 
     const int num_of_rings = int( max_radius / dr );
 
-    double (*diff_func)(const cv::Mat_<short>&,
-                        const cv::Vec2f&,
-                        const int&,
-                        const int&,
-                        const double&) = nullptr;
+    double (*diff_func)(const cv::Mat_<short>&, const cv::Vec2f&,
+                        const int&, const int&, const double&,
+                        const float& ) = nullptr;
     switch (o )
     {
     case AVG_DIFF:
@@ -301,12 +300,16 @@ void RingsReduction::polarRD( const Data3D<short>& src, Data3D<short>& dst,
         break;
     }
 
+    // The intensity of this ring is not supposed to be alter, that is,
+    // correction[const_ri] = 0
+    const int const_ri = int( 100/dr );
+
     // compute correction vector
     vector<double> correction( num_of_rings, 0 );
     for( int ri = 0; ri<num_of_rings-1; ri++ )
     {
-        correction[ri] = diff_func( src.getMat(center_z),
-                                    ring_center, ri, 100/dr, dr );
+        correction[ri] = diff_func( src.getMat(center_z), ring_center,
+                                   ri, const_ri, dr, subpixel_on_ring );
     }
 
     correct_image( src, dst, correction, center_z, ring_center, dr );
@@ -364,7 +367,7 @@ void RingsReduction::AccumulatePolarRD( const Data3D<short>& src, Data3D<short>&
         correction[ri] += correction[ri+1];
     }
 
-    double offset = correction[100/dr];
+    double offset = correction[ int(100/dr) ];
     for( unsigned ri = 0; ri<num_of_rings; ri++ )
     {
         correction[ri] -= offset;
@@ -466,10 +469,11 @@ double RingsReduction::avg_diff_v2( const cv::Mat_<short>& m,
                                     const cv::Vec2f& ring_center,
                                     const int& rid1,
                                     const int& rid2,
-                                    const double& dr )
+                                    const double& dr,
+                                    const float& subpixel_on_ring )
 {
-    const double avg1 = avg_on_ring( m, ring_center, rid1, dr );
-    const double avg2 = avg_on_ring( m, ring_center, rid2, dr );
+    const double avg1 = avg_on_ring( m, ring_center, rid1, dr, subpixel_on_ring );
+    const double avg2 = avg_on_ring( m, ring_center, rid2, dr, subpixel_on_ring );
     return avg1 - avg2;
 }
 
@@ -478,10 +482,11 @@ double RingsReduction::med_diff_v2( const cv::Mat_<short>& m,
                                     const cv::Vec2f& ring_center,
                                     const int& rid1,
                                     const int& rid2,
-                                    const double& dr )
+                                    const double& dr,
+                                    const float& subpixel_on_ring )
 {
-    const double med1 = med_on_ring( m, ring_center, rid1, dr );
-    const double med2 = med_on_ring( m, ring_center, rid2, dr );
+    const double med1 = med_on_ring( m, ring_center, rid1, dr, subpixel_on_ring );
+    const double med2 = med_on_ring( m, ring_center, rid2, dr, subpixel_on_ring );
     return med1 - med2;
 }
 
@@ -489,14 +494,14 @@ double RingsReduction::med_diff_v2( const cv::Mat_<short>& m,
 
 double RingsReduction::avg_on_ring( const cv::Mat_<short>& m,
                                     const cv::Vec2f& ring_center,
-                                    const int& rid,
-                                    const double& dr)
+                                    const int& rid, const double& dr,
+                                    const float& subpixel_on_ring )
 {
     // radius of the circle
     const double radius = rid * dr;
 
     // the number of pixels on the circumference approximatly
-    const int circumference = max( 8, int( 2 * M_PI * radius ) );
+    const int circumference = max( 8, int( 2 * M_PI * radius / subpixel_on_ring ) );
 
     int count = 0;
     double sum = 0.0;
