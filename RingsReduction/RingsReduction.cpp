@@ -125,7 +125,7 @@ double RingsReduction::avgI_on_rings( const cv::Mat_<short>& m,
 }
 
 void RingsReduction::sijbers( const Data3D<short>& src, Data3D<short>& dst,
-                                const float& dr,
+                              const float& dr,
                               const float& center_x,
                               const float& center_y,
                               std::vector<double>* pCorrection )

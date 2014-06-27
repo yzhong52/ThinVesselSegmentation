@@ -19,7 +19,7 @@ public:
     static void polarRD( const Data3D<short>& src, Data3D<short>& dst,
                          const PolarRDOption& o, const float dr = 1.0f,
                          const float& center_x = 234,
-                                   const float& center_y = 270,
+                         const float& center_y = 270,
                          std::vector<double>* pCorrection = nullptr );
     // an mutation of the above function
     // computing the correction in a accumulative manner
@@ -31,9 +31,9 @@ public:
 
     /// rings reduction using sijbers's methods
     static void sijbers( const Data3D<short>& src, Data3D<short>& dst,
-                        const float& dr = 1.0f,
-                        const float& center_x = 234,
-                        const float& center_y = 270,
+                         const float& dr = 1.0f,
+                         const float& center_x = 234,
+                         const float& center_y = 270,
 
                          std::vector<double>* pCorrection = nullptr );
 
