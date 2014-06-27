@@ -309,7 +309,7 @@ void RingsReduction::polarRD( const Data3D<short>& src, Data3D<short>& dst,
     for( int ri = 0; ri<num_of_rings-1; ri++ )
     {
         correction[ri] = diff_func( src.getMat(center_z), ring_center,
-                                   ri, const_ri, dr, subpixel_on_ring );
+                                    ri, const_ri, dr, subpixel_on_ring );
     }
 
     correct_image( src, dst, correction, center_z, ring_center, dr );
@@ -601,29 +601,55 @@ void RingsReduction::get_derivative( const cv::Mat_<short>& m,
     /// Computing the gradient of the iamge
     cv::Mat src_gray;
     m.convertTo( src_gray, CV_32F );
-    GaussianBlur( src_gray, src_gray, Size(gksize, gksize), 0, 0, BORDER_DEFAULT );
-
-    /// Generate grad_x and grad_y
-    Mat grad;
-    Mat abs_grad_x, abs_grad_y;
+    cv::GaussianBlur( src_gray, src_gray, Size(gksize, gksize), 0, 0, BORDER_DEFAULT );
 
     /// Gradient X
     int scale = 1;
     int delta = 0;
     int ddepth = CV_32F;
     //Scharr( src_gray, grad_x, ddepth, 1, 0, scale, delta, BORDER_DEFAULT );
-    Sobel( src_gray, grad_x, ddepth, 1, 0, 3, scale, delta, BORDER_DEFAULT );
-    convertScaleAbs( grad_x, abs_grad_x );
+    cv::Sobel( src_gray, grad_x, ddepth, 1, 0, 3, scale, delta, BORDER_DEFAULT );
+
 
     /// Gradient Y
     //Scharr( src_gray, grad_y, ddepth, 0, 1, scale, delta, BORDER_DEFAULT );
-    Sobel( src_gray, grad_y, ddepth, 0, 1, 3, scale, delta, BORDER_DEFAULT );
+    cv::Sobel( src_gray, grad_y, ddepth, 0, 1, 3, scale, delta, BORDER_DEFAULT );
+
+    cv::Mat grad_y_norm, grad_x_norm, grad_norm;
+
+    cv::normalize(grad_y, grad_y_norm, 0, 255, NORM_MINMAX, CV_8UC1);
+    cv::normalize(grad_x, grad_x_norm, 0, 255, NORM_MINMAX, CV_8UC1);
+
+    cv::imshow( "Gradient grad_y_norm", grad_y_norm );
+    cv::imshow( "Gradient grad_x_norm", grad_x_norm );
+
+
+    /// Generate grad_x and grad_y
+
+    Mat abs_grad_x, abs_grad_y;
+    convertScaleAbs( grad_x, abs_grad_x );
     convertScaleAbs( grad_y, abs_grad_y );
 
-    /// Total Gradient (approximate)
-    addWeighted( abs_grad_x, 0.5, abs_grad_y, 0.5, 0, grad );
 
-    cv::imshow( "Gradient", grad );
+
+    Mat grad;
+    /// Total Gradient (approximate)
+    addWeighted( abs_grad_x, 0.5, abs_grad_y, 0.5, 0, grad, CV_32F );
+    for( int y = 0; y < grad.rows; y++ )
+    {
+        for( int x = 0; x < grad.cols; x++ )
+        {
+            grad.at<float>(y,x) =
+                grad_x.at<float>(y,x) * grad_x.at<float>(y,x) +
+                grad_y.at<float>(y,x) * grad_y.at<float>(y,x);
+
+            grad.at<float>(y,x) = sqrt( grad.at<float>(y,x) );
+        }
+    }
+    cv::normalize(grad, grad_norm, 0, 255, NORM_MINMAX, CV_8UC1);
+
+    cv::imshow( "Gradient grad", grad );
+    cv::imshow( "Gradient normalized", grad_norm );
 }
 
 

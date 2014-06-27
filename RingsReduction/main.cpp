@@ -55,10 +55,10 @@ int main()
     if( !flag ) return 0;
 
     // calculating the centre of the ring
-    Vec2f centre = RR::get_ring_centre( im_short, cv::Vec2i( 234, 270 ), 31, 20 );
-//    cout << centre << endl;
-//    waitKey(0);
-//    return 0;
+    Vec2f centre = RR::get_ring_centre( im_short, cv::Vec2i( 234, 270 ), 1, 20 );
+    cout << centre << endl;
+    waitKey(0);
+    return 0;
 
 
 
