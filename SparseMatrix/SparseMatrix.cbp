@@ -4,7 +4,15 @@
 	<Project>
 		<Option title="SparseMatrix" />
 		<Option pch_mode="2" />
-		<Option compiler="gnu_gcc_compiler_x64" />
+		<Option compiler="gcc" />
+		<MakeCommands>
+			<Build command="" />
+			<CompileFile command="" />
+			<Clean command="" />
+			<DistClean command="" />
+			<AskRebuildNeeded command="" />
+			<SilentBuild command=" &gt; $(CMD_NULL)" />
+		</MakeCommands>
 		<Build>
 			<Target title="Debug">
 				<Option output="../libs/Debug/SparseMatrix" prefix_auto="1" extension_auto="1" />
@@ -62,9 +70,6 @@
 				</Linker>
 			</Target>
 		</Build>
-		<Compiler>
-			<Add option="-fopenmp" />
-		</Compiler>
 		<Unit filename="CBLAS/daxpy.c">
 			<Option compilerVar="CC" />
 		</Unit>

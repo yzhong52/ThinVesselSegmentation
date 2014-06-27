@@ -4,7 +4,7 @@
 	<Project>
 		<Option title="SparseMatrixCV" />
 		<Option pch_mode="2" />
-		<Option compiler="gnu_gcc_compiler_x64" />
+		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
 				<Option output="../libs/Debug/SparseMatrixCV" prefix_auto="1" extension_auto="1" />

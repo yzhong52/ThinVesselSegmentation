@@ -157,11 +157,14 @@ public:
 
     // loading/saving data from/to file
     bool load( const std::string& file_name );
-    bool load( const std::string& file_name, const cv::Vec3i& size, bool isBigEndian=true, bool isLoadPartial=false );
+    bool load( const std::string& file_name, const cv::Vec3i& size,
+               bool isBigEndian=true, bool isLoadPartial=false );
     bool save( const std::string& file_name, const std::string& log = "",
                bool saveInfo = true, bool isBigEndian = false ) const;
-    void show( const std::string& window_name = "Show 3D Data by Slice", int current_slice = 0 ) const;
-    void show( const std::string& window_name, int current_slice, T max_value, T min_value ) const;
+    void show( const std::string& window_name = "Show 3D Data by Slice",
+               int current_slice = 0 ) const;
+    void show( const std::string& window_name, int current_slice,
+               T max_value, T min_value ) const;
 
     // overwrite operators
     template<typename T1, typename T2>

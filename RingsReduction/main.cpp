@@ -28,7 +28,8 @@ void save_slice( const Data3D<short>& im, const int& slice,
 }
 
 void save_slice( Mat im, const double& minVal, const double& maxVal,
-                 const string& name, const Vec2i& center )
+                 const string& name, const Vec2i& center,
+                 Vec3b center_color = Vec3b(0, 0, 255) )
 {
     // change the data type from whatever dataype it is to float for computation
     im.convertTo(im, CV_32F);
@@ -39,7 +40,7 @@ void save_slice( Mat im, const double& minVal, const double& maxVal,
     // convert back to CV_8U for visualizaiton
     im.convertTo(im, CV_8UC3);
     // draw the cnetre point on the image
-    im.at<Vec3b>(center[1], center[0]) = Vec3b(0, 0, 255);
+    im.at<Vec3b>(center[1], center[0]) = center_color;
     // save file
     cv::imwrite( "output/" + name, im );
 }
@@ -49,8 +50,18 @@ int main()
 {
     // laoding data
     Data3D<short> im_short;
-    bool flag = im_short.load( "../temp/vessel3d.data", Vec3i(585, 525, 10), true, true );
+    bool flag = im_short.load( "../temp/vessel3d.data", Vec3i(585, 525, 10),
+                               true, true );
     if( !flag ) return 0;
+
+    // calculating the centre of the ring
+    Vec2f centre = RR::get_ring_centre( im_short, cv::Vec2i( 234, 270 ), 1, 20 );
+    cout << centre << endl;
+    waitKey(0);
+    return 0;
+
+
+
 
     vector<double> diffs = RR::distri_of_diff( im_short.getMat( im_short.SZ()/2 ),
                            cv::Vec2f( 234, 270 ), 50, 51, 1.0f );
@@ -78,7 +89,8 @@ int main()
 
     // save the original data with centre point
     Mat m = im_short.getMat( im_short.SZ()/2 );
-    save_slice( m, minVal, maxVal, "original.png", Vec2i(234, 270) );
+    save_slice( m, minVal, maxVal, "original_234_270.png", Vec2i(234, 270) );
+    save_slice( m, minVal, maxVal, "original_233_269.png", Vec2i(233, 269) );
 
 
     Data3D<short> im_rduct, im_rduct2;
@@ -87,32 +99,56 @@ int main()
     RR::AccumulatePolarRD( im_short, im_rduct, RR::MED_DIFF, 0.2f );
     save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "polar_med_diff_v1.png" );
 
-    RR::AccumulatePolarRD( im_short, im_rduct, RR::MED_DIFF, 0.2f, 233.5f, 269.5f );
-    save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "polar_med_diff_v1_subpixel.png" );
-
-//    RR::AccumulatePolarRD( im_rduct, im_rduct2, RR::MED_DIFF, 0.2f, &correction );
-//    save_slice( im_rduct2, im_rduct2.SZ()/2, minVal, maxVal, "polar_med_diff_v1_2.png" );
-
-
-    RR::polarRD( im_short, im_rduct, RR::AVG_DIFF, 0.2f, &correction );
-    save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "polar_avg_diff.png" );
-
-//    RR::polarRD( im_rduct, im_rduct2, RR::AVG_DIFF, 0.2f, &correction );
-//    save_slice( im_rduct2, im_rduct2.SZ()/2, minVal, maxVal, "polar_avg_diff_2.png" );
+    RR::AccumulatePolarRD( im_short, im_rduct, RR::MED_DIFF,
+                           0.2f, 233.6f, 269.6f );
+    save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal,
+                "polar_med_diff_v1_subpixel.png" );
 
 
-    RR::polarRD( im_short, im_rduct, RR::MED_DIFF, 0.2f, &correction );
-    save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "polar_med_diff.png" );
 
-//    RR::polarRD( im_rduct, im_rduct2, RR::MED_DIFF, 0.2f, &correction );
-//    save_slice( im_rduct2, im_rduct2.SZ()/2, minVal, maxVal, "polar_med_diff_2.png" );
+    RR::polarRD( im_short, im_rduct, RR::AVG_DIFF,
+                 1.0f );
+    save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal,
+                "polar_avg_diff.png" );
+
+    RR::polarRD( im_short, im_rduct, RR::AVG_DIFF,
+                 1.0f, 233.6f, 269.6f  );
+    save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal,
+                "polar_avg_diff_subpixel.png" );
+
+    RR::polarRD( im_short, im_rduct, RR::AVG_DIFF,
+                 0.2f, 233.6f, 269.6f, 0.2f );
+    save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal,
+                "polar_avg_diff_subpixel_0.2gap.png" );
 
 
-    return 0;
 
-    RR::sijbers( im_short, im_rduct, &correction );
+
+    RR::polarRD( im_short, im_rduct, RR::MED_DIFF, 1.0f );
+    save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal,
+                "polar_med_diff.png" );
+
+    RR::polarRD( im_short, im_rduct, RR::MED_DIFF,
+                 1.0f, 233.5f, 269.5f  );
+    save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal,
+                "polar_med_diff_subpixel.png" );
+
+    RR::polarRD( im_short, im_rduct, RR::MED_DIFF,
+                 0.2f, 233.6f, 269.6f, 0.2f  );
+    save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal,
+                "polar_med_diff_subpixel_0.2gap.png" );
+
+
+
+
+    RR::sijbers( im_short, im_rduct, 1.0f );
     save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "sijbers.png" );
-    CVPlot::draw( "sijbers_plot.png", correction );
+
+    RR::sijbers( im_short, im_rduct, 1.0f, 233.6f, 269.6f );
+    save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "sijbers_subpixel.png" );
+
+    RR::sijbers( im_short, im_rduct, 0.2f, 233.6f, 269.6f );
+    save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "sijbers_subpixel_0.2dr.png" );
 
     return 0;
 }

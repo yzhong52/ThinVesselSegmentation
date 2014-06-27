@@ -125,11 +125,11 @@ double RingsReduction::avgI_on_rings( const cv::Mat_<short>& m,
 }
 
 void RingsReduction::sijbers( const Data3D<short>& src, Data3D<short>& dst,
+                              const float& dr,
+                              const float& center_x,
+                              const float& center_y,
                               std::vector<double>* pCorrection )
 {
-    // TODO: set the center as parameters
-    const float center_x = 234;
-    const float center_y = 270;
     const int wsize = 15;
 
     if( &dst!=&src)
@@ -154,7 +154,7 @@ void RingsReduction::sijbers( const Data3D<short>& src, Data3D<short>& dst,
     const Vec2f im_size( (float) src.SX(), (float) src.SY() );
 
     const float max_radius = max_ring_radius( ring_center, im_size );
-    const float dr = 1;
+
     const unsigned num_of_rings = unsigned( max_radius / dr );
 
     for( int z=0; z<src.SZ(); z++ )
@@ -266,15 +266,13 @@ void RingsReduction::unname_method( const Data3D<short>& src, Data3D<short>& dst
 
 void RingsReduction::polarRD( const Data3D<short>& src, Data3D<short>& dst,
                               const PolarRDOption& o, const float dr,
+                              const float& center_x,
+                              const float& center_y,
+                              const float& subpixel_on_ring,
                               vector<double>* pCorrection )
 {
     smart_assert( &src!=&dst,
                   "The destination file is the same as the orignal. " );
-
-    // TODO: set the center as parameters
-    // TODO: change them to float
-    const float center_x = 234; // 234;
-    const float center_y = 270; // 270;
 
     // TODO: do it on a 3D volume
     const int center_z = src.SZ() / 2;
@@ -286,11 +284,9 @@ void RingsReduction::polarRD( const Data3D<short>& src, Data3D<short>& dst,
 
     const int num_of_rings = int( max_radius / dr );
 
-    double (*diff_func)(const cv::Mat_<short>&,
-                        const cv::Vec2f&,
-                        const int&,
-                        const int&,
-                        const double&) = nullptr;
+    double (*diff_func)(const cv::Mat_<short>&, const cv::Vec2f&,
+                        const int&, const int&, const double&,
+                        const float& ) = nullptr;
     switch (o )
     {
     case AVG_DIFF:
@@ -304,12 +300,16 @@ void RingsReduction::polarRD( const Data3D<short>& src, Data3D<short>& dst,
         break;
     }
 
+    // The intensity of this ring is not supposed to be alter, that is,
+    // correction[const_ri] = 0
+    const int const_ri = int( 100/dr );
+
     // compute correction vector
     vector<double> correction( num_of_rings, 0 );
     for( int ri = 0; ri<num_of_rings-1; ri++ )
     {
-        correction[ri] = diff_func( src.getMat(center_z),
-                                    ring_center, ri, 100, dr );
+        correction[ri] = diff_func( src.getMat(center_z), ring_center,
+                                    ri, const_ri, dr, subpixel_on_ring );
     }
 
     correct_image( src, dst, correction, center_z, ring_center, dr );
@@ -367,7 +367,7 @@ void RingsReduction::AccumulatePolarRD( const Data3D<short>& src, Data3D<short>&
         correction[ri] += correction[ri+1];
     }
 
-    double offset = correction[100];
+    double offset = correction[ int(100/dr) ];
     for( unsigned ri = 0; ri<num_of_rings; ri++ )
     {
         correction[ri] -= offset;
@@ -469,10 +469,11 @@ double RingsReduction::avg_diff_v2( const cv::Mat_<short>& m,
                                     const cv::Vec2f& ring_center,
                                     const int& rid1,
                                     const int& rid2,
-                                    const double& dr )
+                                    const double& dr,
+                                    const float& subpixel_on_ring )
 {
-    const double avg1 = avg_on_ring( m, ring_center, rid1, dr );
-    const double avg2 = avg_on_ring( m, ring_center, rid2, dr );
+    const double avg1 = avg_on_ring( m, ring_center, rid1, dr, subpixel_on_ring );
+    const double avg2 = avg_on_ring( m, ring_center, rid2, dr, subpixel_on_ring );
     return avg1 - avg2;
 }
 
@@ -481,10 +482,11 @@ double RingsReduction::med_diff_v2( const cv::Mat_<short>& m,
                                     const cv::Vec2f& ring_center,
                                     const int& rid1,
                                     const int& rid2,
-                                    const double& dr )
+                                    const double& dr,
+                                    const float& subpixel_on_ring )
 {
-    const double med1 = med_on_ring( m, ring_center, rid1, dr );
-    const double med2 = med_on_ring( m, ring_center, rid2, dr );
+    const double med1 = med_on_ring( m, ring_center, rid1, dr, subpixel_on_ring );
+    const double med2 = med_on_ring( m, ring_center, rid2, dr, subpixel_on_ring );
     return med1 - med2;
 }
 
@@ -492,14 +494,14 @@ double RingsReduction::med_diff_v2( const cv::Mat_<short>& m,
 
 double RingsReduction::avg_on_ring( const cv::Mat_<short>& m,
                                     const cv::Vec2f& ring_center,
-                                    const int& rid,
-                                    const double& dr)
+                                    const int& rid, const double& dr,
+                                    const float& subpixel_on_ring )
 {
     // radius of the circle
     const double radius = rid * dr;
 
     // the number of pixels on the circumference approximatly
-    const int circumference = max( 8, int( 2 * M_PI * radius ) );
+    const int circumference = max( 8, int( 2 * M_PI * radius / subpixel_on_ring ) );
 
     int count = 0;
     double sum = 0.0;
@@ -587,6 +589,190 @@ std::vector<double> RingsReduction::distri_of_diff( const cv::Mat_<short>& m,
 
     return diffs;
 }
+
+
+
+
+void RingsReduction::get_derivative( const cv::Mat_<short>& m,
+                                     Mat_<float>& grad_x,
+                                     Mat_<float>& grad_y,
+                                     const int& gksize )
+{
+    /// Computing the gradient of the iamge
+    cv::Mat src_gray;
+    m.convertTo( src_gray, CV_32F );
+    cv::GaussianBlur( src_gray, src_gray, Size(gksize, gksize), 0, 0, BORDER_DEFAULT );
+
+    /// Gradient X
+    int scale = 1;
+    int delta = 0;
+    int ddepth = CV_32F;
+    //Scharr( src_gray, grad_x, ddepth, 1, 0, scale, delta, BORDER_DEFAULT );
+    cv::Sobel( src_gray, grad_x, ddepth, 1, 0, 3, scale, delta, BORDER_DEFAULT );
+
+
+    /// Gradient Y
+    //Scharr( src_gray, grad_y, ddepth, 0, 1, scale, delta, BORDER_DEFAULT );
+    cv::Sobel( src_gray, grad_y, ddepth, 0, 1, 3, scale, delta, BORDER_DEFAULT );
+
+    cv::Mat grad_y_norm, grad_x_norm, grad_norm;
+
+    cv::normalize(grad_y, grad_y_norm, 0, 255, NORM_MINMAX, CV_8UC1);
+    cv::normalize(grad_x, grad_x_norm, 0, 255, NORM_MINMAX, CV_8UC1);
+
+    cv::imshow( "Gradient grad_y_norm", grad_y_norm );
+    cv::imshow( "Gradient grad_x_norm", grad_x_norm );
+
+
+    /// Generate grad_x and grad_y
+
+    Mat abs_grad_x, abs_grad_y;
+    convertScaleAbs( grad_x, abs_grad_x );
+    convertScaleAbs( grad_y, abs_grad_y );
+
+
+
+    Mat grad;
+    /// Total Gradient (approximate)
+    addWeighted( abs_grad_x, 0.5, abs_grad_y, 0.5, 0, grad, CV_32F );
+    for( int y = 0; y < grad.rows; y++ )
+    {
+        for( int x = 0; x < grad.cols; x++ )
+        {
+            grad.at<float>(y,x) =
+                grad_x.at<float>(y,x) * grad_x.at<float>(y,x) +
+                grad_y.at<float>(y,x) * grad_y.at<float>(y,x);
+
+            grad.at<float>(y,x) = sqrt( grad.at<float>(y,x) );
+        }
+    }
+    cv::normalize(grad, grad_norm, 0, 255, NORM_MINMAX, CV_8UC1);
+
+    cv::imshow( "Gradient grad", grad );
+    cv::imshow( "Gradient normalized", grad_norm );
+}
+
+
+
+cv::Vec2f RingsReduction::get_ring_centre( const Data3D<short>& src,
+        const Vec2i& approx_center,
+        const int& gksize,
+        const float& threshold )
+{
+    cv::Mat_<short> m = src.getMat( src.SZ()/2 );
+
+    // compute the derivatives (gradient) of the image
+    Mat_<float> grad_x, grad_y;
+    get_derivative( m, grad_x, grad_y, gksize );
+
+    // TODO: the mask is not necessary, only for validation
+    cv::Mat mask( m.rows, m.cols, CV_8U, Scalar(0) );
+
+    // get the approximate rings center
+    const int& x0 = approx_center[0];
+    const int& y0 = approx_center[1];
+
+    for( int y=0; y<m.rows; y++ )
+    {
+        for( int x=0; x<m.cols; x++ )
+        {
+            const float& dx = grad_x.at<float>(y,x);
+            const float& dy = grad_y.at<float>(y,x);
+
+            // skip if there is no gradient
+            if( abs(dx)>1e-10 || abs(dy)>1e-10 )
+            {
+                if( dist( x, y, x0, y0, dx, dy ) < threshold )
+                {
+                    mask.at<char>(y,x) = (char) 255;
+                }
+            }
+        }
+    }
+    cv::imshow( "mask", mask );
+
+    // visulize some arbitrary point on the mask and the gradient direction
+    cv::Mat grad_dir_sample( m.rows, m.cols, CV_8UC3, Scalar(0) );
+    cvtColor( mask, grad_dir_sample, CV_GRAY2BGR );
+
+    for( int i=0; i<50; i++ )
+    {
+        int x = rand() % m.cols;
+        int y = rand() % m.rows;
+
+        const float& dx = grad_x.at<float>(y,x);
+        const float& dy = grad_y.at<float>(y,x);
+
+        if( mask.at<char>(y,x)==0 )
+        {
+            i--;
+        }
+        else
+        {
+
+            Vec2f dir( dx, dy );
+            dir /= sqrt( dir.dot(dir) );
+            cv::line( grad_dir_sample,
+                      Point( x, y ),
+                      Point( (int)( (float)x + dir[0] * 10), (int)( (float)y + dir[1] * 10 ) ),
+                      Scalar( 255, 0, 255), /*thickness*/2, /*antialiased line*/8, 0 );
+        }
+    }
+    cv::imshow( "grad_dir", grad_dir_sample );
+
+    // computing the centre by solvign the linear system A * X = B
+    Mat_<float> A(0, 2);
+    Mat_<float> B(0, 1);
+    Mat_<float> X; // result (2, 1) matrix
+    for( int y=0; y<m.rows; y++ )
+    {
+        for( int x=0; x<m.cols; x++ )
+        {
+            if( mask.at<char>(y,x) != (char) 255 ) continue;
+
+            const float& dx = grad_x.at<float>(y,x);
+            const float& dy = grad_y.at<float>(y,x);
+
+            const float sqrt_dx2_dy2 = sqrt( dx*dx + dy*dy );
+
+            Mat_<float> Arow(1, 2, 0.0f);
+            Arow(0, 0) =  dy / sqrt_dx2_dy2;
+            Arow(0, 1) = -dx / sqrt_dx2_dy2;
+            A.push_back( Arow );
+
+            Mat_<float> Brow(1, 1, 0.0f);
+            Brow(0, 0) = float( (float)x * dy - (float)y * dx ) / sqrt_dx2_dy2;
+            B.push_back( Brow );
+        }
+    }
+
+    solve(A, B, X, DECOMP_SVD);
+
+    return cv::Vec2f(X);
+}
+
+
+
+
+double RingsReduction::dist( const int& x, const int& y,
+                             const int& x0, const int& y0,
+                             const float& dx, const float& dy )
+{
+    // an arbitrary point on the line (x0 + t * dx, y0 + t * dy )
+    // distance from point (x, y) to a point on the line:
+    //         (x0 + t * dx - x)^2 + (y0 + t * dy - y)^2
+    // Derivative over t:
+    //         2 * (x0 + t * dx - x) * dx + 2 * (y0 + t * dy - y) * dy = 0
+    // Therefore t:
+    //         t = ( (x-x0)*dx + (y-y0)*dy ) / ( dx*dx + dy*dy )
+    const double t = (double) ( float(x-x0)*dx + float(y-y0)*dy ) / ( dx*dx + dy*dy );
+    const double dist_x = x0 + t * dx - x;
+    const double dist_y = y0 + t * dy - y;
+    return sqrt( dist_x*dist_x + dist_y*dist_y );
+}
+
+
+
 
 
 // helper structure

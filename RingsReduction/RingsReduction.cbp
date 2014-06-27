@@ -35,6 +35,22 @@
 					<Add directory="../libs/Release" />
 				</Linker>
 			</Target>
+			<Target title="test">
+				<Option output="bin/Debug/RingsReduction" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-std=c++11" />
+					<Add option="-Wextra" />
+					<Add option="-Wall" />
+					<Add option="-g" />
+					<Add directory="../libs/gtest/include" />
+				</Compiler>
+				<Linker>
+					<Add directory="../libs/Debug" />
+				</Linker>
+			</Target>
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
@@ -55,7 +71,13 @@
 		</Linker>
 		<Unit filename="RingsReduction.cpp" />
 		<Unit filename="RingsReduction.h" />
-		<Unit filename="main.cpp" />
+		<Unit filename="main.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="test/test.cpp">
+			<Option target="test" />
+		</Unit>
 		<Extensions>
 			<code_completion />
 			<envvars />
