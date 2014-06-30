@@ -3,6 +3,9 @@
 
 #include "Data3D.h"
 
+class RingsReduction;
+typedef RingsReduction RR;
+
 class RingsReduction
 {
 public:
@@ -40,25 +43,6 @@ public:
 
     // rings reduction using sijbers's methods (olde implementation)
     static void mm_filter( const Data3D<short>& src, Data3D<short>& dst );
-
-public:
-
-    // Center of ring detection
-    static cv::Vec2f get_ring_centre( const Data3D<short>& src,
-                                      const cv::Vec2i& approx_center,
-                                      const int& gksize = 11,
-                                      const float& threshold = 10.0f );
-
-public:
-
-    static double dist( const int& x, const int& y,
-                        const int& x0, const int& y0,
-                        const float& dx, const float& dy );
-
-    static void get_derivative( const cv::Mat_<short>& m,
-                                cv::Mat_<float>& grad_x,
-                                cv::Mat_<float>& grad_y,
-                                const int& gksize  );
 
 private:
 
@@ -154,7 +138,7 @@ public:
             const double& dr );
 };
 
-typedef RingsReduction RR;
+
 
 
 

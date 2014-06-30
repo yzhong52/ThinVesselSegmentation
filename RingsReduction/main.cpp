@@ -2,6 +2,8 @@
 
 #include "Data3D.h"
 #include "GLViwerCore.h"
+
+#include "RingCentre.h"
 #include "RingsReduction.h"
 #include "CVPlot.h"
 
@@ -54,11 +56,22 @@ int main()
                                true, true );
     if( !flag ) return 0;
 
+
+
+
     // calculating the centre of the ring
-    Vec2f centre = RR::get_ring_centre( im_short, cv::Vec2i( 234, 270 ), 1, 20 );
+    RC::DEBUG_MODE = true;
+    Vec2f centre = RC::threshold_gradient_method(
+                       im_short,
+                       cv::Vec2i( 234, 270 ),
+                       1,
+                       20,
+                       2.6e3 /*Threshold Gradient*/ );
     cout << centre << endl;
     waitKey(0);
     return 0;
+
+
 
 
 

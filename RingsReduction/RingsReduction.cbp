@@ -31,7 +31,6 @@
 					<Add option="-O2" />
 				</Compiler>
 				<Linker>
-					<Add option="-s" />
 					<Add directory="../libs/Release" />
 				</Linker>
 			</Target>
@@ -69,6 +68,8 @@
 			<Add library="libglut.a" />
 			<Add library="libgomp.a" />
 		</Linker>
+		<Unit filename="RingCentre.cpp" />
+		<Unit filename="RingCentre.h" />
 		<Unit filename="RingsReduction.cpp" />
 		<Unit filename="RingsReduction.h" />
 		<Unit filename="main.cpp">

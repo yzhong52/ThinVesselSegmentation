@@ -38,7 +38,6 @@ public:
 };
 
 
-
 template<>
 void GLViewerCore::addObject( const Data3D<unsigned char>& im_uchar, GLViewer::Volumn::RenderMode mode )
 {
