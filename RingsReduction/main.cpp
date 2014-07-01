@@ -19,11 +19,11 @@ void save_slice( const Data3D<short>& im, const int& slice,
 {
     // save the centre slice of result
     Mat dst_norm = im.getMat( slice );
-    // change the data type from whatever dataype it is to float for computation
+    // change the data type from whatever data type it is to float for computation
     dst_norm.convertTo(dst_norm, CV_32F);
     // normalize the data range from whatever it is to [0, 255];
     dst_norm = 255.0f * (  dst_norm - minVal ) / (maxVal - minVal);
-    // convert back to CV_8U for visualizaiton
+    // convert back to CV_8U for visualization
     dst_norm.convertTo(dst_norm, CV_8U);
     // save file
     cv::imwrite( "output/" + name, dst_norm );
@@ -33,15 +33,15 @@ void save_slice( Mat im, const double& minVal, const double& maxVal,
                  const string& name, const Vec2i& center,
                  Vec3b center_color = Vec3b(0, 0, 255) )
 {
-    // change the data type from whatever dataype it is to float for computation
+    // change the data type from whatever data type it is to float for computation
     im.convertTo(im, CV_32F);
     // normalize the data range from whatever it is to [0, 255];
     im = 255.0f * (  im - minVal ) / (maxVal - minVal);
-    // convert grayscale to color image
+    // convert gray scale to color image
     cv::cvtColor(im, im, CV_GRAY2RGB);
-    // convert back to CV_8U for visualizaiton
+    // convert back to CV_8U for visualization
     im.convertTo(im, CV_8UC3);
-    // draw the cnetre point on the image
+    // draw the centre point on the image
     im.at<Vec3b>(center[1], center[0]) = center_color;
     // save file
     cv::imwrite( "output/" + name, im );
@@ -50,24 +50,20 @@ void save_slice( Mat im, const double& minVal, const double& maxVal,
 
 int main()
 {
-    // laoding data
+    // loading data
     Data3D<short> im_short;
     bool flag = im_short.load( "../temp/vessel3d.data", Vec3i(585, 525, 10),
                                true, true );
     if( !flag ) return 0;
 
-
-
-
     // calculating the centre of the ring
     RC::DEBUG_MODE = true;
-    Vec2f centre = RC::threshold_gradient_method(
-                       im_short,
-                       cv::Vec2i( 234, 270 ),
-                       1,
-                       20,
-                       2.6e3 /*Threshold Gradient*/ );
-    cout << centre << endl;
+    Vec2f centre1 = RC::threshold_gradient_method( im_short, Vec2i( 234, 270 ) );
+    cout << centre1 << endl;
+
+    Vec2f centre2 = RC::canny_edges_method( im_short, cv::Vec2i( 234, 270 ) );
+    cout << centre2 << endl;
+
     waitKey(0);
     return 0;
 
