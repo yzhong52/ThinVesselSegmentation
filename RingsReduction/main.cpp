@@ -58,11 +58,17 @@ int main()
 
     // calculating the centre of the ring
     RC::DEBUG_MODE = true;
-    Vec2f centre1 = RC::threshold_gradient_method( im_short, Vec2i( 234, 270 ) );
+    RC::output_prefix = "output/gradient/";
+    Vec2f centre1 = RC::method_threshold_gradient( im_short, Vec2i( 234, 270 ) );
     cout << centre1 << endl;
 
-    Vec2f centre2 = RC::canny_edges_method( im_short, cv::Vec2i( 234, 270 ) );
+    RC::output_prefix = "output/canny/";
+    Vec2f centre2 = RC::method_canny_edges( im_short, cv::Vec2i( 234, 270 ) );
     cout << centre2 << endl;
+
+    RC::output_prefix = "output/canny angle/";
+    Vec2f centre3 = RC::method_canny_edges_angle( im_short, cv::Vec2i( 234, 270 ) );
+    cout << centre3 << endl;
 
     waitKey(0);
     return 0;

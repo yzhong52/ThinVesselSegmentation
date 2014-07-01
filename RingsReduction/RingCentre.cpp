@@ -9,7 +9,7 @@ bool RingCentre::DEBUG_MODE = false;
 std::string RingCentre::output_prefix = "output/RingCentre - ";
 
 
-cv::Vec2f RingCentre::threshold_gradient_method( const Data3D<short>& src,
+cv::Vec2f RingCentre::method_threshold_gradient( const Data3D<short>& src,
         const Vec2i& approx_centre,
         const double& sigma,
         const float& threshold_distance,
@@ -32,7 +32,7 @@ cv::Vec2f RingCentre::threshold_gradient_method( const Data3D<short>& src,
 
     cv::Mat mask;
     RingCentre::threshold_distance_to_centre( approx_centre, grad_x, grad_y,
-                                  threshold_distance, mask );
+            threshold_distance, mask );
     if( DEBUG_MODE )
     {
         save_image("Mask - Distance to Centre", mask );
@@ -82,7 +82,8 @@ cv::Vec2f RingCentre::least_square( const cv::Mat_<float>& grad_x,
     {
         for( int x=0; x<cols; x++ )
         {
-            if( mask.at<unsigned char>(y, x) != (unsigned char)255 ) {
+            if( mask.at<unsigned char>(y, x) != (unsigned char)255 )
+            {
                 continue;
             }
 
@@ -108,7 +109,50 @@ cv::Vec2f RingCentre::least_square( const cv::Mat_<float>& grad_x,
 }
 
 
-// Generate a mask from a distance to the centre
+
+void RingCentre::threshold_angle_to_centre( const cv::Vec2i& approx_centre,
+            const cv::Mat_<float>& grad_x,
+            const cv::Mat_<float>& grad_y,
+            const float& threshold_degree,
+            cv::Mat& mask )
+{
+    smart_assert( grad_x.cols==grad_y.cols, "Size of the grad image should match. " );
+    smart_assert( grad_x.rows==grad_y.rows, "Size of the grad image should match. " );
+
+    const int& rows = grad_x.rows;
+    const int& cols = grad_x.cols;
+
+    mask = Mat( rows, cols, CV_8U, cv::Scalar(0) );
+
+    const float threshold = std::abs( (float) std::cos( threshold_degree / 180 * M_PI + M_PI_2 ) );
+
+    for( int y=0; y<rows; y++ )
+    {
+        for( int x=0; x<cols; x++ )
+        {
+            const float& dx = grad_x.at<float>(y,x);
+            const float& dy = grad_y.at<float>(y,x);
+
+
+            const Vec2f dir(-dy, dx);
+            const Vec2f dir2( (float)(x - approx_centre[0]), (float)(y - approx_centre[1]) );
+
+            const float dir_len = sqrt( dir.dot( dir ) );
+            const float dir2_len = sqrt( dir2.dot( dir2) );
+
+            if( dir_len < 1e-5 || dir2_len < 1e-5 ) continue;
+
+            const float value = dir.dot( dir2 ) / ( dir_len * dir2_len );
+            if( std::abs(value) < threshold )
+            {
+                mask.at<unsigned char>(y,x) = (unsigned char)255;
+            }
+
+        }
+    }
+}
+
+
 void RingCentre::threshold_distance_to_centre( const cv::Vec2i& approx_centre,
         const cv::Mat_<float>& grad_x,
         const cv::Mat_<float>& grad_y,
@@ -129,7 +173,6 @@ void RingCentre::threshold_distance_to_centre( const cv::Vec2i& approx_centre,
         {
             const float& dx = grad_x.at<float>(y,x);
             const float& dy = grad_y.at<float>(y,x);
-            // skip if there is no gradient
 
             if( distance_to_line( approx_centre, Vec2i(x,y), Vec2f(dx,dy) ) <  threshold )
             {
@@ -141,17 +184,12 @@ void RingCentre::threshold_distance_to_centre( const cv::Vec2i& approx_centre,
 }
 
 
-cv::Vec2f RingCentre::canny_edges_method( const Data3D<short>& src,
-        const cv::Vec2i& approx_centre,
-        const double& threshold1,
-        const double& threshold2,
-        const double& sigma,
-        const float& threshold_distance )
+void RingCentre::canny_edge( const cv::Mat_<short>& m,
+                             const double& threshold1,
+                             const double& threshold2,
+                             const double& sigma,
+                             cv::Mat& mask_edges )
 {
-
-    /// a slice of the data
-    const cv::Mat_<short> m = src.getMat( src.SZ()/2 );
-
     /// Input matrix for Canny Edge Detector
     cv::Mat cannyInput;
     m.convertTo( cannyInput, CV_32F );
@@ -160,52 +198,99 @@ cv::Vec2f RingCentre::canny_edges_method( const Data3D<short>& src,
     cv::GaussianBlur( cannyInput, cannyInput,
                       cv::Size(0,0), /*Size is computed from sigma*/
                       sigma, sigma,  /*sigma along x and y axis*/
-                      BORDER_DEFAULT );
+                      cv::BORDER_DEFAULT );
 
     /// Canny Edge Detector Input must be CV_8U
-    cv::normalize( cannyInput, cannyInput, 0, 255, NORM_MINMAX, CV_8UC1 );
+    cv::normalize( cannyInput, cannyInput, 0, 255, cv::NORM_MINMAX, CV_8UC1 );
     cannyInput.convertTo( cannyInput, CV_8U );
 
     const int apertureSize = 3;
 
-    cv::Mat mask_edges;
     cv::Canny( cannyInput, mask_edges, threshold1, threshold2, apertureSize, true );
+}
 
-    if( DEBUG_MODE ){
-        save_image( "Mask - Canny Edges", mask_edges );
-    }
+cv::Vec2f RingCentre::method_canny_edges( const Data3D<short>& src,
+        const cv::Vec2i& approx_centre,
+        const double& threshold1,
+        const double& threshold2,
+        const double& sigma,
+        const float& threshold_distance )
+{
+    /// a slice of the data
+    const cv::Mat_<short> m = src.getMat( src.SZ()/2 );
 
+    /// Input matrix for Canny Edge Detector
+    cv::Mat mask_edges;
+    canny_edge( m, threshold1, threshold2, sigma, mask_edges );
 
     /// compute the derivatives (gradient) of the image
     Mat_<float> grad_x, grad_y;
     Mat grad;
     RingCentre::get_image_gradient( m, grad_x, grad_y, grad, sigma );
 
-    if( DEBUG_MODE )
-    {
-        save_image( "Gradient Y", grad_y );
-        save_image( "Gradient X", grad_x );
-        save_image( "Gradient X2+Y2", grad );
-    }
-
+    /// Distance to the centre of the ring
     cv::Mat mask;
     RingCentre::threshold_distance_to_centre( approx_centre, grad_x, grad_y,
-                                  threshold_distance, mask );
-    if( DEBUG_MODE )
-    {
-        save_image("Mask - Distance to Centre", mask );
-    }
+            threshold_distance, mask );
 
     Mat mask3;
     mask.copyTo( mask3, mask_edges );
+
     if( DEBUG_MODE )
     {
+        save_image( "Mask - Canny Edges", mask_edges );
+        save_image( "Gradient Y", grad_y );
+        save_image( "Gradient X", grad_x );
+        save_image( "Gradient X2+Y2", grad );
+        save_image("Mask - Distance to Centre", mask );
         save_image("Mask - Distance to Centre && Canny", mask3 );
     }
 
-    return Vec2f(0,0);
+    return least_square( grad_x, grad_y, mask3 );
 }
 
+
+cv::Vec2f RingCentre::method_canny_edges_angle( const Data3D<short>& src,
+        const cv::Vec2i& approx_centre,
+        const double& threshold1,
+        const double& threshold2,
+        const double& sigma,
+        const float& threshold_degree )
+{
+
+
+        /// a slice of the data
+    const cv::Mat_<short> m = src.getMat( src.SZ()/2 );
+
+    /// Input matrix for Canny Edge Detector
+    cv::Mat mask_edges;
+    canny_edge( m, threshold1, threshold2, sigma, mask_edges );
+
+    /// compute the derivatives (gradient) of the image
+    Mat_<float> grad_x, grad_y;
+    Mat grad;
+    RingCentre::get_image_gradient( m, grad_x, grad_y, grad, sigma );
+
+    /// Distance to the centre of the ring
+    cv::Mat mask;
+    RingCentre::threshold_angle_to_centre( approx_centre, grad_x, grad_y,
+            threshold_degree, mask );
+
+    Mat mask3;
+    mask.copyTo( mask3, mask_edges );
+
+    if( DEBUG_MODE )
+    {
+        save_image( "Mask - Canny Edges", mask_edges );
+        save_image( "Gradient Y", grad_y );
+        save_image( "Gradient X", grad_x );
+        save_image( "Gradient X2+Y2", grad );
+        save_image( "Mask - Angle", mask );
+        save_image( "Mask - Angle && Canny", mask3 );
+    }
+
+    return least_square( grad_x, grad_y, mask3 );
+}
 
 
 void RingCentre::get_image_gradient( const cv::Mat_<short>& m,
@@ -271,6 +356,11 @@ void RingCentre::save_image( const string& name, const Mat& im )
     Mat dst;
     // normalize the image
     cv::normalize(im, dst, 0, 255, NORM_MINMAX, CV_8UC1);
+
     // saving image
-    cv::imwrite( output_prefix + name + ".png", dst );
+    const string filename = output_prefix + name + ".png";
+    bool save_success = cv::imwrite( filename, dst );
+
+    smart_assert( save_success, "Error whiling saving the file '" + filename + "'. "
+                  "Maybe the destination folder does not exist? " );
 }
