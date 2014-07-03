@@ -70,6 +70,10 @@ int main()
     Vec2f centre3 = RC::method_canny_edges_angle( im_short, cv::Vec2i( 234, 270 ) );
     cout << centre3 << endl;
 
+    RC::output_prefix = "output/weighted gradient/";
+    Vec2f centre4 = RC::method_weighted_gradient( im_short, cv::Vec2i( 234, 270 ) );
+    cout << centre4 << endl;
+
     waitKey(0);
     return 0;
 

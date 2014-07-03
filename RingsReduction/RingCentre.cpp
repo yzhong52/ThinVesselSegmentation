@@ -9,6 +9,54 @@ bool RingCentre::DEBUG_MODE = false;
 std::string RingCentre::output_prefix = "output/RingCentre - ";
 
 
+
+cv::Vec2f RingCentre::method_weighted_gradient( const Data3D<short>& src,
+        const cv::Vec2i& approx_centre,
+        const double& sigma,
+        const float& threshold_distance )
+{
+// a slice of the data
+    const cv::Mat_<short> m = src.getMat( src.SZ()/2 );
+
+    // compute the derivatives (gradient) of the image
+    Mat_<float> grad_x, grad_y;
+    Mat grad;
+    RingCentre::get_image_gradient( m, grad_x, grad_y, grad, sigma );
+
+    if( DEBUG_MODE )
+    {
+        save_image( "Gradient Y", grad_y );
+        save_image( "Gradient X", grad_x );
+        save_image( "Gradient X2+Y2", grad );
+    }
+
+    cv::Mat mask;
+    RingCentre::threshold_distance_to_centre( approx_centre, grad_x, grad_y,
+            threshold_distance, mask );
+    if( DEBUG_MODE )
+    {
+        save_image("Mask - Distance to Centre", mask );
+    }
+
+
+    for( int y=0; y<grad.rows; y++ )
+    {
+        for( int x=0; x<grad.cols; x++ )
+        {
+            if( mask.at<unsigned char>(y,x)==0 ){
+                grad.at<float>(y,x) = 0.0;
+            }
+        }
+    }
+
+    if( DEBUG_MODE )
+    {
+        save_image("Mask - Distance to Centre && Gradient", grad );
+    }
+
+    return weighted_least_square( grad_x, grad_y, grad );
+}
+
 cv::Vec2f RingCentre::method_threshold_gradient( const Data3D<short>& src,
         const Vec2i& approx_centre,
         const double& sigma,
@@ -110,11 +158,60 @@ cv::Vec2f RingCentre::least_square( const cv::Mat_<float>& grad_x,
 
 
 
+cv::Vec2f RingCentre::weighted_least_square( const cv::Mat_<float>& grad_x,
+        const cv::Mat_<float>& grad_y,
+        const cv::Mat& weights )
+{
+    smart_assert( grad_x.cols==grad_y.cols && grad_x.cols==weights.cols,
+                  "Size of the grad image should match. " );
+    smart_assert( grad_x.rows==grad_y.rows && grad_x.rows==weights.rows,
+                  "Size of the grad image should match. " );
+
+    smart_assert( weights.type()==CV_32F, "Mask must be of type <float>." )
+
+    // size of the image
+    const int& rows = grad_x.rows;
+    const int& cols = grad_x.cols;
+
+    /// computing the centre by solving the linear system A * X = B
+    Mat_<float> A(0, 2);
+    Mat_<float> B(0, 1);
+    Mat_<float> X; // result (2, 1) matrix
+    for( int y=0; y<rows; y++ )
+    {
+        for( int x=0; x<cols; x++ )
+        {
+            const float& w = weights.at<float>(y, x);
+            if( w > 1e-2 )
+            {
+                const float& dx = grad_x.at<float>(y,x);
+                const float& dy = grad_y.at<float>(y,x);
+
+                const float sqrt_dx2_dy2 = sqrt( dx*dx + dy*dy );
+
+                Mat_<float> Arow(1, 2, 0.0f);
+                Arow(0, 0) =  dy / sqrt_dx2_dy2 *w;
+                Arow(0, 1) = -dx / sqrt_dx2_dy2 *w;
+                A.push_back( Arow );
+
+                Mat_<float> Brow(1, 1, 0.0f);
+                Brow(0, 0) = float( (float)x * dy - (float)y * dx ) / sqrt_dx2_dy2 *w;
+                B.push_back( Brow );
+            }
+        }
+    }
+
+    solve(A, B, X, DECOMP_SVD);
+
+    return cv::Vec2f(X);
+}
+
+
 void RingCentre::threshold_angle_to_centre( const cv::Vec2i& approx_centre,
-            const cv::Mat_<float>& grad_x,
-            const cv::Mat_<float>& grad_y,
-            const float& threshold_degree,
-            cv::Mat& mask )
+        const cv::Mat_<float>& grad_x,
+        const cv::Mat_<float>& grad_y,
+        const float& threshold_degree,
+        cv::Mat& mask )
 {
     smart_assert( grad_x.cols==grad_y.cols, "Size of the grad image should match. " );
     smart_assert( grad_x.rows==grad_y.rows, "Size of the grad image should match. " );
@@ -259,7 +356,7 @@ cv::Vec2f RingCentre::method_canny_edges_angle( const Data3D<short>& src,
 {
 
 
-        /// a slice of the data
+    /// a slice of the data
     const cv::Mat_<short> m = src.getMat( src.SZ()/2 );
 
     /// Input matrix for Canny Edge Detector
@@ -274,7 +371,7 @@ cv::Vec2f RingCentre::method_canny_edges_angle( const Data3D<short>& src,
     /// Distance to the centre of the ring
     cv::Mat mask;
     RingCentre::threshold_angle_to_centre( approx_centre, grad_x, grad_y,
-            threshold_degree, mask );
+                                           threshold_degree, mask );
 
     Mat mask3;
     mask.copyTo( mask3, mask_edges );
