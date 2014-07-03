@@ -20,9 +20,9 @@ public:
 
     /// compute the center of the ring with threshold gradient method
     static cv::Vec2f method_weighted_gradient( const Data3D<short>& src,
-    const cv::Vec2i& approx_centre,
-    const double& sigma = 1.0,
-    const float& threshold_distance = 20.0f ); // Threshold over the gradient
+            const cv::Vec2i& approx_centre,
+            const double& sigma = 1.0,
+            const float& threshold_distance = 20.0f ); // Threshold over the gradient
 
     /// compute the center of the ring with canny edge detector
     static cv::Vec2f method_canny_edges( const Data3D<short>& src,

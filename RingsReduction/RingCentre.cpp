@@ -38,23 +38,15 @@ cv::Vec2f RingCentre::method_weighted_gradient( const Data3D<short>& src,
         save_image("Mask - Distance to Centre", mask );
     }
 
-
-    for( int y=0; y<grad.rows; y++ )
-    {
-        for( int x=0; x<grad.cols; x++ )
-        {
-            if( mask.at<unsigned char>(y,x)==0 ){
-                grad.at<float>(y,x) = 0.0;
-            }
-        }
-    }
+    cv::Mat grad_mask;
+    grad.copyTo( grad_mask, mask );
 
     if( DEBUG_MODE )
     {
-        save_image("Mask - Distance to Centre && Gradient", grad );
+        save_image("Mask - Distance to Centre && Gradient", grad_mask );
     }
 
-    return weighted_least_square( grad_x, grad_y, grad );
+    return weighted_least_square( grad_x, grad_y, grad_mask );
 }
 
 cv::Vec2f RingCentre::method_threshold_gradient( const Data3D<short>& src,

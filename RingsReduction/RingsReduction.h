@@ -21,16 +21,14 @@ public:
     };
     static void polarRD( const Data3D<short>& src, Data3D<short>& dst,
                          const PolarRDOption& o, const float dr = 1.0f,
-                         const float& center_x = 234,
-                         const float& center_y = 270,
+                         const cv::Vec2f& approx_centre = cv::Vec2f(234, 270),
                          const float& subpixel_on_ring = 1.0f,
                          std::vector<double>* pCorrection = nullptr );
     // an mutation of the above function
     // computing the correction in a accumulative manner
     static void AccumulatePolarRD( const Data3D<short>& src, Data3D<short>& dst,
                                    const PolarRDOption& o, const float dr = 1.0f,
-                                   const float& center_x = 234,
-                                   const float& center_y = 270,
+                                   const cv::Vec2f& approx_centre = cv::Vec2f(234, 270),
                                    std::vector<double>* pCorrection = nullptr );
 
     /// rings reduction using sijbers's methods
