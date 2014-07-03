@@ -159,17 +159,17 @@ int main()
         save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "polar_med_diff_subpixel.png" );
 
         RR::polarRD( im_short, im_rduct, RR::MED_DIFF, 0.2f, apprx_centre, 0.2f  );
-        save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal,
-                    "polar_med_diff_subpixel_0.2gap.png" );
+        save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "polar_med_diff_subpixel_0.2gap.png" );
+
 
 
         RR::sijbers( im_short, im_rduct, 1.0f );
         save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "sijbers.png" );
 
-        RR::sijbers( im_short, im_rduct, 1.0f, 233.6f, 269.6f );
+        RR::sijbers( im_short, im_rduct, 1.0f, apprx_centre );
         save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "sijbers_subpixel.png" );
 
-        RR::sijbers( im_short, im_rduct, 0.2f, 233.6f, 269.6f );
+        RR::sijbers( im_short, im_rduct, 0.2f, apprx_centre );
         save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "sijbers_subpixel_0.2dr.png" );
     }
     return 0;
