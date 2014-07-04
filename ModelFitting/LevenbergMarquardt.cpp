@@ -1,7 +1,16 @@
-#include "LevenburgMaquart.h"
+#include "LevenbergMarquardt.h"
+
 #include <iostream>
 #include <iomanip>
 #include <limits>
+#include <omp.h>
+#include <array>
+#include <vector>
+
+#include <sys/types.h> // For serialization
+#include <sys/stat.h>  // For serialization
+#include <unistd.h>    // For serialization
+
 #include "Line3D.h"
 #include "Neighbour26.h"
 #include "Data3D.h"
@@ -9,9 +18,7 @@
 #include "ModelSet.h"
 #include "EnergyFunctions.h"
 #include "SparseMatrixCV/SparseMatrixCV.h"
-#include <omp.h>
-#include <array>
-#include <vector>
+
 
 #if _MSC_VER && !__INTEL_COMPILER
 #include <Windows.h>
@@ -22,8 +29,11 @@ using namespace std;
 using namespace cv;
 
 
-LevenburgMaquart::LevenburgMaquart( const vector<Vec3i>& dataPoints, const vector<int>& labelings,
-                                    const ModelSet<Line3D>& modelset, const Data3D<int>& labelIDs, SmoothCostType smooth_cost_type )
+LevenbergMarquardt::LevenbergMarquardt( const vector<Vec3i>& dataPoints,
+                                        const vector<int>& labelings,
+                                        const ModelSet<Line3D>& modelset,
+                                        const Data3D<int>& labelIDs,
+                                        SmoothCostType smooth_cost_type )
     : tildaP( dataPoints ), labelID( labelings ), labelID3d( labelIDs )
     , modelset( modelset )
     , lines( modelset.models )
@@ -40,7 +50,7 @@ LevenburgMaquart::LevenburgMaquart( const vector<Vec3i>& dataPoints, const vecto
 }
 
 
-void  LevenburgMaquart::Jacobian_projection(
+void  LevenbergMarquardt::Jacobian_projection(
     const Vec3d& X1, const Vec3d& X2,
     const SparseMatrixCV& nablaX1, const SparseMatrixCV& nablaX2,
     const Vec3d& tildeP,           const SparseMatrixCV& nablaTildeP,
@@ -68,7 +78,7 @@ void  LevenburgMaquart::Jacobian_projection(
 }
 
 
-SparseMatrixCV LevenburgMaquart::Jacobian_datacost_for_one( const int& site )
+SparseMatrixCV LevenbergMarquardt::Jacobian_datacost_for_one( const int& site )
 {
     const int label = labelID[site];
     const Line3D* line = lines[label];
@@ -77,7 +87,7 @@ SparseMatrixCV LevenburgMaquart::Jacobian_datacost_for_one( const int& site )
     Vec3d X1, X2;
     line->getEndPoints( X1, X2 );
 
-    // jacobian matrix of the end points of the line
+    // Jacobian matrix of the end points of the line
     const unsigned indecesM1[][2] =
     {
         {0, 0 + label * numParamPerLine},
@@ -107,7 +117,7 @@ SparseMatrixCV LevenburgMaquart::Jacobian_datacost_for_one( const int& site )
 
 
 
-void LevenburgMaquart::Jacobian_smoothcost_quadratic(
+void LevenbergMarquardt::Jacobian_smoothcost_quadratic(
     const int& sitei, const int& sitej,
     SparseMatrixCV& nabla_smooth_cost_i,
     SparseMatrixCV& nabla_smooth_cost_j, void* func_data  )
@@ -180,7 +190,7 @@ void LevenburgMaquart::Jacobian_smoothcost_quadratic(
 }
 
 
-void LevenburgMaquart::Jacobian_smoothcost_abs_esp( const int& sitei, const int& sitej,
+void LevenbergMarquardt::Jacobian_smoothcost_abs_esp( const int& sitei, const int& sitej,
         SparseMatrixCV& nabla_smooth_cost_i,
         SparseMatrixCV& nabla_smooth_cost_j, void* func_data )
 {
@@ -259,7 +269,7 @@ void LevenburgMaquart::Jacobian_smoothcost_abs_esp( const int& sitei, const int&
 //	double temp = PAIRWISE_SMOOTH * oldsmoothcost.first;
 }
 
-void LevenburgMaquart::Jacobian_datacost_thread_func(
+void LevenbergMarquardt::Jacobian_datacost_thread_func(
     vector<double>& Jacobian_nzv,
     vector<unsigned>&    Jacobian_colindx,
     vector<unsigned>&    Jacobian_rowptr,
@@ -296,7 +306,7 @@ void LevenburgMaquart::Jacobian_datacost_thread_func(
 }
 
 
-void LevenburgMaquart::Jacobian_datacosts_openmp(
+void LevenbergMarquardt::Jacobian_datacosts_openmp(
     vector<double>& Jacobian_nzv,
     vector<unsigned>&    Jacobian_colindx,
     vector<unsigned>&    Jacobian_rowptr,
@@ -343,7 +353,7 @@ void LevenburgMaquart::Jacobian_datacosts_openmp(
     }
 }
 
-void LevenburgMaquart::Jacobian_datacosts(
+void LevenbergMarquardt::Jacobian_datacosts(
     vector<double>& Jacobian_nzv,
     vector<unsigned>&    Jacobian_colindx,
     vector<unsigned>&    Jacobian_rowptr,
@@ -358,7 +368,7 @@ void LevenburgMaquart::Jacobian_datacosts(
 
 
 
-void LevenburgMaquart::Jacobian_smoothcost_thread_func(
+void LevenbergMarquardt::Jacobian_smoothcost_thread_func(
     vector<double>& Jacobian_nzv,
     vector<unsigned>&    Jacobian_colindx,
     vector<unsigned>&    Jacobian_rowptr,
@@ -417,7 +427,7 @@ void LevenburgMaquart::Jacobian_smoothcost_thread_func(
 
 
 
-void LevenburgMaquart::Jacobian_smoothcosts_openmp(
+void LevenbergMarquardt::Jacobian_smoothcosts_openmp(
     vector<double>& Jacobian_nzv,
     vector<unsigned>&    Jacobian_colindx,
     vector<unsigned>&    Jacobian_rowptr,
@@ -514,7 +524,7 @@ void LevenburgMaquart::Jacobian_smoothcosts_openmp(
     }
 }
 
-void LevenburgMaquart::Jacobian_smoothcosts_openmp_critical_section(
+void LevenbergMarquardt::Jacobian_smoothcosts_openmp_critical_section(
     vector<double>& Jacobian_nzv,
     vector<unsigned>&    Jacobian_colindx,
     vector<unsigned>&    Jacobian_rowptr,
@@ -562,7 +572,7 @@ void LevenburgMaquart::Jacobian_smoothcosts_openmp_critical_section(
 }
 
 
-void LevenburgMaquart::Jacobian_smoothcosts(
+void LevenbergMarquardt::Jacobian_smoothcosts(
     vector<double>& Jacobian_nzv,
     vector<unsigned>&    Jacobian_colindx,
     vector<unsigned>&    Jacobian_rowptr,
@@ -577,7 +587,11 @@ void LevenburgMaquart::Jacobian_smoothcosts(
 }
 
 
-void LevenburgMaquart::adjust_endpoints( void )
+
+
+
+
+void LevenbergMarquardt::adjust_endpoints( void )
 {
     // update the end points of the line
     vector<double> minT( (int) labelID.size(), (std::numeric_limits<double>::max)() );
@@ -611,7 +625,7 @@ void LevenburgMaquart::adjust_endpoints( void )
     }
 }
 
-void LevenburgMaquart::update_lines( const Mat_<double>& delta )
+void LevenbergMarquardt::update_lines( const Mat_<double>& delta )
 {
     for( unsigned label=0; label < lines.size(); label++ )
     {
@@ -623,31 +637,32 @@ void LevenburgMaquart::update_lines( const Mat_<double>& delta )
     }
 }
 
-void LevenburgMaquart::reestimate( double lambda, SmoothCostType whatSmoothCost, string dataname )
+void LevenbergMarquardt::reestimate( double lambda, SmoothCostType whatSmoothCost, string dataname )
 {
     smart_assert( lines.size()!=0, "No line models available" );
 
     switch( whatSmoothCost )
     {
     case Linear:
-        cout << endl << "LevenburgMaquart::Linear" << endl;
-        using_Jacobian_smoothcost_for_pair = &LevenburgMaquart::Jacobian_smoothcost_abs_esp;
+        cout << endl << "Levenberg Marquardt::Linear" << endl;
+        using_Jacobian_smoothcost_for_pair = &LevenbergMarquardt::Jacobian_smoothcost_abs_esp;
         using_smoothcost_func = &smoothcost_func_linear;
         break;
     case Quadratic:
-        cout << endl << "LevenburgMaquart::Quadratic" << endl;
-        using_Jacobian_smoothcost_for_pair = &LevenburgMaquart::Jacobian_smoothcost_quadratic;
+        cout << endl << "Levenberg Marquardt::Quadratic" << endl;
+        using_Jacobian_smoothcost_for_pair = &LevenbergMarquardt::Jacobian_smoothcost_quadratic;
         using_smoothcost_func = &smoothcost_func_quadratic;
         break;
     }
 
-    double energy_before = 0;
-    energy_before = compute_energy( tildaP, labelID, lines, labelID3d, using_smoothcost_func );
+    double energy_before = compute_energy( tildaP, labelID, lines, labelID3d, using_smoothcost_func );
 
+    // Identity matrix
     const SparseMatrixCV I  = SparseMatrixCV::I( numParam );
 
+    // counting number in
     int energy_increase_count = 0;
-    cout << energy_before << endl;
+
     for( int lmiter = 0; lmiter<50; lmiter++ )
     {
 
@@ -710,22 +725,21 @@ void LevenburgMaquart::reestimate( double lambda, SmoothCostType whatSmoothCost,
         }
         else
         {
-            // if energy is encreasing, reverse the result of this iteration
+            // if energy is increasing, reverse the result of this iteration
             update_lines( X );
             lambda *= 4.12;
             if( ++energy_increase_count>=3 )
             {
                 // If energy_increase_count in three consecutive iterations
-                // then the nenergy is probabaly converged
+                // then the energy is probably converged
                 break;
             }
         }
 
         cout << " New Energy = "  << energy_before << endl << endl;
 
-        cout << "Serialization begin. " << endl;
-        modelset.serialize( dataname + ".Line3DTwoPoint.model" );
-        cout << "Serialization done. " << endl  << endl;
+
+        this->serialize();
     }
 }
 
@@ -737,3 +751,31 @@ void LevenburgMaquart::reestimate( double lambda, SmoothCostType whatSmoothCost,
 //}
 //cout << endl;
 //Sleep(500);
+
+
+
+void LevenbergMarquardt::serialize( void ) const
+{
+    /// Create the directory if it does not exist
+    const string folder = "./serialize_data/";
+    struct stat st = {0};
+    if( stat( folder.c_str(), &st)==-1 )
+    {
+        mkdir( folder.c_str(), 0777);
+    }
+
+    cout << "Serialization begin. " << endl;
+
+    modelset.serialize( folder + "Line3DTwoPoint.model" );
+
+
+
+
+
+    cout << "Serialization done. " << endl  << endl;
+}
+
+void LevenbergMarquardt::deserialize( void )
+{
+
+}

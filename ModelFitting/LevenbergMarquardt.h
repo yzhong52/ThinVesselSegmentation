@@ -15,32 +15,41 @@ template <typename T> class ModelSet;
 extern const double DATA_COST;
 extern const double PAIRWISE_SMOOTH;
 
-class LevenburgMaquart
+class LevenbergMarquardt
 {
 public:
     enum SmoothCostType { Quadratic, Linear };
 
-    LevenburgMaquart( const vector<Vec3i>& dataPoints, const vector<int>& labelings,
-                      const ModelSet<Line3D>& modelset, const Data3D<int>& labelIDs, SmoothCostType smooth_cost_type = Quadratic );
+    LevenbergMarquardt( const vector<Vec3i>& dataPoints,
+                        const vector<int>& labelings,
+                        const ModelSet<Line3D>& modelset,
+                        const Data3D<int>& labelIDs,
+                        SmoothCostType smooth_cost_type = Quadratic );
 
-    // lamda - damping function for levenburg maquart
+    // lamda - damping function for levenburg marquart
     //    the smaller lambda is, the faster it converges
     //    the bigger lambda is, the slower it converges
     void reestimate( double lambda = 1e2, SmoothCostType whatSmoothCost = Linear, string dataname = "" );
 
-private:
-    const vector<Vec3i>& tildaP;   // original points
-    const vector<int>& labelID;
-    const Data3D<int>& labelID3d;
+    /// The algorithm can be paused and resumed after each iteration
+    /// However, the following serialize() and deserialize() are not thread safe
+    void serialize( void ) const;
+    void deserialize( void );
 
-    const ModelSet<Line3D>& modelset;
-    const vector<Line3D*>& lines;
+private:
+    const vector<Vec3i>& tildaP;      /// Original positions of the points in 3D
+    const vector<int>& labelID;       /// Corresponding labels of the points above
+
+    const Data3D<int>& labelID3d;     /// Labeling of the data
+
+    const ModelSet<Line3D>& modelset; /// A set of line models
+    const vector<Line3D*>& lines;     // TODO: This is redundant
 
     unsigned numParamPerLine;
     unsigned numParam;
 
     vector<Vec3d>  P;              // projection points of original points
-    vector<SparseMatrixCV> nablaP; // Jacobian matrix of the porjeciton points
+    vector<SparseMatrixCV> nablaP; // Jacobian matrix of the projection points
 
     SmoothCostFunc using_smoothcost_func;
 
@@ -104,7 +113,7 @@ private:
 
     SparseMatrixCV Jacobian_datacost_for_one( const int& site );
 
-    void (LevenburgMaquart::*using_Jacobian_smoothcost_for_pair)( const int& sitei, const int& sitej,
+    void (LevenbergMarquardt::*using_Jacobian_smoothcost_for_pair)( const int& sitei, const int& sitej,
             SparseMatrixCV& nabla_smooth_cost_i,
             SparseMatrixCV& nabla_smooth_cost_j, void* func_data );
 

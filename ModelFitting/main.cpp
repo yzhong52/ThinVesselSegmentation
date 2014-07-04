@@ -1,11 +1,9 @@
-// ModelFitting.cpp : Defines the entry point for the console application.
-//
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include "Line3D.h"
 
 
-#include <iomanip> // For multithreading
+#include <iomanip> // For multi-threading
 
 #include <opencv2/core/core.hpp>
 #include <assert.h>
@@ -15,7 +13,7 @@
 
 #include "Data3D.h"
 #include "Line3DTwoPoint.h"
-#include "LevenburgMaquart.h"
+#include "LevenbergMarquardt.h"
 #include "SyntheticData.h"
 #include "ImageProcessing.h"
 #include "Timer.h"
@@ -24,6 +22,7 @@
 #include "ModelSet.h"
 #include "init_models.h"
 #include "GLLineModel.h"
+#include "serializer.h"
 
 using namespace std;
 
@@ -32,7 +31,7 @@ const double PAIRWISE_SMOOTH = 7.0;
 const double DATA_COST2 = DATA_COST * DATA_COST;
 const double PAIRWISE_SMOOTH2 = PAIRWISE_SMOOTH * PAIRWISE_SMOOTH;
 
-// thead for visualization
+// thread for visualization
 std::thread visualization_thread;
 
 #define IS_VISUAL
@@ -68,20 +67,19 @@ void initViwer( const vector<cv::Vec3i>& dataPoints,
     numViewports += (im2!=nullptr);
     numViewports += (im3!=nullptr);
 
-    // create visualiztion thread
-    visualization_thread = std::thread(visualization_func, numViewports );
-
+    // create visualization thread
+    visualization_thread = std::thread( visualization_func, numViewports );
 }
 
 #else
 
 // function template default type C++11
-template<class T1, class T2=char, class T3=char>
+template<class T1, class T2 = char, class T3 = char>
 void initViwer( const vector<cv::Vec3i>& dataPoints,
                 const vector<Line3D*>& lines, const vector<int>& labelings,
                 const Data3D<T1>* im1,
                 const Data3D<T2>* im2 = nullptr,
-                const Data3D<T3>* im3 = nullptr ){ }
+                const Data3D<T3>* im3 = nullptr ) { }
 #endif
 
 namespace experiments
@@ -98,29 +96,45 @@ void start_levernberg_marquart( const string& dataname = "data15", bool isDispla
     vector<cv::Vec3i> tildaP;
     ModelSet<Line3D> model;
     vector<int> labelID;
+
     each_model_per_point( vn_et_sig, labelID3d, tildaP, model, labelID );
+
     cout << "Number of data points: " << tildaP.size() << endl;
 
-    if( isDisplay ){
-        // create a thread for rendering
-        Data3D<Vesselness_Sig> vn_sig( dataname + ".vn_sig" );
+    if( isDisplay )
+    {
+        // load original data and vesselness data for rendering
         Data3D<short> im_short( dataname + ".data" );
+        Data3D<Vesselness_Sig> vn_sig( dataname + ".vn_sig" );
         initViwer( tildaP, model.models, labelID, &im_short, &vn_sig, &vn_et_sig );
     }
 
-    // Levenberg-Marquart
-    LevenburgMaquart lm( tildaP, labelID, model, labelID3d );
-    lm.reestimate( 4000, LevenburgMaquart::Quadratic, dataname );
+    // Levenberg Marquardt
+    LevenbergMarquardt lm( tildaP, labelID, model, labelID3d );
+    lm.reestimate( 4000, LevenbergMarquardt::Quadratic, dataname );
 }
 }
 
 
 int main(int argc, char* argv[])
 {
+    vector<int> d( 10, 5 );
+    Serializer::save( d, "d.txt" );
+    Serializer::load( d, "d.txt" );
+
+    for( unsigned i=0; i<d.size(); i++ ){
+        cout << d[i] << endl;
+    }
+
     Mat temp = Mat(200, 200, CV_8UC3);
+
+
+
     cv::imshow( "", temp );
 
-    experiments::start_levernberg_marquart("data15", true);
+    return 0;
+
+    experiments::start_levernberg_marquart("../temp/data15", true);
 
     cout << "Main Thread is Done. " << endl;
     visualization_thread.join();

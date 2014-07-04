@@ -16,6 +16,7 @@
 					<Add option="-std=c++11" />
 					<Add option="-g" />
 					<Add option="-fopenmp" />
+					<Add directory="include" />
 				</Compiler>
 				<Linker>
 					<Add directory="../libs/Debug" />
@@ -31,6 +32,7 @@
 					<Add option="-std=c++11" />
 					<Add option="-fopenmp" />
 					<Add option="-Wno-unused-result" />
+					<Add directory="include" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -61,8 +63,8 @@
 		</Linker>
 		<Unit filename="EnergyFunctions.cpp" />
 		<Unit filename="GLLineModel.cpp" />
-		<Unit filename="LevenburgMaquart.cpp" />
-		<Unit filename="LevenburgMaquart.h" />
+		<Unit filename="LevenbergMarquardt.cpp" />
+		<Unit filename="LevenbergMarquardt.h" />
 		<Unit filename="Line3D.cpp" />
 		<Unit filename="Line3D.h" />
 		<Unit filename="Line3DTwoPoint.cpp" />
@@ -73,6 +75,7 @@
 		<Unit filename="init_models.cpp" />
 		<Unit filename="init_models.h" />
 		<Unit filename="main.cpp" />
+		<Unit filename="serializer.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />
