@@ -1,4 +1,5 @@
 #include <iostream>
+#include <opencv2/opencv.hpp>
 
 #include "Data3D.h"
 #include "GLViwerCore.h"
@@ -6,8 +7,8 @@
 #include "RingCentre.h"
 #include "RingsReduction.h"
 #include "CVPlot.h"
+#include "Interpolation.h"
 
-#include <opencv2/opencv.hpp>
 
 using namespace std;
 using namespace cv;
@@ -48,7 +49,7 @@ void save_slice( Mat im, const double& minVal, const double& maxVal,
 }
 
 
-int main()
+int main(void)
 {
     // loading data
     Data3D<short> im_short;
@@ -118,7 +119,8 @@ int main()
         save_slice( m, minVal, maxVal, "original_234_270.png", Vec2i(234, 270) );
         save_slice( m, minVal, maxVal, "original_233_269.png", Vec2i(233, 269) );
 
-        if( bool resize_img = false ){
+        if( bool resize_img = false )
+        {
             Mat big_im;
             cv::resize( m, big_im, m.size()*10 );
             save_slice( big_im, minVal, maxVal, "original big.png", Vec2i(2339, 2699) );

@@ -2,6 +2,7 @@
 #define RINGSREDUCTION_H
 
 #include "Data3D.h"
+#include "Interpolation.h"
 
 class RingsReduction;
 typedef RingsReduction RR;
@@ -109,10 +110,9 @@ private:
                                const cv::Vec2i& ring_center,
                                const double& dr );
 private:
-    /// get the interpolation of the image data
-    template<class T>
-    static double interpolate( const cv::Mat_<T>& m,
-                               const double& x, const double& y );
+
+
+
 
     /// Test if a image point (x,y) is valid or not
     template<class T>
@@ -167,65 +167,17 @@ double RingsReduction::med_on_ring( const cv::Mat_<T>& m,
 
         if( isvalid( m, x, y) )
         {
-            const double val = interpolate( m, x, y );
+            const double val = Interpolation::bilinear( m, x, y );
             med.push_back( val );
         }
     }
 
     return median( med );
-
-//    std::sort( med.begin(), med.end() );
-//
-//    const double size = 0.5 * (double) med.size();
-//    const int id1 = (int) std::floor( size );
-//    const int id2 = (int) std::ceil( size );
-//    if( id1 == id2 )
-//    {
-//        return med[id1];
-//    }
-//    else
-//    {
-//        return 0.5 * ( med[id1] + med[id2] );
-//    }
 }
 
 
-template<class T>
-double RingsReduction::interpolate( const cv::Mat_<T>& m,
-                                    const double& x, const double& y )
-{
-    const int fx = (int) floor( x );
-    const int cx = (int) ceil( x );
-    const int fy = (int) floor( y );
-    const int cy = (int) ceil( y );
 
-    smart_assert( fx>=0 && cx<m.cols && fy>=0 && cy<m.rows,
-                  "Invalid input image position. Please call the following " <<
-                  "fucntion before computing interpolation. " << std::endl <<
-                  "\t bool isvalid( cv::Mat_<short>&, double, double ); " );
 
-    if( fx==cx && fy==cy )
-    {
-        return m(fy, fx);
-    }
-    else if( fx==cx )
-    {
-        return m(fy, fx) * (cy - y) +
-               m(cy, fx) * (y - fy);
-    }
-    else if ( fy==cy )
-    {
-        return m(fy, fx) * (cx - x) +
-               m(fy, cx) * (x - fx);
-    }
-    else
-    {
-        return m(fy, fx) * (cx - x) * (cy - y) +
-               m(cy, fx) * (cx - x) * (y - fy) +
-               m(fy, cx) * (x - fx) * (cy - y) +
-               m(cy, cx) * (x - fx) * (y - fy);
-    }
-}
 
 
 template<class T>

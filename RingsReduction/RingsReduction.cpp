@@ -2,7 +2,7 @@
 
 #include <opencv2/opencv.hpp>
 #include <iostream>
-
+#include "Interpolation.h"
 #include "ImageProcessing.h"
 #include "CVPlot.h"
 
@@ -378,8 +378,8 @@ double RingsReduction::avg_diff( const cv::Mat_<short>& m,
 
         if( isvalid( m, x1, y1) && isvalid( m, x, y) )
         {
-            const double val  = interpolate( m, x, y );
-            const double val1 = interpolate( m, x1, y1 );
+            const double val  = Interpolation::bilinear( m, x, y );
+            const double val1 = Interpolation::bilinear( m, x1, y1 );
             sum += val - val1;
             count++;
         }
@@ -420,8 +420,8 @@ double RingsReduction::med_diff( const cv::Mat_<short>& m,
 
         if( isvalid( m, x1, y1) && isvalid( m, x, y) )
         {
-            const double val  = interpolate( m, x, y );
-            const double val1 = interpolate( m, x1, y1 );
+            const double val  = Interpolation::bilinear( m, x, y );
+            const double val1 = Interpolation::bilinear( m, x1, y1 );
             diffs.push_back( val - val1 );
         }
     }
@@ -483,7 +483,7 @@ double RingsReduction::avg_on_ring( const cv::Mat_<short>& m,
 
         if( isvalid( m, x, y) )
         {
-            sum += interpolate( m, x, y );
+            sum += Interpolation::bilinear( m, x, y );
             count++;
         }
     }
@@ -545,8 +545,8 @@ std::vector<double> RingsReduction::distri_of_diff( const cv::Mat_<short>& m,
 
         if( isvalid( m, x1, y1) && isvalid( m, x, y) )
         {
-            const double val  = interpolate( m, x, y );
-            const double val1 = interpolate( m, x1, y1 );
+            const double val  = Interpolation::bilinear( m, x, y );
+            const double val1 = Interpolation::bilinear( m, x1, y1 );
             diffs.push_back( val-val1 );
         }
     }
