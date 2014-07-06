@@ -28,7 +28,7 @@ public:
     /// An mutation of the above function
     /// computing the correction in a accumulative manner
     static void AccumulatePolarRD( const Data3D<short>& src, Data3D<short>& dst,
-                                   const PolarRDOption& o, const float dr = 1.0f,
+                                   const float dr = 1.0f,
                                    const cv::Vec2f& approx_centre = cv::Vec2f(234, 270),
                                    std::vector<double>* pCorrection = nullptr );
 
@@ -48,7 +48,7 @@ private:
     static float max_ring_radius( const cv::Vec2f& center,
                                   const cv::Vec2f& im_size );
 
-    /// average intensity on ring rid (old implementation, deprecated)
+    /// Average intensity on ring rid (old implementation, deprecated)
     // The actual radius of the ring will be rid * dr
     static double avgI_on_rings( const cv::Mat_<short>& m,
                                  const cv::Vec2f& ring_center,
@@ -112,14 +112,6 @@ private:
 private:
 
 
-
-
-    /// Test if a image point (x,y) is valid or not
-    template<class T>
-    static inline bool isvalid( const cv::Mat_<T>& m,
-                                const double& x,
-                                const double& y );
-
     /// compute the median values in the vector
     // The order of the values in the vector in the following function
     static double median( std::vector<double>& values );
@@ -127,8 +119,8 @@ private:
 
 public:
     /// Utility functions for Yuri
-    // 1) Can I see the distribution of the difference of neighboring
-    //    rings as histograms? Yes.
+    /* 1) Can I see the distribution of the difference of neighboring
+        rings as histograms? Yes. */
     static std::vector<double> distri_of_diff( const cv::Mat_<short>& m,
             const cv::Vec2f& ring_center,
             const int& rid1, const int& rid2,
@@ -143,21 +135,25 @@ template<class T>
 double RingsReduction::med_on_ring( const cv::Mat_<T>& m,
                                     const cv::Vec2f& ring_center,
                                     const int& rid,
-                                    const double& dr,
+                                    const double& dradius,
                                     const float& subpixel_on_ring )
 {
     // radius of the circle
-    const double radius = rid * dr;
+    const double radius = rid * dradius;
 
     // the number of pixels on the circumference approximately
     const int circumference = std::max( 8, int( 2 * M_PI * radius / subpixel_on_ring ) );
 
     std::vector<double> med(1, 0);
 
+    const double dangle = 2 * M_PI / circumference;
+    const double dangle_2 = dangle / 2;
+    const double dradius_2 = dradius / 2;
+
     for( int i=0; i<circumference; i++ )
     {
         // angle in radian
-        const double angle = 2 * M_PI * i / circumference;
+        const double angle = i * dangle;
         const double sin_angle = sin( angle );
         const double cos_angle = cos( angle );
 
@@ -165,9 +161,9 @@ double RingsReduction::med_on_ring( const cv::Mat_<T>& m,
         const double x = radius * cos_angle + ring_center[0];
         const double y = radius * sin_angle + ring_center[1];
 
-        if( isvalid( m, x, y) )
+        if( Interpolation<T>::isvalid( m, x, y) )
         {
-            const double val = Interpolation::bilinear( m, x, y );
+            const double val = Interpolation<T>::Get( m, cv::Vec2d(x,y), ring_center, dangle_2, dradius_2 );
             med.push_back( val );
         }
     }
@@ -180,11 +176,6 @@ double RingsReduction::med_on_ring( const cv::Mat_<T>& m,
 
 
 
-template<class T>
-inline bool RingsReduction::isvalid( const cv::Mat_<T>& m,
-                                     const double& x, const double& y )
-{
-    return (x>=0 && x<=m.cols-1 && y>=0 && y<=m.rows-1);
-}
+
 
 #endif // RINGSREDUCTION_H

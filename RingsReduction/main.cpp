@@ -1,5 +1,6 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
+#include <omp.h>
 
 #include "Data3D.h"
 #include "GLViwerCore.h"
@@ -49,6 +50,14 @@ void save_slice( Mat im, const double& minVal, const double& maxVal,
 }
 
 
+#include <omp.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+
+
+
+
 int main(void)
 {
     // loading data
@@ -58,7 +67,7 @@ int main(void)
     if( !flag ) return 0;
 
 
-    if( bool centre_detection = false )
+    if( false ) /*centre_detection*/
     {
         // calculating the centre of the ring
         RC::DEBUG_MODE = true;
@@ -85,29 +94,22 @@ int main(void)
         return 0;
     }
 
+    // A approximation of the ring center
+    const Vec2f apprx_centre( 233.8f, 269.8f );
+    const Vec2f apprx_centre_i( 234, 270 );
 
+    Interpolation<short>::Get = Interpolation<short>::Bilinear;
+    Interpolation<short>::Get = Interpolation<short>::Sampling;
 
-
-    if( bool ring_reduction = true )
+    if( true )   // distribution of intensity
     {
+        RingsReduction::distri_of_diff( im_short.getMat( im_short.SZ()/2 ), apprx_centre, 100, 101, 1.0 );
+        // return 0;
+    }
 
-        vector<double> diffs = RR::distri_of_diff( im_short.getMat( im_short.SZ()/2 ),
-                               cv::Vec2f( 234, 270 ), 50, 51, 1.0f );
-        CVPlot::draw( "distri_of_diff.png", diffs );
 
-        const unsigned num_of_bins = 200;
-        const unsigned num_of_diffs = (unsigned) diffs.size();
-        std::sort( diffs.begin(), diffs.end() );
-        vector<double> bins(num_of_bins, 0);
-        double diff_range = diffs.back() - diffs.front();
-        for( unsigned i=0; i<num_of_diffs; i++ )
-        {
-            unsigned binid = (unsigned) (num_of_bins * (diffs[i] - diffs.front()) / diff_range);
-            binid = std::min( binid, num_of_bins-1);
-            bins[binid]++;
-        }
-        CVPlot::draw( "distri_of_diff_sorted_bin.png", bins );
-
+    if( true ) /*ring_reduction*/
+    {
 
 
         // compute the minimum value and maximum value in the centre slice
@@ -119,7 +121,7 @@ int main(void)
         save_slice( m, minVal, maxVal, "original_234_270.png", Vec2i(234, 270) );
         save_slice( m, minVal, maxVal, "original_233_269.png", Vec2i(233, 269) );
 
-        if( bool resize_img = false )
+        if( false ) // resize image
         {
             Mat big_im;
             cv::resize( m, big_im, m.size()*10 );
@@ -128,16 +130,22 @@ int main(void)
         }
 
 
-        const Vec2f apprx_centre( 233.8f, 269.8f );
-        const Vec2f apprx_centre_i( 234, 270 );
+
 
         Data3D<short> im_rduct, im_rduct2;
         vector<double> correction;
 
-        RR::AccumulatePolarRD( im_short, im_rduct, RR::MED_DIFF, 0.2f, apprx_centre_i );
-        save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "polar_med_diff_v1.png" );
+        Interpolation<short>::Get = Interpolation<short>::Sampling;
+        RR::AccumulatePolarRD( im_short, im_rduct, 1.0f, apprx_centre_i );
+        save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "minimize median difference - sampling.png" );
 
-        RR::AccumulatePolarRD( im_short, im_rduct, RR::MED_DIFF, 0.2f, apprx_centre );
+        Interpolation<short>::Get = Interpolation<short>::Bilinear;
+        RR::AccumulatePolarRD( im_short, im_rduct, 1.0f, apprx_centre_i );
+        save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "minimize median difference - bilinear.png" );
+
+return 0;
+
+        RR::AccumulatePolarRD( im_short, im_rduct, 0.2f, apprx_centre );
         save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "polar_med_diff_v1_subpixel.png" );
 
 

@@ -82,7 +82,7 @@ private:
                             const double& sigma,
                             cv::Mat& mask_edges  );
 
-    /// Computing the gradient of the image
+    /* Computing the distribution of the difference of the gradient of two */
     static void get_image_gradient( const cv::Mat_<short>& m,
                                     cv::Mat_<float>& grad_x,  // OUTPUT
                                     cv::Mat_<float>& grad_y,  // OUTPUT

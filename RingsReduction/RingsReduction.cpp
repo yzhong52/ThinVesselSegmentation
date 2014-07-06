@@ -2,6 +2,8 @@
 
 #include <opencv2/opencv.hpp>
 #include <iostream>
+#include <omp.h>
+
 #include "Interpolation.h"
 #include "ImageProcessing.h"
 #include "CVPlot.h"
@@ -39,8 +41,8 @@ double RingsReduction::avgI_on_rings( const cv::Mat_<short>& m,
                                       const int& rid,
                                       const double& dr )
 {
-    smart_assert( dr>0, "dr indicates the thickness of the rings. \
-                 It should be greater than 0. " );
+    smart_assert( dr>0, "dr indicates the thickness of the rings, \
+                 which should be greater than 0. " );
 
     // sum of intensities
     double sumI = 0.0;
@@ -231,7 +233,7 @@ void RingsReduction::polarRD( const Data3D<short>& src, Data3D<short>& dst,
                               vector<double>* pCorrection )
 {
     smart_assert( &src!=&dst,
-                  "The destination file is the same as the orignal. " );
+                  "The destination file is the same as the original. " );
 
     // TODO: do it on a 3D volume
     const int center_z = src.SZ() / 2;
@@ -280,7 +282,7 @@ void RingsReduction::polarRD( const Data3D<short>& src, Data3D<short>& dst,
 
 
 void RingsReduction::AccumulatePolarRD( const Data3D<short>& src, Data3D<short>& dst,
-                                        const PolarRDOption& o, const float dr,
+                                        const float dr,
                                         const Vec2f& approx_centre,
                                         std::vector<double>* pCorrection )
 {
@@ -300,28 +302,21 @@ void RingsReduction::AccumulatePolarRD( const Data3D<short>& src, Data3D<short>&
 
     const unsigned num_of_rings = unsigned( max_radius / dr );
 
-    double (*diff_func)(const cv::Mat_<short>&, const cv::Vec2f&,
-                        const int&, const int&, const double&) = nullptr;
-
-    switch (o )
-    {
-    case MED_DIFF:
-        diff_func = &med_diff;
-        break;
-    default:
-        smart_assert( 0, "TODO: this function is not fully implemented. ")
-        diff_func = &med_diff;
-        cerr << "Undefined method option. " << endl;
-        break;
-    }
-
     // compute correction vector
     vector<double> correction( num_of_rings, 0 );
+
+#pragma omp parallel for schedule(dynamic)
     for( unsigned ri = 0; ri<num_of_rings-1; ri++ )
     {
-        correction[ri] = diff_func( src.getMat(center_z),
+        #pragma omp critical
+        {
+            cout << omp_get_thread_num() << " - \t" << ri << endl;
+        }
+
+        correction[ri] = med_diff( src.getMat(center_z),
                                     ring_center, ri, ri+1, dr );
     }
+
 
     // accumulate the correction vector
     for( int ri = num_of_rings-2; ri>=0; ri-- )
@@ -349,11 +344,11 @@ double RingsReduction::avg_diff( const cv::Mat_<short>& m,
                                  const cv::Vec2f& ring_center,
                                  const int& rid1,
                                  const int& rid2,
-                                 const double& dr )
+                                 const double& dradius )
 {
     // radius of the two circles
-    const double radius  = rid1 * dr;
-    const double radius1 = rid2 * dr;
+    const double radius  = rid1 * dradius;
+    const double radius1 = rid2 * dradius;
 
     // the number of pixels on the circumference approximately
     const double bigger = std::max( radius, radius1 );
@@ -361,25 +356,31 @@ double RingsReduction::avg_diff( const cv::Mat_<short>& m,
 
     double sum = 0.0;
     int count = 0;
+
+    const double dangle = 2 * M_PI / circumference;
+    const double dangle_2 = dangle / 2;
+    const double dradius_2 = dradius / 2;
+
     for( int i=0; i<circumference; i++ )
     {
         // angle in radian
-        const double angle = 2 * M_PI * i / circumference;
+        const double angle = i * dangle;
+
         const double sin_angle = sin( angle );
         const double cos_angle = cos( angle );
 
         // image position for inner circle
-        const double x = radius * cos_angle + ring_center[0];
-        const double y = radius * sin_angle + ring_center[1];
+        const Vec2d pos( radius * cos_angle + ring_center[0],
+                        radius * sin_angle + ring_center[1] );
 
         // image position for outer circle
-        const double x1 = radius1 * cos_angle + ring_center[0];
-        const double y1 = radius1 * sin_angle + ring_center[1];
+        const Vec2d pos1( radius1 * cos_angle + ring_center[0],
+                         radius1 * sin_angle + ring_center[1] );
 
-        if( isvalid( m, x1, y1) && isvalid( m, x, y) )
+        if( Interpolation<short>::isvalid(m, pos) && Interpolation<short>::isvalid(m, pos1) )
         {
-            const double val  = Interpolation::bilinear( m, x, y );
-            const double val1 = Interpolation::bilinear( m, x1, y1 );
+            const double val  = Interpolation<short>::Get( m, pos,  ring_center, dangle_2, dradius_2 );
+            const double val1 = Interpolation<short>::Get( m, pos1, ring_center, dangle_2, dradius_2 );
             sum += val - val1;
             count++;
         }
@@ -392,21 +393,26 @@ double RingsReduction::med_diff( const cv::Mat_<short>& m,
                                  const cv::Vec2f& ring_center,
                                  const int& rid1,
                                  const int& rid2,
-                                 const double& dr )
+                                 const double& dradius )
 {
     // radius of the two circles
-    const double radius  = rid1 * dr;
-    const double radius1 = rid2 * dr;
+    const double radius  = rid1 * dradius;
+    const double radius1 = rid2 * dradius;
 
     // the number of pixels on the circumference approximately
     const double bigger = std::max( radius, radius1 );
     const int circumference = std::max( 8, int( 2 * M_PI * bigger ) );
 
     std::vector<double> diffs(1, 0);
+
+    const double dangle = 2 * M_PI / circumference;
+    const double dangle_2 = dangle / 2;
+    const double dradius_2 = dradius / 2;
+
     for( int i=0; i<circumference; i++ )
     {
         // angle in radian
-        const double angle = 2 * M_PI * i / circumference;
+        const double angle = i * dangle;
         const double sin_angle = sin( angle );
         const double cos_angle = cos( angle );
 
@@ -418,10 +424,10 @@ double RingsReduction::med_diff( const cv::Mat_<short>& m,
         const double x1 = radius1 * cos_angle + ring_center[0];
         const double y1 = radius1 * sin_angle + ring_center[1];
 
-        if( isvalid( m, x1, y1) && isvalid( m, x, y) )
+        if( Interpolation<short>::isvalid( m, x1, y1) && Interpolation<short>::isvalid( m, x, y) )
         {
-            const double val  = Interpolation::bilinear( m, x, y );
-            const double val1 = Interpolation::bilinear( m, x1, y1 );
+            const double val  = Interpolation<short>::Get( m, Vec2d(x,y),   ring_center, dangle_2, dradius_2 );
+            const double val1 = Interpolation<short>::Get( m, Vec2d(x1,y1), ring_center, dangle_2, dradius_2 );
             diffs.push_back( val - val1 );
         }
     }
@@ -458,11 +464,11 @@ double RingsReduction::med_diff_v2( const cv::Mat_<short>& m,
 
 double RingsReduction::avg_on_ring( const cv::Mat_<short>& m,
                                     const cv::Vec2f& ring_center,
-                                    const int& rid, const double& dr,
+                                    const int& rid, const double& dradius,
                                     const float& subpixel_on_ring )
 {
     // radius of the circle
-    const double radius = rid * dr;
+    const double radius = rid * dradius;
 
     // the number of pixels on the circumference approximately
     const int circumference = max( 8, int( 2 * M_PI * radius / subpixel_on_ring ) );
@@ -470,20 +476,23 @@ double RingsReduction::avg_on_ring( const cv::Mat_<short>& m,
     int count = 0;
     double sum = 0.0;
 
+    const double dangle = 2 * M_PI / circumference;
+    const double dangle_2 = dangle / 2;
+    const double dradius_2 = dradius / 2;
     for( int i=0; i<circumference; i++ )
     {
         // angle in radian
-        const double angle = 2 * M_PI * i / circumference;
+        const double angle = i * dangle;
         const double sin_angle = sin( angle );
         const double cos_angle = cos( angle );
 
-        // image position for inner circle
+        // image position
         const double x = radius * cos_angle + ring_center[0];
         const double y = radius * sin_angle + ring_center[1];
 
-        if( isvalid( m, x, y) )
+        if( Interpolation<short>::isvalid(m, x, y) )
         {
-            sum += Interpolation::bilinear( m, x, y );
+            sum += Interpolation<short>::Get( m, Vec2d(x,y), ring_center, dangle_2, dradius_2 );
             count++;
         }
     }
@@ -499,59 +508,74 @@ double RingsReduction::median( std::vector<double>& values )
 
     std::sort( values.begin(), values.end() );
 
-    const double numVal = 0.5 * (double) values.size();
-    const int id1 = (int) std::floor( numVal );
-    const int id2 = (int) std::ceil(  numVal );
-    if( id1 == id2 )
-    {
-        return values[id1];
-    }
-    else
-    {
-        return 0.5 * ( values[id1] + values[id2] );
-    }
+    const double mid_id = 0.5 * (double) values.size();
+
+    const int id1 = (int) std::floor( mid_id );
+    const int id2 = (int) std::ceil(  mid_id );
+
+    return 0.5 * ( values[id1] + values[id2] );
 }
 
 std::vector<double> RingsReduction::distri_of_diff( const cv::Mat_<short>& m,
         const cv::Vec2f& ring_center,
         const int& rid1, const int& rid2,
-        const double& dr )
+        const double& dradius )
 {
     // radius of the two circles
-    const double radius  = rid1 * dr;
-    const double radius1 = rid2 * dr;
+    const double radius  = rid1 * dradius;
+    const double radius1 = rid2 * dradius;
 
-    // the number of pixels on the circumference approximatly
+    // the number of pixels on the circumference approximately
     const double bigger = std::min( radius, radius1 );
     const int circumference = std::max( 8, int( 2 * M_PI * bigger ) );
 
     std::vector<double> diffs;
-    for( int i=0; i<(circumference*2) /*100% of overlap*/; i++ )
+
+    const double dangle = 2 * M_PI / circumference;
+    const double dangle_2 = dangle / 2;
+    const double dradius_2 = dradius / 2;
+
+    for( int i=0; i<circumference; i++ )
     {
         // angle in radian
-        const double angle = 2 * M_PI * i / circumference;
+        const double angle = i * dangle;
         const double sin_angle = sin( angle );
         const double cos_angle = cos( angle );
 
-        // image possition for inner circle
+        // image position for inner circle
         const double x = radius * cos_angle + ring_center[0];
         const double y = radius * sin_angle + ring_center[1];
 
-        // cout << "( " << radius * cos_angle << " , " << radius * sin_angle << ") " << endl;
-
-        // image position for outter circle
+        // image position for outer circle
         const double x1 = radius1 * cos_angle + ring_center[0];
         const double y1 = radius1 * sin_angle + ring_center[1];
 
-        if( isvalid( m, x1, y1) && isvalid( m, x, y) )
+        if( Interpolation<short>::isvalid(m, x1, y1) && Interpolation<short>::isvalid(m, x, y) )
         {
-            const double val  = Interpolation::bilinear( m, x, y );
-            const double val1 = Interpolation::bilinear( m, x1, y1 );
+            const double val  = Interpolation<short>::Get( m, Vec2d(x, y ), ring_center, dangle_2, dradius_2 );
+            const double val1 = Interpolation<short>::Get( m, Vec2d(x1,y1), ring_center, dangle_2, dradius_2 );
             diffs.push_back( val-val1 );
         }
     }
 
-    return diffs;
+    // sort the difference vector
+    std::sort( diffs.begin(), diffs.end() );
+
+    const unsigned num_of_bins = 200; // TODO: Can make this a parameter
+    vector<double> bins(num_of_bins, 0);
+
+    const double minVal = diffs.front();
+    const double maxVal = diffs.back();
+    const double diff_range = maxVal - minVal;
+
+    for( unsigned i=0; i<diffs.size(); i++ )
+    {
+        unsigned binid = (unsigned) (num_of_bins * (diffs[i] - minVal) / diff_range);
+        binid = std::min( binid, num_of_bins-1);
+        bins[ binid ]++;
+    }
+
+    return bins;
 }
 
 
