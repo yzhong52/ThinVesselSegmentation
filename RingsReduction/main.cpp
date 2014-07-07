@@ -95,18 +95,8 @@ int main(void)
     }
 
     // A approximation of the ring center
-    const Vec2f apprx_centre( 233.8f, 269.8f );
-    const Vec2f apprx_centre_i( 234, 270 );
-
-    Interpolation<short>::Get = Interpolation<short>::Bilinear;
-    Interpolation<short>::Get = Interpolation<short>::Sampling;
-
-    if( true )   // distribution of intensity
-    {
-        RingsReduction::distri_of_diff( im_short.getMat( im_short.SZ()/2 ), apprx_centre, 100, 101, 1.0 );
-        // return 0;
-    }
-
+    const Vec2d apprx_centre_d( 233.7, 269.7 );
+    const Vec2d apprx_centre_i( 234, 270 );
 
     if( true ) /*ring_reduction*/
     {
@@ -135,52 +125,47 @@ int main(void)
         Data3D<short> im_rduct, im_rduct2;
         vector<double> correction;
 
-        Interpolation<short>::Get = Interpolation<short>::Sampling;
-        RR::AccumulatePolarRD( im_short, im_rduct, 1.0f, apprx_centre_i );
-        save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "minimize median difference - sampling.png" );
+//        Interpolation<short>::Get = Interpolation<short>::Sampling;
+//        RR::AccumulatePolarRD( im_short, im_rduct, 1.0f, apprx_centre_i );
+//        save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "minimize median difference - sampling.png" );
+//
+//        Interpolation<short>::Get = Interpolation<short>::Bilinear;
+//        RR::AccumulatePolarRD( im_short, im_rduct, 1.0f, apprx_centre_i );
+//        save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "minimize median difference - bilinear.png" );
+//
+//        Interpolation<short>::Get = Interpolation<short>::Sampling;
+//        RR::AccumulatePolarRD( im_short, im_rduct, 1.0f, apprx_centre_d );
+//        save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "minimize median difference - sampling - sub pixel.png" );
+//
+//        Interpolation<short>::Get = Interpolation<short>::Bilinear;
+//        RR::AccumulatePolarRD( im_short, im_rduct, 1.0f, apprx_centre_d );
+//        save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "minimize median difference - bilinear - sub pixel.png" );
+//
+//return 0;
 
         Interpolation<short>::Get = Interpolation<short>::Bilinear;
-        RR::AccumulatePolarRD( im_short, im_rduct, 1.0f, apprx_centre_i );
-        save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "minimize median difference - bilinear.png" );
+        Interpolation<float>::Get = Interpolation<float>::Bilinear;
+        Interpolation<int>::Get   = Interpolation<int>::Bilinear;
+        RR::sijbers( im_short, im_rduct, 1.0f, apprx_centre_i, true );
+        save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "Sijbers - Gaussian - bilinear.png" );
 
-return 0;
+        Interpolation<short>::Get = Interpolation<short>::Sampling;
+        Interpolation<float>::Get = Interpolation<float>::Sampling;
+        Interpolation<int>::Get   = Interpolation<int>::Sampling;
+        RR::sijbers( im_short, im_rduct, 1.0f, apprx_centre_i, true );
+        save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "Sijbers - Gaussian - sampling.png" );
 
-        RR::AccumulatePolarRD( im_short, im_rduct, 0.2f, apprx_centre );
-        save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "polar_med_diff_v1_subpixel.png" );
+        Interpolation<short>::Get = Interpolation<short>::Bilinear;
+        Interpolation<float>::Get = Interpolation<float>::Bilinear;
+        Interpolation<int>::Get   = Interpolation<int>::Bilinear;
+        RR::sijbers( im_short, im_rduct, 1.0f, apprx_centre_d, true );
+        save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "Sijbers - Gaussian - bilinear - sub pixel.png" );
 
-
-
-        RR::polarRD( im_short, im_rduct, RR::AVG_DIFF, 1.0f );
-        save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "polar_avg_diff.png" );
-
-        RR::polarRD( im_short, im_rduct, RR::AVG_DIFF, 1.0f, apprx_centre  );
-        save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "polar_avg_diff_subpixel.png" );
-
-        RR::polarRD( im_short, im_rduct, RR::AVG_DIFF, 0.2f, apprx_centre, 0.2f );
-        save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "polar_avg_diff_subpixel_0.2gap.png" );
-
-
-
-
-        RR::polarRD( im_short, im_rduct, RR::MED_DIFF, 1.0f );
-        save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "polar_med_diff.png" );
-
-        RR::polarRD( im_short, im_rduct, RR::MED_DIFF, 1.0f, apprx_centre );
-        save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "polar_med_diff_subpixel.png" );
-
-        RR::polarRD( im_short, im_rduct, RR::MED_DIFF, 0.2f, apprx_centre, 0.2f  );
-        save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "polar_med_diff_subpixel_0.2gap.png" );
-
-
-
-        RR::sijbers( im_short, im_rduct, 1.0f );
-        save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "sijbers.png" );
-
-        RR::sijbers( im_short, im_rduct, 1.0f, apprx_centre );
-        save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "sijbers_subpixel.png" );
-
-        RR::sijbers( im_short, im_rduct, 0.2f, apprx_centre );
-        save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "sijbers_subpixel_0.2dr.png" );
+        Interpolation<short>::Get = Interpolation<short>::Sampling;
+        Interpolation<float>::Get = Interpolation<float>::Sampling;
+        Interpolation<int>::Get   = Interpolation<int>::Sampling;
+        RR::sijbers( im_short, im_rduct, 1.0f, apprx_centre_d, true );
+        save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "Sijbers - Gaussian - sampling - sub pixel.png" );
     }
     return 0;
 }

@@ -29,13 +29,14 @@ public:
     /// computing the correction in a accumulative manner
     static void AccumulatePolarRD( const Data3D<short>& src, Data3D<short>& dst,
                                    const float dr = 1.0f,
-                                   const cv::Vec2f& approx_centre = cv::Vec2f(234, 270),
+                                   const cv::Vec2d& centre = cv::Vec2d(234, 270),
                                    std::vector<double>* pCorrection = nullptr );
 
     /// rings reduction using sijbers's methods
     static void sijbers( const Data3D<short>& src, Data3D<short>& dst,
                          const float& dr = 1.0f,
                          const cv::Vec2f& ring_centre = cv::Vec2f(234, 270),
+    bool isGaussianBlur = false,
                          std::vector<double>* pCorrection = nullptr );
 
     /// rings reduction using sijbers's methods (old implementation, deprecated)

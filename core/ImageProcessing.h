@@ -28,7 +28,7 @@ void conv3( const Data3D<T1>& src, Data3D<T2>& dst, const Kernel3D<T3>& kernel )
 ///////////////////////////////////////////////////////////////////////////
 // gaussian blur 3d
 template<typename T1, typename T2>
-bool GaussianBlur3D( const Data3D<T1>& src, Data3D<T2>& dst, int ksize, double sigma );
+bool GaussianBlur3D( const Data3D<T1>& src, Data3D<T2>& dst, int ksize, double sigma = 0.0 );
 
 ///////////////////////////////////////////////////////////////////////////
 // median filter

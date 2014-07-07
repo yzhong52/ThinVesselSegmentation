@@ -129,6 +129,7 @@ double RingsReduction::avgI_on_rings( const cv::Mat_<short>& m,
 void RingsReduction::sijbers( const Data3D<short>& src, Data3D<short>& dst,
                               const float& dr,
                               const Vec2f& ring_centre,
+                              bool isGaussianBlur,
                               std::vector<double>* pCorrection )
 {
     const int wsize = 15;
@@ -138,9 +139,16 @@ void RingsReduction::sijbers( const Data3D<short>& src, Data3D<short>& dst,
         dst.resize( src.get_size() );
     }
 
-    // blur the image with mean blur
+    // blur the image
     Data3D<short> mean( src.get_size() );
-    IP::meanBlur3D( src, mean, wsize );
+    if( isGaussianBlur )
+    {
+        IP::GaussianBlur3D( src, mean, 2*wsize+1 );
+    }
+    else
+    {
+        IP::meanBlur3D( src, mean, wsize );
+    }
 
     Data3D<int> diff( src.get_size() );
     subtract3D( src, mean, diff );
@@ -282,39 +290,36 @@ void RingsReduction::polarRD( const Data3D<short>& src, Data3D<short>& dst,
 
 
 void RingsReduction::AccumulatePolarRD( const Data3D<short>& src, Data3D<short>& dst,
-                                        const float dr,
-                                        const Vec2f& approx_centre,
+                                        const float dradius,
+                                        const Vec2d& ring_center,
                                         std::vector<double>* pCorrection )
 {
     smart_assert( &src!=&dst,
                   "The destination file is the same as the original. " );
 
-
-
     // TODO: do it on a 3D volume
     const unsigned center_z = src.SZ() / 2;
-
-    const Vec2f& ring_center = approx_centre;
 
     const Vec2f im_size( (float)src.SX(), (float)src.SY() );
 
     const float max_radius = max_ring_radius( ring_center, im_size );
 
-    const unsigned num_of_rings = unsigned( max_radius / dr );
+    const unsigned num_of_rings = unsigned( max_radius / dradius );
 
     // compute correction vector
     vector<double> correction( num_of_rings, 0 );
 
-#pragma omp parallel for schedule(dynamic)
+    #pragma omp parallel for schedule(dynamic)
     for( unsigned ri = 0; ri<num_of_rings-1; ri++ )
     {
-        #pragma omp critical
+        // #pragma omp critical
         {
-            cout << omp_get_thread_num() << " - \t" << ri << endl;
+            cout << ri << '(' << omp_get_thread_num() << ")\t";
+            cout.flush();
         }
 
         correction[ri] = med_diff( src.getMat(center_z),
-                                    ring_center, ri, ri+1, dr );
+                                   ring_center, ri, ri+1, dradius );
     }
 
 
@@ -327,13 +332,13 @@ void RingsReduction::AccumulatePolarRD( const Data3D<short>& src, Data3D<short>&
 
     /* The intensity of this ring is not supposed to be alter, that is,
        correction[int( 100/dr )] = 0*/
-    const double drift = correction[int( 100/dr )];
+    const double drift = correction[ int(100/dradius) ];
     for( unsigned ri = 0; ri<num_of_rings; ri++ )
     {
         correction[ri] -= drift;
     }
 
-    correct_image( src, dst, correction, center_z, ring_center, dr );
+    correct_image( src, dst, correction, center_z, ring_center, dradius );
 
     if( pCorrection!=nullptr ) *pCorrection = correction;
 }
@@ -371,11 +376,11 @@ double RingsReduction::avg_diff( const cv::Mat_<short>& m,
 
         // image position for inner circle
         const Vec2d pos( radius * cos_angle + ring_center[0],
-                        radius * sin_angle + ring_center[1] );
+                         radius * sin_angle + ring_center[1] );
 
         // image position for outer circle
         const Vec2d pos1( radius1 * cos_angle + ring_center[0],
-                         radius1 * sin_angle + ring_center[1] );
+                          radius1 * sin_angle + ring_center[1] );
 
         if( Interpolation<short>::isvalid(m, pos) && Interpolation<short>::isvalid(m, pos1) )
         {

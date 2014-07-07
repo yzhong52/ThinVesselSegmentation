@@ -11,10 +11,10 @@ public:
 
     // Function pointer: must be set before using
     static double (*Get)( const cv::Mat_<T>& m,
-                                       const cv::Vec2d& pos,
-                                       const cv::Vec2d& origin,
-                                       const double& dangle,
-                                       const double& dradius);
+                          const cv::Vec2d& pos,
+                          const cv::Vec2d& origin,
+                          const double& dangle,
+                          const double& dradius);
 
 
     /* ***Bilinear Interpolation***
@@ -70,10 +70,10 @@ private:
 
 template<class T>
 double (*Interpolation<T>::Get)( const cv::Mat_<T>& m,
-        const cv::Vec2d& pos,
-        const cv::Vec2d& origin,
-        const double& dangle,
-        const double& dradius) = nullptr;
+                                 const cv::Vec2d& pos,
+                                 const cv::Vec2d& origin,
+                                 const double& dangle,
+                                 const double& dradius) = nullptr;
 
 
 template<class T>
@@ -255,7 +255,7 @@ bool Interpolation<T>::isvalid( const cv::Mat_<T>& m, const cv::Vec2d& pos )
 
 template<class T>
 bool Interpolation<T>::isvalid( const cv::Mat_<T>& m,
-                                     const double& x, const double& y )
+                                const double& x, const double& y )
 {
     return (x>=0 && x<=m.cols-1 && y>=0 && y<=m.rows-1);
 }
