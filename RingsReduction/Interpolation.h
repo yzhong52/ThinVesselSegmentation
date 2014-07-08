@@ -155,7 +155,7 @@ double Interpolation<T>::Sampling( const cv::Mat_<T>& m,
     }
 
     /// sub-pixel interpolation
-    const double sub_pixel = 0.2; // TODO: can make this a parameter
+    const double sub_pixel = 0.1; // TODO: can make this a parameter
 
     double sum = 0.0;
     int count = 0;

@@ -21,22 +21,22 @@ public:
     };
     static void polarRD( const Data3D<short>& src,  // Input Image
                          Data3D<short>& dst,        // Output Image
-                         const PolarRDOption& o, const float dr = 1.0f,
-                         const cv::Vec2f& approx_centre = cv::Vec2f(234, 270),
-                         const float& subpixel_on_ring = 1.0f,
+                         const PolarRDOption& o, const double dr = 1.0f,
+                         const cv::Vec2d& approx_centre = cv::Vec2d(234, 270),
+                         const double& subpixel_on_ring = 1.0f,
                          std::vector<double>* pCorrection = nullptr );
     /// An mutation of the above function
     /// computing the correction in a accumulative manner
     static void AccumulatePolarRD( const Data3D<short>& src, Data3D<short>& dst,
-                                   const float dr = 1.0f,
+                                   const double dr = 1.0f,
                                    const cv::Vec2d& centre = cv::Vec2d(234, 270),
                                    std::vector<double>* pCorrection = nullptr );
 
     /// rings reduction using sijbers's methods
     static void sijbers( const Data3D<short>& src, Data3D<short>& dst,
-                         const float& dr = 1.0f,
-                         const cv::Vec2f& ring_centre = cv::Vec2f(234, 270),
-    bool isGaussianBlur = false,
+                         const double& dr = 1.0f,
+                         const cv::Vec2d& ring_centre = cv::Vec2d(234, 270),
+                         bool isGaussianBlur = false,
                          std::vector<double>* pCorrection = nullptr );
 
     /// rings reduction using sijbers's methods (old implementation, deprecated)
@@ -46,26 +46,26 @@ private:
 
     /// compute maximum radius of the rings
     // distance from the centre of the ring to four corners of the image.
-    static float max_ring_radius( const cv::Vec2f& center,
-                                  const cv::Vec2f& im_size );
+    static double max_ring_radius( const cv::Vec2d& center,
+                                   const cv::Vec2d& im_size );
 
     /// Average intensity on ring rid (old implementation, deprecated)
     // The actual radius of the ring will be rid * dr
     static double avgI_on_rings( const cv::Mat_<short>& m,
-                                 const cv::Vec2f& ring_center,
+                                 const cv::Vec2d& ring_center,
                                  const int& rid,
                                  const double& dr );
 
     /// Average difference between two rings
     static double avg_diff( const cv::Mat_<short>& m,
-                            const cv::Vec2f& ring_center,
+                            const cv::Vec2d& ring_center,
                             const int& rid1,
                             const int& rid2,
                             const double& dr );
 
     /// Median difference between two rings
     static double med_diff( const cv::Mat_<short>& m,
-                            const cv::Vec2f& ring_center,
+                            const cv::Vec2d& ring_center,
                             const int& rid1,
                             const int& rid2,
                             const double& dr );
@@ -75,40 +75,40 @@ private:
     // it computes the average intensity of the rings separately and then
     // compute the difference. the above version compute them together.
     static double avg_diff_v2( const cv::Mat_<short>& m,
-                               const cv::Vec2f& ring_center,
+                               const cv::Vec2d& ring_center,
                                const int& rid1,
                                const int& rid2,
                                const double& dr,
-                               const float& subpixel_on_ring = 1.0f );
+                               const double& subpixel_on_ring = 1.0f );
 
     /// Median difference between two rings
     static double med_diff_v2( const cv::Mat_<short>& m,
-                               const cv::Vec2f& ring_center,
+                               const cv::Vec2d& ring_center,
                                const int& rid1,
                                const int& rid2,
                                const double& dr,
-                               const float& subpixel_on_ring = 1.0f );
+                               const double& subpixel_on_ring = 1.0f );
 
     /// average intensity on rings
     static double avg_on_ring( const cv::Mat_<short>& m,
-                               const cv::Vec2f& ring_center,
+                               const cv::Vec2d& ring_center,
                                const int& rid,
                                const double& dr,
-                               const float& subpixel_on_ring = 1.0f );
+                               const double& subpixel_on_ring = 1.0f );
 
     /// median intensity on ring
     template<class T>
     static double med_on_ring( const cv::Mat_<T>& m,
-                               const cv::Vec2f& ring_center,
+                               const cv::Vec2d& ring_center,
                                const int& rid,
                                const double& dr,
-                               const float& subpixel_on_ring = 1.0f );
+                               const double& subpixel_on_ring = 1.0f );
 
     /// Adjust image with give correction vector
     static void correct_image( const Data3D<short>& src, Data3D<short>& dst,
                                const std::vector<double>& correction,
                                const int& slice,
-                               const cv::Vec2i& ring_center,
+                               const cv::Vec2d& ring_center,
                                const double& dr );
 private:
 
@@ -123,7 +123,7 @@ public:
     /* 1) Can I see the distribution of the difference of neighboring
         rings as histograms? Yes. */
     static std::vector<double> distri_of_diff( const cv::Mat_<short>& m,
-            const cv::Vec2f& ring_center,
+            const cv::Vec2d& ring_center,
             const int& rid1, const int& rid2,
             const double& dr );
 };
@@ -134,10 +134,10 @@ public:
 
 template<class T>
 double RingsReduction::med_on_ring( const cv::Mat_<T>& m,
-                                    const cv::Vec2f& ring_center,
+                                    const cv::Vec2d& ring_center,
                                     const int& rid,
                                     const double& dradius,
-                                    const float& subpixel_on_ring )
+                                    const double& subpixel_on_ring )
 {
     // radius of the circle
     const double radius = rid * dradius;

@@ -15,8 +15,8 @@ CFLAGS +=`pkg-config --cflags opencv`
 #   their path using -Lpath, something like:
 LFLAGS  = -L ./
 LFLAGS += -Wl,--no-as-needed -pthread
-# Add OpenCV libs
-LFLAGS += `pkg-config --libs opencv`
+LFLAGS += `pkg-config --libs opencv` # OpenCV libs
+LFLAGS += `python3-config --ldflags`  # Python libs
 
 # for C++ define  CC = g++
 #  -m64  compile for 64 bits

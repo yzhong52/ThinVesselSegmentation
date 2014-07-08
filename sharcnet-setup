@@ -45,3 +45,4 @@ sqsub -r 5m -q threaded -n 8 -o std.out ./vesselness
 
 # check the status of a job
 sqjobs
+

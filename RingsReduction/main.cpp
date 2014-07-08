@@ -98,6 +98,9 @@ int main(void)
     const Vec2d apprx_centre_d( 233.7, 269.7 );
     const Vec2d apprx_centre_i( 234, 270 );
 
+    const Vec2d apprx_centre_left(  233, 269 );
+    const Vec2d apprx_centre_right( 234, 270 );
+
     if( true ) /*ring_reduction*/
     {
 
@@ -106,18 +109,20 @@ int main(void)
         double minVal = 0, maxVal = 0;
         cv::minMaxLoc( im_short.getMat( im_short.SZ()/2 ), &minVal, &maxVal );
 
-        // save the original data with centre point
-        Mat m = im_short.getMat( im_short.SZ()/2 );
-        save_slice( m, minVal, maxVal, "original_234_270.png", Vec2i(234, 270) );
-        save_slice( m, minVal, maxVal, "original_233_269.png", Vec2i(233, 269) );
-
-        if( false ) // resize image
+        if( false )  // save the original data with centre point
         {
-            Mat big_im;
-            cv::resize( m, big_im, m.size()*10 );
-            save_slice( big_im, minVal, maxVal, "original big.png", Vec2i(2339, 2699) );
-            return 0;
+            Mat m = im_short.getMat( im_short.SZ()/2 );
+            save_slice( m, minVal, maxVal, "original_234_270.png", Vec2i(234, 270) );
+            save_slice( m, minVal, maxVal, "original_233_269.png", Vec2i(233, 269) );
+            if( false ) // resize image
+            {
+                Mat big_im;
+                cv::resize( m, big_im, m.size()*10 );
+                save_slice( big_im, minVal, maxVal, "original big.png", Vec2i(2339, 2699) );
+                return 0;
+            }
         }
+
 
 
 
@@ -140,8 +145,27 @@ int main(void)
 //        Interpolation<short>::Get = Interpolation<short>::Bilinear;
 //        RR::AccumulatePolarRD( im_short, im_rduct, 1.0f, apprx_centre_d );
 //        save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "minimize median difference - bilinear - sub pixel.png" );
-//
-//return 0;
+
+
+        const int subpixelcount = 10;
+        for( int i=0; i<=subpixelcount; i++ )
+        {
+            const Vec2d sub_centre = (i * apprx_centre_left + (subpixelcount-i) * apprx_centre_right) / subpixelcount;
+
+            stringstream str1;
+            str1 << "minimize median difference - sector - " << sub_centre << ".png";
+            Interpolation<short>::Get = Interpolation<short>::Sampling;
+            RR::AccumulatePolarRD( im_short, im_rduct, 1.0f, sub_centre );
+            save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, str1.str() );
+
+            stringstream str2;
+            str2 << "minimize median difference - bilinear - " << sub_centre << ".png";
+            Interpolation<short>::Get = Interpolation<short>::Bilinear;
+            RR::AccumulatePolarRD( im_short, im_rduct, 1.0f, sub_centre );
+            save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, str2.str() );
+        }
+
+        return 0;
 
         Interpolation<short>::Get = Interpolation<short>::Bilinear;
         Interpolation<float>::Get = Interpolation<float>::Bilinear;

@@ -13,23 +13,23 @@ using namespace std;
 
 
 
-float RingsReduction::max_ring_radius( const cv::Vec2f& center,
-                                       const cv::Vec2f& im_size )
+double RingsReduction::max_ring_radius( const cv::Vec2d& center,
+                                       const cv::Vec2d& im_size )
 {
     // four relative corner with respect to the centre of rings
-    const Vec2f corner[4] =
+    const Vec2d corner[4] =
     {
-        Vec2f(0          - center[0], 0          - center[1]),
-        Vec2f(im_size[0] - center[0], im_size[1] - center[1]),
-        Vec2f(0          - center[0], im_size[1] - center[1]),
-        Vec2f(im_size[0] - center[0], 0          - center[1])
+        Vec2d(0          - center[0], 0          - center[1]),
+        Vec2d(im_size[0] - center[0], im_size[1] - center[1]),
+        Vec2d(0          - center[0], im_size[1] - center[1]),
+        Vec2d(im_size[0] - center[0], 0          - center[1])
     };
 
     // maximum possible radius of the rings
-    float max_radius_squre = 0;
+    double max_radius_squre = 0;
     for( int i=0; i<4; i++ )
     {
-        float current = corner[i][0]*corner[i][0] + corner[i][1]*corner[i][1];
+        double current = corner[i][0]*corner[i][0] + corner[i][1]*corner[i][1];
         max_radius_squre = max( max_radius_squre, current );
     }
     return sqrt( max_radius_squre );
@@ -37,7 +37,7 @@ float RingsReduction::max_ring_radius( const cv::Vec2f& center,
 
 
 double RingsReduction::avgI_on_rings( const cv::Mat_<short>& m,
-                                      const cv::Vec2f& ring_center,
+                                      const cv::Vec2d& ring_center,
                                       const int& rid,
                                       const double& dr )
 {
@@ -51,8 +51,8 @@ double RingsReduction::avgI_on_rings( const cv::Mat_<short>& m,
     double pixel_count = 0;
 
     // center of the ring
-    const float& center_x = ring_center[0];
-    const float& center_y = ring_center[1];
+    const double& center_x = ring_center[0];
+    const double& center_y = ring_center[1];
 
     // image size
     const int& im_size_x = m.rows;
@@ -127,8 +127,8 @@ double RingsReduction::avgI_on_rings( const cv::Mat_<short>& m,
 }
 
 void RingsReduction::sijbers( const Data3D<short>& src, Data3D<short>& dst,
-                              const float& dr,
-                              const Vec2f& ring_centre,
+                              const double& dr,
+                              const Vec2d& ring_centre,
                               bool isGaussianBlur,
                               std::vector<double>* pCorrection )
 {
@@ -159,9 +159,9 @@ void RingsReduction::sijbers( const Data3D<short>& src, Data3D<short>& dst,
     //Data3D<int> variance( im.get_size() );
     //IP::meanBlur3D( variance_sum, variance, wsize );
 
-    const Vec2f im_size( (float) src.SX(), (float) src.SY() );
+    const Vec2d im_size( (double) src.SX(), (double) src.SY() );
 
-    const float max_radius = max_ring_radius( ring_centre, im_size );
+    const double max_radius = max_ring_radius( ring_centre, im_size );
 
     const unsigned num_of_rings = unsigned( max_radius / dr );
 
@@ -193,7 +193,7 @@ void RingsReduction::correct_image( const Data3D<short>& src,
                                     Data3D<short>& dst,
                                     const vector<double>& correction,
                                     const int& slice,
-                                    const Vec2i& ring_center,
+                                    const Vec2d& ring_center,
                                     const double& dr )
 {
     dst.reset( src.get_size(), short(0) );
@@ -235,9 +235,9 @@ void RingsReduction::correct_image( const Data3D<short>& src,
 
 
 void RingsReduction::polarRD( const Data3D<short>& src, Data3D<short>& dst,
-                              const PolarRDOption& o, const float dr,
-                              const Vec2f& approx_centre,
-                              const float& subpixel_on_ring,
+                              const PolarRDOption& o, const double dr,
+                              const Vec2d& approx_centre,
+                              const double& subpixel_on_ring,
                               vector<double>* pCorrection )
 {
     smart_assert( &src!=&dst,
@@ -246,17 +246,17 @@ void RingsReduction::polarRD( const Data3D<short>& src, Data3D<short>& dst,
     // TODO: do it on a 3D volume
     const int center_z = src.SZ() / 2;
 
-    const Vec2f& ring_center = approx_centre;
+    const Vec2d& ring_center = approx_centre;
 
-    const Vec2f im_size( (float)src.SX(), (float)src.SY() );
+    const Vec2d im_size( (double)src.SX(), (double)src.SY() );
 
-    const float max_radius = max_ring_radius( ring_center, im_size );
+    const double max_radius = max_ring_radius( ring_center, im_size );
 
     const int num_of_rings = int( max_radius / dr );
 
-    double (*diff_func)(const cv::Mat_<short>&, const cv::Vec2f&,
-                        const int&, const int&, const double&,
-                        const float& ) = nullptr;
+    double (*diff_func)(const cv::Mat_<short>&, const cv::Vec2d&,
+                        const int&, const int&,
+                        const double&, const double& ) = nullptr;
     switch (o )
     {
     case AVG_DIFF:
@@ -290,7 +290,7 @@ void RingsReduction::polarRD( const Data3D<short>& src, Data3D<short>& dst,
 
 
 void RingsReduction::AccumulatePolarRD( const Data3D<short>& src, Data3D<short>& dst,
-                                        const float dradius,
+                                        const double dradius,
                                         const Vec2d& ring_center,
                                         std::vector<double>* pCorrection )
 {
@@ -300,9 +300,9 @@ void RingsReduction::AccumulatePolarRD( const Data3D<short>& src, Data3D<short>&
     // TODO: do it on a 3D volume
     const unsigned center_z = src.SZ() / 2;
 
-    const Vec2f im_size( (float)src.SX(), (float)src.SY() );
+    const Vec2d im_size( (double)src.SX(), (double)src.SY() );
 
-    const float max_radius = max_ring_radius( ring_center, im_size );
+    const double max_radius = max_ring_radius( ring_center, im_size );
 
     const unsigned num_of_rings = unsigned( max_radius / dradius );
 
@@ -346,7 +346,7 @@ void RingsReduction::AccumulatePolarRD( const Data3D<short>& src, Data3D<short>&
 
 
 double RingsReduction::avg_diff( const cv::Mat_<short>& m,
-                                 const cv::Vec2f& ring_center,
+                                 const cv::Vec2d& ring_center,
                                  const int& rid1,
                                  const int& rid2,
                                  const double& dradius )
@@ -395,7 +395,7 @@ double RingsReduction::avg_diff( const cv::Mat_<short>& m,
 }
 
 double RingsReduction::med_diff( const cv::Mat_<short>& m,
-                                 const cv::Vec2f& ring_center,
+                                 const cv::Vec2d& ring_center,
                                  const int& rid1,
                                  const int& rid2,
                                  const double& dradius )
@@ -441,11 +441,11 @@ double RingsReduction::med_diff( const cv::Mat_<short>& m,
 }
 
 double RingsReduction::avg_diff_v2( const cv::Mat_<short>& m,
-                                    const cv::Vec2f& ring_center,
+                                    const cv::Vec2d& ring_center,
                                     const int& rid1,
                                     const int& rid2,
                                     const double& dr,
-                                    const float& subpixel_on_ring )
+                                    const double& subpixel_on_ring )
 {
     const double avg1 = avg_on_ring( m, ring_center, rid1, dr, subpixel_on_ring );
     const double avg2 = avg_on_ring( m, ring_center, rid2, dr, subpixel_on_ring );
@@ -454,11 +454,11 @@ double RingsReduction::avg_diff_v2( const cv::Mat_<short>& m,
 
 
 double RingsReduction::med_diff_v2( const cv::Mat_<short>& m,
-                                    const cv::Vec2f& ring_center,
+                                    const cv::Vec2d& ring_center,
                                     const int& rid1,
                                     const int& rid2,
                                     const double& dr,
-                                    const float& subpixel_on_ring )
+                                    const double& subpixel_on_ring )
 {
     const double med1 = med_on_ring( m, ring_center, rid1, dr, subpixel_on_ring );
     const double med2 = med_on_ring( m, ring_center, rid2, dr, subpixel_on_ring );
@@ -468,9 +468,9 @@ double RingsReduction::med_diff_v2( const cv::Mat_<short>& m,
 
 
 double RingsReduction::avg_on_ring( const cv::Mat_<short>& m,
-                                    const cv::Vec2f& ring_center,
+                                    const cv::Vec2d& ring_center,
                                     const int& rid, const double& dradius,
-                                    const float& subpixel_on_ring )
+                                    const double& subpixel_on_ring )
 {
     // radius of the circle
     const double radius = rid * dradius;
@@ -522,7 +522,7 @@ double RingsReduction::median( std::vector<double>& values )
 }
 
 std::vector<double> RingsReduction::distri_of_diff( const cv::Mat_<short>& m,
-        const cv::Vec2f& ring_center,
+        const cv::Vec2d& ring_center,
         const int& rid1, const int& rid2,
         const double& dradius )
 {
