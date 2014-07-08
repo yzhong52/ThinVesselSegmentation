@@ -171,12 +171,18 @@ void RingsReduction::sijbers( const Data3D<short>& src, Data3D<short>& dst,
         vector<double> correction( num_of_rings, 0 );
 
         // rings reduction is done slice by slice
-        cout << '\r' << "Rings Reduction: " << 100 * z / src.SZ() << "%";
-        cout.flush();
+        //cout << '\r' << "Rings Reduction: " << 100 * z / src.SZ() << "%";
+        //cout.flush();
 
         const Mat_<int> m = diff.getMat(z);
+
+        #pragma omp parallel for schedule(dynamic)
         for( unsigned ri = 0; ri<num_of_rings-1; ri++ )
         {
+//            {
+//                cout << ri << '(' << omp_get_thread_num() << ")\t";
+//                cout.flush();
+//            }
             correction[ri] = med_on_ring( m, ring_centre, ri, dr );
         }
 
@@ -312,11 +318,11 @@ void RingsReduction::AccumulatePolarRD( const Data3D<short>& src, Data3D<short>&
     #pragma omp parallel for schedule(dynamic)
     for( unsigned ri = 0; ri<num_of_rings-1; ri++ )
     {
-        // #pragma omp critical
+        /* #pragma omp critical
         {
             cout << ri << '(' << omp_get_thread_num() << ")\t";
             cout.flush();
-        }
+        }*/
 
         correction[ri] = med_diff( src.getMat(center_z),
                                    ring_center, ri, ri+1, dradius );

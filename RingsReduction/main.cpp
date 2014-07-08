@@ -130,6 +130,48 @@ int main(void)
         Data3D<short> im_rduct, im_rduct2;
         vector<double> correction;
 
+        if( true )  // subsample experiment
+        {
+            const int subpixelcount = 10;
+            for( int i=0; i<=subpixelcount; i++ )
+            {
+                cout << "i = " << i << endl;
+
+                const Vec2d sub_centre = (i * apprx_centre_left + (subpixelcount-i) * apprx_centre_right) / subpixelcount;
+//
+//                stringstream str1;
+//                str1 << "minimize median difference - sector - " << sub_centre << ".png";
+//                Interpolation<short>::Get = Interpolation<short>::Sampling;
+//                RR::AccumulatePolarRD( im_short, im_rduct, 1.0f, sub_centre );
+//                save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, str1.str() );
+//
+//                stringstream str2;
+//                str2 << "minimize median difference - bilinear - " << sub_centre << ".png";
+//                Interpolation<short>::Get = Interpolation<short>::Bilinear;
+//                RR::AccumulatePolarRD( im_short, im_rduct, 1.0f, sub_centre );
+//                save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, str2.str() );
+
+                stringstream str3;
+                str3 << "Sijbers - Gaussian - bilinear - " << sub_centre << ".png";
+                Interpolation<short>::Get = Interpolation<short>::Bilinear;
+                Interpolation<float>::Get = Interpolation<float>::Bilinear;
+                Interpolation<int>::Get   = Interpolation<int>::Bilinear;
+                RR::sijbers( im_short, im_rduct, 1.0f, sub_centre, true );
+                save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, str3.str() );
+
+                stringstream str4;
+                str4 << "Sijbers - Gaussian - sector - " << sub_centre << ".png";
+                Interpolation<short>::Get = Interpolation<short>::Sampling;
+                Interpolation<float>::Get = Interpolation<float>::Sampling;
+                Interpolation<int>::Get   = Interpolation<int>::Sampling;
+                RR::sijbers( im_short, im_rduct, 1.0f, sub_centre, true );
+                save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, str4.str() );
+
+            }
+
+            return 0;
+        }
+
 //        Interpolation<short>::Get = Interpolation<short>::Sampling;
 //        RR::AccumulatePolarRD( im_short, im_rduct, 1.0f, apprx_centre_i );
 //        save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "minimize median difference - sampling.png" );
@@ -147,25 +189,6 @@ int main(void)
 //        save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "minimize median difference - bilinear - sub pixel.png" );
 
 
-        const int subpixelcount = 10;
-        for( int i=0; i<=subpixelcount; i++ )
-        {
-            const Vec2d sub_centre = (i * apprx_centre_left + (subpixelcount-i) * apprx_centre_right) / subpixelcount;
-
-            stringstream str1;
-            str1 << "minimize median difference - sector - " << sub_centre << ".png";
-            Interpolation<short>::Get = Interpolation<short>::Sampling;
-            RR::AccumulatePolarRD( im_short, im_rduct, 1.0f, sub_centre );
-            save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, str1.str() );
-
-            stringstream str2;
-            str2 << "minimize median difference - bilinear - " << sub_centre << ".png";
-            Interpolation<short>::Get = Interpolation<short>::Bilinear;
-            RR::AccumulatePolarRD( im_short, im_rduct, 1.0f, sub_centre );
-            save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, str2.str() );
-        }
-
-        return 0;
 
         Interpolation<short>::Get = Interpolation<short>::Bilinear;
         Interpolation<float>::Get = Interpolation<float>::Bilinear;
