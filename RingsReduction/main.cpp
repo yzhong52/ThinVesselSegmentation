@@ -163,32 +163,52 @@ void have_a_try(void)
 
 
 
-namespace state_of_the_art{
-    void letsgo(void){
-        // loading data
-        Data3D<short> im_short;
-        bool flag = im_short.load( "../temp/vessel3d.data" );
-        if( !flag ) return;
+namespace state_of_the_art
+{
+void letsgo(void)
+{
+    // loading data
+    Data3D<short> im_short;
+    bool flag = im_short.load( "../temp/vessel3d.data" );
+    if( !flag ) return;
 
-        const Vec2d sub_centre( 233.5, 269.6 );
+    const Vec2d sub_centre( 233.5, 269.6 );
 
-        Data3D<short> im_rduct;
-        Interpolation<short>::Get = Interpolation<short>::Bilinear;
-        Interpolation<float>::Get = Interpolation<float>::Bilinear;
-        Interpolation<int>::Get   = Interpolation<int>::Bilinear;
-        RR::sijbers( im_short, im_rduct, 1.0f, sub_centre, true );
+    Data3D<short> im_rduct;
+    Interpolation<short>::Get = Interpolation<short>::Bilinear;
+    Interpolation<float>::Get = Interpolation<float>::Bilinear;
+    Interpolation<int>::Get   = Interpolation<int>::Bilinear;
+    RR::sijbers( im_short, im_rduct, 1.0f, sub_centre, true );
 
-        im_rduct.save( "../temp/vessel3d_rd.data" );
-        im_rduct.show();
-        return;
-    }
+    im_rduct.save( "../temp/vessel3d_rd.data" );
+    im_rduct.show();
+    return;
+}
 }
 
 
 int main(void)
 {
+    const Vec2d apprx_centre_left(  233, 269 );
+    const Vec2d apprx_centre_right( 234, 270 );
+
+    const int subpixelcount = 10;
+    for( int i=0; i<=subpixelcount; i++ )
+    {
+        cout << "i = " << i << endl;
+
+        const Vec2d sub_centre = (i * apprx_centre_left + (subpixelcount-i) * apprx_centre_right) / subpixelcount;
+
+        stringstream str1;
+        str1 << "minimize median difference - sector - " << sub_centre << ".png";
+        Mat mat;
+        cv::imread(  );
+        cv::show( "Mat::Image" );
+        cv::waitKey( 0 );
+    }
+
     // experiment::have_a_try();
-    state_of_the_art::letsgo();
+    //state_of_the_art::letsgo();
     return 0;
 }
 
