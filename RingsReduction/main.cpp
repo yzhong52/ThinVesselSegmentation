@@ -10,9 +10,15 @@
 #include "CVPlot.h"
 #include "Interpolation.h"
 
+#include <omp.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 using namespace std;
 using namespace cv;
+
+namespace experiment
+{
 
 void save_slice( const Data3D<short>& im, const int& slice,
                  const double& minVal,
@@ -50,21 +56,12 @@ void save_slice( Mat im, const double& minVal, const double& maxVal,
 }
 
 
-#include <omp.h>
-#include <stdio.h>
-#include <stdlib.h>
-
-
-
-
-
-int main(void)
+void have_a_try(void)
 {
     // loading data
     Data3D<short> im_short;
-    bool flag = im_short.load( "../temp/vessel3d.data", Vec3i(585, 525, 10),
-                               true, true );
-    if( !flag ) return 0;
+    bool flag = im_short.load( "../temp/vessel3d.data", Vec3i(585, 525, 10), true, true );
+    if( !flag ) return;
 
 
     if( false ) /*centre_detection*/
@@ -91,7 +88,7 @@ int main(void)
 
 
         waitKey(0);
-        return 0;
+        return;
     }
 
     // A approximation of the ring center
@@ -103,8 +100,6 @@ int main(void)
 
     if( true ) /*ring_reduction*/
     {
-
-
         // compute the minimum value and maximum value in the centre slice
         double minVal = 0, maxVal = 0;
         cv::minMaxLoc( im_short.getMat( im_short.SZ()/2 ), &minVal, &maxVal );
@@ -114,42 +109,31 @@ int main(void)
             Mat m = im_short.getMat( im_short.SZ()/2 );
             save_slice( m, minVal, maxVal, "original_234_270.png", Vec2i(234, 270) );
             save_slice( m, minVal, maxVal, "original_233_269.png", Vec2i(233, 269) );
-            if( false ) // resize image
-            {
-                Mat big_im;
-                cv::resize( m, big_im, m.size()*10 );
-                save_slice( big_im, minVal, maxVal, "original big.png", Vec2i(2339, 2699) );
-                return 0;
-            }
         }
-
-
-
-
-
-        Data3D<short> im_rduct, im_rduct2;
-        vector<double> correction;
 
         if( true )  // subsample experiment
         {
+            Data3D<short> im_rduct;
+            // vector<double> correction;
+
             const int subpixelcount = 10;
             for( int i=0; i<=subpixelcount; i++ )
             {
                 cout << "i = " << i << endl;
 
                 const Vec2d sub_centre = (i * apprx_centre_left + (subpixelcount-i) * apprx_centre_right) / subpixelcount;
-//
-//                stringstream str1;
-//                str1 << "minimize median difference - sector - " << sub_centre << ".png";
-//                Interpolation<short>::Get = Interpolation<short>::Sampling;
-//                RR::AccumulatePolarRD( im_short, im_rduct, 1.0f, sub_centre );
-//                save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, str1.str() );
-//
-//                stringstream str2;
-//                str2 << "minimize median difference - bilinear - " << sub_centre << ".png";
-//                Interpolation<short>::Get = Interpolation<short>::Bilinear;
-//                RR::AccumulatePolarRD( im_short, im_rduct, 1.0f, sub_centre );
-//                save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, str2.str() );
+
+                stringstream str1;
+                str1 << "minimize median difference - sector - " << sub_centre << ".png";
+                Interpolation<short>::Get = Interpolation<short>::Sampling;
+                RR::AccumulatePolarRD( im_short, im_rduct, 1.0f, sub_centre );
+                save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, str1.str() );
+
+                stringstream str2;
+                str2 << "minimize median difference - bilinear - " << sub_centre << ".png";
+                Interpolation<short>::Get = Interpolation<short>::Bilinear;
+                RR::AccumulatePolarRD( im_short, im_rduct, 1.0f, sub_centre );
+                save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, str2.str() );
 
                 stringstream str3;
                 str3 << "Sijbers - Gaussian - bilinear - " << sub_centre << ".png";
@@ -169,51 +153,42 @@ int main(void)
 
             }
 
-            return 0;
+            return;
         }
-
-//        Interpolation<short>::Get = Interpolation<short>::Sampling;
-//        RR::AccumulatePolarRD( im_short, im_rduct, 1.0f, apprx_centre_i );
-//        save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "minimize median difference - sampling.png" );
-//
-//        Interpolation<short>::Get = Interpolation<short>::Bilinear;
-//        RR::AccumulatePolarRD( im_short, im_rduct, 1.0f, apprx_centre_i );
-//        save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "minimize median difference - bilinear.png" );
-//
-//        Interpolation<short>::Get = Interpolation<short>::Sampling;
-//        RR::AccumulatePolarRD( im_short, im_rduct, 1.0f, apprx_centre_d );
-//        save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "minimize median difference - sampling - sub pixel.png" );
-//
-//        Interpolation<short>::Get = Interpolation<short>::Bilinear;
-//        RR::AccumulatePolarRD( im_short, im_rduct, 1.0f, apprx_centre_d );
-//        save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "minimize median difference - bilinear - sub pixel.png" );
-
-
-
-        Interpolation<short>::Get = Interpolation<short>::Bilinear;
-        Interpolation<float>::Get = Interpolation<float>::Bilinear;
-        Interpolation<int>::Get   = Interpolation<int>::Bilinear;
-        RR::sijbers( im_short, im_rduct, 1.0f, apprx_centre_i, true );
-        save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "Sijbers - Gaussian - bilinear.png" );
-
-        Interpolation<short>::Get = Interpolation<short>::Sampling;
-        Interpolation<float>::Get = Interpolation<float>::Sampling;
-        Interpolation<int>::Get   = Interpolation<int>::Sampling;
-        RR::sijbers( im_short, im_rduct, 1.0f, apprx_centre_i, true );
-        save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "Sijbers - Gaussian - sampling.png" );
-
-        Interpolation<short>::Get = Interpolation<short>::Bilinear;
-        Interpolation<float>::Get = Interpolation<float>::Bilinear;
-        Interpolation<int>::Get   = Interpolation<int>::Bilinear;
-        RR::sijbers( im_short, im_rduct, 1.0f, apprx_centre_d, true );
-        save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "Sijbers - Gaussian - bilinear - sub pixel.png" );
-
-        Interpolation<short>::Get = Interpolation<short>::Sampling;
-        Interpolation<float>::Get = Interpolation<float>::Sampling;
-        Interpolation<int>::Get   = Interpolation<int>::Sampling;
-        RR::sijbers( im_short, im_rduct, 1.0f, apprx_centre_d, true );
-        save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, "Sijbers - Gaussian - sampling - sub pixel.png" );
     }
+    return;
+}
+
+} // end of namespace
+
+
+
+namespace state_of_the_art{
+    void letsgo(void){
+        // loading data
+        Data3D<short> im_short;
+        bool flag = im_short.load( "../temp/vessel3d.data" );
+        if( !flag ) return;
+
+        const Vec2d sub_centre( 233.5, 269.6 );
+
+        Data3D<short> im_rduct;
+        Interpolation<short>::Get = Interpolation<short>::Bilinear;
+        Interpolation<float>::Get = Interpolation<float>::Bilinear;
+        Interpolation<int>::Get   = Interpolation<int>::Bilinear;
+        RR::sijbers( im_short, im_rduct, 1.0f, sub_centre, true );
+
+        im_rduct.save( "../temp/vessel3d_rd.data" );
+        im_rduct.show();
+        return;
+    }
+}
+
+
+int main(void)
+{
+    // experiment::have_a_try();
+    state_of_the_art::letsgo();
     return 0;
 }
 

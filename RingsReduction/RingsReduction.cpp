@@ -14,7 +14,7 @@ using namespace std;
 
 
 double RingsReduction::max_ring_radius( const cv::Vec2d& center,
-                                       const cv::Vec2d& im_size )
+                                        const cv::Vec2d& im_size )
 {
     // four relative corner with respect to the centre of rings
     const Vec2d corner[4] =
@@ -165,30 +165,27 @@ void RingsReduction::sijbers( const Data3D<short>& src, Data3D<short>& dst,
 
     const unsigned num_of_rings = unsigned( max_radius / dr );
 
+    vector<double> correction( num_of_rings, 0 );
     for( int z=0; z<src.SZ(); z++ )
     {
-        z = src.SZ() / 2;
-        vector<double> correction( num_of_rings, 0 );
+        // z = src.SZ() / 2;
 
         // rings reduction is done slice by slice
-        //cout << '\r' << "Rings Reduction: " << 100 * z / src.SZ() << "%";
-        //cout.flush();
+        cout << '\r' << "Rings Reduction: " << 100 * z / src.SZ() << "%";
+        cout.flush();
 
         const Mat_<int> m = diff.getMat(z);
 
         #pragma omp parallel for schedule(dynamic)
         for( unsigned ri = 0; ri<num_of_rings-1; ri++ )
         {
-//            {
-//                cout << ri << '(' << omp_get_thread_num() << ")\t";
-//                cout.flush();
-//            }
             correction[ri] = med_on_ring( m, ring_centre, ri, dr );
         }
 
         correct_image( src, dst, correction, z, ring_centre, dr );
         if( pCorrection ) *pCorrection = correction;
-        break;
+
+        // break;
     }
     cout << endl;
 }
@@ -202,7 +199,8 @@ void RingsReduction::correct_image( const Data3D<short>& src,
                                     const Vec2d& ring_center,
                                     const double& dr )
 {
-    dst.reset( src.get_size(), short(0) );
+    if( dst.get_size()!=src.get_size() )
+        dst.reset( src.get_size(), short(0) );
 
     const int& z = slice;
     for( int x=0; x<src.SX(); x++ )
