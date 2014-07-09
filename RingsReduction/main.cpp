@@ -172,7 +172,7 @@ void letsgo(void)
     bool flag = im_short.load( "../temp/vessel3d.data" );
     if( !flag ) return;
 
-    const Vec2d sub_centre( 233.5, 269.6 );
+    const Vec2d sub_centre( 233.5, 269.5 );
 
     Data3D<short> im_rduct;
     Interpolation<short>::Get = Interpolation<short>::Bilinear;
