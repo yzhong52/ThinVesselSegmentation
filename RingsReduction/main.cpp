@@ -233,7 +233,7 @@ void sijiber(void)
 {
     // loading data
     Data3D<short> im_short;
-    bool flag = im_short.load( "../temp/vessel3d.data" );
+    bool flag = im_short.load( "../temp/vessel3d.data", Vec3i(585, 525, 892), true, true  );
     if( !flag ) return;
 
     const Vec2d sub_centre( 233.5, 269.5 );
@@ -245,7 +245,10 @@ void sijiber(void)
     RR::sijbers( im_short, im_rduct, 1.0f, sub_centre, true );
 
     im_rduct.save( "../temp/vessel3d_rd.data" );
-    im_rduct.show();
+
+
+    Vec<short, 2> min_max = im_rduct.get_min_max_value();
+    im_rduct.show( "Result After Rings Reduction", 0, min_max[0], min_max[1] );
     return;
 }
 
@@ -272,10 +275,10 @@ void letsgo( void )
 
 int main(void)
 {
-    experiment::search_grid();
-
+    //experiment::search_grid();
     // experiment::have_a_try();
     //state_of_the_art::letsgo();
+    state_of_the_art::sijiber();
     return 0;
 }
 

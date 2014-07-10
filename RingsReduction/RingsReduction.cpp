@@ -168,9 +168,7 @@ void RingsReduction::sijbers( const Data3D<short>& src, Data3D<short>& dst,
     vector<double> correction( num_of_rings, 0 );
     for( int z=0; z<src.SZ(); z++ )
     {
-        // z = src.SZ() / 2;
-
-        // rings reduction is done slice by slice
+        // rings reduction is done slice by slice here
         cout << '\r' << "Rings Reduction: " << 100 * z / src.SZ() << "%";
         cout.flush();
 
@@ -184,8 +182,6 @@ void RingsReduction::sijbers( const Data3D<short>& src, Data3D<short>& dst,
 
         correct_image( src, dst, correction, z, ring_centre, dr );
         if( pCorrection ) *pCorrection = correction;
-
-        // break;
     }
     cout << endl;
 }
