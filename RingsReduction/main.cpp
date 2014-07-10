@@ -56,107 +56,128 @@ void save_slice( Mat im, const double& minVal, const double& maxVal,
 }
 
 
-void have_a_try(void)
+/*Search among a very small area around the groud true and will plot a 2d plot from it afterwards*/
+void search_grid(void)
 {
     // loading data
     Data3D<short> im_short;
     bool flag = im_short.load( "../temp/vessel3d.data", Vec3i(585, 525, 10), true, true );
     if( !flag ) return;
 
+    const Vec2d apprx_centre_upper_left(  233.4, 269.4 );
+    const Vec2d apprx_centre_lower_right( 233.6, 269.6 );
 
-    if( false ) /*centre_detection*/
+    // compute the minimum value and maximum value in the centre slice
+    double minVal = 0, maxVal = 0;
+    cv::minMaxLoc( im_short.getMat( im_short.SZ()/2 ), &minVal, &maxVal );
+
+    Data3D<short> im_rduct;
+
+    const int subpixelcount = 10;
+    for( int i=0; i<=subpixelcount; i++ )
     {
-        // calculating the centre of the ring
-        RC::DEBUG_MODE = true;
-        RC::output_prefix = "output/gradient/";
-        Vec2f centre1 = RC::method_threshold_gradient( im_short, Vec2i( 234, 270 ) );
-        cout << centre1 << endl;
+        for( int j=0; j<=subpixelcount; j++ )
+        {
+            const Vec2d sub_centre = 1.0 / subpixelcount *
+                                     Vec2d( i * apprx_centre_upper_left[0] + (subpixelcount-i) * apprx_centre_lower_right[0],
+                                            j * apprx_centre_upper_left[1] + (subpixelcount-j) * apprx_centre_lower_right[1] );
 
-        RC::output_prefix = "output/canny/";
-        Vec2f centre2 = RC::method_canny_edges( im_short, cv::Vec2i( 234, 270 ) );
-        cout << centre2 << endl;
-
-        RC::output_prefix = "output/canny angle/";
-        Vec2f centre3 = RC::method_canny_edges_angle( im_short, cv::Vec2i( 234, 270 ) );
-        cout << centre3 << endl;
-
-        RC::output_prefix = "output/weighted gradient/";
-        Vec2f centre4 = RC::method_weighted_gradient( im_short, cv::Vec2i( 234, 270 ) );
-        cout << centre4 << endl;
-
-        cout << Vec2f(233.601f, 269.601f) << " - Expected Centre. "<< endl;
-
-
-        waitKey(0);
-        return;
+            stringstream str2;
+            str2 << "minimize median difference - bilinear - " << sub_centre << ".png";
+            Interpolation<short>::Get = Interpolation<short>::Bilinear;
+            RR::AccumulatePolarRD( im_short, im_rduct, 1.0f, sub_centre );
+            save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, str2.str() );
+        }
     }
+}
 
-    // A approximation of the ring center
-    const Vec2d apprx_centre_d( 233.7, 269.7 );
-    const Vec2d apprx_centre_i( 234, 270 );
+void search_for_centre(void)
+{
+    Data3D<short> im_short;
+    bool flag = im_short.load( "../temp/vessel3d.data", Vec3i(585, 525, 10), true, true );
+    if( !flag ) return;
+
+    // calculating the centre of the ring
+    RC::DEBUG_MODE = true;
+    RC::output_prefix = "output/gradient/";
+    Vec2f centre1 = RC::method_threshold_gradient( im_short, Vec2i( 234, 270 ) );
+    cout << centre1 << endl;
+
+    RC::output_prefix = "output/canny/";
+    Vec2f centre2 = RC::method_canny_edges( im_short, cv::Vec2i( 234, 270 ) );
+    cout << centre2 << endl;
+
+    RC::output_prefix = "output/canny angle/";
+    Vec2f centre3 = RC::method_canny_edges_angle( im_short, cv::Vec2i( 234, 270 ) );
+    cout << centre3 << endl;
+
+    RC::output_prefix = "output/weighted gradient/";
+    Vec2f centre4 = RC::method_weighted_gradient( im_short, cv::Vec2i( 234, 270 ) );
+    cout << centre4 << endl;
+
+    cout << Vec2f(233.601f, 269.601f) << " - Expected Centre. "<< endl;
+}
+
+void search_on_a_line(void)
+{
+    // loading data
+    Data3D<short> im_short;
+    bool flag = im_short.load( "../temp/vessel3d.data", Vec3i(585, 525, 10), true, true );
+    if( !flag ) return;
 
     const Vec2d apprx_centre_left(  233, 269 );
     const Vec2d apprx_centre_right( 234, 270 );
 
-    if( true ) /*ring_reduction*/
+    // compute the minimum value and maximum value in the centre slice
+    double minVal = 0, maxVal = 0;
+    cv::minMaxLoc( im_short.getMat( im_short.SZ()/2 ), &minVal, &maxVal );
+
+    if( false ) // save the original data with centre point
     {
-        // compute the minimum value and maximum value in the centre slice
-        double minVal = 0, maxVal = 0;
-        cv::minMaxLoc( im_short.getMat( im_short.SZ()/2 ), &minVal, &maxVal );
-
-        if( false )  // save the original data with centre point
-        {
-            Mat m = im_short.getMat( im_short.SZ()/2 );
-            save_slice( m, minVal, maxVal, "original_234_270.png", Vec2i(234, 270) );
-            save_slice( m, minVal, maxVal, "original_233_269.png", Vec2i(233, 269) );
-        }
-
-        if( true )  // subsample experiment
-        {
-            Data3D<short> im_rduct;
-            // vector<double> correction;
-
-            const int subpixelcount = 10;
-            for( int i=0; i<=subpixelcount; i++ )
-            {
-                cout << "i = " << i << endl;
-
-                const Vec2d sub_centre = (i * apprx_centre_left + (subpixelcount-i) * apprx_centre_right) / subpixelcount;
-
-                stringstream str1;
-                str1 << "minimize median difference - sector - " << sub_centre << ".png";
-                Interpolation<short>::Get = Interpolation<short>::Sampling;
-                RR::AccumulatePolarRD( im_short, im_rduct, 1.0f, sub_centre );
-                save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, str1.str() );
-
-                stringstream str2;
-                str2 << "minimize median difference - bilinear - " << sub_centre << ".png";
-                Interpolation<short>::Get = Interpolation<short>::Bilinear;
-                RR::AccumulatePolarRD( im_short, im_rduct, 1.0f, sub_centre );
-                save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, str2.str() );
-
-                stringstream str3;
-                str3 << "Sijbers - Gaussian - bilinear - " << sub_centre << ".png";
-                Interpolation<short>::Get = Interpolation<short>::Bilinear;
-                Interpolation<float>::Get = Interpolation<float>::Bilinear;
-                Interpolation<int>::Get   = Interpolation<int>::Bilinear;
-                RR::sijbers( im_short, im_rduct, 1.0f, sub_centre, true );
-                save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, str3.str() );
-
-                stringstream str4;
-                str4 << "Sijbers - Gaussian - sector - " << sub_centre << ".png";
-                Interpolation<short>::Get = Interpolation<short>::Sampling;
-                Interpolation<float>::Get = Interpolation<float>::Sampling;
-                Interpolation<int>::Get   = Interpolation<int>::Sampling;
-                RR::sijbers( im_short, im_rduct, 1.0f, sub_centre, true );
-                save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, str4.str() );
-
-            }
-
-            return;
-        }
+        Mat m = im_short.getMat( im_short.SZ()/2 );
+        save_slice( m, minVal, maxVal, "original_234_270.png", Vec2i(234, 270) );
+        save_slice( m, minVal, maxVal, "original_233_269.png", Vec2i(233, 269) );
     }
-    return;
+
+    Data3D<short> im_rduct;
+    // vector<double> correction;
+
+    const int subpixelcount = 10;
+    for( int i=0; i<=subpixelcount; i++ )
+    {
+        cout << "i = " << i << endl;
+
+        const Vec2d sub_centre = (i * apprx_centre_left + (subpixelcount-i) * apprx_centre_right) / subpixelcount;
+
+        stringstream str1;
+        str1 << "minimize median difference - sector - " << sub_centre << ".png";
+        Interpolation<short>::Get = Interpolation<short>::Sampling;
+        RR::AccumulatePolarRD( im_short, im_rduct, 1.0f, sub_centre );
+        save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, str1.str() );
+
+        stringstream str2;
+        str2 << "minimize median difference - bilinear - " << sub_centre << ".png";
+        Interpolation<short>::Get = Interpolation<short>::Bilinear;
+        RR::AccumulatePolarRD( im_short, im_rduct, 1.0f, sub_centre );
+        save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, str2.str() );
+
+        stringstream str3;
+        str3 << "Sijbers - Gaussian - bilinear - " << sub_centre << ".png";
+        Interpolation<short>::Get = Interpolation<short>::Bilinear;
+        Interpolation<float>::Get = Interpolation<float>::Bilinear;
+        Interpolation<int>::Get   = Interpolation<int>::Bilinear;
+        RR::sijbers( im_short, im_rduct, 1.0f, sub_centre, true );
+        save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, str3.str() );
+
+        stringstream str4;
+        str4 << "Sijbers - Gaussian - sector - " << sub_centre << ".png";
+        Interpolation<short>::Get = Interpolation<short>::Sampling;
+        Interpolation<float>::Get = Interpolation<float>::Sampling;
+        Interpolation<int>::Get   = Interpolation<int>::Sampling;
+        RR::sijbers( im_short, im_rduct, 1.0f, sub_centre, true );
+        save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, str4.str() );
+
+    }
 }
 
 } // end of namespace
@@ -189,23 +210,7 @@ void letsgo(void)
 
 int main(void)
 {
-    const Vec2d apprx_centre_left(  233, 269 );
-    const Vec2d apprx_centre_right( 234, 270 );
-
-    const int subpixelcount = 10;
-    for( int i=0; i<=subpixelcount; i++ )
-    {
-        cout << "i = " << i << endl;
-
-        const Vec2d sub_centre = (i * apprx_centre_left + (subpixelcount-i) * apprx_centre_right) / subpixelcount;
-
-        stringstream str1;
-        str1 << "minimize median difference - sector - " << sub_centre << ".png";
-        Mat mat;
-        cv::imread(  );
-        cv::show( "Mat::Image" );
-        cv::waitKey( 0 );
-    }
+    experiment::search_grid();
 
     // experiment::have_a_try();
     //state_of_the_art::letsgo();
