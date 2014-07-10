@@ -38,7 +38,7 @@ void save_slice( const Data3D<short>& im, const int& slice,
 }
 
 void save_slice( Mat im, const double& minVal, const double& maxVal,
-                 const string& name, const Vec2i& center,
+                 const string& name, const Vec2i& center = Vec2i(0,0),
                  Vec3b center_color = Vec3b(0, 0, 255) )
 {
     // change the data type from whatever data type it is to float for computation
@@ -50,7 +50,9 @@ void save_slice( Mat im, const double& minVal, const double& maxVal,
     // convert back to CV_8U for visualization
     im.convertTo(im, CV_8UC3);
     // draw the centre point on the image
-    im.at<Vec3b>(center[1], center[0]) = center_color;
+    if( center[0]!=0 || center[1]!=0 ){
+        im.at<Vec3b>(center[1], center[0]) = center_color;
+    }
     // save file
     cv::imwrite( "output/" + name, im );
 }
@@ -87,13 +89,14 @@ void search_grid(void)
     const Vec2d apprx_centre_upper_left(  233.4, 269.4 );
     const Vec2d apprx_centre_lower_right( 233.6, 269.6 );
 
-    int sliceid = im_short.SZ()/2;
+    int sliceid = 350;
+
+    if( sliceid >= im_short.SZ() ) return;
 
     // compute the minimum value and maximum value in the centre slice
     double minVal = 0, maxVal = 0;
-    cv::minMaxLoc( im_short.getMat( sliceid ), &minVal, &maxVal );
-
-    Data3D<short> im_rduct;
+    const Mat_<short> src = im_short.getMat( sliceid );
+    cv::minMaxLoc( src, &minVal, &maxVal );
 
     ofstream cout( "output/out.txt" );
 
@@ -112,11 +115,16 @@ void search_grid(void)
 
             stringstream str2;
             str2 << "minimize median difference - bilinear - " << sub_centre << ".png";
-            Interpolation<short>::Get = Interpolation<short>::Bilinear;
-            RR::AccumulatePolarRD( im_short, im_rduct, 1.0f, sub_centre );
-            save_slice( im_rduct, sliceid, minVal, maxVal, str2.str() );
 
-            cout << measure_total_variation( im_rduct.getMat(sliceid), minVal, maxVal ) / 10e6;
+            Interpolation<short>::Get = Interpolation<short>::Bilinear;
+
+
+            Mat_<short> dst;
+
+            RR::MMDPolarRD( src, dst, sub_centre );
+            save_slice( dst, minVal, maxVal, str2.str() );
+
+            cout << measure_total_variation( dst, minVal, maxVal ) / 10e6;
             if( j!=subpixelcount )  cout << ',';
         }
         cout << "]";
@@ -186,13 +194,13 @@ void search_on_a_line(void)
         stringstream str1;
         str1 << "minimize median difference - sector - " << sub_centre << ".png";
         Interpolation<short>::Get = Interpolation<short>::Sampling;
-        RR::AccumulatePolarRD( im_short, im_rduct, 1.0f, sub_centre );
+//        RR::MMDPolarRD( im_short, im_rduct, 1.0f, sub_centre );
         save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, str1.str() );
 
         stringstream str2;
         str2 << "minimize median difference - bilinear - " << sub_centre << ".png";
         Interpolation<short>::Get = Interpolation<short>::Bilinear;
-        RR::AccumulatePolarRD( im_short, im_rduct, 1.0f, sub_centre );
+//      RR::MMDPolarRD( im_short, im_rduct, 1.0f, sub_centre );
         save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, str2.str() );
 
         stringstream str3;
@@ -264,10 +272,10 @@ void letsgo( void )
 
 int main(void)
 {
-    // experiment::search_grid();
+    experiment::search_grid();
 
     // experiment::have_a_try();
-    state_of_the_art::letsgo();
+    //state_of_the_art::letsgo();
     return 0;
 }
 

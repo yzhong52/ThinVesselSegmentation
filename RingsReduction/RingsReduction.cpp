@@ -190,7 +190,47 @@ void RingsReduction::sijbers( const Data3D<short>& src, Data3D<short>& dst,
     cout << endl;
 }
 
+void RingsReduction::correct_image( const cv::Mat_<short>& src,
+                                    cv::Mat_<short>& dst,
+                                    const std::vector<double>& correction,
+                                    const cv::Vec2d& ring_center,
+                                    const double& dradius )
+{
+    dst = Mat_<short>(src.rows, src.cols);
 
+    for( int y=0; y<src.rows; y++ )
+    {
+        for( int x=0; x<src.cols; x++ )
+        {
+
+            const double diff_x = x - ring_center[0];
+            const double diff_y = y - ring_center[1];
+            const double radius = sqrt( diff_x*diff_x + diff_y*diff_y );
+
+            /* For any rid that bigger than the size of the correction vector,
+               pretend that it is the most outer ring (rid = correction.size()-1).
+               This assumption may
+               result in a few of the pixels near the corner of the image corner
+               being ignored. But it will prevent the function from crashing if
+               it was not used properly. */
+            const double rid = min( radius/dradius, (double) correction.size()-1 );
+
+            const int flo = (int) std::floor( rid );
+            const int cei = (int) std::ceil( rid );
+            double c = 0;
+            if( flo!=cei )
+            {
+                c = correction[flo] * ( cei - rid ) +
+                    correction[cei] * ( rid - flo );
+            }
+            else
+            {
+                c = correction[flo];
+            }
+            dst(y, x) = short( src(y,x) - c );
+        }
+    }
+}
 
 void RingsReduction::correct_image( const Data3D<short>& src,
                                     Data3D<short>& dst,
@@ -293,17 +333,13 @@ void RingsReduction::polarRD( const Data3D<short>& src, Data3D<short>& dst,
 
 
 
-void RingsReduction::AccumulatePolarRD( const Data3D<short>& src, Data3D<short>& dst,
-                                        const double dradius,
-                                        const Vec2d& ring_center )
+void RingsReduction::MMDPolarRD( const Mat_<short>& src, Mat_<short>& dst,
+                                 const Vec2d& ring_center,
+                                 const double dradius )
 {
-    smart_assert( &src!=&dst,
-                  "The destination file is the same as the original. " );
+    smart_assert( &src!=&dst, "The destination file should not be the same as the original. " );
 
-    // TODO: do it on a 3D volume
-    const unsigned center_z = src.SZ() / 2;
-
-    const Vec2d im_size( (double)src.SX(), (double)src.SY() );
+    const Vec2d im_size( (double)src.rows, (double)src.cols );
 
     const double max_radius = max_ring_radius( ring_center, im_size );
 
@@ -315,23 +351,14 @@ void RingsReduction::AccumulatePolarRD( const Data3D<short>& src, Data3D<short>&
     #pragma omp parallel for schedule(dynamic)
     for( unsigned ri = 0; ri<num_of_rings-1; ri++ )
     {
-        /* #pragma omp critical
-        {
-            cout << ri << '(' << omp_get_thread_num() << ")\t";
-            cout.flush();
-        }*/
-
-        correction[ri] = med_diff( src.getMat(center_z),
-                                   ring_center, ri, ri+1, dradius );
+        correction[ri] = med_diff( src, ring_center, ri, ri+1, dradius );
     }
-
 
     // accumulate the correction vector
     for( int ri = num_of_rings-2; ri>=0; ri-- )
     {
         correction[ri] += correction[ri+1];
     }
-
 
     /* The intensity of this ring is not supposed to be alter, that is,
        correction[int( 100/dr )] = 0*/
@@ -341,7 +368,7 @@ void RingsReduction::AccumulatePolarRD( const Data3D<short>& src, Data3D<short>&
         correction[ri] -= drift;
     }
 
-    correct_image( src, dst, correction, center_z, ring_center, dradius );
+    correct_image( src, dst, correction, ring_center, dradius );
 }
 
 
@@ -366,10 +393,8 @@ void RingsReduction::MMDPolarRD( const Data3D<short>& src,
         vector<double> correction( num_of_rings, 0 );
 
         #pragma omp for// schedule(dynamic)// private(correction)
-        for( unsigned z = 0; z<src.SZ(); z++ )
+        for( int z = 0; z<src.SZ(); z++ )
         {
-
-
             std::fill( correction.begin(), correction.end(), 0);
 
             const Vec2d ring_center = ( double(z)*first_slice_centre + double(src.SZ()-z-1)*last_slice_centre ) / (src.SZ()-1);

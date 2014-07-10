@@ -69,7 +69,6 @@
 			<Add library="libglut.a" />
 			<Add library="libgomp.a" />
 		</Linker>
-		<Unit filename="Interpolation.cpp" />
 		<Unit filename="Interpolation.h" />
 		<Unit filename="RingCentre.cpp" />
 		<Unit filename="RingCentre.h" />

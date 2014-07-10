@@ -25,11 +25,13 @@ public:
                          const cv::Vec2d& approx_centre = cv::Vec2d(234, 270),
                          const double& subpixel_on_ring = 1.0f,
                          std::vector<double>* pCorrection = nullptr );
-    /// An mutation of the above function
+
+    /// An mutation of the above function (2D)
     /// computing the correction in a accumulative manner
-    static void AccumulatePolarRD( const Data3D<short>& src, Data3D<short>& dst,
-                                   const double dr = 1.0f,
-                                   const cv::Vec2d& centre = cv::Vec2d(234, 270) );
+    static void MMDPolarRD( const cv::Mat_<short>& src,
+                            cv::Mat_<short>& dst,
+                            const cv::Vec2d& centre = cv::Vec2d(234, 270),
+                            const double dradius = 1.0f );
 
     /// An mutation of the above function
     /// computing the correction in a accumulative manner
@@ -110,12 +112,19 @@ private:
                                const double& dr,
                                const double& subpixel_on_ring = 1.0f );
 
-    /// Adjust image with give correction vector
+    /// Adjust image with give correction vector (2D)
+    static void correct_image( const cv::Mat_<short>& src,
+                               cv::Mat_<short>& dst,
+                               const std::vector<double>& correction,
+                               const cv::Vec2d& ring_center,
+                               const double& dradius );
+
+    /// Adjust image with give correction vector (3D)
     static void correct_image( const Data3D<short>& src, Data3D<short>& dst,
                                const std::vector<double>& correction,
                                const int& slice,
                                const cv::Vec2d& ring_center,
-                               const double& dr );
+                               const double& dradius );
 private:
 
 
