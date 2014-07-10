@@ -29,8 +29,14 @@ public:
     /// computing the correction in a accumulative manner
     static void AccumulatePolarRD( const Data3D<short>& src, Data3D<short>& dst,
                                    const double dr = 1.0f,
-                                   const cv::Vec2d& centre = cv::Vec2d(234, 270),
-                                   std::vector<double>* pCorrection = nullptr );
+                                   const cv::Vec2d& centre = cv::Vec2d(234, 270) );
+
+    /// An mutation of the above function
+    /// computing the correction in a accumulative manner
+    static void MMDPolarRD( const Data3D<short>& src, Data3D<short>& dst,
+                            const cv::Vec2d& first_slice_centre,
+                            const cv::Vec2d& last_slice_centre,
+                            const double dradius = 1.0 );
 
     /// rings reduction using sijbers's methods
     static void sijbers( const Data3D<short>& src, Data3D<short>& dst,

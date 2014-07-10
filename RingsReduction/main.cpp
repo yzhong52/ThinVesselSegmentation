@@ -56,26 +56,54 @@ void save_slice( Mat im, const double& minVal, const double& maxVal,
 }
 
 
+double measure_total_variation( Mat im, const double& minVal, const double& maxVal )
+{
+    // change the data type from whatever data type it is to float for computation
+    im.convertTo(im, CV_32F);
+    // normalize the data range from whatever it is to [0, 255];
+    im = 255.0f * (im - minVal ) / (maxVal - minVal);
+
+    double sum = 0.0;
+    for( int y=0; y<im.rows-1; y++ )
+    {
+        for( int x=0; x<im.cols-1; x++ )
+        {
+            double val1 = im.at<float>(y,x) - im.at<float>(y,x+1);
+            double val2 = im.at<float>(y,x) - im.at<float>(y+1,x);
+            sum += val1*val1 + val2*val2;
+        }
+    }
+    return sum;
+}
+
 /*Search among a very small area around the groud true and will plot a 2d plot from it afterwards*/
 void search_grid(void)
 {
     // loading data
     Data3D<short> im_short;
-    bool flag = im_short.load( "../temp/vessel3d.data", Vec3i(585, 525, 10), true, true );
+    bool flag = im_short.load( "../temp/vessel3d.data" );
     if( !flag ) return;
 
     const Vec2d apprx_centre_upper_left(  233.4, 269.4 );
     const Vec2d apprx_centre_lower_right( 233.6, 269.6 );
 
+    int sliceid = im_short.SZ()/2;
+
     // compute the minimum value and maximum value in the centre slice
     double minVal = 0, maxVal = 0;
-    cv::minMaxLoc( im_short.getMat( im_short.SZ()/2 ), &minVal, &maxVal );
+    cv::minMaxLoc( im_short.getMat( sliceid ), &minVal, &maxVal );
 
     Data3D<short> im_rduct;
 
+    ofstream cout( "output/out.txt" );
+
     const int subpixelcount = 10;
+
+    // Output python friendly 2D matrix
+    cout << "[";
     for( int i=0; i<=subpixelcount; i++ )
     {
+        cout << "[";
         for( int j=0; j<=subpixelcount; j++ )
         {
             const Vec2d sub_centre = 1.0 / subpixelcount *
@@ -86,9 +114,15 @@ void search_grid(void)
             str2 << "minimize median difference - bilinear - " << sub_centre << ".png";
             Interpolation<short>::Get = Interpolation<short>::Bilinear;
             RR::AccumulatePolarRD( im_short, im_rduct, 1.0f, sub_centre );
-            save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, str2.str() );
+            save_slice( im_rduct, sliceid, minVal, maxVal, str2.str() );
+
+            cout << measure_total_variation( im_rduct.getMat(sliceid), minVal, maxVal ) / 10e6;
+            if( j!=subpixelcount )  cout << ',';
         }
+        cout << "]";
+        if( i!=subpixelcount )  cout << ',';
     }
+    cout << "]";
 }
 
 void search_for_centre(void)
@@ -186,7 +220,8 @@ void search_on_a_line(void)
 
 namespace state_of_the_art
 {
-void letsgo(void)
+
+void sijiber(void)
 {
     // loading data
     Data3D<short> im_short;
@@ -205,15 +240,34 @@ void letsgo(void)
     im_rduct.show();
     return;
 }
+
+void letsgo( void )
+{
+    // loading data
+    Data3D<short> im_short;
+    bool flag = im_short.load( "../temp/vessel3d.data", Vec3i(585, 525, 500), true, true  );
+    if( !flag ) return;
+
+    Data3D<short> im_rduct;
+    Interpolation<short>::Get = Interpolation<short>::Bilinear;
+    Interpolation<float>::Get = Interpolation<float>::Bilinear;
+    Interpolation<int>::Get   = Interpolation<int>::Bilinear;
+
+    RR::MMDPolarRD( im_short, im_rduct, Vec2d(233.5, 269.5), Vec2d(233.5, 269.5) );
+
+    im_rduct.save( "../temp/vessel3d_rd.data" );
+    im_rduct.show();
+
+}
 }
 
 
 int main(void)
 {
-    experiment::search_grid();
+    // experiment::search_grid();
 
     // experiment::have_a_try();
-    //state_of_the_art::letsgo();
+    state_of_the_art::letsgo();
     return 0;
 }
 

@@ -295,8 +295,7 @@ void RingsReduction::polarRD( const Data3D<short>& src, Data3D<short>& dst,
 
 void RingsReduction::AccumulatePolarRD( const Data3D<short>& src, Data3D<short>& dst,
                                         const double dradius,
-                                        const Vec2d& ring_center,
-                                        std::vector<double>* pCorrection )
+                                        const Vec2d& ring_center )
 {
     smart_assert( &src!=&dst,
                   "The destination file is the same as the original. " );
@@ -343,10 +342,66 @@ void RingsReduction::AccumulatePolarRD( const Data3D<short>& src, Data3D<short>&
     }
 
     correct_image( src, dst, correction, center_z, ring_center, dradius );
-
-    if( pCorrection!=nullptr ) *pCorrection = correction;
 }
 
+
+void RingsReduction::MMDPolarRD( const Data3D<short>& src,
+                                 Data3D<short>& dst,
+                                 const cv::Vec2d& first_slice_centre,
+                                 const cv::Vec2d& last_slice_centre,
+                                 const double dradius )
+{
+    smart_assert( &src!=&dst, "The destination file is the same as the original. " );
+
+    const Vec2d im_size( (double)src.SX(), (double)src.SY() );
+
+    const double max_radius = std::max(
+                                  max_ring_radius( first_slice_centre, im_size ),
+                                  max_ring_radius( last_slice_centre,  im_size ));
+
+    const unsigned num_of_rings = unsigned( max_radius / dradius );
+
+    #pragma omp parallel
+    {
+        vector<double> correction( num_of_rings, 0 );
+
+        #pragma omp for// schedule(dynamic)// private(correction)
+        for( unsigned z = 0; z<src.SZ(); z++ )
+        {
+
+
+            std::fill( correction.begin(), correction.end(), 0);
+
+            const Vec2d ring_center = ( double(z)*first_slice_centre + double(src.SZ()-z-1)*last_slice_centre ) / (src.SZ()-1);
+
+            const Mat_<short> m = src.getMat(z);
+
+            for( unsigned ri = 0; ri<num_of_rings-1; ri++ )
+            {
+                correction[ri] = med_diff( m, ring_center, ri, ri+1, dradius );
+            }
+
+            // accumulate the correction vector
+            for( int ri = num_of_rings-2; ri>=0; ri-- )
+            {
+                correction[ri] += correction[ri+1];
+            }
+
+            /* The intensity of this ring is not supposed to be alter, that is,
+               correction[int( 100/dr )] = 0*/
+            const double drift = correction[ int(100/dradius) ];
+            for( unsigned ri = 0; ri<num_of_rings; ri++ )
+            {
+                correction[ri] -= drift;
+            }
+
+            #pragma omp critical (dst)
+            {
+                correct_image( src, dst, correction, z, ring_center, dradius );
+            }
+        }
+    }
+}
 
 
 double RingsReduction::avg_diff( const cv::Mat_<short>& m,

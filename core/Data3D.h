@@ -433,7 +433,7 @@ void Data3D<T>::show(const std::string& window_name, int current_slice, T min_va
     if( current_slice > SZ() ) current_slice = SZ();
     do
     {
-        cv::Mat  mat_temp = _mat.row(current_slice).reshape( 0, get_height() ).clone();
+        cv::Mat mat_temp = _mat.row(current_slice).reshape( 0, get_height() ).clone();
         // change the data type from whatever dataype it is to float for computation
         mat_temp.convertTo(mat_temp, CV_32F);
         // normalize the data range from whatever it is to [0, 255];
