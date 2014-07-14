@@ -31,7 +31,7 @@ using namespace cv;
 
 LevenbergMarquardt::LevenbergMarquardt( const vector<Vec3i>& dataPoints,
                                         const vector<int>& labelings,
-                                        const ModelSet<Line3D>& modelset,
+                                        const ModelSet& modelset,
                                         const Data3D<int>& labelIDs,
                                         SmoothCostType smooth_cost_type )
     : tildaP( dataPoints ), labelID( labelings ), labelID3d( labelIDs )

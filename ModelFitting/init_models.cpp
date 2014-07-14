@@ -13,7 +13,7 @@ void each_model_per_point(
     const Data3D<Vesselness_Sig>& vn_sig,
     Data3D<int>& labelID3d,
     std::vector<cv::Vec3i>& tildaP,
-    ModelSet<Line3D>& model,
+    ModelSet& model,
     std::vector<int>& labelID,
     const float& threshold )
 {
@@ -53,7 +53,7 @@ void each_model_per_local_maximum(
     const Data3D<Vesselness_Sig>& vn_sig,
     Data3D<int>& labelID3d,
     vector<cv::Vec3i>& tildaP,
-    ModelSet<Line3D>& model,
+    ModelSet& model,
     vector<int>& labelID )
 {
     Data3D<float> vn = vn_sig;

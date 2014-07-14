@@ -38,8 +38,8 @@ int main(void)
     cv::imshow( "", temp );
 
 
-    sample_code::vesselness(true);
-    sample_code::centreline(false);
+    sample_code::vesselness(false);
+    sample_code::centreline(true);
     return 0;
 }
 

@@ -15,7 +15,6 @@
 				<Compiler>
 					<Add option="-std=c++11" />
 					<Add option="-g" />
-					<Add option="-fopenmp" />
 					<Add directory="include" />
 				</Compiler>
 				<Linker>
@@ -30,8 +29,6 @@
 				<Compiler>
 					<Add option="-O2" />
 					<Add option="-std=c++11" />
-					<Add option="-fopenmp" />
-					<Add option="-Wno-unused-result" />
 					<Add directory="include" />
 				</Compiler>
 				<Linker>
@@ -44,6 +41,8 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 			<Add option="-Wno-comment" />
+			<Add option="-fopenmp" />
+			<Add option="-Wno-unused-result" />
 			<Add directory="../Vesselness" />
 			<Add directory="../core" />
 			<Add directory="../" />
@@ -69,6 +68,7 @@
 		<Unit filename="Line3D.h" />
 		<Unit filename="Line3DTwoPoint.cpp" />
 		<Unit filename="Line3DTwoPoint.h" />
+		<Unit filename="ModelSet.cpp" />
 		<Unit filename="ModelSet.h" />
 		<Unit filename="Neighbour26.h" />
 		<Unit filename="SyntheticData.h" />

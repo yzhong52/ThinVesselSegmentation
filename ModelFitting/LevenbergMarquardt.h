@@ -9,8 +9,9 @@
 using namespace cv;
 
 class Line3D;
+class ModelSet;
 template <typename T> class Data3D;
-template <typename T> class ModelSet;
+
 
 extern const double DATA_COST;
 extern const double PAIRWISE_SMOOTH;
@@ -22,7 +23,7 @@ public:
 
     LevenbergMarquardt( const vector<Vec3i>& dataPoints,
                         const vector<int>& labelings,
-                        const ModelSet<Line3D>& modelset,
+                        const ModelSet& modelset,
                         const Data3D<int>& labelIDs,
                         SmoothCostType smooth_cost_type = Quadratic );
 
@@ -42,7 +43,7 @@ private:
 
     const Data3D<int>& labelID3d;     /// Labeling of the data
 
-    const ModelSet<Line3D>& modelset; /// A set of line models
+    const ModelSet& modelset; /// A set of line models
     const vector<Line3D*>& lines;     // TODO: This is redundant
 
     unsigned numParamPerLine;
