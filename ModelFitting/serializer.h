@@ -28,7 +28,8 @@ void Serializer::save( const std::vector<T>& data, const std::string& filename )
 
     fout << data.size() << endl;
 
-    for( unsigned i=0; i < data.size(); i++ ){
+    for( unsigned i=0; i < data.size(); i++ )
+    {
         fout << data[i] << ' ';
     }
 }
@@ -44,7 +45,8 @@ void Serializer::load( std::vector<T>& data, const std::string& filename )
 
     data = std::vector<T>( size );
 
-    for( unsigned i=0; i < data.size(); i++ ){
+    for( unsigned i=0; i < data.size(); i++ )
+    {
         fin >> data[i];
     }
 }

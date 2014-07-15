@@ -42,10 +42,10 @@ void visualization_func( int numViewports )
 // function template default type is only available in C++11
 template<class T1, class T2=char, class T3=char>
 std::thread initViwer( const vector<cv::Vec3i>& dataPoints,
-                const vector<Line3D*>& lines, const vector<int>& labelings,
-                const Data3D<T1>* im1,
-                const Data3D<T2>* im2 = nullptr,
-                const Data3D<T3>* im3 = nullptr )
+                       const vector<Line3D*>& lines, const vector<int>& labelings,
+                       const Data3D<T1>* im1,
+                       const Data3D<T2>* im2 = nullptr,
+                       const Data3D<T3>* im3 = nullptr )
 {
     vis.addObject( *im1 );
 
@@ -76,30 +76,30 @@ void start_levernberg_marquart( const string& dataname = "data15", bool isDispla
     vn_et_sig.remove_margin_to( Vec3i(50,50,50) );
 
     // threshold the data and put the data points into a vector
-    Data3D<int> labelID3d;
-    vector<cv::Vec3i> tildaP;
-    vector<int> labelID;
     ModelSet model;
+    // model.init_one_model_per_point( vn_et_sig );
+    model.deserialize( "data15" );
 
-    each_model_per_point( vn_et_sig, labelID3d, tildaP, model, labelID );
-
-    cout << "Number of data points: " << tildaP.size() << endl;
+    cout << "Number of data points: " << model.get_data_size() << endl;
 
     std::thread visualization_thread;
     if( isDisplay )
     {
         // load original data and vesselness data for rendering
-        Data3D<short> im_short( dataname + ".data" );
-        Data3D<Vesselness_Sig> vn_sig( dataname + ".vn_sig" );
-        visualization_thread = initViwer( tildaP, model.models, labelID, &vn_et_sig );
+        //Data3D<short> im_short( dataname + ".data" );
+        //Data3D<Vesselness_Sig> vn_sig( dataname + ".vn_sig" );
+        visualization_thread = initViwer( model.tildaP, model.lines, model.labelID, &vn_et_sig );
     }
 
+
     // Levenberg Marquardt
-    LevenbergMarquardt lm( tildaP, labelID, model, labelID3d );
+    LevenbergMarquardt lm( model.tildaP, model.labelID, model, model.labelID3d );
     lm.reestimate( 4000, LevenbergMarquardt::Quadratic, dataname );
 
+    model.serialize( "data15" );
+
     visualization_thread.join();
-    // code after this line won't be executed
+    // code after this line won't be executed because 'exit(0)' is executed by glut
 }
 }
 

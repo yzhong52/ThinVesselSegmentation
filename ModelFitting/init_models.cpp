@@ -9,44 +9,7 @@
 using namespace std;
 using namespace cv;
 
-void each_model_per_point(
-    const Data3D<Vesselness_Sig>& vn_sig,
-    Data3D<int>& labelID3d,
-    std::vector<cv::Vec3i>& tildaP,
-    ModelSet& model,
-    std::vector<int>& labelID,
-    const float& threshold )
-{
-    Data3D<float> vn = vn_sig;
-    IP::normalize( vn, 1.0f );
 
-    tildaP.clear();
-    labelID.clear();
-    labelID3d.reset( vn.get_size(), -1 );
-    model.models.clear();
-
-    for(int z=0; z<vn.SZ(); z++) for ( int y=0; y<vn.SY(); y++) for(int x=0; x<vn.SX(); x++)
-            {
-                if( vn.at(x,y,z) > threshold )   // a thread hold
-                {
-                    int lid = (int) model.models.size();
-
-                    labelID3d.at(x,y,z) = lid;
-
-                    labelID.push_back( lid );
-
-                    tildaP.push_back( Vec3i(x,y,z) );
-
-                    const Vec3d pos(x,y,z);
-                    const Vec3d& dir = vn_sig.at(x,y,z).dir;
-                    const double& sigma = vn_sig.at(x,y,z).sigma;
-                    Line3DTwoPoint *line  = new Line3DTwoPoint();
-                    line->setPositions( pos-dir, pos+dir );
-                    line->setSigma( sigma );
-                    model.models.push_back( line );
-                }
-            }
-}
 
 
 void each_model_per_local_maximum(
@@ -97,12 +60,12 @@ void each_model_per_local_maximum(
     tildaP.clear();
     labelID.clear();
     labelID3d.reset( vn.get_size(), -1 );
-    model.models.clear();
+    model.lines.clear();
     for(int z=0; z<vn.SZ(); z++) for ( int y=0; y<vn.SY(); y++) for(int x=0; x<vn.SX(); x++)
             {
                 if( vn.at(x,y,z) > 0.1f && djs.at(x,y,z)==Vec3i( -1, -1, -1 ) )
                 {
-                    int lid = (int) model.models.size();
+                    int lid = (int) model.lines.size();
 
                     labelID3d.at(x,y,z) = lid;
 
@@ -116,7 +79,7 @@ void each_model_per_local_maximum(
                     Line3DTwoPoint *line  = new Line3DTwoPoint();
                     line->setPositions( pos-dir, pos+dir );
                     line->setSigma( sigma );
-                    model.models.push_back( line );
+                    model.lines.push_back( line );
                 }
             }
 
