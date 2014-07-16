@@ -32,11 +32,9 @@ public:
     ModelSet(void);
     virtual ~ModelSet(void);
 
-    /// Serialization
+    /// Serialization & Deserialization
     void serialize( std::string file ) const;
-    /// Deserialization - Actual Type is for polymorphism
-    void deserialize( std::string file );
-
+    bool deserialize( std::string file );
 
     ////////////////////////////////////////////////////////////////
     // Model Initialization

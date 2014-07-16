@@ -30,12 +30,9 @@ public:
     // lamda - damping function for levenburg marquart
     //    the smaller lambda is, the faster it converges
     //    the bigger lambda is, the slower it converges
-    void reestimate( double lambda = 1e2, SmoothCostType whatSmoothCost = Linear, string dataname = "" );
-
-    /// The algorithm can be paused and resumed after each iteration
-    /// However, the following serialize() and deserialize() are not thread safe
-    void serialize( void ) const;
-    void deserialize( void );
+    void reestimate( double lambda = 1e2,
+                     SmoothCostType whatSmoothCost = Linear,
+                     const string& serialize_dataname = "default" );
 
 private:
     const vector<Vec3i>& tildaP;      /// Original positions of the points in 3D

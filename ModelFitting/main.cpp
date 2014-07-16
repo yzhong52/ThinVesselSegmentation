@@ -68,17 +68,31 @@ std::thread initViwer( const vector<cv::Vec3i>& dataPoints,
 
 namespace experiments
 {
-void start_levernberg_marquart( const string& dataname = "data15", bool isDisplay = false )
+void start_levernberg_marquart( const string& foldername = "../data",
+                                const string& dataname = "data15",
+                                const bool& isDisplay = false )
 {
+    const string datafile = foldername + dataname;
+
     // Vesselness measure with sigma
     Image3D<Vesselness_Sig> vn_et_sig;
-    vn_et_sig.load( dataname + ".et.vn_sig" );
-    vn_et_sig.remove_margin_to( Vec3i(50,50,50) );
+    vn_et_sig.load( datafile + ".et.vn_sig" );
+    // vn_et_sig.remove_margin_to( Vec3i(585, 525, 20) );
+    vn_et_sig.remove_margin_to( Vec3i(200, 200, 200) );
+
+
+    stringstream serialized_datafile_stream;
+    serialized_datafile_stream << dataname << "_";
+    serialized_datafile_stream << vn_et_sig.SX() << "_";
+    serialized_datafile_stream << vn_et_sig.SY() << "_";
+    serialized_datafile_stream << vn_et_sig.SZ();
+    const string serialized_dataname = serialized_datafile_stream.str();
 
     // threshold the data and put the data points into a vector
     ModelSet model;
-    // model.init_one_model_per_point( vn_et_sig );
-    model.deserialize( "data15" );
+    bool flag = model.deserialize( serialized_dataname );
+    if( !flag ) model.init_one_model_per_point( vn_et_sig );
+
 
     cout << "Number of data points: " << model.get_data_size() << endl;
 
@@ -86,17 +100,17 @@ void start_levernberg_marquart( const string& dataname = "data15", bool isDispla
     if( isDisplay )
     {
         // load original data and vesselness data for rendering
-        //Data3D<short> im_short( dataname + ".data" );
-        //Data3D<Vesselness_Sig> vn_sig( dataname + ".vn_sig" );
-        visualization_thread = initViwer( model.tildaP, model.lines, model.labelID, &vn_et_sig );
+        //Data3D<short> im_short( datafile + ".data" );
+        //Data3D<Vesselness_Sig> vn_sig( datafile + ".vn_sig" );
+        visualization_thread = initViwer( model.tildaP, model.lines, model.labelID,
+                                          &vn_et_sig );
     }
-
 
     // Levenberg Marquardt
     LevenbergMarquardt lm( model.tildaP, model.labelID, model, model.labelID3d );
-    lm.reestimate( 4000, LevenbergMarquardt::Quadratic, dataname );
+    lm.reestimate( 4000, LevenbergMarquardt::Quadratic, serialized_dataname );
 
-    model.serialize( "data15" );
+    model.serialize( serialized_dataname );
 
     visualization_thread.join();
     // code after this line won't be executed because 'exit(0)' is executed by glut
@@ -110,7 +124,7 @@ int main(int argc, char* argv[])
     Mat temp = Mat(200, 200, CV_8UC3);
     cv::imshow( "", temp );
 
-    experiments::start_levernberg_marquart("../temp/data15", true);
+    experiments::start_levernberg_marquart("../temp/", "vessel3d_rd", true);
     return 0;
 }
 

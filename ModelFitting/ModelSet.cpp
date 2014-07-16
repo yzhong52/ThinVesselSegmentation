@@ -42,22 +42,25 @@ void ModelSet::serialize( std::string file ) const
 
     const int num_points = tildaP.size();
     fout << num_points << std::endl;
-    for( int i=0; i<num_points; i++ ){
+    for( int i=0; i<num_points; i++ )
+    {
         fout << tildaP[i][0] << ' ';
         fout << tildaP[i][1] << ' ';
         fout << tildaP[i][2] << ' ';
 
         fout << labelID[i] << std::endl;
     }
+    fout.close();
 
-    labelID3d.save( file + ".labelID3d" );
+    labelID3d.save( file_prefix + file + ".labelID3d" );
 }
 
 
-void ModelSet::deserialize( std::string file )
+bool ModelSet::deserialize( std::string file )
 {
     // get the file stream
     std::ifstream fin( file_prefix + file );
+    if( !fin.is_open() ) return false;
 
     // deserializing lines
     for( unsigned i=0; i<lines.size(); i++ ) delete lines[i];
@@ -76,14 +79,17 @@ void ModelSet::deserialize( std::string file )
     fin >> num_points;
     tildaP = vector<Vec3i>( num_points, Vec3i(0,0,0) );
     labelID = vector<int>( num_points, 0 );
-    for( int i=0; i<num_points; i++ ){
+    for( int i=0; i<num_points; i++ )
+    {
         fin >> tildaP[i][0];
         fin >> tildaP[i][1];
         fin >> tildaP[i][2];
         fin >> labelID[i];
     }
+    fin.close();
 
-    labelID3d.load( file + ".labelID3d" );
+    labelID3d.load( file_prefix + file + ".labelID3d" );
+    return true;
 }
 
 

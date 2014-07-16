@@ -637,7 +637,8 @@ void LevenbergMarquardt::update_lines( const Mat_<double>& delta )
     }
 }
 
-void LevenbergMarquardt::reestimate( double lambda, SmoothCostType whatSmoothCost, string dataname )
+void LevenbergMarquardt::reestimate( double lambda, SmoothCostType whatSmoothCost,
+                                     const string& serialize_dataname )
 {
     smart_assert( lines.size()!=0, "No line models available" );
 
@@ -738,8 +739,9 @@ void LevenbergMarquardt::reestimate( double lambda, SmoothCostType whatSmoothCos
 
         cout << " New Energy = "  << energy_before << endl << endl;
 
-
-        this->serialize();
+        cout << "Serialization begin. " << endl;
+        modelset.serialize( serialize_dataname );
+        cout << "Serialization done. " << endl  << endl;
     }
 }
 
@@ -752,30 +754,3 @@ void LevenbergMarquardt::reestimate( double lambda, SmoothCostType whatSmoothCos
 //cout << endl;
 //Sleep(500);
 
-
-
-void LevenbergMarquardt::serialize( void ) const
-{
-    /// Create the directory if it does not exist
-    const string folder = "./serialize_data/";
-    struct stat st = {0};
-    if( stat( folder.c_str(), &st)==-1 )
-    {
-        mkdir( folder.c_str(), 0777);
-    }
-
-    cout << "Serialization begin. " << endl;
-
-    modelset.serialize( folder + "Line3DTwoPoint.model" );
-
-
-
-
-
-    cout << "Serialization done. " << endl  << endl;
-}
-
-void LevenbergMarquardt::deserialize( void )
-{
-
-}
