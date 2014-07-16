@@ -38,7 +38,7 @@ int main(void)
     cv::imshow( "", temp );
 
 
-    sample_code::vesselness(true, "../temp/vessel3d_rd", 2800 );
+    sample_code::vesselness(false, "../temp/vessel3d_rd", 2800 );
     sample_code::centreline(true,  "../temp/vessel3d_rd");
     return 0;
 }
@@ -64,8 +64,6 @@ int sample_code::vesselness( bool isDisplay, string dataname, short threshold )
     Image3D<short> im_short_orig;
     bool flag = im_short_orig.load( INPUT_DIR + dataname + ".data" );
     if( !flag ) return 0;
-
-    im_short_orig.remove_margin_to( Vec3i(200, 200, 200) );
 
     Data3D<short> im_short;
     IP::threshold( im_short_orig, im_short, threshold ); // [2500, 4500]
