@@ -26,7 +26,7 @@ GLViewerVesselness viewer;
 namespace sample_code
 {
 // Compute vesselness measure
-int vesselness( bool isDisplay, std::string dataname = "data15" );
+int vesselness( bool isDisplay, std::string dataname = "data15", short threshold = 2900 );
 
 // Extract Vessel centrelines with non-maximum suppression
 int centreline( bool isDisplay, std::string dataname = "data15" );
@@ -38,12 +38,12 @@ int main(void)
     cv::imshow( "", temp );
 
 
-    sample_code::vesselness(false);
-    sample_code::centreline(true);
+    sample_code::vesselness(true, "../temp/vessel3d_rd", 2800 );
+    sample_code::centreline(true,  "../temp/vessel3d_rd");
     return 0;
 }
 
-int sample_code::vesselness( bool isDisplay, string dataname )
+int sample_code::vesselness( bool isDisplay, string dataname, short threshold )
 {
     // create output folders if it does not exist
     // CreateDirectory(L"../temp", NULL);
@@ -61,9 +61,14 @@ int sample_code::vesselness( bool isDisplay, string dataname )
     float gamma = 3.5e5f;
 
     // laoding data
-    Image3D<short> im_short;
-    bool flag = im_short.load( INPUT_DIR + dataname + ".data" );
+    Image3D<short> im_short_orig;
+    bool flag = im_short_orig.load( INPUT_DIR + dataname + ".data" );
     if( !flag ) return 0;
+
+    im_short_orig.remove_margin_to( Vec3i(200, 200, 200) );
+
+    Data3D<short> im_short;
+    IP::threshold( im_short_orig, im_short, threshold ); // [2500, 4500]
 
     // Compute Vesselness
     Data3D<Vesselness_Sig> vn_sig;
@@ -75,9 +80,11 @@ int sample_code::vesselness( bool isDisplay, string dataname )
     // If you want to visulize the data using Maximum-Intensity Projection
     if( isDisplay )
     {
+        viewer.addObject( im_short_orig,  GLViewer::Volumn::MIP );
+        viewer.addObject( im_short,  GLViewer::Volumn::MIP );
         viewer.addObject( vn_sig,  GLViewer::Volumn::MIP );
         viewer.addDiretionObject( vn_sig );
-        viewer.display(600, 400, 2);
+        viewer.display(600, 400, 4);
     }
 
     return 0;
@@ -86,8 +93,7 @@ int sample_code::vesselness( bool isDisplay, string dataname )
 int sample_code::centreline( bool isDisplay, string dataname )
 {
     // load vesselness data
-    Data3D<Vesselness_Sig> vn_sig;
-    vn_sig.load( OUTPUT_DIR + dataname + ".vn_sig" );
+    Data3D<Vesselness_Sig> vn_sig( OUTPUT_DIR + dataname + ".vn_sig" );
 
     // non-maximum suppression
     Data3D<Vesselness_Sig> vn_sig_nms;

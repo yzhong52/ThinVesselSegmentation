@@ -460,7 +460,7 @@ void ImageProcessing::threshold( const Data3D<T>& src, Data3D<T>& dst, T thresh 
     if( &src!=&dst ) dst.reset( src.get_size() );
     for(z=0; z<src.SZ(); z++) for (y=0; y<src.SY(); y++) for(x=0; x<src.SX(); x++)
             {
-                dst.at(x,y,z) = src.at(x,y,z) > thresh ? src.at(x,y,z) : 0;
+                dst.at(x,y,z) = src.at(x,y,z) > thresh ? src.at(x,y,z) : thresh;
             }
 }
 // threshold the data and suppress the point to zero if it is below threshold
