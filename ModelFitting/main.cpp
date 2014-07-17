@@ -108,7 +108,7 @@ void start_levernberg_marquart( const string& foldername = "../data",
 
     // Levenberg Marquardt
     LevenbergMarquardt lm( model.tildaP, model.labelID, model, model.labelID3d );
-    lm.reestimate( 4000, LevenbergMarquardt::Quadratic, serialized_dataname );
+    lm.reestimate( 400, LevenbergMarquardt::Quadratic, serialized_dataname );
 
     model.serialize( serialized_dataname );
 

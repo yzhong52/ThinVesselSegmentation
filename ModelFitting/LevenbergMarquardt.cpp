@@ -737,7 +737,8 @@ void LevenbergMarquardt::reestimate( double lambda, SmoothCostType whatSmoothCos
             }
         }
 
-        cout << " New Energy = "  << energy_before << endl << endl;
+        cout << endl << " New Energy = "  << energy_before << endl;
+        cout << " Lambda = " << lambda << endl << endl;
 
         cout << "Serialization begin. " << endl;
         modelset.serialize( serialize_dataname );
