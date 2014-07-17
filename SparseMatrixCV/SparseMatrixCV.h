@@ -15,7 +15,9 @@ public:
 
     SparseMatrixCV( unsigned nrow, unsigned ncol ) : SparseMatrix( nrow, ncol ) { }
 
-    SparseMatrixCV( unsigned num_rows, unsigned num_cols, const double non_zero_value[], const unsigned col_index[], const unsigned row_pointer[], unsigned N )
+    SparseMatrixCV( unsigned num_rows, unsigned num_cols,
+                    const double non_zero_value[], const unsigned col_index[],
+                    const unsigned row_pointer[], unsigned N )
         : SparseMatrix( num_rows, num_cols, non_zero_value, col_index, row_pointer, N ) { }
 
     SparseMatrixCV( const SparseMatrixCV& m ) : SparseMatrix( m ) { }
@@ -51,8 +53,8 @@ public:
 
     void convertTo( cv::Mat_<double>& m );
     friend void solve( const SparseMatrixCV& A, const cv::Mat_<double>& B,
-            cv::Mat_<double>& X, double acuracy = 1e-3,
-            SparseMatrix::Options o = BICGSQ );
+                       cv::Mat_<double>& X, double acuracy = 1e-3,
+                       SparseMatrix::Options o = BICGSQ );
 };
 
 

@@ -51,38 +51,5 @@ void Serializer::load( std::vector<T>& data, const std::string& filename )
     }
 }
 
-////////////////////////////////////////////////////////////////////////
-// Serialization of <Line3D*>
-////////////////////////////////////////////////////////////////////////
-//
-//template<>
-//void Serializer::save( const std::vector<Line3D*> lines, const std::string& filename ){
-//    std::ofstream fout( file );
-//    fout << models.size() << std::endl;
-//    for( int i=0; i<models.size(); i++ )
-//    {
-//        models[i]->serialize( fout );
-//    }
-//}
-//
-//
-//template<>
-//void Serializer::load( const std::vector<Line3D*> lines, const std::string& filename ){
-//    // release previous memory
-//    for( int i=0; i<models.size(); i++ ) delete models[i];
-//    models = std::vector<T*>();
-//
-//    // deserializing data
-//    std::ifstream fin( file );
-//    int size = 0;
-//    fin >> size;
-//    for( int i=0; i<size; i++ )
-//    {
-//        ActualType* new_model = new ActualType();
-//        new_model->deserialize( fin );
-//        models.push_back( new_model );
-//    }
-//}
-
 
 #endif // SERIALIZER_H

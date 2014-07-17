@@ -114,9 +114,9 @@ const SparseMatrix& SparseMatrix::operator/=( const double& value )
 }
 
 bool SparseMatrix::updateData( unsigned num_rows, unsigned num_cols,
-                               const std::vector<double> non_zero_value,
-                               const std::vector<unsigned> col_index,
-                               const std::vector<unsigned> row_pointer )
+                               const std::vector<double>& non_zero_value,
+                               const std::vector<unsigned>& col_index,
+                               const std::vector<unsigned>& row_pointer )
 {
     assert( non_zero_value.size()==col_index.size() && "Data size is invalid. " );
     assert( row_pointer.size()==(unsigned)num_rows+1 && "Data size is invalid. " );

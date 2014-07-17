@@ -335,10 +335,14 @@ void LevenbergMarquardt::Jacobian_datacosts_openmp(
 
         #pragma omp critical
         {
-            Jacobian_nzv.insert( Jacobian_nzv.end(),
-            Jacobian_nzv_loc.begin(), Jacobian_nzv_loc.end());
-            Jacobian_colindx.insert( Jacobian_colindx.end(),
-            Jacobian_colindx_loc.begin(), Jacobian_colindx_loc.end());
+            Jacobian_nzv.insert(
+                Jacobian_nzv.end(),
+                Jacobian_nzv_loc.begin(),
+                Jacobian_nzv_loc.end() );
+            Jacobian_colindx.insert(
+                Jacobian_colindx.end(),
+                Jacobian_colindx_loc.begin(),
+                Jacobian_colindx_loc.end());
 
             unsigned offset = Jacobian_rowptr.back();
             for( unsigned i=0; i<Jacobian_rowptr_loc.size(); i++ )
@@ -346,9 +350,10 @@ void LevenbergMarquardt::Jacobian_datacosts_openmp(
                 Jacobian_rowptr.push_back( Jacobian_rowptr_loc[i] + offset );
             }
 
-            energy_matrix.insert( energy_matrix.end(),
-            energy_matrix_loc.begin(),
-            energy_matrix_loc.end() );
+            energy_matrix.insert(
+                energy_matrix.end(),
+                energy_matrix_loc.begin(),
+                energy_matrix_loc.end() );
         }
     }
 }
@@ -656,7 +661,10 @@ void LevenbergMarquardt::reestimate( double lambda, SmoothCostType whatSmoothCos
         break;
     }
 
+    cout << "Computing initial energy... ";
+    cout.flush();
     double energy_before = compute_energy( tildaP, labelID, lines, labelID3d, using_smoothcost_func );
+    cout << endl;
 
     // Identity matrix
     const SparseMatrixCV I  = SparseMatrixCV::I( numParam );
@@ -679,16 +687,20 @@ void LevenbergMarquardt::reestimate( double lambda, SmoothCostType whatSmoothCos
         // Construct Jacobian Matrix -  data cost
         // // // // // // // // // // // // // // // // // //
         //Jacobian_datacosts( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
+        cout << "Compute data cost begin... ";
+        cout.flush();
         Jacobian_datacosts_openmp( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
-        cout << "Compute data cost done. " << endl;
+        cout << "Done. " << endl;
 
         // // // // // // // // // // // // // // // // // //
         // Construct Jacobian Matrix - smooth cost
         // // // // // // // // // // // // // // // // // //
+        cout << "Compute smooth cost begin... ";
+        cout.flush();
         // Jacobian_smoothcosts_openmp_critical_section( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
         Jacobian_smoothcosts_openmp( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
         //Jacobian_smoothcosts( Jacobian_nzv, Jacobian_colindx, Jacobian_rowptr, energy_matrix );
-        cout << "Compute smooth cost done. " << endl;
+        cout << "Done. " << endl;
 
         // Construct Jacobian matrix
         const SparseMatrixCV Jacobian = SparseMatrix(
@@ -707,13 +719,17 @@ void LevenbergMarquardt::reestimate( double lambda, SmoothCostType whatSmoothCos
 
         Mat_<double> X;
 
+        cout << "Solve linear equation begin... ";
+        cout.flush();
         solve( A, B, X );
-        cout << "Solve linear equation done. " << endl;
+        cout << "Done. " << endl;
 
 
         update_lines( -X );
 
+        cout << "Computing new energy... ";
         double new_energy = compute_energy( tildaP, labelID, lines, labelID3d, using_smoothcost_func );
+        cout << "Done. " << endl;
 
         if( new_energy < energy_before )
         {
