@@ -1,6 +1,7 @@
 #include "ModelSet.h"
 #include <opencv2/core/core.hpp>
 #include <iostream>
+#include <string>
 
 #include "Line3DTwoPoint.h"
 #include "Data3D.h"
@@ -60,7 +61,12 @@ bool ModelSet::deserialize( std::string file )
 {
     // get the file stream
     std::ifstream fin( file_prefix + file );
-    if( !fin.is_open() ) return false;
+    if( !fin.is_open() )
+    {
+        cout << "The following serialization file is not found: ";
+        cout << "'" << file_prefix + file << "'" << endl;
+        return false;
+    }
 
     // deserializing lines
     for( unsigned i=0; i<lines.size(); i++ ) delete lines[i];

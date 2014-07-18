@@ -18,7 +18,7 @@
 #include "Neighbour26.h"
 #include "SparseMatrix/SparseMatrix.h"
 #include "ModelSet.h"
-#include "init_models.h"
+#include "init_models.h" // TODO: remove this!
 #include "GLLineModel.h"
 #include "serializer.h"
 #include "GLViwerModel.h"

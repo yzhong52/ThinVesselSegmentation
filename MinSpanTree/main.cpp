@@ -1,11 +1,37 @@
 #include <iostream>
 #include "MSTGraph.h"
 #include "MSTEdge.h"
+#include "../ModelFitting/ModelSet.h"
+#include "../ModelFitting/GLViwerModel.h"
 
 using namespace std;
 using namespace MST;
 
-inline int example( )
+/*Note: A lot of code from ModelFitting is being recompiled and reused here. */
+
+int main()
+{
+    Mat temp = Mat(200, 200, CV_8UC3);
+    cv::imshow( "", temp );
+
+    ModelSet models;
+    bool flag = models.deserialize( "data15_134_113_116" );
+    if( !flag ) {
+        return 0;
+    }
+
+    GLViwerModel vis;
+    GLViewer::GLLineModel *model = new GLViewer::GLLineModel( Vec3i(134,113,116) );
+    model->updatePoints( models.tildaP );
+    model->updateModel( models.lines, models.labelID );
+    vis.objs.push_back( model );
+    vis.display();
+
+    return 0;
+}
+
+
+int example( )
 {
     // Yuchen: Minimum Spanning Tree
 
@@ -46,10 +72,4 @@ inline int example( )
     cout << "Output MST Tree: "<< tree << endl;
 
     return true;
-}
-
-int main()
-{
-    example();
-    return 0;
 }
