@@ -112,7 +112,8 @@ SparseMatrixCV LevenbergMarquardt::Jacobian_datacost_for_one( const int& site )
     const Vec3d tildeP_P = Vec3d(tildaP[site]) - P[site];
     const double tildaP_P_lenght = max( 1e-20, sqrt( tildeP_P.dot(tildeP_P) ) );
 
-    return ( -1.0/tildaP_P_lenght*DATA_COST ) * tildeP_P.t() * nablaP[site];
+    // TODO: adding clone() reduce memory consumption by a huge amount!
+    return ( -1.0/tildaP_P_lenght*DATA_COST ) * tildeP_P.t() * nablaP[site].clone();
 }
 
 

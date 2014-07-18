@@ -95,6 +95,28 @@ TEST_F(SparseMatrixTest, MultiplyTranspose)
 
 
 
+TEST_F(SparseMatrixTest, MemoryLeak)
+{
+    cout << "Hey! We are now testing memory leak. ";
+    cout << "We need your help. ";
+    cout << "Please open your system monitor and observe the memory usage. ";
+    cout << "The memory should not be increasing. ";
+    cout << "If it does, then it means there are memory leaks. ";
+    cout << "Please kill the testing program as soon as you can. " << endl;
+
+    cout << "Ready? Please enter to continue... " << endl;
+    cin.get();
+
+    const int num_inter = 10e7;
+    for( int i=0; i<num_inter; i++ ){
+        if( i%(num_inter/1000)==0 ) cout << "\r" << 100.0 * i / num_inter << "%"; cout.flush();
+        SparseMatrix res = A1 * A1.t();
+        SparseMatrix res1 = A1.t() * A1;
+    }
+    cout << endl;
+}
+
+
 
 
 int main(int argc, char **argv)

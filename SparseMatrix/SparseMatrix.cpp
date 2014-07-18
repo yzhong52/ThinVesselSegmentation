@@ -26,9 +26,9 @@ SparseMatrix::SparseMatrix( unsigned num_rows, unsigned num_cols, const double n
 }
 
 SparseMatrix::SparseMatrix( unsigned num_rows, unsigned num_cols,
-                            const std::vector<double> non_zero_value,
-                            const std::vector<unsigned> col_index,
-                            const std::vector<unsigned> row_pointer )
+                            const std::vector<double>& non_zero_value,
+                            const std::vector<unsigned>& col_index,
+                            const std::vector<unsigned>& row_pointer )
 {
 
     if( non_zero_value.size()==0 )
@@ -40,9 +40,9 @@ SparseMatrix::SparseMatrix( unsigned num_rows, unsigned num_cols,
     {
         // create matrix
         data = new SparseMatrixData( num_rows, num_cols,
-                                     (const double*) &non_zero_value[0],
-                                     (const unsigned*)    &col_index[0],
-                                     (const unsigned*)    &row_pointer[0],
+                                     (const double*)    &non_zero_value[0],
+                                     (const unsigned*)  &col_index[0],
+                                     (const unsigned*)  &row_pointer[0],
                                      (unsigned) non_zero_value.size() );
     }
 
@@ -184,18 +184,19 @@ const SparseMatrix operator*( const SparseMatrix& m1, const SparseMatrix& m2 )
     }
 
     // store the result as row-order
-    vector<double> res_nzval;
+    vector<double>   res_nzval;
     vector<unsigned> res_colidx;
     vector<unsigned> res_rowptr;
 
+
     unsigned N1 = 0;
-    const double* nzval1 = nullptr; //m1.data->getRow().nzval;
+    const double* nzval1      = nullptr; //m1.data->getRow().nzval;
     const unsigned* colidx1   = nullptr; //m1.data->getRow().colind;
     const unsigned* rowptr1   = nullptr; //m1.data->getRow().rowptr;
     m1.data->getRow(N1, nzval1, colidx1, rowptr1 );
 
     unsigned N2 = 0;
-    const double* nzval2 = nullptr; //m2.data->getCol().nzval;
+    const double* nzval2      = nullptr; //m2.data->getCol().nzval;
     const unsigned* rowidx2   = nullptr; //m2.data->getCol().rowind;
     const unsigned* colptr2   = nullptr; //m2.data->getCol().colptr;
     m2.data->getCol( N2, nzval2, rowidx2, colptr2 );
