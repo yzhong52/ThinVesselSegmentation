@@ -16,13 +16,13 @@ class SparseMatrixData
             // row order representation
             struct
             {
-                unsigned *colind; // pointer to array of columns indices of the nonzeros
+                unsigned *colind; // pointer to array of columns indexes of the nonzero values
                 unsigned *rowptr; // pointer to array of beginning of rows in nzval[] and colind[]
             };
-            // column order representtaion
+            // column order representation
             struct
             {
-                unsigned *rowind; // pointer to array of row indices of the nonzeros
+                unsigned *rowind; // pointer to array of row indexes of the nonzero values
                 unsigned *colptr; // pointer to array of beginning of columns in nzval[], and rowind[]
             };
         };
@@ -57,19 +57,19 @@ public:
     // size of the matrix - number of rows and number of columns
     unsigned ncol, nrow;
 
-    MatrixData datacol; // matrix data stored in collumn-major order
+    MatrixData datacol; // matrix data stored in column-major order
     MatrixData datarow; // matrix data stored in row-major order
 
 public:
     // create an zero matrix
     SparseMatrixData( unsigned num_rows, unsigned num_cols);
 
-    // constructor - by defaut the is stored as row order
+    // constructor - by default the is stored as row order
     SparseMatrixData(
         unsigned num_rows,                   // number of row
         unsigned num_cols,                   // number of cols
         const double non_zero_value[],       // non-zero values
-        const unsigned col_index[],			 // pointer to column indeces
+        const unsigned col_index[],			 // pointer to column indexes
         const unsigned row_pointer[],		 // pointers to data of each row
         unsigned N );						 // number of non-zero values
 
@@ -107,7 +107,7 @@ public:
     void getCol(unsigned& N, const double*& nzval, const unsigned *&rowind, const unsigned*& colptr );
     void getRow(unsigned& N, const double*& nzval, const unsigned *&colind, const unsigned*& rowptr );
 
-    // tranpose a matrix
+    // transpose a matrix
     void transpose( void );
 
     // multiple the matrix by a value

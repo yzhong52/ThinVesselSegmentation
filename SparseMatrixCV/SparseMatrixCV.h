@@ -4,7 +4,7 @@
 #include "../SparseMatrix/SparseMatrix.h"
 #include <vector>
 
-// A wraper for SparseMatrix for OpenCV
+// A wrapper for SparseMatrix for OpenCV
 class SparseMatrixCV : public SparseMatrix
 {
 public:

@@ -27,7 +27,7 @@ public:
                         const Data3D<int>& labelIDs,
                         SmoothCostType smooth_cost_type = Quadratic );
 
-    // lamda - damping function for levenburg marquart
+    // lambda - damping function for Levenberg Marquardt
     //    the smaller lambda is, the faster it converges
     //    the bigger lambda is, the slower it converges
     void reestimate( double lambda = 1e2,
@@ -35,13 +35,12 @@ public:
                      const string& serialize_dataname = "default" );
 
 private:
-    const vector<Vec3i>& tildaP;      /// Original positions of the points in 3D
-    const vector<int>& labelID;       /// Corresponding labels of the points above
+    const ModelSet& modelset;          /// A set of line models
 
-    const Data3D<int>& labelID3d;     /// Labeling of the data
-
-    const ModelSet& modelset; /// A set of line models
-    const vector<Line3D*>& lines;     // TODO: This is redundant
+    const vector<Line3D*>& lines;      /// TODO: This is redundant
+    const vector<Vec3i>&   tildaP;     /// Original positions of the points in 3D
+    const vector<int>&     labelID;    /// Corresponding labels of the points above
+    const Data3D<int>&     labelID3d; /// Labeling of the data
 
     unsigned numParamPerLine;
     unsigned numParam;
@@ -64,13 +63,13 @@ private:
         vector<unsigned>&    Jacobian_colindx,
         vector<unsigned>&    Jacobian_rowptr,
         vector<double>& energy_matrix );
-    // Jacobian Matrix - data cost - thread func
+    // Jacobian Matrix - data cost - thread function
     void Jacobian_datacost_thread_func(
         vector<double>& Jacobian_nzv,
         vector<unsigned>&    Jacobian_colindx,
         vector<unsigned>&    Jacobian_rowptr,
         vector<double>& energy_matrix,
-        const int site);
+        const int site );
 
     // Jacobian Matrix - smooth cost
     void Jacobian_smoothcosts(
