@@ -43,10 +43,12 @@ LevenbergMarquardt::LevenbergMarquardt( const vector<Vec3i>& dataPoints,
     numParamPerLine = lines[0]->getNumOfParameters();
     numParam = numParamPerLine * (int) lines.size();
 
-    P = vector<Vec3d>( tildaP.size() );               // projection points of original points
-    nablaP = vector<SparseMatrixCV>( tildaP.size() ); // Jacobian matrix of the porjeciton points
+    // projection points of original points
+    P = vector<Vec3d>( tildaP.size() );
+    // Jacobian matrix of the projection points
+    nablaP = vector<SparseMatrixCV>( tildaP.size() );
 
-    using_smoothcost_func = NULL;
+    using_smoothcost_func = nullptr;
 }
 
 
@@ -112,7 +114,8 @@ SparseMatrixCV LevenbergMarquardt::Jacobian_datacost_for_one( const int& site )
     const Vec3d tildeP_P = Vec3d(tildaP[site]) - P[site];
     const double tildaP_P_lenght = max( 1e-20, sqrt( tildeP_P.dot(tildeP_P) ) );
 
-    return ( -1.0/tildaP_P_lenght*DATA_COST ) * tildeP_P.t() * nablaP[site];
+    // TODO: there is memory leak without clone()!
+    return ( -1.0/tildaP_P_lenght*DATA_COST ) * tildeP_P.t() * nablaP[site].clone();
 }
 
 

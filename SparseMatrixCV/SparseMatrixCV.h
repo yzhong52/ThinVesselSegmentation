@@ -4,7 +4,7 @@
 #include "../SparseMatrix/SparseMatrix.h"
 #include <vector>
 
-// A wraper for SparseMatrix for OpenCV
+// A wrapper for SparseMatrix for OpenCV
 class SparseMatrixCV : public SparseMatrix
 {
 public:
@@ -52,8 +52,12 @@ public:
     static SparseMatrixCV I( unsigned rows );
 
     void convertTo( cv::Mat_<double>& m );
-    friend void solve( const SparseMatrixCV& A, const cv::Mat_<double>& B,
-                       cv::Mat_<double>& X, double acuracy = 1e-3,
+
+    // Solving linear system
+    friend void solve( const SparseMatrixCV& A,
+                       const cv::Mat_<double>& B,
+                       cv::Mat_<double>& X,
+                       double acuracy = 1e-3,
                        SparseMatrix::Options o = BICGSQ );
 };
 
@@ -62,9 +66,9 @@ public:
 template <class _Tp, int m, int n>
 SparseMatrixCV::SparseMatrixCV( const cv::Matx<_Tp, m, n>& vec ) : SparseMatrix(0,0)
 {
-    std::vector<double > non_zero_value;
-    std::vector<unsigned  > col_index;
-    std::vector<unsigned > row_pointer;
+    std::vector<double>   non_zero_value;
+    std::vector<unsigned> col_index;
+    std::vector<unsigned> row_pointer;
 
     row_pointer.push_back( 0 );
     for( int r = 0; r < m; r++ )
@@ -80,7 +84,7 @@ SparseMatrixCV::SparseMatrixCV( const cv::Matx<_Tp, m, n>& vec ) : SparseMatrix(
         row_pointer.push_back( (int) non_zero_value.size() );
     }
 
-    // re-constuct the matrix with give data
+    // re-construct the matrix with give data
     this->updateData( m, n, non_zero_value, col_index, row_pointer );
 }
 
@@ -105,15 +109,15 @@ SparseMatrixCV::SparseMatrixCV( const cv::Mat_<_Tp>& m ) : SparseMatrix( m.rows,
         row_pointer.push_back( (unsigned) non_zero_value.size() );
     }
 
-    // re-constuct the matrix with give data
+    // re-construct the matrix with give data
     this->updateData( m.rows, m.cols, non_zero_value, col_index, row_pointer );
 }
 
 template <class _Tp, int m, int n>
 SparseMatrixCV operator*( const cv::Matx<_Tp,m,n>& vec, const SparseMatrixCV& sm )
 {
-    // TODO: this count be furture optimized by replacing the SparseMatrixCV( vec )
-    // with actual computing the maltiplication within this function
+    // TODO: this count be future optimized by replacing the SparseMatrixCV( vec )
+    // with actual computing the multiplication within this function
     return SparseMatrixCV( vec ) * sm;
 }
 

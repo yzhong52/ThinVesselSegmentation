@@ -77,7 +77,7 @@ void start_levernberg_marquart( const string& foldername = "../data",
     // Vesselness measure with sigma
     Image3D<Vesselness_Sig> vn_et_sig;
     vn_et_sig.load( datafile + ".et.vn_sig" );
-    vn_et_sig.remove_margin_to( Vec3i(585, 525, 10) );
+    // vn_et_sig.remove_margin_to( Vec3i(585, 525, 10) );
 
 
 
@@ -112,7 +112,7 @@ void start_levernberg_marquart( const string& foldername = "../data",
 
     model.serialize( serialized_dataname );
 
-    visualization_thread.join();
+    if( visualization_thread.joinable() ) visualization_thread.join();
     // code after this line won't be executed because 'exit(0)' is executed by glut
 }
 }
@@ -124,7 +124,7 @@ int main(int argc, char* argv[])
     Mat temp = Mat(200, 200, CV_8UC3);
     cv::imshow( "", temp );
 
-    experiments::start_levernberg_marquart("../temp/", "vessel3d_rd", false );
+    experiments::start_levernberg_marquart("../temp/", "data15", true );
     return 0;
 }
 

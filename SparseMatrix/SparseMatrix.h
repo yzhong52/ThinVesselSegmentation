@@ -36,9 +36,9 @@ public:
 
     // c'tor
     SparseMatrix( unsigned num_rows, unsigned num_cols,
-                  const std::vector<double> non_zero_value,
-                  const std::vector<unsigned> col_index,
-                  const std::vector<unsigned> row_pointer );
+                  const std::vector<double>&   non_zero_value,
+                  const std::vector<unsigned>& col_index,
+                  const std::vector<unsigned>& row_pointer );
 
     // c'tor: copy constructor
     SparseMatrix( const SparseMatrix& matrix );
