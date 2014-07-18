@@ -14,5 +14,6 @@
 		<Project filename="core/core.cbp" />
 		<Project filename="SparseMatrixCV/SparseMatrixCV.cbp" />
 		<Project filename="SparseMatrix/SparseMatrix.cbp" />
+		<Project filename="MinSpanTree/MinSpanTree.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>
