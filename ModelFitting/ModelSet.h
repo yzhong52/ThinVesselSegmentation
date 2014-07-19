@@ -5,6 +5,8 @@
 #include <string>
 #include <fstream>
 #include <opencv2/core/core.hpp>
+
+#include "VesselnessTypes.h"
 #include "Data3D.h"
 
 class Line3D;

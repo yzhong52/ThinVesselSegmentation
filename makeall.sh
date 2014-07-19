@@ -14,7 +14,7 @@ echo "####################################"
 echo ""
 
 cd ./Vesselness
-make clean
+#make clean
 mkdir -p bin obj
 make
 
@@ -25,7 +25,7 @@ echo "####################################"
 echo ""
 
 cd ../SparseMatrix
-make clean
+#make clean
 mkdir -p bin obj
 make
 
@@ -36,7 +36,7 @@ echo "####################################"
 echo ""
 
 cd ../SparseMatrixCV
-make clean
+#make clean
 mkdir -p bin obj
 make
 
@@ -47,7 +47,7 @@ echo "####################################"
 echo ""
 
 cd ../ModelFitting
-make clean
+#make clean
 mkdir -p bin obj
 make
 

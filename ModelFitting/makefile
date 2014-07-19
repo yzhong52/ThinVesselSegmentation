@@ -2,7 +2,7 @@
 include ../makefile-common.make
 
 # define any directories containing header files other than /usr/include
-INCLUDES += -I ../Vesselness
+INCLUDES  = -I ../Vesselness
 INCLUDES += -I ../core
 INCLUDES += -I ..
 
@@ -19,7 +19,8 @@ LIBS  = -lSparseMatrixCV -lSparseMatrix
 LIBS += -lGL -lGLU -lglut -lGLEW
 
 # define the cpp source files
-SRCS  = Line3D.cpp Line3DTwoPoint.cpp LevenburgMaquart.cpp EnergyFunctions.cpp init_models.cpp
+SRCS  = Line3D.cpp Line3DTwoPoint.cpp LevenbergMarquardt.cpp EnergyFunctions.cpp init_models.cpp
+SRCS += ModelSet.cpp
 
 # define the C object files 
 #

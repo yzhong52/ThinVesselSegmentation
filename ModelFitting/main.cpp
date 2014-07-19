@@ -22,6 +22,7 @@
 #include "GLLineModel.h"
 #include "serializer.h"
 #include "GLViwerModel.h"
+#include "make_dir.h"
 
 using namespace std;
 
@@ -121,10 +122,13 @@ void start_levernberg_marquart( const string& foldername = "../data",
 
 int main(int argc, char* argv[])
 {
+    make_dir( "output" );
+
     Mat temp = Mat(200, 200, CV_8UC3);
     cv::imshow( "", temp );
 
-    experiments::start_levernberg_marquart("../temp/", "data15", true );
+    experiments::start_levernberg_marquart("../temp/", "data15", false );
+
     return 0;
 }
 

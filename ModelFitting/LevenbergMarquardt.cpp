@@ -675,7 +675,7 @@ void LevenbergMarquardt::reestimate( double lambda, SmoothCostType whatSmoothCos
     // counting number in
     int energy_increase_count = 0;
 
-    for( int lmiter = 0; lmiter<50; lmiter++ )
+    for( int lmiter = 0; lmiter<5; lmiter++ )
     {
 
         // Data for Jacobian matrix

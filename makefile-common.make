@@ -6,7 +6,7 @@
 #  -pg   adds profiling information to the executable file
 #  -m64  compile for 64-bit
 #  -Wno-comment disable warnings about multiline comments
-CFLAGS  = -Wall -m64 -fopenmp -Wno-comment -O2 -Wl,--no-as-needed
+CFLAGS  = -Wall -Wno-reorder -m64 -fopenmp -Wno-comment -O2 -Wl,--no-as-needed
 # Add OpenCV include path
 CFLAGS +=`pkg-config --cflags opencv`
 

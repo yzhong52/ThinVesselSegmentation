@@ -4,7 +4,6 @@
 #include <string>
 
 #include "Line3DTwoPoint.h"
-#include "Data3D.h"
 #include "ImageProcessing.h"
 #include "VesselnessTypes.h"
 
