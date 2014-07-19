@@ -20,6 +20,8 @@ private:
 
 public:
     // Constructor & Destructor
+    Graph( ) { }
+
     Graph( unsigned int num_node )
     {
         nodes.resize( num_node );
@@ -36,10 +38,19 @@ public:
 
     inline void reset( const std::vector<NodeType>& new_nodes )
     {
-        // resize the nodes
+        // update the nodes
         nodes = new_nodes;
         // clear the edges
         clear_edges();
+    }
+
+    inline void reset( const std::vector<NodeType>& new_nodes,
+                       const std::priority_queue<EdgeType>& new_edges )
+    {
+        // update the nodes
+        nodes = new_nodes;
+        // update the edges
+        edges = new_edges;
     }
 
 

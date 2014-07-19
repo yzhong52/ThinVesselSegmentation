@@ -763,6 +763,12 @@ void LevenbergMarquardt::reestimate( double lambda, SmoothCostType whatSmoothCos
         modelset.serialize( serialize_dataname );
         cout << "Serialization done. " << endl  << endl;
     }
+
+    cout << "Levenberg Marquardt Done. " << endl;
+
+    cout << "Serialization begin. " << endl;
+    modelset.serialize( serialize_dataname );
+    cout << "Serialization done. " << endl  << endl;
 }
 
 

@@ -53,6 +53,7 @@
 			<Add library="libGLU.a" />
 		</Linker>
 		<Unit filename="../ModelFitting/GLLineModel.cpp" />
+		<Unit filename="../ModelFitting/GLLineModel.h" />
 		<Unit filename="../ModelFitting/GLViwerModel.h" />
 		<Unit filename="../ModelFitting/Line3D.cpp" />
 		<Unit filename="../ModelFitting/Line3D.h" />
@@ -60,8 +61,11 @@
 		<Unit filename="../ModelFitting/Line3DTwoPoint.h" />
 		<Unit filename="../ModelFitting/ModelSet.cpp" />
 		<Unit filename="../ModelFitting/ModelSet.h" />
+		<Unit filename="../ModelFitting/Neighbour26.h" />
 		<Unit filename="DisjointSet.cpp" />
 		<Unit filename="DisjointSet.h" />
+		<Unit filename="GLMinSpanTree.cpp" />
+		<Unit filename="GLMinSpanTree.h" />
 		<Unit filename="MSTEdge.cpp" />
 		<Unit filename="MSTEdge.h" />
 		<Unit filename="MSTGraph.h" />
