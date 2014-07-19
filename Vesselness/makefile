@@ -30,7 +30,7 @@ TARGET = ../bin/vesselness
 all: $(CBLAS_OBJS) $(OBJS)
 	mkdir -p ../bin
 	mkdir -p ./obj
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(INCLUDES) $(OBJS) main_sharcnet.cpp -o $(TARGET) $(LFLAGS) $(LIBS)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(INCLUDES) $(OBJS) main_nvis.cpp -o $(TARGET) $(LFLAGS) $(LIBS)
 
 run:  
 	$(TARGET)

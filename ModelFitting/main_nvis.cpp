@@ -73,8 +73,7 @@ int main(int argc, char* argv[])
 
     make_dir( "output" );
     Mat temp = Mat(200, 200, CV_8UC3);
-    cv::imshow( "", temp );
-
+    
     send_email();
     send_email();
     send_email();
