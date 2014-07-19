@@ -1,12 +1,25 @@
-# This is for testing on Sharcnet
+# This file contains important/usefull commands for compiling and running the code on Sharcnet.
+
+
+###############################################
+# Login to Sharcnet
+###############################################
+ssh saw.sharcnet.ca -l username
+
+
+
+
+
+###############################################
+# Set up the compiling environment. 
+###############################################
 
 # Change compiler
 module unload intel/12.1.3
 module load gcc/4.8.2
 
 # Python
-module load python/3.2.2
-
+# Please refer to 'Python Configuration lod.sh'
 
 # OpenCV
 module load opencv/2.4.9
@@ -18,49 +31,17 @@ pkg-config --libs opencv
 # Show all modules
 module list
 
-####################################
-#
-# execuate all makefiles in ModelFitting, SparseMatrix, SparseMatrixCV， Vesselness
-#
-####################################
 
-echo "\n"
-echo "####################################"
-echo "# Compiling Vesselness"
-echo "####################################"
-echo "\n"
 
-cd ./Vesselness
-make clean
-make
 
-echo "\n"
-echo "####################################"
-echo "# Compiling SparseMatrix"
-echo "####################################"
-echo "\n"
 
-cd ../SparseMatrix
-make clean
-make
+###############################################
+# Copy File from to Sharcnet using 'scp'
+###############################################
+scp <filename> <username>@saw.sharcnet.ca:
 
-echo "\n"
-echo "####################################"
-echo "# Compiling SparseMatrixCV"
-echo "####################################"
-echo "\n"
-
-cd ../SparseMatrixCV
-make clean
-make
-
-echo "\n"
-echo "####################################"
-echo "# Compiling ModelFitting"
-echo "####################################"
-echo "\n"
-
-cd ../ModelFitting
-make clean
-make
-
+example: 
+# copy a data file to a excutable bin folder on sharcnet
+scp data15.et.vn_sig yzhong52@saw.sharcnet.ca:/../../scratch/yzhong52/thin-structure-segmentation/bin
+# copy the output directory back to a local computer 
+scp -r yzhong52@saw.sharcnet.ca:/../../scratch/yzhong52/thin-structure-segmentation/bin ./from-sharcnet
