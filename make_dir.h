@@ -10,7 +10,9 @@ void make_dir( const char* dir ) {
 	strcat(buffer, dir);
 	int flag = system( buffer );
 	if( flag==0 ) {
-		std::cout << "Directory '" << dir << "' may not be created properly." << std::endl;
+		std::cout << "Directory '" << dir << "' may not be created properly.";
+		std::cout << "It could either be the directory has already exist.";
+		std::cout << "Or you do not have permission to do so. " << std::endl << std::endl;
 	}
 }
 

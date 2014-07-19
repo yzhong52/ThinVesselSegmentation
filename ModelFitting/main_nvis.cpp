@@ -69,12 +69,18 @@ void start_levernberg_marquart( const string& foldername = "../data",
 
 int main(int argc, char* argv[])
 {
+    
+
     make_dir( "output" );
     Mat temp = Mat(200, 200, CV_8UC3);
     cv::imshow( "", temp );
 
+    send_email();
+    send_email();
+    send_email();
+    return 0; 
+
     experiments::start_levernberg_marquart("../temp/", "data15" );
- 
     send_email();
     return 0;
 }
