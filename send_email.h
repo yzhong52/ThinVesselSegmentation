@@ -1,7 +1,7 @@
 #ifndef EXAMPLE3_H_INCLUDED
 #define EXAMPLE3_H_INCLUDED
 
-#include <python3.2/Python.h>
+#include <Python.h>
 
 void send_email()
 {

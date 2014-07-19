@@ -17,6 +17,7 @@ LFLAGS  = -L ./
 LFLAGS += -Wl,--no-as-needed -pthread
 LFLAGS += `pkg-config --libs opencv` # OpenCV libs
 LFLAGS += `python3-config --ldflags`  # Python libs
+LFLAGS += -lpython3.3
 
 # for C++ define  CC = g++
 #  -m64  compile for 64 bits
