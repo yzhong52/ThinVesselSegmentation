@@ -17,7 +17,6 @@ CFLAGS +=`pkg-config --cflags opencv`
 LFLAGS  = -L ./
 LFLAGS += -Wl,--no-as-needed -pthread
 LFLAGS += `pkg-config --libs opencv` # OpenCV libs
-
 #LFLAGS += `python3-config --ldflags`  # Python libs
 
 
@@ -31,10 +30,6 @@ LFLAGS = -L../../python/lib/
 LIBS  = -lpython3.4m -lpthread -ldl  -lutil -lm -Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions
 
 
-=======
-LFLAGS += `python3-config --ldflags`  # Python libs
-LFLAGS += -lpython3.3
->>>>>>> c9ddb7f1f01b51d187bb2b669aab40ac8deecea3
 
 # for C++ define  CC = g++
 #  -m64  compile for 64 bits
