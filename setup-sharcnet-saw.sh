@@ -48,6 +48,7 @@ scp <filename> <username>@saw.sharcnet.ca:
 example: 
 # copy a data file (with its readme file) to a excutable bin folder on sharcnet
 scp data15.et.vn_sig data15.et.vn_sig.readme.txt yzhong52@saw.sharcnet.ca:/../../scratch/yzhong52/thin-structure-segmentation/bin
+scp vessel3d_rd.et.vn_sig vessel3d_rd.et.vn_sig.readme.txt yzhong52@saw.sharcnet.ca:/../../scratch/yzhong52/thin-structure-segmentation/bin
 # copy the output directory back to a local computer 
 scp -r yzhong52@saw.sharcnet.ca:/../../scratch/yzhong52/thin-structure-segmentation/bin ./from-sharcnet
 
@@ -56,9 +57,10 @@ scp -r yzhong52@saw.sharcnet.ca:/../../scratch/yzhong52/thin-structure-segmentat
 ###############################################
 # Submitting a job on sharcnet
 ###############################################
-sqsub -q <Type of program> -n <number of cpus cores> -N <number of nodes> -o <output log file> -r <maximum run time> ./modelfitting
+sqsub -q <Type of program> -n <number of cpus cores> -N <number of nodes> -o <output log file> -r <maximum run time> ./<program executable name> 
 # Note: For example, on saw (sharcnet cluster name) there are 8 cores per node. 
-sqsub --mpp=6g -q threaded -n 8 -N 1 -o modelfitting.log -r 5h ./modelfitting
+sqsub --mpp=2g -q threaded -n 8 -N 1 -o modelfitting.log -r 5h ./modelfitting data15
+sqsub --mpp=10g -q threaded -n 8 -N 1 -o modelfitting.log -r 1.5d ./modelfitting vessel3d_rd
 
 
 

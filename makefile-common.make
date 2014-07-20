@@ -17,17 +17,14 @@ CFLAGS +=`pkg-config --cflags opencv`
 LFLAGS  = -L ./
 LFLAGS += -Wl,--no-as-needed -pthread
 LFLAGS += `pkg-config --libs opencv` # OpenCV libs
-#LFLAGS += `python3-config --ldflags`  # Python libs
-
-
+LFLAGS += `python3-config --ldflags`  # Python libs, replace this line by the following 9 lines if you compile python yourself and have it under '../python'
 # [IMPORTANT] The following assume that there is a local python intall under '../python'. 
-
 # Include Path 
-INCLUDES += -I ../../python/include/
+# INCLUDES += -I ../../python/include/
 # define library paths
-LFLAGS += -L../../python/lib/
+# LFLAGS += -L../../python/lib/
 # Additiona libraries
-LIBS += -lpython3.4m -lpthread -ldl  -lutil -lm -Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions
+# LIBS += -lpython3.4m -lpthread -ldl  -lutil -lm -Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions
 
 
 

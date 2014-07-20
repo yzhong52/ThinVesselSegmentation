@@ -20,7 +20,6 @@
 #include "ModelSet.h"
 #include "init_models.h" // TODO: remove this!
 #include "make_dir.h"
-#include "send_email.h"
 
 
 using namespace std;
@@ -78,9 +77,8 @@ int main(int argc, char* argv[])
 
     const char* dataname = argv[1]; 
 
-    send_email();
     experiments::start_levernberg_marquart("./", dataname );
-    send_email();
+    
     return 0;
 }
 
