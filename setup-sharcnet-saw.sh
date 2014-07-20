@@ -7,6 +7,11 @@
 ssh saw.sharcnet.ca -l username
 
 
+###############################################
+# Clone the project
+###############################################
+git clone https://yzhong52@bitbucket.org/yzhong52/thin-structure-segmentation.git
+
 
 
 
@@ -41,7 +46,20 @@ module list
 scp <filename> <username>@saw.sharcnet.ca:
 
 example: 
-# copy a data file to a excutable bin folder on sharcnet
-scp data15.et.vn_sig yzhong52@saw.sharcnet.ca:/../../scratch/yzhong52/thin-structure-segmentation/bin
+# copy a data file (with its readme file) to a excutable bin folder on sharcnet
+scp data15.et.vn_sig data15.et.vn_sig.readme.txt yzhong52@saw.sharcnet.ca:/../../scratch/yzhong52/thin-structure-segmentation/bin
 # copy the output directory back to a local computer 
 scp -r yzhong52@saw.sharcnet.ca:/../../scratch/yzhong52/thin-structure-segmentation/bin ./from-sharcnet
+
+
+
+###############################################
+# Submitting a job on sharcnet
+###############################################
+sqsub -q <Type of program> -n <number of cpus cores> -N <number of nodes> -o <output log file> -r <maximum run time> ./modelfitting
+# Note: For example, on saw (sharcnet cluster name) there are 8 cores per node. 
+sqsub --mpp=6g -q threaded -n 8 -N 1 -o modelfitting.log -r 5h ./modelfitting
+
+
+
+

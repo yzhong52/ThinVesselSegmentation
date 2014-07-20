@@ -71,8 +71,15 @@ int main(int argc, char* argv[])
 {
     make_dir( "output" );
     
+    if( argc!=2 ){
+        cout << "Please specify a dataname! " << endl; 
+        return 0; 
+    }
+
+    const char* dataname = argv[1]; 
+
     send_email();
-    experiments::start_levernberg_marquart("./", "data15" );
+    experiments::start_levernberg_marquart("./", dataname );
     send_email();
     return 0;
 }

@@ -127,7 +127,7 @@ int main(int argc, char* argv[])
     Mat temp = Mat(200, 200, CV_8UC3);
     cv::imshow( "", temp );
 
-    experiments::start_levernberg_marquart("../temp/", "data15", false );
+    experiments::start_levernberg_marquart("../temp/", "data15", true );
 
     return 0;
 }
