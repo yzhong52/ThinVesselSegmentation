@@ -60,7 +60,7 @@ scp -r yzhong52@saw.sharcnet.ca:/../../scratch/yzhong52/thin-structure-segmentat
 sqsub -q <Type of program> -n <number of cpus cores> -N <number of nodes> -o <output log file> -r <maximum run time> ./<program executable name> 
 # Note: For example, on saw (sharcnet cluster name) there are 8 cores per node. 
 sqsub --mpp=2g -q threaded -n 8 -N 1 -o modelfitting.log -r 5h ./modelfitting data15
-sqsub --mpp=10g -q threaded -n 8 -N 1 -o modelfitting.log -r 1.5d ./modelfitting vessel3d_rd
+sqsub --mpp=12g -q threaded -n 12 -N 1 -o modelfitting.log -r 1.5d ./modelfitting vessel3d_rd
 
 
 

@@ -14,31 +14,53 @@ using namespace cv;
 
 /*Note: A lot of code from ModelFitting is being recompiled and reused here. */
 
-int main()
+
+void tree_from_dense_graph( const ModelSet& models, Graph<Edge, cv::Vec3d>& tree )
 {
-    Mat temp = Mat(200, 200, CV_8UC3);
-    cv::imshow( "", temp );
 
-    ModelSet models;
-    bool flag = models.deserialize( "data15_134_113_116" );
-    if( !flag )
-    {
-        return 0;
-    }
-
-
-    // compute the projection point and put them into a vector
-    vector<Vec3d> projs( models.tildaP.size() );
+    Graph<Edge, cv::Vec3d> graph;
+    // compute the projection point add it to graph
     for( unsigned i=0; i<models.tildaP.size(); i++ )
     {
         const int& lineid1 = models.labelID[i];
         const Line3D* line1   = models.lines[lineid1];
         const cv::Vec3i& pos1 = models.tildaP[i];
-        projs[i] = line1->projection( pos1 );
+        const Vec3d proj = line1->projection( pos1 );
+        graph.add_node( proj );
     }
 
+    // connect each pair of the nodes
+    for( unsigned i=0; i<graph.num_nodes(); i++ )
+    {
+        for( unsigned j=i+1; j<graph.num_nodes(); j++ )
+        {
+            const Vec3d& proj1 = graph.get_node( i );
+            const Vec3d& proj2 = graph.get_node( j );
+            const Vec3d direction = proj1 - proj2;
+            const double dist = sqrt( direction.dot( direction ) );
+            graph.add_edge( Edge(i, j, dist) );
+        }
+    }
 
-    Graph<Edge> graph( models.tildaP.size() );
+    graph.get_min_span_tree( tree );
+}
+
+int example();
+
+void tree_from_neibourhood( const ModelSet& models, Graph<Edge, cv::Vec3d>& tree )
+{
+
+    Graph<Edge, cv::Vec3d> graph;
+    // compute the projection point add it to graph
+    for( unsigned i=0; i<models.tildaP.size(); i++ )
+    {
+        const int& lineid1 = models.labelID[i];
+        const Line3D* line1   = models.lines[lineid1];
+        const cv::Vec3i& pos1 = models.tildaP[i];
+        const Vec3d proj = line1->projection( pos1 );
+        graph.add_node( proj );
+    }
+
     for( unsigned i=0; i<models.tildaP.size(); i++ )
     {
         for( int n=0; n<26; n++ )
@@ -58,19 +80,33 @@ int main()
 
             const Vec3d proj1 = line1->projection( pos1 );
             const Vec3d proj2 = line2->projection( pos2 );
-
-            const double dist = sqrt( proj1.dot( proj2 ) );
+            const Vec3d direction = proj1 - proj2;
+            const double dist = sqrt( direction.dot( direction ) );
 
             // TODO: line id is equivalent to point id in this case
             graph.add_edge( Edge(lineid1, lineid2, dist) );
         }
     }
-    Graph<Edge> tree( models.tildaP.size() );
+
     graph.get_min_span_tree( tree );
+}
+
+int main()
+{
+    example();
+
+    Mat temp = Mat(200, 200, CV_8UC3);
+    cv::imshow( "", temp );
+
+    ModelSet models;
+    bool flag = models.deserialize( "data15_134_113_116" );
+    if( !flag )
+        return 0;
+
 
     Graph<Edge, cv::Vec3d> tree2;
-    tree2.reset( projs, tree.get_edges() );
-
+    // tree_from_neibourhood( models, tree2 );
+    tree_from_dense_graph( models, tree2 );
 
 
     GLViwerModel vis;

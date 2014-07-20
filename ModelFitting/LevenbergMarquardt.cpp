@@ -34,9 +34,9 @@ LevenbergMarquardt::LevenbergMarquardt( const vector<Vec3i>& dataPoints,
                                         const ModelSet& modelset,
                                         const Data3D<int>& labelIDs,
                                         SmoothCostType smooth_cost_type )
-    : tildaP( dataPoints ), labelID( labelings ), labelID3d( labelIDs )
-    , modelset( modelset )
-    , lines( modelset.lines )
+    : modelset( modelset ), tildaP( dataPoints ), labelID( labelings )
+    , lines( modelset.lines ), labelID3d( labelIDs )
+
 {
     smart_assert( lines.size()!=0, "Error: model set is empty" );
 
@@ -764,11 +764,10 @@ void LevenbergMarquardt::reestimate( double lambda, SmoothCostType whatSmoothCos
         cout << "Serialization done. " << endl  << endl;
     }
 
-    cout << "Levenberg Marquardt Done. " << endl;
-
     cout << "Serialization begin. " << endl;
     modelset.serialize( serialize_dataname );
     cout << "Serialization done. " << endl  << endl;
+    cout << "Levenberg Marquardt Done. " << endl;
 }
 
 

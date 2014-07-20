@@ -29,7 +29,8 @@ void GLMinSpanTree::render( void )
 {
     glColor3f( 1.0f, 0.4f, 0.4f );
     glBegin( GL_LINES );
-    for( unsigned i=0; i<graph.num_edges(); i++ ){
+    for( unsigned i=0; i<graph.num_edges(); i++ )
+    {
         const Edge& e = graph.get_edge( i );
         const Vec3d& p1 = graph.get_node( e.node1 );
         const Vec3d& p2 = graph.get_node( e.node2 );

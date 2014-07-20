@@ -14,8 +14,8 @@ class GLMinSpanTree : public GLViewer::Object
     const MST::Graph<MST::Edge, cv::Vec3d>& graph;
     const cv::Vec3i& size;
 public:
-        GLMinSpanTree( const MST::Graph<MST::Edge, cv::Vec3d>& graph,
-        const cv::Vec3i& size );
+    GLMinSpanTree( const MST::Graph<MST::Edge, cv::Vec3d>& graph,
+                   const cv::Vec3i& size );
     virtual ~GLMinSpanTree();
 
     virtual void render( void );

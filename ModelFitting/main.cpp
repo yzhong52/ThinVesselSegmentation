@@ -78,6 +78,7 @@ void start_levernberg_marquart( const string& foldername = "../data",
     // Vesselness measure with sigma
     Image3D<Vesselness_Sig> vn_et_sig;
     vn_et_sig.load( datafile + ".et.vn_sig" );
+    // vn_et_sig.remove_margin_to( Vec3i(30, 40, 30) );
     // vn_et_sig.remove_margin_to( Vec3i(585, 525, 10) );
 
 

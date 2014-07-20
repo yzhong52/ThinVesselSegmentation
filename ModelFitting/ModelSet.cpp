@@ -10,7 +10,7 @@
 using namespace std;
 using namespace cv;
 
-const std::string ModelSet::file_prefix = "output/serialization_";
+const std::string ModelSet::file_prefix = "../temp/serialization_";
 
 ModelSet::ModelSet(void)
 {
