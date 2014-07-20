@@ -47,7 +47,7 @@ void tree_from_dense_graph( const ModelSet& models, Graph<Edge, cv::Vec3d>& tree
 
 int example();
 
-void tree_from_neibourhood( const ModelSet& models, Graph<Edge, cv::Vec3d>& tree )
+void tree_from_neighborhood( const ModelSet& models, Graph<Edge, cv::Vec3d>& tree )
 {
 
     Graph<Edge, cv::Vec3d> graph;
@@ -104,22 +104,26 @@ int main()
         return 0;
 
 
-    Graph<Edge, cv::Vec3d> tree2;
-    // tree_from_neibourhood( models, tree2 );
+    Graph<Edge, cv::Vec3d> tree1, tree2;
+    tree_from_neighborhood( models, tree1 );
     tree_from_dense_graph( models, tree2 );
 
 
     GLViwerModel vis;
 
-    GLViewer::GLLineModel *model = new GLViewer::GLLineModel( Vec3i(134,113,116) );
+    /*
+    GLViewer::GLLineModel *model = new GLViewer::GLLineModel( models.labelID3d.get_size() );
     model->updatePoints( models.tildaP );
     model->updateModel( models.lines, models.labelID );
     vis.objs.push_back( model );
+    */
 
-    cout << models.labelID3d.get_size() << endl;
-
-    GLViewer::GLMinSpanTree *mstobj = new GLViewer::GLMinSpanTree( tree2, models.labelID3d.get_size() );
-    vis.objs.push_back( mstobj );
+    GLViewer::GLMinSpanTree *mstobj1 = new GLViewer::GLMinSpanTree( tree1, models.labelID3d.get_size() );
+    GLViewer::GLMinSpanTree *mstobj2 = new GLViewer::GLMinSpanTree( tree2, models.labelID3d.get_size() );
+    vis.objs.push_back( mstobj1 );
+    vis.objs.push_back( mstobj2 );
+    mstobj1->set_color( Vec3f(1.0f, 1.0f, 0.0f) );
+    mstobj2->set_color( Vec3f(0.0f, 0.0f, 1.0f) );
 
     vis.display(640, 480, 2);
 

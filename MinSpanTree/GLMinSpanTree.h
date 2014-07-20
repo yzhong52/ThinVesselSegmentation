@@ -13,6 +13,8 @@ class GLMinSpanTree : public GLViewer::Object
 {
     const MST::Graph<MST::Edge, cv::Vec3d>& graph;
     const cv::Vec3i& size;
+
+    cv::Vec3f color;
 public:
     GLMinSpanTree( const MST::Graph<MST::Edge, cv::Vec3d>& graph,
                    const cv::Vec3i& size );
@@ -33,6 +35,19 @@ public:
     {
         return size[2];
     }
+
+    virtual void init( void ) {
+        glDisable(GL_DEPTH_TEST);
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_ONE, GL_ONE);
+            glBlendEquation( GL_MAX_EXT );
+    }
+
+    inline void set_color( cv::Vec3f new_color )
+    {
+        color = new_color;
+    }
+
 };
 
 

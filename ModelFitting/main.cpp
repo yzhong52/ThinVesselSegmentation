@@ -96,7 +96,7 @@ void start_levernberg_marquart( const string& foldername = "../data",
     if( !flag ) model.init_one_model_per_point( vn_et_sig );
 
 
-    cout << "Number of data points: " << model.get_data_size() << endl;
+    cout << "Number of data points: " << model.tildaP.size() << endl;
 
     std::thread visualization_thread;
     if( isDisplay )
@@ -132,23 +132,3 @@ int main(int argc, char* argv[])
 
     return 0;
 }
-
-
-
-
-
-
-
-
-//// TODO: not compatible with MinGW?
-//CreateDirectory(L"./output", NULL);
-
-//////////////////////////////////////////////////
-// Loading serialized data
-//////////////////////////////////////////////////
-//model.deserialize<Line3DTwoPoint>( "output/Line3DTwoPoint.model" );
-//if( lines.size()!=dataPoints.size() ) {
-//	cout << "Number of models is not corret. " << endl;
-//	cout << "Probably because of errors while deserializing the data. " << endl;
-//	return 0;
-//}
