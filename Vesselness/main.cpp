@@ -35,7 +35,17 @@ int centreline( bool isDisplay, std::string dataname = "data15" );
 int main(void)
 {
     Mat temp = Mat(200, 200, CV_8UC3);
-    cv::imshow( "", temp );
+    // cv::imshow( "", temp );
+
+    Image3D<short> im_data;
+    im_data.load( "../temp/vessel3d_rd_sp.data" );
+    im_data.setROI( );
+    im_data.saveROI( "../temp/roi16.data" );
+
+    viewer.addObject( im_data.getROI(),  GLViewer::Volumn::MIP );
+    viewer.display(600, 400, 1);
+
+    return 0;
 
 
     sample_code::vesselness(false, "data15", 2800 );

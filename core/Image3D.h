@@ -174,7 +174,7 @@ inline void setROI_mouseEvent(int evt, int x, int y, int, void* param)
             roi_corner[0] = roi_corner[1] = cv::Vec3i(x, y, z);
             is_roi_init = true;
         }
-        // Else updata ROI
+        // Else update ROI
         else
         {
             roi_corner[0][0] = std::min(roi_corner[0][0], x);
@@ -223,6 +223,7 @@ inline void setROI_mouseEvent(int evt, int x, int y, int, void* param)
         std::cout << '\r' << "ROI is from " << roi_corner[0] << " to " << roi_corner[1] << ". ";
         std::cout << "Size: " << roi_corner[1]-roi_corner[0] << "\t";
     }
+    std::cout.flush();
 }
 
 
@@ -251,7 +252,7 @@ void Image3D<T>::setROI(void)
                                             " n - next slice \n" + \
                                             " p - previous slice \n" +\
                                             " Enter - done \n" +\
-                                            " Exs - reset ";
+                                            " Exc - reset ";
 
     std::cout << "Setting Region of Interest" << std::endl;
     std::cout << instructions << std::endl;
@@ -261,10 +262,11 @@ void Image3D<T>::setROI(void)
     int current_slice = 0;
     roi_corner[0] = roi_corner[1] = cv::Vec3i(0, 0, 0);
     void* param[3] = { &current_slice, &is_roi_init, roi_corner };
+
     cv::namedWindow( window_name.c_str(), CV_WINDOW_AUTOSIZE );
     cvSetMouseCallback( window_name.c_str(), setROI_mouseEvent, param );
 
-    // We are tring to normalize the image data here so that it will be easier
+    // We are trying to normalize the image data here so that it will be easier
     // for the user to see.
     // find the maximum and minimum value (method3)
     cv::Point minLoc, maxLoc;
@@ -280,7 +282,7 @@ void Image3D<T>::setROI(void)
         mat_temp.convertTo(mat_temp, CV_32S);
         mat_temp = 255 * ( mat_temp - min_value ) / (max_value - min_value);
         mat_temp.convertTo(mat_temp, CV_8U);
-        // Change the data type from GRAY to RGB because we want to dray a
+        // Change the data type from GRAY to RGB because we want to draw a
         // yellow ROI on the data.
         cvtColor( mat_temp, mat_temp, CV_GRAY2RGB);
 
@@ -301,17 +303,18 @@ void Image3D<T>::setROI(void)
 
         // key controls
         int key = cvWaitKey(250);
-        if( key == -1 )
-        {
-            continue;
-        }
-        else if( key == 27 )
+
+        if( key == -1 ) continue;
+
+        key = key & 255;
+
+        if( key == 27 )
         {
             is_roi_init = false;
             roi_corner[0] = roi_corner[1] = cv::Vec3i(0, 0, 0);
-            std::cout << '\r' << "Region of Interset is reset. \t\t\t\t\t" << std::endl;
+            std::cout << '\r' << "Region of Interest is reset. \t\t\t\t\t" << std::endl;
         }
-        else if( key == '\r' )
+        else if( key == 's' )
         {
             break;
         }
@@ -333,15 +336,16 @@ void Image3D<T>::setROI(void)
         }
         else
         {
-            std::cout << '\r' << "Unknow Input '"<< char(key) << "'. Please follow the instructions below." << std::endl;
+            std::cout << '\r' << "Unknown Input '"<< char(key) << "'. Please follow the instructions below." << std::endl;
             std::cout << instructions << std::endl;
         }
+        std::cout.flush();
     }
     while( cvGetWindowHandle(window_name.c_str()) );
 
     cv::destroyWindow( window_name );
 
-    // set roi data
+    // set ROI data
     if( is_roi_init==false )
     {
         std::cout << "ROI is not set" << std::endl;

@@ -415,7 +415,7 @@ void Data3D<T>::show(const std::string& window_name, int current_slice, T min_va
         typeid(T)==typeid(int)||
         typeid(T)==typeid(unsigned char)||
         typeid(T)==typeid(unsigned short),
-        "Datatype cannot be visualized." );
+        "Data type cannot be visualized." );
 
     cv::namedWindow( window_name.c_str(), CV_WINDOW_AUTOSIZE );
 
