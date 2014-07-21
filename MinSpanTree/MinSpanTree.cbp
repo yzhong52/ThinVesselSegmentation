@@ -70,6 +70,7 @@
 		<Unit filename="MSTEdge.cpp" />
 		<Unit filename="MSTEdge.h" />
 		<Unit filename="MSTGraph.h" />
+		<Unit filename="example.h" />
 		<Unit filename="main.cpp" />
 		<Extensions>
 			<code_completion />

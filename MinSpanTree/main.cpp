@@ -93,83 +93,51 @@ void tree_from_neighborhood( const ModelSet& models, Graph<Edge, cv::Vec3d>& tre
 
 int main()
 {
-    example();
-
     Mat temp = Mat(200, 200, CV_8UC3);
     cv::imshow( "", temp );
 
     ModelSet models;
-    bool flag = models.deserialize( "data15_134_113_116" );
+    bool flag = models.deserialize( "vessel3d_rd_585_525_300" );
     if( !flag )
         return 0;
 
-
-    Graph<Edge, cv::Vec3d> tree1, tree2;
-    tree_from_neighborhood( models, tree1 );
-    tree_from_dense_graph( models, tree2 );
-
-
     GLViwerModel vis;
 
+    //*
+    Graph<Edge, cv::Vec3d> tree1;
+    tree_from_neighborhood( models, tree1 );
+    GLViewer::GLMinSpanTree *mstobj1 = new GLViewer::GLMinSpanTree( tree1, models.labelID3d.get_size() );
+    mstobj1->set_color( Vec3f(1.0f, 1.0f, 0.0f) );
+    vis.objs.push_back( mstobj1 );
+
     /*
+    Graph<Edge, cv::Vec3d> tree2;
+    tree_from_dense_graph( models, tree2 );
+    GLViewer::GLMinSpanTree *mstobj2 = new GLViewer::GLMinSpanTree( tree2, models.labelID3d.get_size() );
+    vis.objs.push_back( mstobj2 );
+    mstobj2->set_color( Vec3f(0.0f, 0.0f, 1.0f) );
+    /**/
+
+    //*
     GLViewer::GLLineModel *model = new GLViewer::GLLineModel( models.labelID3d.get_size() );
     model->updatePoints( models.tildaP );
     model->updateModel( models.lines, models.labelID );
     vis.objs.push_back( model );
-    */
+    /**/
 
-    GLViewer::GLMinSpanTree *mstobj1 = new GLViewer::GLMinSpanTree( tree1, models.labelID3d.get_size() );
-    GLViewer::GLMinSpanTree *mstobj2 = new GLViewer::GLMinSpanTree( tree2, models.labelID3d.get_size() );
-    vis.objs.push_back( mstobj1 );
-    vis.objs.push_back( mstobj2 );
-    mstobj1->set_color( Vec3f(1.0f, 1.0f, 0.0f) );
-    mstobj2->set_color( Vec3f(0.0f, 0.0f, 1.0f) );
 
-    vis.display(640, 480, 2);
+    Data3D<short> im_short;
+    flag = im_short.load( "../temp/vessel3d_rd.data", Vec3i(585, 525, 892), false, true );
+    // flag = im_short.load( "../data/data15.data" );
+    if( !flag ) return 0;
+    // im_short.remove_margin_to( Vec3i(585, 525, 10) );
+    im_short.remove_margin_to( Vec3i(585, 525, 300) );
+    im_short.remove_margin( Vec3i(0,0,0), Vec3i(385, 325, 200) );
+    vis.addObject( im_short,  GLViewer::Volumn::MIP );
+
+    vis.display(640, 480, 3);
 
     return 0;
 }
 
 
-int example( )
-{
-    // Yuchen: Minimum Spanning Tree
-
-    /* Test Case Input
-     [1] --3-- [2]
-      |       / | \
-      |     /   |   \
-      7    2    4    6
-      |  /      |      \
-      |/        |        \
-     [3] --1-- [4] --5-- [0]
-
-     Result Output
-     [1] --3-- [2]
-              /
-            /
-           2
-         /
-       /
-     [3] --1-- [4] --5-- [0] */
-
-    //// Build Graph
-    Graph<Edge> graph( 5 );
-    graph.add_edge( Edge(1, 2, 3) );
-    graph.add_edge( Edge(1, 3, 7) );
-    graph.add_edge( Edge(2, 3, 2) );
-    graph.add_edge( Edge(2, 4, 4) );
-    graph.add_edge( Edge(2, 0, 6) );
-    graph.add_edge( Edge(3, 4, 1) );
-    graph.add_edge( Edge(4, 0, 5) );
-
-    // Compute Minimum Spanning Tree
-    Graph<Edge> tree( graph.num_nodes() );
-    graph.get_min_span_tree( tree );
-
-    //// Print Result
-    cout << "Original Graph: " << graph << endl;
-    cout << "Output MST Tree: "<< tree << endl;
-
-    return true;
-}
