@@ -50,7 +50,8 @@ void save_slice( Mat im, const double& minVal, const double& maxVal,
     // convert back to CV_8U for visualization
     im.convertTo(im, CV_8UC3);
     // draw the centre point on the image
-    if( center[0]!=0 || center[1]!=0 ){
+    if( center[0]!=0 || center[1]!=0 )
+    {
         im.at<Vec3b>(center[1], center[0]) = center_color;
     }
     // save file
@@ -229,26 +230,22 @@ void search_on_a_line(void)
 namespace state_of_the_art
 {
 
-void sijiber(void)
+void sijiber(const string& datafile = "../temp/vessel3d.data",
+             const string& outputfile = "../temp/vessel3d_rd.data",
+             const Vec2d& centre = Vec2d( 233.5, 269.5 ) )
 {
     // loading data
     Data3D<short> im_short;
-    bool flag = im_short.load( "../temp/vessel3d.data", Vec3i(585, 525, 892), true, true  );
+    bool flag = im_short.load( datafile );
     if( !flag ) return;
-
-    const Vec2d sub_centre( 233.5, 269.5 );
 
     Data3D<short> im_rduct;
     Interpolation<short>::Get = Interpolation<short>::Bilinear;
     Interpolation<float>::Get = Interpolation<float>::Bilinear;
     Interpolation<int>::Get   = Interpolation<int>::Bilinear;
-    RR::sijbers( im_short, im_rduct, 1.0f, sub_centre, true );
+    RR::sijbers( im_short, im_rduct, 1.0f, centre, true );
 
-    im_rduct.save( "../temp/vessel3d_rd.data" );
-
-
-    Vec<short, 2> min_max = im_rduct.get_min_max_value();
-    im_rduct.show( "Result After Rings Reduction", 0, min_max[0], min_max[1] );
+    im_rduct.save( outputfile );
     return;
 }
 
@@ -278,7 +275,31 @@ int main(void)
     //experiment::search_grid();
     // experiment::have_a_try();
     //state_of_the_art::letsgo();
-    state_of_the_art::sijiber();
+
+    //state_of_the_art::sijiber( "../temp/vessel3d.data", "../temp/vessel3d_rd_sp.data", Vec2d(233.5, 269.5) );
+    //state_of_the_art::sijiber( "../temp/vessel3d.data", "../temp/vessel3d_rd.data", Vec2d(234, 270) );
+
+    Data3D<short> ori, rd1, rd2;
+    ori.load( "../temp/vessel3d.data" );
+    rd1.load( "../temp/vessel3d_rd.data" );
+    rd2.load( "../temp/vessel3d_rd_sp.data" );
+
+    Data3D<short> compare( Vec3i( ori.SX()*3, ori.SY(), ori.SZ()/2 ) );
+    for( int z=0; z<ori.SZ()/2; z++ )
+    {
+        for( int y=0; y<ori.SY(); y++ )
+        {
+            for( int x=0; x<ori.SX(); x++ )
+            {
+                compare.at(x, y, z)            = ori.at(x,y,z);
+                compare.at(x+ori.SX(), y, z)   = rd1.at(x,y,z);
+                compare.at(x+ori.SX()*2, y, z) = rd2.at(x,y,z);
+            }
+        }
+    }
+
+    compare.show( "Comparing Results", 0, -1270, 10000 );
+
     return 0;
 }
 

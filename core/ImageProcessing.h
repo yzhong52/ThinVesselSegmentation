@@ -172,7 +172,7 @@ bool ImageProcessing::GaussianBlur3D( const Data3D<T1>& src, Data3D<T2>& dst, in
                         int x2 = x+i-hsize;
                         if( x2>=0 && x2<epos[0] )
                         {
-                            tmp1.at(x, y, z) += T2( gk.at<double>(i) * src.at(x2, y, z) );
+                            tmp1.at(x, y, z) = T2( gk.at<double>(i) * src.at(x2, y, z) + tmp1.at(x, y, z));
                             sum += gk.at<double>(i);
                         }
                     }
@@ -193,7 +193,7 @@ bool ImageProcessing::GaussianBlur3D( const Data3D<T1>& src, Data3D<T2>& dst, in
                         int y2 = y+i-hsize;
                         if( y2>=0 && y2<epos[1] )
                         {
-                            tmp2.at(x, y, z) += T2( gk.at<double>(i) * tmp1.at(x, y2, z) );
+                            tmp2.at(x, y, z) = T2( gk.at<double>(i) * tmp1.at(x, y2, z) + tmp2.at(x, y, z));
                             sum += gk.at<double>(i);
                         }
                     }
@@ -215,7 +215,7 @@ bool ImageProcessing::GaussianBlur3D( const Data3D<T1>& src, Data3D<T2>& dst, in
                         int z2 = z+i-hsize;
                         if( z2>=0 && z2<epos[2] )
                         {
-                            dst.at(x, y, z) += T2( gk.at<double>(i) * tmp2.at(x, y, z2) );
+                            dst.at(x, y, z) = T2( dst.at(x, y, z) + gk.at<double>(i) * tmp2.at(x, y, z2) );
                             sum += gk.at<double>(i);
                         }
                     }

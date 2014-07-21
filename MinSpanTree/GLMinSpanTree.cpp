@@ -9,11 +9,8 @@ namespace GLViewer
 
 GLMinSpanTree::GLMinSpanTree( const MST::Graph<MST::Edge, cv::Vec3d>& g,
                               const cv::Vec3i& s )
-:
-    graph( g ), size( s ), color( Vec3f(1.0f, 1.0f, 1.0f) )
+    : graph( g ), size( s ), color( Vec3f(1.0f, 1.0f, 1.0f) )
 {
-
-
 
 }
 

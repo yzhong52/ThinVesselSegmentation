@@ -36,11 +36,12 @@ public:
         return size[2];
     }
 
-    virtual void init( void ) {
+    virtual void init( void )
+    {
         glDisable(GL_DEPTH_TEST);
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_ONE, GL_ONE);
-            glBlendEquation( GL_MAX_EXT );
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_ONE, GL_ONE);
+        glBlendEquation( GL_MAX_EXT );
     }
 
     inline void set_color( cv::Vec3f new_color )

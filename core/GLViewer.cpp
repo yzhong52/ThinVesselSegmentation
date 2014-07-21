@@ -16,7 +16,7 @@ namespace GLViewer
 vector<Object*> obj;
 
 // maximum number of viewports supported
-const int maxNumViewports = 4;
+const int maxNumViewports = 9;
 
 // maximum number of objects suported
 const int maxNumObjects = 9;
@@ -69,9 +69,13 @@ void render(void)
             for( unsigned int j=0; j<2; j++ )
             {
                 glViewport (width/2*i, height/2*j, width/2, height/2);
-                unsigned int obj_index = i+2*(1-j);
-                if( obj_index < obj.size() ) obj[obj_index]->render();
-                else                         obj[0]->render();
+
+                unsigned int vp_index = i + 2*(1-j);
+
+                for( unsigned int obj_index=0; obj_index<obj.size(); obj_index++ )
+                {
+                    if( isDisplayObj[vp_index][obj_index] ) obj[obj_index]->render();
+                }
 
                 // draw rotation axis
                 if( isAxis ) camera.draw_axis();
@@ -80,10 +84,10 @@ void render(void)
     }
     else
     {
-        // if there are 1, 2, or 3 viewports, display then in a row
+        // if there are 1, 2, or 3 view ports, display then in a row
         for( int i=0; i<numViewports; i++ )
         {
-            // For viewport i
+            // For view port i
             glViewport (i*width/numViewports, 0, width/numViewports, height);
             for( unsigned int j=0; j<obj.size(); j++ )
             {
@@ -278,6 +282,8 @@ void keyboard(unsigned char key, int x, int y)
         else
         {
             isDisplayObj[numViewports-1][index] = !isDisplayObj[numViewports-1][index];
+            cout << ((isDisplayObj[numViewports-1][index]) ? "Display " : "Hide ");
+            cout << "object " << index << " in view port " << numViewports-1 << endl;
         }
     }
 

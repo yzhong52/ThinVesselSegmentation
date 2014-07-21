@@ -139,7 +139,9 @@ void RingsReduction::sijbers( const Data3D<short>& src, Data3D<short>& dst,
         dst.resize( src.get_size() );
     }
 
-    // blur the image
+    // Blur the image
+    cout << "Blurring the image... ";
+    cout.flush();
     Data3D<short> mean( src.get_size() );
     if( isGaussianBlur )
     {
@@ -149,8 +151,9 @@ void RingsReduction::sijbers( const Data3D<short>& src, Data3D<short>& dst,
     {
         IP::meanBlur3D( src, mean, wsize );
     }
+    cout << "Done. " << endl;
 
-    Data3D<int> diff( src.get_size() );
+    Data3D<short>& diff = mean;
     subtract3D( src, mean, diff );
 
     /// TODO: Uncomment the following code if you want to use variance
@@ -172,7 +175,7 @@ void RingsReduction::sijbers( const Data3D<short>& src, Data3D<short>& dst,
         cout << '\r' << "Rings Reduction: " << 100 * z / src.SZ() << "%";
         cout.flush();
 
-        const Mat_<int> m = diff.getMat(z);
+        const Mat_<short> m = diff.getMat(z);
 
         #pragma omp parallel for schedule(dynamic)
         for( unsigned ri = 0; ri<num_of_rings-1; ri++ )
