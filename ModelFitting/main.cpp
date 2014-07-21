@@ -41,25 +41,24 @@ void visualization_func( int numViewports )
 }
 
 // function template default type is only available in C++11
-template<class T1, class T2=char, class T3=char>
-std::thread initViwer( const vector<cv::Vec3i>& dataPoints,
-                       const vector<Line3D*>& lines, const vector<int>& labelings,
-                       const Data3D<T1>* im1,
+template<class T1=char, class T2=char, class T3=char>
+std::thread initViwer( const ModelSet& modelset,
+                       const Data3D<T1>* im1 = nullptr,
                        const Data3D<T2>* im2 = nullptr,
                        const Data3D<T3>* im3 = nullptr )
 {
-    vis.addObject( *im1 );
-
+    if( im2 ) vis.addObject( *im1 );
     if( im2 ) vis.addObject( *im2 );
     if( im3 ) vis.addObject( *im3 );
 
-    GLViewer::GLLineModel *model = new GLViewer::GLLineModel( im1->get_size() );
-    model->updatePoints( dataPoints );
-    model->updateModel( lines, labelings );
+    GLViewer::GLLineModel *model = new GLViewer::GLLineModel( modelset.labelID3d.get_size() );
+    model->updatePoints( modelset.tildaP );
+    model->updateModel( modelset.lines, modelset.labelID );
     vis.objs.push_back( model );
 
     // compute the number of view ports to use
-    int numViewports = 2;
+    int numViewports = 1;
+    numViewports += (im1!=nullptr);
     numViewports += (im2!=nullptr);
     numViewports += (im3!=nullptr);
 
@@ -104,8 +103,7 @@ void start_levernberg_marquart( const string& foldername = "../data",
         // load original data and vesselness data for rendering
         //Data3D<short> im_short( datafile + ".data" );
         //Data3D<Vesselness_Sig> vn_sig( datafile + ".vn_sig" );
-        visualization_thread = initViwer( model.tildaP, model.lines, model.labelID,
-                                          &vn_et_sig );
+        visualization_thread = initViwer( model, &vn_et_sig );
     }
 
     // Levenberg Marquardt
@@ -117,6 +115,23 @@ void start_levernberg_marquart( const string& foldername = "../data",
     if( visualization_thread.joinable() ) visualization_thread.join();
     // code after this line won't be executed because 'exit(0)' is executed by glut
 }
+
+
+void view_modelsets( const string& serialized_dataname = "vessel3d_rd_585_525_300" )
+{
+    // threshold the data and put the data points into a vector
+    ModelSet model;
+    bool flag = model.deserialize( serialized_dataname );
+    if( !flag ) return;
+
+    std::thread visualization_thread;
+
+    visualization_thread = initViwer( model );
+
+    if( visualization_thread.joinable() ) visualization_thread.join();
+    // code after this line won't be executed because 'exit(0)' is executed by glut
+}
+
 }
 
 
@@ -124,11 +139,13 @@ void start_levernberg_marquart( const string& foldername = "../data",
 int main(int argc, char* argv[])
 {
     make_dir( "output" );
+    make_dir( "../temp" );
 
     Mat temp = Mat(200, 200, CV_8UC3);
     cv::imshow( "", temp );
 
-    experiments::start_levernberg_marquart("../temp/", "data15", true );
+    // experiments::start_levernberg_marquart("../temp/", "data15", true );
+    experiments::view_modelsets();
 
     return 0;
 }
