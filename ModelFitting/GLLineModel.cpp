@@ -18,6 +18,66 @@ GLLineModel::~GLLineModel( void )
 }
 
 
+void normal_vectors(  const Vec3f v1, Vec3f& v2, Vec3f& v3 ) {
+	// an arbitrary combination of the following two vectors
+	// is a normal to v1
+	// alpha * (-v1[1], v1[0], 0) + beta * (0, -v1[2], v[1])
+
+	if( abs(v1[0])>1e-8 || abs(v1[1])>1e-8 ) {
+		v2[0] = -v1[1];
+		v2[1] =  v1[0];
+		v2[2] =  0;
+	} else {
+		v2[0] =  0;
+		v2[1] = -v1[2];
+		v2[2] =  v1[1];
+	}
+
+	v2 /= v2.dot( v2 );
+
+    v3 = v2.cross( v1 );
+}
+
+void DrawCircle(const Vec3f& centre, const Vec3f& dir, const float& r )
+{
+    const int num_segments = 10;
+    float theta = 2 * 3.1415926 / float(num_segments);
+    float tangetial_factor = tanf(theta);//calculate the tangential factor
+
+    float radial_factor = cosf(theta);//calculate the radial factor
+
+    float x = r;//we start at angle = 0
+    float y = 0;
+
+    Vec3f norm1, norm2;
+    normal_vectors( dir, norm1, norm2 );
+
+    smart_assert( dir.dot(norm1)<1e-3, "Should be perpendicular with each other" );
+    smart_assert( dir.dot(norm2)<1e-3, "Should be perpendicular with each other" );
+
+    glBegin(GL_LINE_LOOP);
+    for(int ii = 0; ii < num_segments; ii++)
+    {
+        Vec3f pos = centre + norm1 * x + norm2 * y;
+        glVertex3fv( &pos[0] );//output vertex
+
+        //calculate the tangential vector
+        //remember, the radial vector is (x, y)
+        //to get the tangential vector we flip those coordinates and negate one of them
+        float tx = -y;
+        float ty = x;
+
+        //add the tangential vector
+        x += tx * tangetial_factor;
+        y += ty * tangetial_factor;
+
+        //correct using the radial factor
+        x *= radial_factor;
+        y *= radial_factor;
+    }
+    glEnd();
+}
+
 void GLLineModel::render( void )
 {
     // in case there is any previously bind texture, you need to unbind them
@@ -112,6 +172,18 @@ void GLLineModel::render( void )
         glEnd();
     }
 
+    if( render_mode & 8 )
+    {
+        for( int i=0; i < (int) dataPoints.size(); i++ ){
+            const int lineID = labelings[i]; // label id
+            const Vec3f prj = lines[lineID]->projection( dataPoints[i] ); // position
+            const Vec3f dir = lines[lineID]->getDirection();
+
+            glColor3ubv( &lineColors[lineID][0] );
+            DrawCircle( prj, dir, lines[lineID]->getSigma() );
+        }
+
+    }
     // ReleaseMutex( hMutex );
 }
 

@@ -16,7 +16,7 @@ Vesselness hessien_thread_func( const Data3D<float>& src,
     // The following are being computed in this function
     // 1) derivative of images;
     // 2) Hessian matrix;
-    // 3) eigenvalue decomposition;
+    // 3) Eigenvalue decomposition;
     // 4) vesselness measure.
 
     // 1) derivative of the image
@@ -44,7 +44,7 @@ Vesselness hessien_thread_func( const Data3D<float>& src,
                         - src.at(x, y+1, z-1)
                         - src.at(x, y-1, z+1) ) * 0.25f;
 
-    // 3) eigenvalue decomposition
+    // 3) Eigenvalue decomposition
     // Reference: http://en.wikipedia.org/wiki/Eigenvalue_algorithm#3.C3.973_matrices
     // Given a real symmetric 3x3 matrix Hessian, compute the eigenvalues
     const float Hessian[6] = {im_dx2, im_dxdy, im_dxdz, im_dy2, im_dydz, im_dz2};
@@ -59,6 +59,7 @@ Vesselness hessien_thread_func( const Data3D<float>& src,
     if( abs(eigenvalues[i]) > abs(eigenvalues[k]) ) std::swap( i, k );
     if( abs(eigenvalues[j]) > abs(eigenvalues[k]) ) std::swap( j, k );
 
+    // 4) vesselness measure
     Vesselness vn;
     // vesselness value
     if( eigenvalues[j] > 0 || eigenvalues[k] > 0 )
@@ -77,7 +78,8 @@ Vesselness hessien_thread_func( const Data3D<float>& src,
         vn.rsp = ( 1.0f-exp(-A*A/alpha) )* exp( B*B/beta ) * ( 1-exp(-S*S/gamma) );
     }
 
-    // orientation of vesselness
+    // orientation of vesselness is corresponding to the eigenvector of the
+    // smallest eigenvalue
     for( int d=0; d<3; d++ )
     {
         vn.dir[d]        = eigenvectors[i][d];
@@ -91,27 +93,26 @@ bool VesselDetector::hessien( const Data3D<short>& src, Data3D<Vesselness>& dst,
                               int ksize, float sigma,
                               float alpha, float beta, float gamma )
 {
-    if( ksize!=0 && sigma<1e-3 )
+    if( ksize!=0 && sigma<1e-3 ) // sigma is not set
     {
-        // sigma is note set
         sigma = 0.15f * ksize + 0.35f;
     }
-    else if ( ksize==0 && sigma>1e-3 )
+    else if ( ksize==0 && sigma>1e-3 ) // size is not set
     {
-        // size is unset
         ksize = int( 6*sigma+1 );
-        // make sure ksize is an odd number
+        // make sure size is an odd number
         if ( ksize%2==0 ) ksize++;
     }
     else
     {
-        std::cerr << "At lease ksize or sigma has to be set." << std::endl;
+        std::cerr << "At lease size or sigma has to be set." << std::endl;
         return false;
     }
 
     Image3D<float> im_blur;
     bool flag = ImageProcessing::GaussianBlur3D( src, im_blur, ksize, sigma );
     smart_return( flag, "Gaussian Blur Failed.", false );
+
     im_blur *= sigma; //Normalizing for different scale
 
     dst.reset( im_blur.get_size(), Vesselness(0.0f) );
@@ -119,11 +120,11 @@ bool VesselDetector::hessien( const Data3D<short>& src, Data3D<Vesselness>& dst,
     #pragma omp parallel
     {
         #pragma omp for
-        for( int z = 2; z < src.get_size_z()-2; z++ )
+        for( int z = 1; z < src.get_size_z()-1; z++ )
         {
-            for( int y = 2; y < src.get_size_y()-2; y++ )
+            for( int y = 1; y < src.get_size_y()-1; y++ )
             {
-                for( int x = 2; x < src.get_size_x()-2; x++ )
+                for( int x = 1; x < src.get_size_x()-1; x++ )
                 {
                     dst.at(x, y, z) = hessien_thread_func( im_blur, x, y, z, alpha, beta, gamma);
                 }
@@ -158,25 +159,26 @@ int VesselDetector::compute_vesselness(
     float max_sigma = sigma_from;
     float min_sigma = sigma_to;
 
-    Data3D<Vesselness> vn;
+    Data3D<Vesselness> temp;
     for( float sigma = sigma_from; sigma < sigma_to; sigma += sigma_step )
     {
         cout << '\r' << "Vesselness for sigma = " << sigma << "    " << "\b\b\b\b";
         cout.flush();
-        VesselDetector::hessien( src, vn, 0, sigma, alpha, beta, gamma );
-        // compare the response, if it is greater, copy it to our dst
-        const int margin = 1; // int( ceil(3 * sigma) );
-        //if( margin % 2 == 0 )  margin++;
+
+        VesselDetector::hessien( src, temp, 0, sigma, alpha, beta, gamma );
+
+        const int margin = 1;
         for( z=margin; z<src.get_size_z()-margin; z++ )
         {
             for( y=margin; y<src.get_size_y()-margin; y++ )
             {
                 for( x=margin; x<src.get_size_x()-margin; x++ )
                 {
-                    if( dst.at(x, y, z).rsp < vn.at(x, y, z).rsp )
+                    // Update vesselness if the new response is greater
+                    if( dst.at(x, y, z).rsp < temp.at(x, y, z).rsp )
                     {
-                        dst.at(x, y, z).rsp = vn.at(x, y, z).rsp;
-                        dst.at(x, y, z).dir = vn.at(x, y, z).dir;
+                        dst.at(x, y, z).rsp = temp.at(x, y, z).rsp;
+                        dst.at(x, y, z).dir = temp.at(x, y, z).dir;
                         dst.at(x, y, z).sigma = sigma;
                         max_sigma = std::max( sigma, max_sigma );
                         min_sigma = std::min( sigma, min_sigma );
@@ -186,9 +188,9 @@ int VesselDetector::compute_vesselness(
         }
     }
 
-    std::cout << std::endl << "The minimum and maximum sigmas used for vesselness: ";
-    std::cout << min_sigma << ", " << max_sigma << std::endl;
-    std::cout << "done. " << std::endl << std::endl;
+    std::cout << std::endl << "The range for sigma is [";
+    std::cout << min_sigma << ", " << max_sigma << "]" << std::endl;
+    std::cout << "Done. " << std::endl << std::endl;
 
     return 0;
 }

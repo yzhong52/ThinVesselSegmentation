@@ -29,14 +29,19 @@ int centreline( bool isDisplay, std::string dataname = "data15" );
 
 int main(void)
 {
+    // Force the linking of OpenCV libraries
     Mat temp = Mat(10, 10, CV_8UC3);
     cv::imshow( "", temp );
+
+    // ROI16
+
+    const string dataname = "../temp/oldroi16"; // 258 122 381 358 231 577
 
     /*
     Image3D<short> im_data;
     im_data.load( "../temp/vessel3d_rd_sp.data" );
     im_data.setROI( );
-    im_data.saveROI( "../temp/roi16.data" );
+    im_data.saveROI( dataname + ".data" );
 
     viewer.addObject( im_data.getROI(),  GLViewer::Volumn::MIP );
     viewer.display(600, 400, 1);
@@ -44,8 +49,8 @@ int main(void)
     return 0;
     /**/
 
-    sample_code::vesselness(false, "../temp/roi16", 2800 );
-    sample_code::centreline(true,  "../temp/roi16");
+    sample_code::vesselness( false, dataname, 2800 );
+    sample_code::centreline( true,  dataname );
     return 0;
 }
 
@@ -57,14 +62,14 @@ int sample_code::vesselness( bool isDisplay, string dataname, short threshold )
     // Sigma: Parameters for Vesselness
     // [sigma_from, sigma_to]: the potential size rang of the vessels
     // sigma_step: precision of computation
-    float sigma_from = 0.65f;
+    float sigma_from = 1.65f;
     float sigma_to   = 10.10f;
     float sigma_step = 0.27f;
-    // Parameters for vesselness, please refer to Frangi's papaer
+    // Parameters for vesselness, please refer to Frangi's paper
     // or this [blog](http://yzhong.co/?p=351)
-    float alpha = 0.2e0f;
-    float beta  = 6.8e0f;
-    float gamma = 4.8e5f; // Increase: small vessel disappear
+    float alpha = 1.0e-1f;
+    float beta  = 5.0e0f;
+    float gamma = 3.5e5f; // Increase gamma, small vessel will disappear
 
     // Loading original data
     Image3D<short> im_short_orig;
@@ -79,15 +84,18 @@ int sample_code::vesselness( bool isDisplay, string dataname, short threshold )
     VesselDetector::compute_vesselness( im_short, vn_sig,
                                         sigma_from, sigma_to, sigma_step,
                                         alpha, beta, gamma );
-    vn_sig.save( dataname + ".vn_sig" );
+    vn_sig.save( dataname + ".vn_sig" ); /**/
 
-    // If you want to visulize the data using Maximum-Intensity Projection
+    // If you want to visualize the data using Maximum-Intensity Projection
     if( isDisplay )
     {
+        im_short_orig.remove_margin_to(Vec3i(100,100,100));
+
         viewer.addObject( im_short_orig,  GLViewer::Volumn::MIP );
-        viewer.addObject( im_short,  GLViewer::Volumn::MIP );
+        //viewer.addObject( im_short,  GLViewer::Volumn::MIP );
+        vn_sig.remove_margin_to(Vec3i(100,100,100));
         viewer.addObject( vn_sig,  GLViewer::Volumn::MIP );
-        viewer.addDiretionObject( vn_sig );
+        //viewer.addDiretionObject( vn_sig );
         viewer.display(800, 600, 4);
     }
 
