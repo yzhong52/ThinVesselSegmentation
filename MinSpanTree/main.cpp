@@ -45,7 +45,55 @@ void tree_from_dense_graph( const ModelSet& models, Graph<Edge, cv::Vec3d>& tree
     graph.get_min_span_tree( tree );
 }
 
-int example();
+
+void tree_from_semi_dense_graph( const ModelSet& models, Graph<Edge, cv::Vec3d>& tree )
+{
+
+    Graph<Edge, cv::Vec3d> graph;
+    // compute the projection point add it to graph
+    for( unsigned i=0; i<models.tildaP.size(); i++ )
+    {
+        const int& lineid1 = models.labelID[i];
+        const Line3D* line1   = models.lines[lineid1];
+        const cv::Vec3i& pos1 = models.tildaP[i];
+        const Vec3d proj = line1->projection( pos1 );
+        graph.add_node( proj );
+    }
+
+    // connect each pair of the nodes
+    for( unsigned i=0; i<graph.num_nodes(); i++ )
+    {
+        for( unsigned j=i+1; j<graph.num_nodes(); j++ )
+        {
+            const Vec3d& proj1 = graph.get_node( i );
+            const Vec3d& proj2 = graph.get_node( j );
+            const Vec3d direction = proj1 - proj2;
+            const double dist = sqrt( direction.dot( direction ) );
+
+            if( dist>10 ) continue;
+
+            const int& lineidi  = models.labelID[i];
+            const int& lineidj  = models.labelID[j];
+            const Line3D* linei = models.lines[lineidi];
+            const Line3D* linej = models.lines[lineidj];
+            const Vec3d& directioni = linei->getDirection();
+            const Vec3d& directionj = linej->getDirection();
+
+            // Weight is between [0.5-1] after this
+            double weight = 0.0;
+            const Vec3d norm_direction = direction / sqrt( direction.dot(direction) );
+            weight += abs( norm_direction.dot( directioni ) );
+            weight += abs( norm_direction.dot( directionj ) );
+            weight = (2 - weight) / 4;
+            weight = sqrt( weight );
+
+            graph.add_edge( Edge(i, j, dist*weight ) );
+        }
+    }
+
+    graph.get_min_span_tree( tree );
+}
+
 
 void tree_from_neighborhood( const ModelSet& models, Graph<Edge, cv::Vec3d>& tree )
 {
@@ -390,68 +438,73 @@ int main()
 
     GLViwerModel vis;
 
+    const string dataname  = "../temp/roi16";
+    const string modelname = "../temp/roi16_73_94_93";
+
     //*
     Data3D<short> im_short;
-    bool flag = im_short.load( "../temp/data15.data" );
+    bool flag = im_short.load( dataname + ".data" );
     if( !flag ) return 0;
     vis.addObject( im_short,  GLViewer::Volumn::MIP );
     /**/
 
-
     //*
     Data3D<Vesselness_Sig> vn_sig;
-    flag = vn_sig.load( "../temp/data15.vn_sig" );
+    flag = vn_sig.load( dataname + ".vn_sig" );
     if( !flag ) return 0;
     vis.addObject( vn_sig,  GLViewer::Volumn::MIP );
     /**/
 
     //*
     Data3D<Vesselness_Sig> vn_sig_et;
-    flag = vn_sig_et.load( "../temp/data15.et.vn_sig" );
+    flag = vn_sig_et.load( dataname + ".et.vn_sig" );
     if( !flag ) return 0;
     vis.addObject( vn_sig_et,  GLViewer::Volumn::MIP );
     /**/
 
-    ModelSet models;
-    flag = models.deserialize( "data15_134_113_116" );
-    if( !flag ) return 0;
+    //*
+    ModelSet modelset_org;
+    modelset_org.init_one_model_per_point( vn_sig_et );
+    GLViewer::GLLineModel *modelset_org_obj = new GLViewer::GLLineModel( modelset_org.labelID3d.get_size() );
+    modelset_org_obj->updatePoints( modelset_org.tildaP );
+    modelset_org_obj->updateModel( modelset_org.lines, modelset_org.labelID );
+    vis.objs.push_back( modelset_org_obj );
+    /**/
 
-/*
-    Data3D<Vesselness_Sig> vn_sig;
-    vn_sig.load( "../temp/data15.et.vn_sig" );
-    ModelSet models_org;
-    models_org.init_one_model_per_point( vn_sig );
-*/
+    ModelSet modelset;
+    flag = modelset.deserialize( modelname );
+    if( !flag ) return 0;
+    //*
+    GLViewer::GLLineModel *model_obj = new GLViewer::GLLineModel( modelset.labelID3d.get_size() );
+    model_obj->updatePoints( modelset.tildaP );
+    model_obj->updateModel( modelset.lines, modelset.labelID );
+    vis.objs.push_back( model_obj );
+    /**/
 
     //*
     Graph<Edge, cv::Vec3d> tree1;
-    tree_from_neighborhood( models, tree1 );
-    GLViewer::GLMinSpanTree *mstobj1 = new GLViewer::GLMinSpanTree( tree1, models.labelID3d.get_size() );
+    tree_from_neighborhood( modelset, tree1 );
+    GLViewer::GLMinSpanTree *mstobj1 = new GLViewer::GLMinSpanTree( tree1, modelset.labelID3d.get_size() );
     mstobj1->set_color( Vec3f(1.0f, 0.0f, 0.0f) );
     vis.objs.push_back( mstobj1 );
 
     //*
     Graph<Edge, cv::Vec3d> tree2;
-    tree_from_dense_graph( models, tree2 );
-    GLViewer::GLMinSpanTree *mstobj2 = new GLViewer::GLMinSpanTree( tree2, models.labelID3d.get_size() );
+    tree_from_dense_graph( modelset, tree2 );
+    GLViewer::GLMinSpanTree *mstobj2 = new GLViewer::GLMinSpanTree( tree2, modelset.labelID3d.get_size() );
     vis.objs.push_back( mstobj2 );
     mstobj2->set_color( Vec3f(0.0f, 0.0f, 1.0f) );
     /**/
 
-    /*
+    //*
     Graph<Edge, cv::Vec3d> tree3;
-    tree_from_critical_points( models, tree3 );
-    GLViewer::GLMinSpanTree *mstobj3 = new GLViewer::GLMinSpanTree( tree3, models.labelID3d.get_size() );
+    tree_from_semi_dense_graph( modelset, tree3 );
+    GLViewer::GLMinSpanTree *mstobj3 = new GLViewer::GLMinSpanTree( tree3, modelset.labelID3d.get_size() );
     vis.objs.push_back( mstobj3 );
-    mstobj3->set_color( Vec3f(0.0f, 0.0f, 1.0f) );
+    mstobj3->set_color( Vec3f(0.0f, 1.0f, 0.0f) );
     /**/
 
-    //*
-    GLViewer::GLLineModel *model = new GLViewer::GLLineModel( models.labelID3d.get_size() );
-    model->updatePoints( models.tildaP );
-    model->updateModel( models.lines, models.labelID );
-    vis.objs.push_back( model );
-    /**/
+
 
 
 

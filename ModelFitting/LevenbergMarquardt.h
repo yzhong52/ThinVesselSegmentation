@@ -37,10 +37,10 @@ public:
 private:
     const ModelSet& modelset;          /// A set of line models
 
-    const vector<Line3D*>& lines;      /// TODO: This is redundant
     const vector<Vec3i>&   tildaP;     /// Original positions of the points in 3D
+    const vector<Line3D*>& lines;      /// Lines
     const vector<int>&     labelID;    /// Corresponding labels of the points above
-    const Data3D<int>&     labelID3d; /// Labeling of the data
+    const Data3D<int>&     labelID3d;  /// Labeling of the data
 
     unsigned numParamPerLine;
     unsigned numParam;

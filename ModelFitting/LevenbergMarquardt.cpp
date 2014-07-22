@@ -34,8 +34,8 @@ LevenbergMarquardt::LevenbergMarquardt( const vector<Vec3i>& dataPoints,
                                         const ModelSet& modelset,
                                         const Data3D<int>& labelIDs,
                                         SmoothCostType smooth_cost_type )
-    : modelset( modelset ), tildaP( dataPoints ), labelID( labelings )
-    , lines( modelset.lines ), labelID3d( labelIDs )
+    : modelset( modelset ), tildaP( dataPoints ), lines( modelset.lines )
+    , labelID( labelings ), labelID3d( labelIDs )
 
 {
     smart_assert( lines.size()!=0, "Error: model set is empty" );

@@ -10,7 +10,6 @@
 using namespace std;
 using namespace cv;
 
-const std::string ModelSet::file_prefix = "../temp/serialization_";
 
 ModelSet::ModelSet(void)
 {
@@ -30,7 +29,7 @@ ModelSet::~ModelSet(void)
 void ModelSet::serialize( std::string file ) const
 {
     // output file stream
-    std::ofstream fout( file_prefix + file );
+    std::ofstream fout( file + ".modelset");
 
     // serialize lines
     fout << lines.size() << std::endl;
@@ -52,18 +51,18 @@ void ModelSet::serialize( std::string file ) const
     }
     fout.close();
 
-    labelID3d.save( file_prefix + file + ".labelID3d" );
+    labelID3d.save( file + ".labelID3d" );
 }
 
 
 bool ModelSet::deserialize( std::string file )
 {
     // get the file stream
-    std::ifstream fin( file_prefix + file );
+    std::ifstream fin( file + ".modelset");
     if( !fin.is_open() )
     {
         cout << "The following serialization file is not found: ";
-        cout << "'" << file_prefix + file << "'" << endl;
+        cout << "'" << file << "'" << endl;
         return false;
     }
 
@@ -93,7 +92,7 @@ bool ModelSet::deserialize( std::string file )
     }
     fin.close();
 
-    labelID3d.load( file_prefix + file + ".labelID3d" );
+    labelID3d.load( file + ".labelID3d" );
     return true;
 }
 

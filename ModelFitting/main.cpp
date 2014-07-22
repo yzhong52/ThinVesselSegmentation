@@ -68,7 +68,7 @@ std::thread initViwer( const ModelSet& modelset,
 
 namespace experiments
 {
-void start_levernberg_marquart( const string& foldername = "../data",
+void start_levernberg_marquart( const string& foldername = "../temp",
                                 const string& dataname = "data15",
                                 const bool& isDisplay = false )
 {
@@ -83,7 +83,7 @@ void start_levernberg_marquart( const string& foldername = "../data",
 
 
     stringstream serialized_datafile_stream;
-    serialized_datafile_stream << dataname << "_";
+    serialized_datafile_stream << datafile << "_";
     serialized_datafile_stream << vn_et_sig.SX() << "_";
     serialized_datafile_stream << vn_et_sig.SY() << "_";
     serialized_datafile_stream << vn_et_sig.SZ();
@@ -109,8 +109,6 @@ void start_levernberg_marquart( const string& foldername = "../data",
     // Levenberg Marquardt
     LevenbergMarquardt lm( model.tildaP, model.labelID, model, model.labelID3d );
     lm.reestimate( 400, LevenbergMarquardt::Quadratic, serialized_dataname );
-
-    model.serialize( serialized_dataname );
 
     if( visualization_thread.joinable() ) visualization_thread.join();
     // code after this line won't be executed because 'exit(0)' is executed by glut
@@ -138,14 +136,14 @@ void view_modelsets( const string& serialized_dataname = "vessel3d_rd_585_525_30
 
 int main(int argc, char* argv[])
 {
-    make_dir( "output" );
     make_dir( "../temp" );
 
-    Mat temp = Mat(200, 200, CV_8UC3);
+    // Force the linking of OpenCV
+    Mat temp = Mat(10, 10, CV_8UC3);
     cv::imshow( "", temp );
 
-    // experiments::start_levernberg_marquart("../temp/", "data15", true );
-    experiments::view_modelsets();
+    experiments::start_levernberg_marquart("../temp/", "roi16", true );
+    // experiments::view_modelsets();
 
     return 0;
 }

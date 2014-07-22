@@ -43,8 +43,6 @@ public:
     ////////////////////////////////////////////////////////////////
     void init_one_model_per_point( const Data3D<Vesselness_Sig>& vn_sig,
                                    const float& threshold = 0.1f );
-private:
-    static const std::string file_prefix;
 
 };
 

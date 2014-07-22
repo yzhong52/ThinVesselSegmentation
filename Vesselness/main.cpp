@@ -62,9 +62,9 @@ int sample_code::vesselness( bool isDisplay, string dataname, short threshold )
     float sigma_step = 0.27f;
     // Parameters for vesselness, please refer to Frangi's papaer
     // or this [blog](http://yzhong.co/?p=351)
-    float alpha = 0.3e0f;
+    float alpha = 0.2e0f;
     float beta  = 6.8e0f;
-    float gamma = 4.5e5f; // Increase: small vessel disappear
+    float gamma = 4.8e5f; // Increase: small vessel disappear
 
     // Loading original data
     Image3D<short> im_short_orig;
@@ -106,7 +106,7 @@ int sample_code::centreline( bool isDisplay, string dataname )
 
     // edge tracing
     Data3D<Vesselness_Sig> vn_sig_et;
-    IP::edge_tracing( vn_sig_nms, vn_sig_et, 0.05f, 0.01f );
+    IP::edge_tracing( vn_sig_nms, vn_sig_et, 0.25f, 0.02f );
     vn_sig_et.save( dataname + ".et.vn_sig" );
 
     // Loading original data
