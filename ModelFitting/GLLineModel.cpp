@@ -33,9 +33,12 @@ void normal_vectors(  const Vec3f v1, Vec3f& v2, Vec3f& v3 ) {
 		v2[2] =  v1[1];
 	}
 
-	v2 /= v2.dot( v2 );
-
     v3 = v2.cross( v1 );
+
+    // normalize them so that v2*v2 + v3*v3 = 1
+    const float length = sqrt( v2.dot( v2 ) + v3.dot( v3 ) );
+	v2 /= length;
+	v3 /= length;
 }
 
 void DrawCircle(const Vec3f& centre, const Vec3f& dir, const float& r )
