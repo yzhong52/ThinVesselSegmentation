@@ -32,6 +32,28 @@ const double DATA_COST2 = DATA_COST * DATA_COST;
 const double PAIRWISE_SMOOTH2 = PAIRWISE_SMOOTH * PAIRWISE_SMOOTH;
 
 
+namespace experiments
+{
+void start_levernberg_marquart( const string& dataname = "../temp/data15",
+                                const bool& isDisplay = false );
+}
+
+int main(int argc, char* argv[])
+{
+    make_dir( "../temp" );
+
+    // Force the linking of OpenCV
+    Mat temp = Mat(10, 10, CV_8UC3);
+    cv::imshow( "", temp );
+
+    experiments::start_levernberg_marquart("../temp/roi16", true );
+    // experiments::view_modelsets();
+
+    return 0;
+}
+
+
+
 GLViwerModel vis;
 
 // thread function for rendering
@@ -68,19 +90,16 @@ std::thread initViwer( const ModelSet& modelset,
 
 namespace experiments
 {
-void start_levernberg_marquart( const string& foldername = "../temp",
-                                const string& dataname = "data15",
-                                const bool& isDisplay = false )
+void start_levernberg_marquart( const string& dataname,
+                                const bool& isDisplay )
 {
-    const string datafile = foldername + dataname;
+    const string datafile = dataname;
 
     // Vesselness measure with sigma
     Image3D<Vesselness_Sig> vn_et_sig;
     vn_et_sig.load( datafile + ".et.vn_sig" );
     // vn_et_sig.remove_margin_to( Vec3i(30, 40, 30) );
     // vn_et_sig.remove_margin_to( Vec3i(585, 525, 10) );
-
-
 
     stringstream serialized_datafile_stream;
     serialized_datafile_stream << datafile << "_";
@@ -133,17 +152,3 @@ void view_modelsets( const string& serialized_dataname = "vessel3d_rd_585_525_30
 }
 
 
-
-int main(int argc, char* argv[])
-{
-    make_dir( "../temp" );
-
-    // Force the linking of OpenCV
-    Mat temp = Mat(10, 10, CV_8UC3);
-    cv::imshow( "", temp );
-
-    experiments::start_levernberg_marquart("../temp/", "roi16", true );
-    // experiments::view_modelsets();
-
-    return 0;
-}

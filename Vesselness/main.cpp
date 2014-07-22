@@ -35,12 +35,13 @@ int main(void)
 
     // ROI16
 
-    const string dataname = "../temp/oldroi16"; // 258 122 381 358 231 577
+    const string dataname = "../temp/roi16";
 
     /*
     Image3D<short> im_data;
     im_data.load( "../temp/vessel3d_rd_sp.data" );
-    im_data.setROI( );
+    // im_data.setROI( );
+    im_data.setROI( Vec3i(61,30,409), Vec3i(329,231,677) );
     im_data.saveROI( dataname + ".data" );
 
     viewer.addObject( im_data.getROI(),  GLViewer::Volumn::MIP );
@@ -62,7 +63,7 @@ int sample_code::vesselness( bool isDisplay, string dataname, short threshold )
     // Sigma: Parameters for Vesselness
     // [sigma_from, sigma_to]: the potential size rang of the vessels
     // sigma_step: precision of computation
-    float sigma_from = 1.65f;
+    float sigma_from = 0.75f;
     float sigma_to   = 10.10f;
     float sigma_step = 0.27f;
     // Parameters for vesselness, please refer to Frangi's paper

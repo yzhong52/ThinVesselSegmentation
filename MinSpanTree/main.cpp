@@ -439,7 +439,7 @@ int main()
     GLViwerModel vis;
 
     const string dataname  = "../temp/roi16";
-    const string modelname = "../temp/roi16_73_94_93";
+    const string modelname = "../temp/roi16_269_202_269";
 
     //*
     Data3D<short> im_short;
@@ -503,13 +503,6 @@ int main()
     vis.objs.push_back( mstobj3 );
     mstobj3->set_color( Vec3f(0.0f, 1.0f, 0.0f) );
     /**/
-
-
-
-
-
-
-
 
 
 /*
