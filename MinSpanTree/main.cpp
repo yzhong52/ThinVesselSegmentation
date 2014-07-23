@@ -17,6 +17,7 @@ using namespace cv;
 
 void tree_from_dense_graph( const ModelSet& models, Graph<Edge, cv::Vec3d>& tree )
 {
+    cout << "Computing Min Span Tree from semi-dense graph... "; cout.flush();
 
     Graph<Edge, cv::Vec3d> graph;
     // compute the projection point add it to graph
@@ -30,6 +31,7 @@ void tree_from_dense_graph( const ModelSet& models, Graph<Edge, cv::Vec3d>& tree
     }
 
     // connect each pair of the nodes
+    #pragma omp parallel for
     for( unsigned i=0; i<graph.num_nodes(); i++ )
     {
         for( unsigned j=i+1; j<graph.num_nodes(); j++ )
@@ -38,17 +40,30 @@ void tree_from_dense_graph( const ModelSet& models, Graph<Edge, cv::Vec3d>& tree
             const Vec3d& proj2 = graph.get_node( j );
             const Vec3d direction = proj1 - proj2;
             const double dist = sqrt( direction.dot( direction ) );
-            graph.add_edge( Edge(i, j, dist) );
+
+            const int& lineidi  = models.labelID[i];
+            const Line3D* linei = models.lines[lineidi];
+            const int& lineidj  = models.labelID[j];
+            const Line3D* linej = models.lines[lineidj];
+            const double threshold = 2 * (linei->getSigma() + linej->getSigma());
+            if( dist>threshold ) continue;
+
+            #pragma omp critical
+            {
+                graph.add_edge( Edge(i, j, dist) );
+            }
         }
     }
 
     graph.get_min_span_tree( tree );
+
+    cout << "Done" << endl << endl;
 }
 
 
 void tree_from_semi_dense_graph( const ModelSet& models, Graph<Edge, cv::Vec3d>& tree )
 {
-
+    cout << "Computing Min Span Tree from semi-dense graph (weighted distance based on direction)... "; cout.flush();
     Graph<Edge, cv::Vec3d> graph;
     // compute the projection point add it to graph
     for( unsigned i=0; i<models.tildaP.size(); i++ )
@@ -61,6 +76,7 @@ void tree_from_semi_dense_graph( const ModelSet& models, Graph<Edge, cv::Vec3d>&
     }
 
     // connect each pair of the nodes
+    #pragma omp parallel for
     for( unsigned i=0; i<graph.num_nodes(); i++ )
     {
         for( unsigned j=i+1; j<graph.num_nodes(); j++ )
@@ -70,34 +86,38 @@ void tree_from_semi_dense_graph( const ModelSet& models, Graph<Edge, cv::Vec3d>&
             const Vec3d direction = proj1 - proj2;
             const double dist = sqrt( direction.dot( direction ) );
 
-            if( dist>10 ) continue;
-
             const int& lineidi  = models.labelID[i];
-            const int& lineidj  = models.labelID[j];
             const Line3D* linei = models.lines[lineidi];
+            const int& lineidj  = models.labelID[j];
             const Line3D* linej = models.lines[lineidj];
-            const Vec3d& directioni = linei->getDirection();
-            const Vec3d& directionj = linej->getDirection();
+            const double threshold = 2 * (linei->getSigma() + linej->getSigma());
+            if( dist>threshold ) continue;
 
             // Weight is between [0.5-1] after this
             double weight = 0.0;
+            const Vec3d& directioni = linei->getDirection();
+            const Vec3d& directionj = linej->getDirection();
             const Vec3d norm_direction = direction / sqrt( direction.dot(direction) );
             weight += abs( norm_direction.dot( directioni ) );
             weight += abs( norm_direction.dot( directionj ) );
             weight = (2 - weight) / 4;
             weight = sqrt( weight );
 
-            graph.add_edge( Edge(i, j, dist*weight ) );
+            #pragma omp critical
+            {
+                graph.add_edge( Edge(i, j, dist*weight ) );
+            }
         }
     }
 
     graph.get_min_span_tree( tree );
+    cout << "Done" << endl << endl;
 }
 
 
 void tree_from_neighborhood( const ModelSet& models, Graph<Edge, cv::Vec3d>& tree )
 {
-
+    cout << "Computing Min Span Tree from sparse graph (neibourhood connectivity)... "; cout.flush();
     Graph<Edge, cv::Vec3d> graph;
     // compute the projection point add it to graph
     for( unsigned i=0; i<models.tildaP.size(); i++ )
@@ -137,6 +157,7 @@ void tree_from_neighborhood( const ModelSet& models, Graph<Edge, cv::Vec3d>& tre
     }
 
     graph.get_min_span_tree( tree );
+    cout << "Done" << endl << endl;
 }
 
 
