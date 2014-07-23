@@ -183,7 +183,7 @@ void GLLineModel::render( void )
             const Vec3f dir = lines[lineID]->getDirection();
 
             glColor3ubv( &lineColors[lineID][0] );
-            DrawCircle( prj, dir, lines[lineID]->getSigma() );
+            DrawCircle( prj, dir, lines[lineID]->getSigma()*2 );
         }
 
     }
