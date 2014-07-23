@@ -183,25 +183,26 @@ void search_on_a_line(void)
     }
 
     Data3D<short> im_rduct;
-    // vector<double> correction;
 
     const int subpixelcount = 10;
-    for( int i=0; i<=subpixelcount; i++ )
+    for( int i=5; i<=subpixelcount; i++ )
     {
         cout << "i = " << i << endl;
 
         const Vec2d sub_centre = (i * apprx_centre_left + (subpixelcount-i) * apprx_centre_right) / subpixelcount;
 
+        /*
         stringstream str1;
         str1 << "minimize median difference - sector - " << sub_centre << ".png";
         Interpolation<short>::Get = Interpolation<short>::Sampling;
-//        RR::MMDPolarRD( im_short, im_rduct, 1.0f, sub_centre );
+        RR::MMDPolarRD( im_short, im_rduct, 1.0f, sub_centre );
         save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, str1.str() );
+        /**/
 
         stringstream str2;
         str2 << "minimize median difference - bilinear - " << sub_centre << ".png";
         Interpolation<short>::Get = Interpolation<short>::Bilinear;
-//      RR::MMDPolarRD( im_short, im_rduct, 1.0f, sub_centre );
+        RR::MMDPolarRD( im_short, im_rduct, sub_centre, sub_centre );
         save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, str2.str() );
 
         stringstream str3;
@@ -212,6 +213,7 @@ void search_on_a_line(void)
         RR::sijbers( im_short, im_rduct, 1.0f, sub_centre, true );
         save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, str3.str() );
 
+        /*
         stringstream str4;
         str4 << "Sijbers - Gaussian - sector - " << sub_centre << ".png";
         Interpolation<short>::Get = Interpolation<short>::Sampling;
@@ -219,7 +221,7 @@ void search_on_a_line(void)
         Interpolation<int>::Get   = Interpolation<int>::Sampling;
         RR::sijbers( im_short, im_rduct, 1.0f, sub_centre, true );
         save_slice( im_rduct, im_rduct.SZ()/2, minVal, maxVal, str4.str() );
-
+        /**/
     }
 }
 
@@ -249,12 +251,15 @@ void sijiber(const string& datafile = "../temp/vessel3d.data",
     return;
 }
 
-void letsgo( void )
+void letsgo( void )// Our methods (against state of the art)
 {
     // loading data
     Data3D<short> im_short;
     bool flag = im_short.load( "../temp/vessel3d.data", Vec3i(585, 525, 500), true, true  );
     if( !flag ) return;
+
+    const cv::Vec<short, 2> min_max = im_short.get_min_max_value();
+    im_short.show( "RD result", 0, min_max[0], min_max[1] );
 
     Data3D<short> im_rduct;
     Interpolation<short>::Get = Interpolation<short>::Bilinear;
@@ -263,9 +268,8 @@ void letsgo( void )
 
     RR::MMDPolarRD( im_short, im_rduct, Vec2d(233.5, 269.5), Vec2d(233.5, 269.5) );
 
-    im_rduct.save( "../temp/vessel3d_rd.data" );
-    im_rduct.show();
-
+    im_rduct.save( "../temp/vessel3d_rd_MMD.data" );
+    im_rduct.show( "RD result", 0, min_max[0], min_max[1] );
 }
 }
 
@@ -273,8 +277,8 @@ void letsgo( void )
 int main(void)
 {
     //experiment::search_grid();
-    // experiment::have_a_try();
-    //state_of_the_art::letsgo();
+    experiment::search_on_a_line(); return 0;
+    state_of_the_art::letsgo(); return 0;
 
     //state_of_the_art::sijiber( "../temp/vessel3d.data", "../temp/vessel3d_rd_sp.data", Vec2d(233.5, 269.5) );
     //state_of_the_art::sijiber( "../temp/vessel3d.data", "../temp/vessel3d_rd.data", Vec2d(234, 270) );
