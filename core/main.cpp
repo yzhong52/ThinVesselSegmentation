@@ -25,10 +25,6 @@ int main( void )
     return 0;
     /**/
 
-    VideoWriter outputVideo;
-    outputVideo.open("./video.avi", -1, 20.0f, Size(100, 100), true );
-    cout << outputVideo.isOpened() << endl;
-
     // Loading data
     Data3D<short> im_short;
     bool flag = im_short.load( "../data/data15.data" );

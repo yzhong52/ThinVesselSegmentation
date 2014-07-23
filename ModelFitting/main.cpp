@@ -27,7 +27,7 @@
 using namespace std;
 
 const double DATA_COST = 1.0;
-const double PAIRWISE_SMOOTH = 7.0;
+const double PAIRWISE_SMOOTH = 20.0;
 const double DATA_COST2 = DATA_COST * DATA_COST;
 const double PAIRWISE_SMOOTH2 = PAIRWISE_SMOOTH * PAIRWISE_SMOOTH;
 
@@ -35,6 +35,7 @@ const double PAIRWISE_SMOOTH2 = PAIRWISE_SMOOTH * PAIRWISE_SMOOTH;
 namespace experiments
 {
 void start_levernberg_marquart( const string& dataname = "../temp/data15",
+                                const bool& isThined = true,
                                 const bool& isDisplay = false );
 }
 
@@ -46,8 +47,9 @@ int main(int argc, char* argv[])
     Mat temp = Mat(10, 10, CV_8UC3);
     cv::imshow( "", temp );
 
-    experiments::start_levernberg_marquart("../temp/data15", true );
-    // experiments::view_modelsets();
+    const bool isThined = true;
+    const bool isDisplay = true;
+    experiments::start_levernberg_marquart("../temp/data15", isThined, isDisplay );
 
     return 0;
 }
@@ -69,7 +71,7 @@ std::thread initViwer( const ModelSet& modelset,
                        const Data3D<T2>* im2 = nullptr,
                        const Data3D<T3>* im3 = nullptr )
 {
-    if( im2 ) vis.addObject( *im1 );
+    if( im1 ) vis.addObject( *im1 );
     if( im2 ) vis.addObject( *im2 );
     if( im3 ) vis.addObject( *im3 );
 
@@ -91,27 +93,29 @@ std::thread initViwer( const ModelSet& modelset,
 namespace experiments
 {
 void start_levernberg_marquart( const string& dataname,
+                                const bool& isThined,
                                 const bool& isDisplay )
 {
     const string datafile = dataname;
 
     // Vesselness measure with sigma
-    Image3D<Vesselness_Sig> vn_et_sig;
-    vn_et_sig.load( datafile + ".et.vn_sig" );
-    // vn_et_sig.remove_margin_to( Vec3i(30, 40, 30) );
-    // vn_et_sig.remove_margin_to( Vec3i(585, 525, 10) );
+    Image3D<Vesselness_Sig> vn_sig;
+    vn_sig.load( datafile + (isThined?".et":"") + ".vn_sig" );
+
+    vn_sig.remove_margin_to( Vec3i(60, 60, 60) );
+    // vn_sig.remove_margin_to( Vec3i(585, 525, 10) );
 
     stringstream serialized_datafile_stream;
     serialized_datafile_stream << datafile << "_";
-    serialized_datafile_stream << vn_et_sig.SX() << "_";
-    serialized_datafile_stream << vn_et_sig.SY() << "_";
-    serialized_datafile_stream << vn_et_sig.SZ();
+    serialized_datafile_stream << vn_sig.SX() << "_";
+    serialized_datafile_stream << vn_sig.SY() << "_";
+    serialized_datafile_stream << vn_sig.SZ();
     const string serialized_dataname = serialized_datafile_stream.str();
 
     // threshold the data and put the data points into a vector
     ModelSet model;
     bool flag = model.deserialize( serialized_dataname );
-    if( !flag ) model.init_one_model_per_point( vn_et_sig );
+    if( !flag ) model.init_one_model_per_point( vn_sig );
 
 
     cout << "Number of data points: " << model.tildaP.size() << endl;
@@ -119,10 +123,10 @@ void start_levernberg_marquart( const string& dataname,
     std::thread visualization_thread;
     if( isDisplay )
     {
-        // load original data and vesselness data for rendering
-        //Data3D<short> im_short( datafile + ".data" );
+        //Load original data and vesselness data for rendering
+        // Data3D<short> im_short( datafile + ".data" );
         //Data3D<Vesselness_Sig> vn_sig( datafile + ".vn_sig" );
-        visualization_thread = initViwer( model, &vn_et_sig );
+        visualization_thread = initViwer( model, &vn_sig );
     }
 
     // Levenberg Marquardt
@@ -134,16 +138,14 @@ void start_levernberg_marquart( const string& dataname,
 }
 
 
-void view_modelsets( const string& serialized_dataname = "vessel3d_rd_585_525_300" )
+void view_modelsets( const string& serialized_dataname )
 {
     // threshold the data and put the data points into a vector
     ModelSet model;
     bool flag = model.deserialize( serialized_dataname );
     if( !flag ) return;
 
-    std::thread visualization_thread;
-
-    visualization_thread = initViwer( model );
+    std::thread visualization_thread = initViwer( model );
 
     if( visualization_thread.joinable() ) visualization_thread.join();
     // code after this line won't be executed because 'exit(0)' is executed by glut

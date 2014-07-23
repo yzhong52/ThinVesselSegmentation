@@ -88,6 +88,7 @@ void VideoSaver::saveBuffer(void)
 
     current_frame++;
     cout << '\r' << " - Current Frame: " << current_frame << "\t";
+    cout.flush();
 
     if ( current_frame==total_frames || state==isAboutToStop )
     {
