@@ -46,7 +46,7 @@ int main(int argc, char* argv[])
     Mat temp = Mat(10, 10, CV_8UC3);
     cv::imshow( "", temp );
 
-    experiments::start_levernberg_marquart("../temp/roi16", true );
+    experiments::start_levernberg_marquart("../temp/data15", true );
     // experiments::view_modelsets();
 
     return 0;

@@ -4,10 +4,11 @@
 #include "CVPlot.h"
 
 using namespace std;
+using namespace cv;
 
 int main( void )
 {
-    // draw a plot using CVPLOT
+    /*/ draw a plot using CVPLOT
     vector<double> func1;
     func1.push_back(5);
     func1.push_back(4);
@@ -22,10 +23,13 @@ int main( void )
 
     CVPlot::draw( "ddldl", funcs );
     return 0;
+    /**/
 
+    VideoWriter outputVideo;
+    outputVideo.open("./video.avi", -1, 20.0f, Size(100, 100), true );
+    cout << outputVideo.isOpened() << endl;
 
-
-    // laoding data
+    // Loading data
     Data3D<short> im_short;
     bool flag = im_short.load( "../data/data15.data" );
     if( !flag ) return 0;
