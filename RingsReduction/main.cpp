@@ -277,8 +277,8 @@ void letsgo( void )// Our methods (against state of the art)
 int main(void)
 {
     //experiment::search_grid();
-    experiment::search_on_a_line(); return 0;
-    state_of_the_art::letsgo(); return 0;
+    //experiment::search_on_a_line(); return 0;
+    //state_of_the_art::letsgo(); return 0;
 
     //state_of_the_art::sijiber( "../temp/vessel3d.data", "../temp/vessel3d_rd_sp.data", Vec2d(233.5, 269.5) );
     //state_of_the_art::sijiber( "../temp/vessel3d.data", "../temp/vessel3d_rd.data", Vec2d(234, 270) );

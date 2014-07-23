@@ -29,6 +29,7 @@ void tree_from_dense_graph( const ModelSet& models, Graph<Edge, cv::Vec3d>& tree
         const Vec3d proj = line1->projection( pos1 );
         graph.add_node( proj );
     }
+    cout << "Number of nodes: " << graph.num_nodes() << endl;
 
     // connect each pair of the nodes
     #pragma omp parallel for

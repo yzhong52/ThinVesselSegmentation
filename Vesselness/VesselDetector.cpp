@@ -113,7 +113,7 @@ bool VesselDetector::hessien( const Data3D<short>& src, Data3D<Vesselness>& dst,
     bool flag = ImageProcessing::GaussianBlur3D( src, im_blur, ksize, sigma );
     smart_return( flag, "Gaussian Blur Failed.", false );
 
-    im_blur *= sigma; //Normalizing for different scale
+    im_blur *= std::pow(sigma, 1.2); //Normalizing for different scale
 
     dst.reset( im_blur.get_size(), Vesselness(0.0f) );
 

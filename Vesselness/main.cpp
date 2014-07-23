@@ -35,13 +35,12 @@ int main(void)
 
     // ROI16
 
-    const string dataname = "../temp/roi16";
+    const string dataname = "../temp/vessel3d_rd_sp";
 
     /*
     Image3D<short> im_data;
     im_data.load( "../temp/vessel3d_rd_sp.data" );
-    // im_data.setROI( );
-    im_data.setROI( Vec3i(61,30,409), Vec3i(329,231,677) );
+    im_data.setROI( );
     im_data.saveROI( dataname + ".data" );
 
     viewer.addObject( im_data.getROI(),  GLViewer::Volumn::MIP );
@@ -50,7 +49,7 @@ int main(void)
     return 0;
     /**/
 
-    sample_code::vesselness( false, dataname, 2800 );
+    sample_code::vesselness( false, dataname, 2900 );
     sample_code::centreline( true,  dataname );
     return 0;
 }

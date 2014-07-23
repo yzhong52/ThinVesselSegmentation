@@ -36,7 +36,8 @@ namespace experiments
 {
 void start_levernberg_marquart( const string& dataname = "../temp/data15",
                                 const bool& isThined = true,
-                                const bool& isDisplay = false );
+                                const bool& isDisplay = false,
+                                Vec3i crop_size = Vec3i(-1,-1,-1) );
 }
 
 int main(int argc, char* argv[])
@@ -47,9 +48,10 @@ int main(int argc, char* argv[])
     Mat temp = Mat(10, 10, CV_8UC3);
     cv::imshow( "", temp );
 
-    const bool isThined = true;
+    const bool isThined = false;
     const bool isDisplay = true;
-    experiments::start_levernberg_marquart("../temp/data15", isThined, isDisplay );
+    experiments::start_levernberg_marquart("../temp/roi16", isThined, isDisplay,
+                                           Vec3i(20,20,35) );
 
     return 0;
 }
@@ -94,7 +96,8 @@ namespace experiments
 {
 void start_levernberg_marquart( const string& dataname,
                                 const bool& isThined,
-                                const bool& isDisplay )
+                                const bool& isDisplay,
+                                Vec3i crop_size )
 {
     const string datafile = dataname;
 
@@ -102,8 +105,13 @@ void start_levernberg_marquart( const string& dataname,
     Image3D<Vesselness_Sig> vn_sig;
     vn_sig.load( datafile + (isThined?".et":"") + ".vn_sig" );
 
-    vn_sig.remove_margin_to( Vec3i(60, 60, 60) );
-    // vn_sig.remove_margin_to( Vec3i(585, 525, 10) );
+    if( crop_size[0]>0 )
+    {
+        crop_size[0] = std::min( crop_size[0], vn_sig.SX() );
+        crop_size[1] = std::min( crop_size[1], vn_sig.SY() );
+        crop_size[2] = std::min( crop_size[2], vn_sig.SZ() );
+        vn_sig.remove_margin_to( crop_size );
+    }
 
     stringstream serialized_datafile_stream;
     serialized_datafile_stream << datafile << "_";
