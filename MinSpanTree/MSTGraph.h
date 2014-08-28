@@ -105,7 +105,7 @@ public:
     }
 
     // get a minimum spanning tree of the current graph
-    void get_min_span_tree( Graph<EdgeType, NodeType>& dst ) const;
+    void get_min_span_tree( Graph<EdgeType, NodeType>& dst, DisjointSet* djs_ptr = nullptr ) const;
 
     // print graph for debug
     template<class E, class N>
@@ -114,12 +114,12 @@ public:
 
 
 template<class EdgeType, class NodeType>
-void Graph<EdgeType, NodeType>::get_min_span_tree( Graph<EdgeType, NodeType>& dst ) const
+void Graph<EdgeType, NodeType>::get_min_span_tree( Graph<EdgeType, NodeType>& dst, DisjointSet* djs_ptr ) const
 {
     dst.reset( this->get_nodes() );
     DisjointSet djs( this->num_nodes() );
 
-    // build edges
+    /// build edges
     std::priority_queue<EdgeType> edges = this->get_edges();
     while( !edges.empty() && dst.num_edges()<dst.num_nodes()-1 )
     {
@@ -133,6 +133,9 @@ void Graph<EdgeType, NodeType>::get_min_span_tree( Graph<EdgeType, NodeType>& ds
         }
         edges.pop();
     }
+
+    /// also return the disjoint set
+    if( djs_ptr ) *djs_ptr = djs;
 }
 
 template<class E, class N>

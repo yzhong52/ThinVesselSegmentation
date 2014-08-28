@@ -63,6 +63,8 @@
 		<Unit filename="../ModelFitting/ModelSet.cpp" />
 		<Unit filename="../ModelFitting/ModelSet.h" />
 		<Unit filename="../ModelFitting/Neighbour26.h" />
+		<Unit filename="ComputeSMT.cpp" />
+		<Unit filename="ComputeSMT.h" />
 		<Unit filename="DisjointSet.cpp" />
 		<Unit filename="DisjointSet.h" />
 		<Unit filename="GLMinSpanTree.cpp" />

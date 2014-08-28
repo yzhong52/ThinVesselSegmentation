@@ -18,27 +18,31 @@ GLLineModel::~GLLineModel( void )
 }
 
 
-void normal_vectors(  const Vec3f v1, Vec3f& v2, Vec3f& v3 ) {
-	// an arbitrary combination of the following two vectors
-	// is a normal to v1
-	// alpha * (-v1[1], v1[0], 0) + beta * (0, -v1[2], v[1])
+void normal_vectors(  const Vec3f v1, Vec3f& v2, Vec3f& v3 )
+{
+    // an arbitrary combination of the following two vectors
+    // is a normal to v1
+    // alpha * (-v1[1], v1[0], 0) + beta * (0, -v1[2], v[1])
 
-	if( abs(v1[0])>1e-8 || abs(v1[1])>1e-8 ) {
-		v2[0] = -v1[1];
-		v2[1] =  v1[0];
-		v2[2] =  0;
-	} else {
-		v2[0] =  0;
-		v2[1] = -v1[2];
-		v2[2] =  v1[1];
-	}
+    if( abs(v1[0])>1e-8 || abs(v1[1])>1e-8 )
+    {
+        v2[0] = -v1[1];
+        v2[1] =  v1[0];
+        v2[2] =  0;
+    }
+    else
+    {
+        v2[0] =  0;
+        v2[1] = -v1[2];
+        v2[2] =  v1[1];
+    }
 
     v3 = v2.cross( v1 );
 
     // normalize them so that v2*v2 + v3*v3 = 1
     const float length = sqrt( v2.dot( v2 ) + v3.dot( v3 ) );
-	v2 /= length;
-	v3 /= length;
+    v2 /= length;
+    v3 /= length;
 }
 
 void DrawCircle(const Vec3f& centre, const Vec3f& dir, const float& r )
@@ -177,7 +181,8 @@ void GLLineModel::render( void )
 
     if( render_mode & 8 )
     {
-        for( int i=0; i < (int) dataPoints.size(); i++ ){
+        for( int i=0; i < (int) dataPoints.size(); i++ )
+        {
             const int lineID = labelings[i]; // label id
             const Vec3f prj = lines[lineID]->projection( dataPoints[i] ); // position
             const Vec3f dir = lines[lineID]->getDirection();

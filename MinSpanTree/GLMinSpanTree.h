@@ -1,6 +1,7 @@
 #ifndef GLMINSPANTREE_H
 #define GLMINSPANTREE_H
 
+#include <unordered_map>
 #include <opencv2/core/core.hpp>
 
 #include "GLViewer.h"
@@ -11,13 +12,12 @@ namespace GLViewer
 
 class GLMinSpanTree : public GLViewer::Object
 {
-    const MST::Graph<MST::Edge, cv::Vec3d>& graph;
-    const cv::Vec3i& size;
-
-    cv::Vec3f color;
 public:
     GLMinSpanTree( const MST::Graph<MST::Edge, cv::Vec3d>& graph,
-                   const cv::Vec3i& size );
+                   const DisjointSet& disjointset,
+                   const cv::Vec3i& volume_size,
+                   const int number_of_highlisht_branches = 2 );
+
     virtual ~GLMinSpanTree();
 
     virtual void render( void );
@@ -43,14 +43,13 @@ public:
         glBlendFunc(GL_ONE, GL_ONE);
         glBlendEquation( GL_MAX_EXT );
     }
+private:
+    const MST::Graph<MST::Edge, cv::Vec3d>& graph;
+    const DisjointSet& djs;
+    const cv::Vec3i& size;
 
-    inline void set_color( cv::Vec3f new_color )
-    {
-        color = new_color;
-    }
-
+    std::unordered_map<int, cv::Vec3b> colors;
 };
-
 
 }// end of namespace
 
