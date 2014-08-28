@@ -458,33 +458,36 @@ int main()
     Mat m = Mat(1,1,CV_32F);
     imshow( "Temp", m );
 
+    bool flag = false;
     GLViwerModel vis;
 
-    const string dataname  = "../temp/roi16";
-    const string modelname = "../temp/roi16_269_202_269";
+    const string dataname  = "../temp/vessel3d_rd_sp";
+    const string modelname = "../temp/vessel3d_rd_sp_585_525_892";
 
-    //*
+
+
+    /*
     Data3D<short> im_short;
-    bool flag = im_short.load( dataname + ".data" );
+    flag = im_short.load( dataname + ".data" );
     if( !flag ) return 0;
     vis.addObject( im_short,  GLViewer::Volumn::MIP );
     /**/
 
-    //*
+    /*
     Data3D<Vesselness_Sig> vn_sig;
     flag = vn_sig.load( dataname + ".vn_sig" );
     if( !flag ) return 0;
     vis.addObject( vn_sig,  GLViewer::Volumn::MIP );
     /**/
 
-    //*
+    /*
     Data3D<Vesselness_Sig> vn_sig_et;
     flag = vn_sig_et.load( dataname + ".et.vn_sig" );
     if( !flag ) return 0;
     vis.addObject( vn_sig_et,  GLViewer::Volumn::MIP );
     /**/
 
-    //*
+    /*
     ModelSet modelset_org;
     modelset_org.init_one_model_per_point( vn_sig_et );
     GLViewer::GLLineModel *modelset_org_obj = new GLViewer::GLLineModel( modelset_org.labelID3d.get_size() );
@@ -503,14 +506,15 @@ int main()
     vis.objs.push_back( model_obj );
     /**/
 
-    //*
+    /*
     Graph<Edge, cv::Vec3d> tree1;
     tree_from_neighborhood( modelset, tree1 );
     GLViewer::GLMinSpanTree *mstobj1 = new GLViewer::GLMinSpanTree( tree1, modelset.labelID3d.get_size() );
     mstobj1->set_color( Vec3f(1.0f, 0.0f, 0.0f) );
     vis.objs.push_back( mstobj1 );
+    /**/
 
-    //*
+    /*
     Graph<Edge, cv::Vec3d> tree2;
     tree_from_dense_graph( modelset, tree2 );
     GLViewer::GLMinSpanTree *mstobj2 = new GLViewer::GLMinSpanTree( tree2, modelset.labelID3d.get_size() );
@@ -527,16 +531,15 @@ int main()
     /**/
 
 
-/*
-
+    /*
     Graph<Edge, cv::Vec3d> tree_ori;
     tree_from_neighborhood( models_org, tree_ori );
     GLViewer::GLMinSpanTree *mstobj_org = new GLViewer::GLMinSpanTree( tree_ori, models_org.labelID3d.get_size() );
     mstobj_org->set_color( Vec3f(1.0f, 1.0f, 0.0f) );
     vis.objs.push_back( mstobj_org );
-*/
+    /**/
 
-    vis.display( 1890, 280, 8 );
+    vis.display( 1280, 800, 2 );
 
     return 0;
 }

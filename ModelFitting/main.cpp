@@ -34,10 +34,12 @@ const double PAIRWISE_SMOOTH2 = PAIRWISE_SMOOTH * PAIRWISE_SMOOTH;
 
 namespace experiments
 {
-void start_levernberg_marquart( const string& dataname = "../temp/data15",
+void start_levenberg_marquardt( const string& dataname = "../temp/data15",
                                 const bool& isThined = true,
                                 const bool& isDisplay = false,
                                 Vec3i crop_size = Vec3i(-1,-1,-1) );
+
+void show_levenberg_marquardt_result( const string& serialized_dataname );
 }
 
 int main(int argc, char* argv[])
@@ -48,15 +50,17 @@ int main(int argc, char* argv[])
     Mat temp = Mat(10, 10, CV_8UC3);
     cv::imshow( "", temp );
 
-    const bool isThined = false;
+    const bool isThined = true;
     const bool isDisplay = true;
-    experiments::start_levernberg_marquart("../temp/roi16", isThined, isDisplay,
-                                           Vec3i(20,20,35) );
-
+    // experiments::start_levenberg_marquardt("../temp/vessel3d_rd_sp", isThined, isDisplay );
+    experiments::show_levenberg_marquardt_result( "../temp/vessel3d_rd_sp_585_525_892" );
     return 0;
 }
 
 
+////////////////////////////////////////////////////////////////////////////////////////////
+// For visualization
+////////////////////////////////////////////////////////////////////////////////////////////
 
 GLViwerModel vis;
 
@@ -92,9 +96,15 @@ std::thread initViwer( const ModelSet& modelset,
     return std::thread( visualization_func, numViewports );
 }
 
+
+
+////////////////////////////////////////////////////////////////////////////////////////////
+// Experiments
+////////////////////////////////////////////////////////////////////////////////////////////
+
 namespace experiments
 {
-void start_levernberg_marquart( const string& dataname,
+void start_levenberg_marquardt( const string& dataname,
                                 const bool& isThined,
                                 const bool& isDisplay,
                                 Vec3i crop_size )
@@ -146,7 +156,7 @@ void start_levernberg_marquart( const string& dataname,
 }
 
 
-void view_modelsets( const string& serialized_dataname )
+void show_levenberg_marquardt_result( const string& serialized_dataname )
 {
     // threshold the data and put the data points into a vector
     ModelSet model;

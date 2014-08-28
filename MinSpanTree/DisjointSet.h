@@ -9,23 +9,30 @@
 
 class DisjointSet
 {
-private:
-    int size;
-    int *data;
 public:
-    // Constructor & Destructor
+    /// Constructor
     DisjointSet( int n_size );
+    /// Destructor
     ~DisjointSet();
 
+    /// Get the labeling at index i
     inline int operator[]( const int& i ) const;
 
-    // Find: Determine which subset a particular element is in. This can be used for determining
-    // if two elements are in the same subset.
+    /// Find: Determine which subset a particular element is in. This can be used
+    /// to determinine if two elements are in the same subset.
     inline int find(int id);
-    // Union: Join two subsets into a single subset
+
+    /// Union: Join two subsets into a single subset
     inline void merge( int id1, int id2 );
 
+    /// For Debug
     friend std::ostream& operator<<( std::ostream& out, const DisjointSet& djs );
+
+private:
+    /// Size of the set
+    int size;
+    /// Labeling of each element
+    int *data;
 };
 
 
@@ -34,8 +41,6 @@ inline int DisjointSet::operator[]( const int& i ) const
     return data[i];
 }
 
-// Find: Determine which subset a particular element is in. This can be used for determining
-// if two elements are in the same subset.
 inline int DisjointSet::find(int id)
 {
     if( data[id] == -1 )
@@ -49,7 +54,6 @@ inline int DisjointSet::find(int id)
     }
 }
 
-// Union: Join two subsets into a single subset
 inline void DisjointSet::merge( int id1, int id2 )
 {
     if( data[id1]!=-1 ) id1 = find(id1);

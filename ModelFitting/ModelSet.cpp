@@ -58,11 +58,12 @@ void ModelSet::serialize( std::string file ) const
 bool ModelSet::deserialize( std::string file )
 {
     // get the file stream
-    std::ifstream fin( file + ".modelset");
+    std::string modelset_file = file + ".modelset";
+    std::ifstream fin( modelset_file );
     if( !fin.is_open() )
     {
         cout << "The following serialization file is not found: ";
-        cout << "'" << file << "'" << endl;
+        cout << "'" << modelset_file << "'" << endl;
         return false;
     }
 
