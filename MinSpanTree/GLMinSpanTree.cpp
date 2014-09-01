@@ -29,7 +29,6 @@ GLMinSpanTree::GLMinSpanTree( const MST::Graph<MST::Edge, cv::Vec3d>& g,
     for( int i=0; i<(int)index_count.size(); i++ )
     {
         if( index_count[i]==0 ) continue;
-        cout << i << "\t" << index_count[i] << endl;
 
         int j = 0;
         for( ; j<(int)hightlight_set_indeces.size(); j++ )
@@ -49,13 +48,6 @@ GLMinSpanTree::GLMinSpanTree( const MST::Graph<MST::Edge, cv::Vec3d>& g,
         }
     }
 
-    cout << endl;
-    for( int i=0; i<num_highlights; i++ )
-    {
-        cout << hightlight_set_indeces[i].first  << "\t " << hightlight_set_indeces[i].second << endl;
-    }
-
-
     Vec3b default_color[3] =
     {
         Vec3b(255, 0, 0),
@@ -73,10 +65,17 @@ GLMinSpanTree::GLMinSpanTree( const MST::Graph<MST::Edge, cv::Vec3d>& g,
         }
         else
         {
-            random_color = Vec3b( rand()%255, rand()%255, rand()%255 );
+            random_color = Vec3b( rand()%155+100, rand()%155+100, rand()%155+100 );
         }
         colors.insert( std::pair<int, Vec3b>( hightlight_set_indeces[i].first, random_color) );
     }
+
+
+    for( int i=0; i<num_highlights; i++ )
+    {
+        cout << hightlight_set_indeces[i].first  << "\t " << hightlight_set_indeces[i].second << endl;
+    }
+
 }
 
 

@@ -1,6 +1,7 @@
 #include "ComputeMST.h"
 
 #include <iostream>
+#include <iomanip>      // std::setprecision
 
 #include "MSTEdge.h"
 #include "DisjointSet.h"
@@ -10,7 +11,9 @@ using namespace MST;
 using namespace cv;
 using namespace std;
 
-void ComputeMST::from_threshold_graph( const ModelSet& models, Graph<Edge, cv::Vec3d>& tree, DisjointSet& djs )
+void ComputeMST::from_threshold_graph( const ModelSet& models,
+                                      Graph<Edge, cv::Vec3d>& tree,
+                                      DisjointSet& djs )
 {
     cout << "Compute MST Begin (from_threshold_graph)" << endl;
 
@@ -35,8 +38,10 @@ void ComputeMST::from_threshold_graph( const ModelSet& models, Graph<Edge, cv::V
     {
         #pragma omp critical
         {
-            long long temp = (long long)(100000) * ++counter / total;
-            cout << "\r " << temp / 1000.0 << "%    ";
+            long long temp = (long long)(1000) * ++counter / total;
+            cout << "\r ";
+            cout.width(10);
+            cout << fixed << setprecision(1) << temp / 10.0 << "%    ";
             cout.flush();
         }
 
@@ -44,21 +49,31 @@ void ComputeMST::from_threshold_graph( const ModelSet& models, Graph<Edge, cv::V
         {
             const Vec3d& proj1 = graph.get_node( i );
             const Vec3d& proj2 = graph.get_node( j );
-            const Vec3d direction = proj1 - proj2;
-            const double dist = sqrt( direction.dot( direction ) );
+
+            // TODO: REMOVE
+            /*
+            if( proj1[2] < models.labelID3d.SZ()/2 ) continue;
+            if( proj2[2] < models.labelID3d.SZ()/2 ) continue;
+            /**/
 
             const int& lineidi  = models.labelID[i];
             const Line3D* linei = models.lines[lineidi];
             const int& lineidj  = models.labelID[j];
             const Line3D* linej = models.lines[lineidj];
 
+            const Vec3d direction = proj1 - proj2;
+            double dist  = sqrt( direction.dot( direction ) );
+            dist -= max( linei->getSigma(), linej->getSigma() );
+            dist = max( 0.0, dist );
+
             /// Discard if the distance between the two projection points are greater than
             /// twice the sum of the vessel size
-            const double threshold = 1.2 * (linei->getSigma() + linej->getSigma());
+            const double threshold = 1.0 * (linei->getSigma() + linej->getSigma());
             if( dist>threshold ) continue;
 
             /// Weight is between [0.5-1] after this manipulation
-            double weight = 0.0;
+            double weight = 1.0;
+            /*
             const Vec3d& directioni = linei->getDirection();
             const Vec3d& directionj = linej->getDirection();
             const Vec3d norm_direction = direction / sqrt( direction.dot(direction) );
@@ -66,6 +81,7 @@ void ComputeMST::from_threshold_graph( const ModelSet& models, Graph<Edge, cv::V
             weight += abs( norm_direction.dot( directionj ) );
             weight = (2 - weight) / 4;
             weight = sqrt( weight );
+            */
 
             #pragma omp critical
             {

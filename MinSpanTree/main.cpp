@@ -402,17 +402,38 @@ void tree_from_critical_points( const ModelSet& models, Graph<Edge, cv::Vec3d>& 
 }
 
 
-int main(void)
+int main( int argc , char *argv[] )
 {
-    Mat m = Mat(1,1,CV_32F);
-    imshow( "Temp", m );
+    string dataname  = "../temp/roi16";
+    string modelname = "../temp/roi16_269_202_269";
+
+    // Update dataname and modelname from 'arguments.txt' file
+    ifstream arguments( "arguments.txt" );
+    if( arguments.is_open() )
+    {
+        string temp;
+
+        arguments >> temp;
+        if( temp=="-dataname") {
+            arguments.get(); // remove a white space
+            std::getline( arguments, dataname );
+        }
+
+        arguments >> temp;
+        if( temp=="-modelname") {
+            arguments.get(); // remove a white space
+            std::getline( arguments, modelname );
+        }
+    }
+
+
+    // TDO: This is for force the linking of OpenCV
+    Mat m = Mat(1,1,CV_32F); imshow( "Temp", m );
 
     bool flag = false;
+
+    // For visualization
     GLViwerModel vis;
-
-    const string dataname  = "../temp/roi16";
-    const string modelname = "../temp/vessel3d_rd_sp_585_525_892";
-
 
     ModelSet modelset;
     flag = modelset.deserialize( modelname );
@@ -422,7 +443,7 @@ int main(void)
     model_obj->updateModel( modelset.lines, modelset.labelID );
     vis.objs.push_back( model_obj );
 
-    /*
+    //*
     Data3D<short> im_short;
     flag = im_short.load( dataname + ".data" );
     if( !flag ) return 0;
@@ -473,7 +494,7 @@ int main(void)
     Graph<Edge, cv::Vec3d> tree3;
     DisjointSet djs;
     ComputeMST::from_threshold_graph( modelset, tree3, djs );
-    GLViewer::GLMinSpanTree *mstobj3 = new GLViewer::GLMinSpanTree( tree3, djs, modelset.labelID3d.get_size() );
+    GLViewer::GLMinSpanTree *mstobj3 = new GLViewer::GLMinSpanTree( tree3, djs, modelset.labelID3d.get_size(), 5 );
     vis.objs.push_back( mstobj3 );
     /**/
 
@@ -486,7 +507,7 @@ int main(void)
     vis.objs.push_back( mstobj_org );
     /**/
 
-    vis.display( 1280, 800, 2 );
+    vis.display( 1280, 800, 3 );
 
     return 0;
 }
