@@ -15,5 +15,8 @@
 			<Depends filename="SparseMatrix/SparseMatrix.cbp" />
 		</Project>
 		<Project filename="MinSpanTree/MinSpanTree.cbp" />
+		<Project filename="AortaSeg/AortaSeg.cbp">
+			<Depends filename="core/core.cbp" />
+		</Project>
 	</Workspace>
 </CodeBlocks_workspace_file>

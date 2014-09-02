@@ -14,40 +14,40 @@ class Vesselness_All;
 namespace ImageProcessing
 {
 ///////////////////////////////////////////////////////////////////////////
-// Image Histogram
+// IMAGE HISTOGRAM
 void histogram( Data3D<short>& imageData,
                 cv::Mat_<double>& range, cv::Mat_<double>& hist, int number_of_bins = 512 );
 cv::Mat histogram_with_opencv( Data3D<short>& imageData, int number_of_bins = 512 );
 void histogram_for_slice( Image3D<short>& imageData );
 
 ///////////////////////////////////////////////////////////////////////////
-// convolution of 3d datas
+// CONVOLUTION 3D
 template<typename T1, typename T2, typename T3>
 void conv3( const Data3D<T1>& src, Data3D<T2>& dst, const Kernel3D<T3>& kernel );
-
 ///////////////////////////////////////////////////////////////////////////
-// gaussian blur 3d
-template<typename T1, typename T2>
-bool GaussianBlur3D( const Data3D<T1>& src, Data3D<T2>& dst, int ksize, double sigma = 0.0 );
-
-///////////////////////////////////////////////////////////////////////////
-// median filter
-template<typename T1, typename T2>
-bool medianBlur3D( const Data3D<T1>& src, Data3D<T2>& dst, int ksize);
-
-///////////////////////////////////////////////////////////////////////////
-// mean filter
-template<typename T1, typename T2>
-bool meanBlur3D( const Data3D<T1>& src, Data3D<T2>& dst, int ksize);
-
-///////////////////////////////////////////////////////////////////////////
-// Convolution in 3 phrases (along direction orientation)
+// CONVOLUTION OF DIFFERENT ORIENTATIONS 3D
 template<typename T1, typename T2, typename T3 >
 bool filter3D_X( const Data3D<T1>& src, Data3D<T2>& dst, const Kernel3D<T3>& kx );
 template<typename T1, typename T2, typename T3 >
 bool filter3D_Y( const Data3D<T1>& src, Data3D<T2>& dst, const Kernel3D<T3>& ky );
 template<typename T1, typename T2, typename T3 >
 bool filter3D_Z( const Data3D<T1>& src, Data3D<T2>& dst, const Kernel3D<T3>& kz );
+
+///////////////////////////////////////////////////////////////////////////
+// GAUSSIAN BLUR 3D
+template<typename T1, typename T2>
+bool GaussianBlur3D( const Data3D<T1>& src, Data3D<T2>& dst, int ksize, double sigma = 0.0 );
+
+///////////////////////////////////////////////////////////////////////////
+// MEDIAN FILTER
+template<typename T1, typename T2>
+bool medianBlur3D( const Data3D<T1>& src, Data3D<T2>& dst, int ksize);
+
+///////////////////////////////////////////////////////////////////////////
+// MEAN FILTER
+template<typename T1, typename T2>
+bool meanBlur3D( const Data3D<T1>& src, Data3D<T2>& dst, int ksize);
+
 
 ///////////////////////////////////////////////////////////////////////////
 // normalize the data
@@ -59,13 +59,13 @@ template<typename T>
 void quad_normalize( Data3D<T>& data, T norm_max = 1);
 
 ///////////////////////////////////////////////////////////////////////////
-// threshold the data
+// THRESHOLDING
 // threshold the data and return a binary mask
 template<typename T>
-void threshold( const Data3D<T>& src, Data3D<unsigned char>& dst, T thresh );
+void threshold( const Data3D<T>& src, Data3D<unsigned char>& mask, T thresh );
 // threshold the data and return a binary mask and of a set of locations
 template<typename T>
-void threshold( const Data3D<T>& src, Data3D<unsigned char>& dst, std::vector<cv::Vec3i>& pos, T thresh );
+void threshold( const Data3D<T>& src, Data3D<unsigned char>& mask, std::vector<cv::Vec3i>& pos, T thresh );
 // threshold the data and return a index map (dst) and of a set of locations
 template<typename T>
 void threshold( const Data3D<T>& src, Data3D<int>& indeces, std::vector<cv::Vec3i>& pos, T thresh );
@@ -77,7 +77,12 @@ template<typename T>
 void threshold( Data3D<T>& src, T thresh );
 
 ///////////////////////////////////////////////////////////////////////////
-// Non-maximum suppression
+// FILTERING WITH A GIVEN MASK
+template<typename T>
+void masking( const Data3D<T>& src, const Data3D<unsigned char>& mask, Data3D<T>& dst );
+
+///////////////////////////////////////////////////////////////////////////
+// NON-MAXIMUM SUPPRESSION
 void non_max_suppress( const Data3D<Vesselness_Sig>& src, Data3D<Vesselness_Sig>& dst );
 void edge_tracing( Data3D<Vesselness_Sig>& src, Data3D<Vesselness_Sig>& dst, const float& thres1 = 0.85f, const float& thres2 = 0.10f );
 void dir_tracing( Data3D<Vesselness_All>& src, Data3D<Vesselness_Sig>& res_dt );
@@ -86,12 +91,36 @@ void edge_tracing_mst( Data3D<Vesselness_All>& src, Data3D<Vesselness_Sig>& dst,
 ///////////////////////////////////////////////////////////////////////////
 // Morphological Operations
 // dilation, erosion, closing
-void dilation(Data3D<unsigned char>& src, const int& k);
-void erosion( Data3D<unsigned char>& src, const int& k);
+void dilate(Data3D<unsigned char>& src, const int& k);
+    void erose( Data3D<unsigned char>& src, const int& k);
 void closing( Data3D<unsigned char>& src, const int& k);
 }
 
 namespace IP = ImageProcessing;
+
+template<typename T>
+void ImageProcessing::masking( const Data3D<T>& src,
+                               const Data3D<unsigned char>& mask,
+                               Data3D<T>& dst )
+{
+    smart_assert( src.get_size()==mask.get_size(),
+                  "Image size should match mask size" );
+
+    if( &dst!=&src ) dst = src;
+
+    int x, y, z;
+    cv::Vec<T, 2> min_max = src.get_min_max_value();
+    for( z = 0; z < src.get_size_z(); z++ )
+    {
+        for( y = 0; y < src.get_size_y(); y++ )
+        {
+            for( x = 0; x < src.get_size_x(); x++ )
+            {
+                if( mask.at(x,y,z) ) dst.at(x,y,z) = min_max[0];
+            }
+        }
+    }
+}
 
 template<typename T1, typename T2, typename T3>
 void ImageProcessing::conv3( const Data3D<T1>& src, Data3D<T2>& dst, const Kernel3D<T3>& kernel )
@@ -407,35 +436,35 @@ void ImageProcessing::quad_normalize( Data3D<T>& data, T norm_max )
 // threshold the data
 // threshold the data and return a binary mask
 template<typename T>
-void ImageProcessing::threshold( const Data3D<T>& src, Data3D<unsigned char>& dst, T thresh )
+void ImageProcessing::threshold( const Data3D<T>& src, Data3D<unsigned char>& mask, T thresh )
 {
     int x,y,z;
-    dst.reset( src.get_size() );
+    mask.reset( src.get_size() );
     for(z=0; z<src.SZ(); z++) for (y=0; y<src.SY(); y++) for(x=0; x<src.SX(); x++)
             {
-                dst.at(x,y,z) = src.at(x,y,z) > thresh ? 255 : 0;
+                mask.at(x,y,z) = src.at(x,y,z) > thresh ? 255 : 0;
             }
 }
 // threshold the data and return a binary mask and of a set of locations
 template<typename T>
-void ImageProcessing::threshold( const Data3D<T>& src, Data3D<unsigned char>& dst,
+void ImageProcessing::threshold( const Data3D<T>& src, Data3D<unsigned char>& mask,
                                  std::vector<cv::Vec3i>& pos, T thresh )
 {
     int x,y,z;
-    dst.reset( src.get_size() );
+    mask.reset( src.get_size() );
     for(z=0; z<src.SZ(); z++) for (y=0; y<src.SY(); y++) for(x=0; x<src.SX(); x++)
             {
                 if( src.at(x,y,z) > thresh )
                 {
-                    dst.at(x,y,z) = 255;
+                    mask.at(x,y,z) = 255;
                     pos.push_back( cv::Vec3i(x,y,z) );
                 }
             }
 }
 // threshold the data and return a index map (dst) and of a set of locations
 template<typename T>
-void ImageProcessing::threshold( const Data3D<T>& src, Data3D<int>& indeces, std::vector<cv::Vec3i>& pos,
-                                 T thresh )
+void ImageProcessing::threshold( const Data3D<T>& src, Data3D<int>& indeces,
+                                 std::vector<cv::Vec3i>& pos, T thresh )
 {
     int x,y,z;
     indeces.reset( src.get_size() );

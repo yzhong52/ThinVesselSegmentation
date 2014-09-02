@@ -1,5 +1,5 @@
-#ifndef GLVIWERCORE_H
-#define GLVIWERCORE_H
+#ifndef GLVIEWERCORE_H
+#define GLVIEWERCORE_H
 
 #include <vector>
 #include "GLViewer.h"
@@ -51,4 +51,4 @@ void GLViewerCore::addObject( const Data3D<unsigned char>& im_uchar, GLViewer::V
     objs.push_back( vObj );
 }
 
-#endif // GLVIWERCORE_H
+#endif // GLVIEWERCORE_H

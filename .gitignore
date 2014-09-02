@@ -239,4 +239,4 @@ UpgradeLog*.htm
 
 # Microsoft Fakes
 FakesAssemblies/
-
+/MinSpanTree/arguments.txt

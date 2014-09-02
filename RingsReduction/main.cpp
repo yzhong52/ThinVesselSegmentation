@@ -3,7 +3,7 @@
 #include <omp.h>
 
 #include "Data3D.h"
-#include "GLViwerCore.h"
+#include "GLViewerCore.h"
 
 #include "RingCentre.h"
 #include "RingsReduction.h"

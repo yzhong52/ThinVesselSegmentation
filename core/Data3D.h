@@ -23,9 +23,12 @@ public:
     Data3D( const cv::Vec3i& n_size, const T& value );
     // Constructor from file
     Data3D( const std::string& filename );
-    // Copy Constructor - extremely similar to the copyTo function
+    // Copy Constructor
     template <class T2>
     Data3D( const Data3D<T2>& src );
+    // Assign Constructor
+    const Data3D<T>& operator=( const Data3D<T>& src );
+
     // Destructor
     virtual ~Data3D(void) { }
 
@@ -287,7 +290,7 @@ Data3D<T>::Data3D( const std::string& filename )
     }
 }
 
-// Copy Constructor - extremely similar to the copyTo function
+// Copy Constructor
 template<typename T>
 template<typename T2>
 Data3D<T>::Data3D( const Data3D<T2>& src )
@@ -305,6 +308,25 @@ Data3D<T>::Data3D( const Data3D<T2>& src )
         *(this_it) = T( *(src_it) );
     }
 }
+
+template<typename T>
+const Data3D<T>& Data3D<T>::operator=( const Data3D<T>& src )
+{
+    // resize
+    this->resize( src.get_size() );
+    // copy the data over
+    cv::MatIterator_<T>       this_it;
+    cv::MatConstIterator_<T> src_it;
+    for( this_it = this->getMat().begin(), src_it = src.getMat().begin();
+            this_it < this->getMat().end(),   src_it < src.getMat().end();
+            this_it++, src_it++ )
+    {
+        *(this_it) = *(src_it);
+    }
+
+    return *this;
+}
+
 
 template <typename T>
 bool Data3D<T>::save( const std::string& file_name, const std::string& log, bool saveInfo, bool isBigEndian ) const

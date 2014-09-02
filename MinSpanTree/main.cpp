@@ -5,6 +5,7 @@
 #include "GLMinSpanTree.h"
 #include "ComputeMST.h"
 
+/*Note: A lot of code from ModelFitting is being recompiled and reused here. */
 #include "../ModelFitting/ModelSet.h"
 #include "../ModelFitting/GLViwerModel.h"
 #include "../ModelFitting/Neighbour26.h"
@@ -13,103 +14,6 @@ using namespace std;
 using namespace MST;
 using namespace cv;
 
-/*Note: A lot of code from ModelFitting is being recompiled and reused here. */
-
-void tree_from_dense_graph( const ModelSet& models, Graph<Edge, cv::Vec3d>& tree )
-{
-    cout << "Computing Min Span Tree from semi-dense graph... ";
-    cout.flush();
-
-    Graph<Edge, cv::Vec3d> graph;
-    // compute the projection point add it to graph
-    for( unsigned i=0; i<models.tildaP.size(); i++ )
-    {
-        const int& lineid1 = models.labelID[i];
-        const Line3D* line1   = models.lines[lineid1];
-        const cv::Vec3i& pos1 = models.tildaP[i];
-        const Vec3d proj = line1->projection( pos1 );
-        graph.add_node( proj );
-    }
-    cout << "Number of nodes: " << graph.num_nodes() << endl;
-
-    // connect each pair of the nodes
-    #pragma omp parallel for
-    for( unsigned i=0; i<graph.num_nodes(); i++ )
-    {
-        for( unsigned j=i+1; j<graph.num_nodes(); j++ )
-        {
-            const Vec3d& proj1 = graph.get_node( i );
-            const Vec3d& proj2 = graph.get_node( j );
-            const Vec3d direction = proj1 - proj2;
-            const double dist = sqrt( direction.dot( direction ) );
-
-            const int& lineidi  = models.labelID[i];
-            const Line3D* linei = models.lines[lineidi];
-            const int& lineidj  = models.labelID[j];
-            const Line3D* linej = models.lines[lineidj];
-            const double threshold = 2 * (linei->getSigma() + linej->getSigma());
-            if( dist>threshold ) continue;
-
-            #pragma omp critical
-            {
-                graph.add_edge( Edge(i, j, dist) );
-            }
-        }
-    }
-
-    graph.get_min_span_tree( tree );
-
-    cout << "Done" << endl << endl;
-}
-
-
-
-
-void tree_from_neighborhood( const ModelSet& models, Graph<Edge, cv::Vec3d>& tree )
-{
-    cout << "Computing Min Span Tree from sparse graph (neibourhood connectivity)... ";
-    cout.flush();
-    Graph<Edge, cv::Vec3d> graph;
-    // compute the projection point add it to graph
-    for( unsigned i=0; i<models.tildaP.size(); i++ )
-    {
-        const int& lineid1 = models.labelID[i];
-        const Line3D* line1   = models.lines[lineid1];
-        const cv::Vec3i& pos1 = models.tildaP[i];
-        const Vec3d proj = line1->projection( pos1 );
-        graph.add_node( proj );
-    }
-
-    for( unsigned i=0; i<models.tildaP.size(); i++ )
-    {
-        for( int n=0; n<26; n++ )
-        {
-            const int& lineid1 = models.labelID[i];
-            const Line3D* line1   = models.lines[lineid1];
-            const cv::Vec3i& pos1 = models.tildaP[i];
-
-            cv::Vec3i pos2;
-            Neighbour26::getNeigbour( n, pos1, pos2 );
-            if ( !models.labelID3d.isValid( pos2 ) ) continue;
-
-            const int lineid2 = models.labelID3d.at( pos2 );
-            if ( lineid2==-1 ) continue;
-
-            const Line3D* line2   = models.lines[lineid2];
-
-            const Vec3d proj1 = line1->projection( pos1 );
-            const Vec3d proj2 = line2->projection( pos2 );
-            const Vec3d direction = proj1 - proj2;
-            const double dist = sqrt( direction.dot( direction ) );
-
-            // TODO: line id is equivalent to point id in this case
-            graph.add_edge( Edge(lineid1, lineid2, dist) );
-        }
-    }
-
-    graph.get_min_span_tree( tree );
-    cout << "Done" << endl << endl;
-}
 
 
 void tree_from_critical_points( const ModelSet& models, Graph<Edge, cv::Vec3d>& tree )
@@ -271,7 +175,7 @@ void tree_from_critical_points( const ModelSet& models, Graph<Edge, cv::Vec3d>& 
                         if( endpoints_mask1.at(off_pos)==UN_DEFINED )
                         {
                             myQueue.push( off_pos );
-                            endpoints_mask1.at( off_pos ) = ENDPOINT_YES;
+                  GLViwerModel vis;          endpoints_mask1.at( off_pos ) = ENDPOINT_YES;
                             endpoints_mask1.at( pos )     = ENDPOINT_NO;
                         }
                         else if( endpoints_mask1.at(off_pos)==ENDPOINT_YES )
@@ -414,21 +318,24 @@ int main( int argc , char *argv[] )
         string temp;
 
         arguments >> temp;
-        if( temp=="-dataname") {
+        if( temp=="-dataname")
+        {
             arguments.get(); // remove a white space
             std::getline( arguments, dataname );
         }
 
         arguments >> temp;
-        if( temp=="-modelname") {
+        if( temp=="-modelname")
+        {
             arguments.get(); // remove a white space
             std::getline( arguments, modelname );
         }
     }
 
 
-    // TDO: This is for force the linking of OpenCV
-    Mat m = Mat(1,1,CV_32F); imshow( "Temp", m );
+    // TODO: This is for force the linking of OpenCV
+    Mat m = Mat(1,1,CV_32F);
+    imshow( "Temp", m );
 
     bool flag = false;
 
@@ -444,8 +351,9 @@ int main( int argc , char *argv[] )
     vis.objs.push_back( model_obj );
 
     //*
-    Data3D<short> im_short;
+    Image3D<short> im_short;
     flag = im_short.load( dataname + ".data" );
+    im_short.shrink_by_half();
     if( !flag ) return 0;
     vis.addObject( im_short,  GLViewer::Volumn::MIP );
     /**/
@@ -476,25 +384,19 @@ int main( int argc , char *argv[] )
 
     /*
     Graph<Edge, cv::Vec3d> tree1;
-    tree_from_neighborhood( modelset, tree1 );
-    GLViewer::GLMinSpanTree *mstobj1 = new GLViewer::GLMinSpanTree( tree1, modelset.labelID3d.get_size() );
-    mstobj1->set_color( Vec3f(1.0f, 0.0f, 0.0f) );
+    DisjointSet djs1;
+    ComputeMST::neighborhood_graph( modelset, tree1, djs1 );
+    GLViewer::GLMinSpanTree *mstobj1
+        = new GLViewer::GLMinSpanTree( tree1, djs1, modelset.labelID3d.get_size(), 5 );
     vis.objs.push_back( mstobj1 );
     /**/
 
     /*
-    Graph<Edge, cv::Vec3d> tree2;
-    tree_from_dense_graph( modelset, tree2 );
-    GLViewer::GLMinSpanTree *mstobj2 = new GLViewer::GLMinSpanTree( tree2, modelset.labelID3d.get_size() );
-    vis.objs.push_back( mstobj2 );
-    mstobj2->set_color( Vec3f(0.0f, 0.0f, 1.0f) );
-    /**/
-
-    //*
     Graph<Edge, cv::Vec3d> tree3;
-    DisjointSet djs;
-    ComputeMST::from_threshold_graph( modelset, tree3, djs );
-    GLViewer::GLMinSpanTree *mstobj3 = new GLViewer::GLMinSpanTree( tree3, djs, modelset.labelID3d.get_size(), 5 );
+    DisjointSet djs3;
+    ComputeMST::from_threshold_graph( modelset, tree3, djs3 );
+    GLViewer::GLMinSpanTree *mstobj3
+        = new GLViewer::GLMinSpanTree( tree3, djs3, modelset.labelID3d.get_size(), 5 );
     vis.objs.push_back( mstobj3 );
     /**/
 
@@ -507,7 +409,7 @@ int main( int argc , char *argv[] )
     vis.objs.push_back( mstobj_org );
     /**/
 
-    vis.display( 1280, 800, 3 );
+    vis.display( 1280, 800, 2 );
 
     return 0;
 }

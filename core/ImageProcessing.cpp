@@ -140,27 +140,47 @@ void ImageProcessing::histogram_for_slice( Image3D<short>& data )
 
 
 
-void ImageProcessing::dilation( Data3D<unsigned char>& src, const int& ks )
+void ImageProcessing::dilate( Data3D<unsigned char>& src, const int& ks )
 {
     Data3D<unsigned char> temp( src.get_size() );
-    int x,y,z;
-    int i,j,k;
-    for( z=0; z<src.SZ(); z++ ) for( y=0; y<src.SY(); y++ ) for( x=0; x<src.SX(); x++ )
+
+
+
+    int counter = 0;
+    cout << endl;
+
+    #pragma omp parallel for
+    for( int z=0; z<src.SZ(); z++ )
+    {
+        int x, y, i, j, k;
+
+        for( y=0; y<src.SY(); y++ )
+        {
+            for( x=0; x<src.SX(); x++ )
             {
-                // look around the voxel
-                for( i=-ks; i<=ks; i++ ) for( j=-ks; j<=ks; j++ ) for( k=-ks; k<=ks; k++ )
+                if( !src.at(x,y,z) ) continue;
+
+                // dialte around the voxel
+                for( i=-ks; i<=ks; i++ )
+                {
+                    for( j=-ks; j<=ks; j++ )
+                    {
+                        for( k=-ks; k<=ks; k++ )
                         {
-                            if( src.isValid(x+i,y+j,z+k) )
-                            {
-                                if( src.at( x+i,y+j,z+k )!=0 ) temp.at(x,y,z) = 255;
+                            if( temp.isValid(x+i,y+j,z+k) ) {
+                                temp.at(x+i,y+j,z+k) = 255;
                             }
                         }
+                    }
+                }
             }
+        }
+    }
     src = temp;
 }
 
 
-void ImageProcessing::erosion( Data3D<unsigned char>& src, const int& ks )
+void ImageProcessing::erose( Data3D<unsigned char>& src, const int& ks )
 {
     Data3D<unsigned char> temp( src.get_size(), 255 );
     int x,y,z;
@@ -185,6 +205,6 @@ void ImageProcessing::erosion( Data3D<unsigned char>& src, const int& ks )
 
 void ImageProcessing::closing( Data3D<unsigned char>& src, const int& ks )
 {
-    IP::dilation( src, 2 );
-    IP::erosion( src, 2 );
+    IP::dilate( src, 2 );
+    IP::erose( src, 2 );
 }
