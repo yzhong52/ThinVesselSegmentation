@@ -365,7 +365,7 @@ int main( int argc , char *argv[] )
     Image3D<unsigned char> mask;
     if( maskname!="N/A" ) mask.load( maskname+".data" );
 
-    //*
+    /*
     Image3D<short> im_short;
     flag = im_short.load( dataname + ".data" );
     if( !flag ) return 0;
@@ -373,7 +373,7 @@ int main( int argc , char *argv[] )
     vis.addObject( im_short,  GLViewer::Volumn::MIP );
     /**/
 
-    //*
+    /*
     Image3D<Vesselness_Sig> vn_sig;
     flag = vn_sig.load( dataname + ".vn_sig" );
     if( !flag ) return 0;
@@ -383,17 +383,18 @@ int main( int argc , char *argv[] )
     vis.addObject( vn_float,  GLViewer::Volumn::MIP );
     /**/
 
-    /*
+    //*
     Data3D<Vesselness_Sig> vn_sig_et;
     flag = vn_sig_et.load( dataname + ".et.vn_sig" );
     if( !flag ) return 0;
-    vis.addObject( vn_sig_et,  GLViewer::Volumn::MIP );
+    //vis.addObject( vn_sig_et,  GLViewer::Volumn::MIP );
     /**/
 
-    /*
+    //*
     ModelSet modelset_org;
     modelset_org.init_one_model_per_point( vn_sig_et );
-    GLViewer::GLLineModel *modelset_org_obj = new GLViewer::GLLineModel( modelset_org.labelID3d.get_size() );
+    GLViewer::GLLineModel *modelset_org_obj = nullptr;
+    modelset_org_obj = new GLViewer::GLLineModel( modelset_org.labelID3d.get_size() );
     modelset_org_obj->updatePoints( modelset_org.tildaP );
     modelset_org_obj->updateModel( modelset_org.lines, modelset_org.labelID );
     vis.objs.push_back( modelset_org_obj );

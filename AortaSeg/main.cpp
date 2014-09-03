@@ -12,8 +12,8 @@ using namespace cv;
 
 /*This project will generate a mask of the Aorta*/
 
-static const string dataname = "../temp/vessel3d_rd";
-static const string maskname = "../temp/vessel3d.aorta.mask.data";
+static const string dataname = "../temp/vessel3d_rd_sp";
+static const string maskname = "../temp/vessel3d_rd_sp.aorta.mask.data";
 
 bool generating_segmentation(){
     Image3D<short> im_short;
@@ -81,7 +81,7 @@ int main()
     Mat m = Mat(1,1,CV_32F);
     imshow( "Temp", m );
 
-    //generating_segmentation();
+    generating_segmentation();
     validating_segmentation();
 
     return 0;
