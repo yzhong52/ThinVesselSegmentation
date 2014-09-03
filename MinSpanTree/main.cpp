@@ -308,8 +308,12 @@ void tree_from_critical_points( const ModelSet& models, Graph<Edge, cv::Vec3d>& 
 
 int main( int argc , char *argv[] )
 {
+    // orignal data
     string dataname  = "../temp/roi16";
+    // models after model fitting
     string modelname = "../temp/roi16_269_202_269";
+    // a mask to be ignore during mst computation
+    string maskname  = "N/A";
 
     // Update dataname and modelname from 'arguments.txt' file
     ifstream arguments( "arguments.txt" );
@@ -330,6 +334,12 @@ int main( int argc , char *argv[] )
             arguments.get(); // remove a white space
             std::getline( arguments, modelname );
         }
+
+        arguments >> temp;
+        if( temp=="-maskname" ){
+            arguments.get(); // remove a white space
+            std::getline( arguments, maskname );
+        }
     }
 
 
@@ -342,27 +352,35 @@ int main( int argc , char *argv[] )
     // For visualization
     GLViwerModel vis;
 
+    // Loading models
     ModelSet modelset;
     flag = modelset.deserialize( modelname );
     if( !flag ) return 0;
     GLViewer::GLLineModel *model_obj = new GLViewer::GLLineModel( modelset.labelID3d.get_size() );
     model_obj->updatePoints( modelset.tildaP );
     model_obj->updateModel( modelset.lines, modelset.labelID );
-    vis.objs.push_back( model_obj );
+    // vis.objs.push_back( model_obj );
+
+    // A mask to be ignored while computing minimum spanning tree
+    Image3D<unsigned char> mask;
+    if( maskname!="N/A" ) mask.load( maskname+".data" );
 
     //*
     Image3D<short> im_short;
     flag = im_short.load( dataname + ".data" );
-    im_short.shrink_by_half();
     if( !flag ) return 0;
+    im_short.shrink_by_half();
     vis.addObject( im_short,  GLViewer::Volumn::MIP );
     /**/
 
-    /*
-    Data3D<Vesselness_Sig> vn_sig;
+    //*
+    Image3D<Vesselness_Sig> vn_sig;
     flag = vn_sig.load( dataname + ".vn_sig" );
     if( !flag ) return 0;
-    vis.addObject( vn_sig,  GLViewer::Volumn::MIP );
+    Image3D<float> vn_float;
+    vn_sig.copyDimTo( vn_float, 0 );
+    vn_float.shrink_by_half();
+    vis.addObject( vn_float,  GLViewer::Volumn::MIP );
     /**/
 
     /*
@@ -385,16 +403,17 @@ int main( int argc , char *argv[] )
     /*
     Graph<Edge, cv::Vec3d> tree1;
     DisjointSet djs1;
-    ComputeMST::neighborhood_graph( modelset, tree1, djs1 );
-    GLViewer::GLMinSpanTree *mstobj1
-        = new GLViewer::GLMinSpanTree( tree1, djs1, modelset.labelID3d.get_size(), 5 );
+    ComputeMST::neighborhood_graph( modelset, mask, tree1, djs1 );
+    GLViewer::GLMinSpanTree *mstobj1 = nullptr;
+    mstobj1 = new GLViewer::GLMinSpanTree( tree1, djs1,
+                                      modelset.labelID3d.get_size(), 5 );
     vis.objs.push_back( mstobj1 );
     /**/
 
     /*
     Graph<Edge, cv::Vec3d> tree3;
     DisjointSet djs3;
-    ComputeMST::from_threshold_graph( modelset, tree3, djs3 );
+    ComputeMST::from_threshold_graph( modelset, mask, tree3, djs3 );
     GLViewer::GLMinSpanTree *mstobj3
         = new GLViewer::GLMinSpanTree( tree3, djs3, modelset.labelID3d.get_size(), 5 );
     vis.objs.push_back( mstobj3 );
@@ -409,7 +428,7 @@ int main( int argc , char *argv[] )
     vis.objs.push_back( mstobj_org );
     /**/
 
-    vis.display( 1280, 800, 2 );
+    vis.display( 1280, 800, 3 );
 
     return 0;
 }

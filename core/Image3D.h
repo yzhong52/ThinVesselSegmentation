@@ -480,7 +480,7 @@ void Image3D<T>::shrink_by_half(void)
     // Therefore, we use CV_64S for safety
     cv::Mat n_mat = cv::Mat( n_size[2], n_size_slice, Data3D<T>::_mat.type(), cv::Scalar(0) );
     int i, j, k;
-    for( i=0; i<n_size[0]; i++ ) for( j=0; j<n_size[1]; j++ ) for( k=0; k<n_size[2]; k++ )
+    for( k=0; k<n_size[2]; k++ ) for( j=0; j<n_size[1]; j++ ) for( i=0; i<n_size[0]; i++ )
             {
                 n_mat.at<T>(k, j*n_size[0]+i)  = T( 0.25 * Data3D<T>::_mat(2*k,     2 * j * Data3D<T>::_size[0] + 2 * i) );
                 n_mat.at<T>(k, j*n_size[0]+i) += T( 0.25 * Data3D<T>::_mat(2*k,     2 * j * Data3D<T>::_size[0] + 2 * i + 1) );

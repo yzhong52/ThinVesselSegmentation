@@ -17,6 +17,7 @@ double (*ComputeMST::edge_weight_func)( const Line3D*, const cv::Vec3d&,
     = ComputeMST::edge_weight_func_distance;
 
 void ComputeMST::from_threshold_graph( const ModelSet& models,
+                                      const Data3D<unsigned char>& mask,
                                        Graph<Edge, cv::Vec3d>& tree,
                                        DisjointSet& djs )
 {
@@ -55,10 +56,15 @@ void ComputeMST::from_threshold_graph( const ModelSet& models,
             const Vec3d& proj2 = graph.get_node( j );
 
             // Yuchen TODO: REMOVE
-            //*
+            /*
             if( proj1[2] < models.labelID3d.SZ()/3 ) continue;
             if( proj2[2] < models.labelID3d.SZ()/3 ) continue;
             /**/
+
+            if( mask.SZ()!=0 ) {
+                if( mask.at(models.tildaP[i]) || mask.at(models.tildaP[j]) )
+                    continue;
+            }
 
             const double dist = edge_weight_func( linei, proj1, linej, proj2 );
 
@@ -90,15 +96,9 @@ void ComputeMST::from_threshold_graph( const ModelSet& models,
     cout << endl << "Done" << endl << endl;
 }
 
-void ComputeMST::add_graph_edge( const ModelSet& models,
-                                MST::Graph<MST::Edge, cv::Vec3d>& graph,
-                                const int& index1, const int index2 )
-                                {
-
-                                }
-
 
 void ComputeMST::neighborhood_graph( const ModelSet& models,
+                                    const Data3D<unsigned char>& mask,
                                      MST::Graph<MST::Edge, cv::Vec3d>& tree,
                                      DisjointSet& djs )
 {
@@ -135,6 +135,14 @@ void ComputeMST::neighborhood_graph( const ModelSet& models,
     }
 
     graph.get_min_span_tree( tree, &djs );
+
+    // Determine critical points which are connected at most one
+    // other points by the forests
+    vector<int> critical_points;
+    vector<int> neighbor_counts( tree.num_nodes(), 0 );
+    for( int i=0; i<tree.num_edges(); i++ ){
+
+    }
 }
 
 void ComputeMST::create_graph_nodes( const ModelSet& models,

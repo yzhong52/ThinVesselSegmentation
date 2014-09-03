@@ -18,10 +18,12 @@ public:
 /// 3. Discard a pair if the distance between them is greater than a certain threshold.
 ///    The threshold is computed automatically based on the thickness of the vessels.
     static void from_threshold_graph( const ModelSet& models,
+                                     const Data3D<unsigned char>& mask,
                                       MST::Graph<MST::Edge, cv::Vec3d>& tree,
                                       DisjointSet& djs );
 
     static void neighborhood_graph( const ModelSet& models,
+                                   const Data3D<unsigned char>& mask,
                                     MST::Graph<MST::Edge, cv::Vec3d>& tree,
                                     DisjointSet& djs );
 

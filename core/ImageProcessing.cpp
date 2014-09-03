@@ -144,11 +144,6 @@ void ImageProcessing::dilate( Data3D<unsigned char>& src, const int& ks )
 {
     Data3D<unsigned char> temp( src.get_size() );
 
-
-
-    int counter = 0;
-    cout << endl;
-
     #pragma omp parallel for
     for( int z=0; z<src.SZ(); z++ )
     {

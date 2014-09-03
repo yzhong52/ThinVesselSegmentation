@@ -386,10 +386,10 @@ bool Data3D<T>::load( const std::string& file_name, const cv::Vec3i& size, bool 
 {
     std::cout << "Loading Data '" << file_name << "'" << std::endl;
 
-    // reset size of the data
+    // Resize of the data and also allocate memory
     reset( size );
 
-    // loading data from file
+    // Loading data from file
     FILE* pFile=fopen( file_name.c_str(), "rb" );
     smart_return( pFile!=0, "File not found", false );
 
@@ -621,7 +621,7 @@ bool subtract3D( const Data3D<T1>& src1, const Data3D<T2>& src2, Data3D<T3>& dst
         {
             for( x=0; x<src1.get_size_x(); x++ )
             {
-                dst.at(x,y,z) = src1.at(x,y,z) - src2.at(x,y,z);
+                dst.at(x,y,z) = T3(src1.at(x,y,z) - src2.at(x,y,z));
             }
         }
     }

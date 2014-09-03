@@ -67,7 +67,7 @@ template <> struct TypeInfo <unsigned short>
 {
     static std::string str()
     {
-        return "unsigned short";
+        return "ushort";
     }
     static int CV_TYPE()
     {
@@ -79,7 +79,7 @@ template <> struct TypeInfo <unsigned char>
 {
     static std::string str()
     {
-        return "unsigned char";
+        return "uchar";
     }
     static int CV_TYPE()
     {

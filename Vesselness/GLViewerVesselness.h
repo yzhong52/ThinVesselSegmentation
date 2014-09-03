@@ -1,7 +1,7 @@
 #ifndef GLVIWERVESSELNESS_H
 #define GLVIWERVESSELNESS_H
 
-#include "GLViwerCore.h"
+#include "GLViewerCore.h"
 #include "GLDirection.h"
 
 class GLViewerVesselness : public GLViewerCore {
