@@ -1,5 +1,6 @@
 #define _CRT_SECURE_NO_DEPRECATE
 #include <iostream>
+#include <fstream>
 
 #include <opencv2/core/core.hpp>
 
@@ -23,34 +24,38 @@ namespace sample_code
 // Compute vesselness measure
 int vesselness( bool isDisplay, std::string dataname = "data15", short threshold = 2900 );
 
-// Extract Vessel centrelines with non-maximum suppression
+// Extract Vessel centerlines with non-maximum suppression
 int centreline( bool isDisplay, std::string dataname = "data15" );
 }
 
 int main(void)
 {
-    // Force the linking of OpenCV libraries
+    // TODO: Force the linking of OpenCV libraries
     Mat temp = Mat(10, 10, CV_8UC3);
     cv::imshow( "", temp );
 
-    // ROI16
+    // default data name
+    string dataname = "../data/data15";
+    bool isDispalyVesselness = false;
+    bool isDispalyCenterline = true;
 
-    const string dataname = "../temp/vessel3d_rd_sp";
+    // Update settings from 'arguments.txt' file
+    ifstream arguments( "arguments.txt" );
+    if( arguments.is_open() )
+    {
+        string temp;
 
-    /*
-    Image3D<short> im_data;
-    im_data.load( "../temp/vessel3d_rd_sp.data" );
-    im_data.setROI( );
-    im_data.saveROI( dataname + ".data" );
+        arguments >> temp;
+        if( temp=="-dataname")
+        {
+            arguments.get(); // remove a white space
+            std::getline( arguments, dataname );
+        }
+    }
 
-    viewer.addObject( im_data.getROI(),  GLViewer::Volumn::MIP );
-    viewer.display(600, 400, 1);
 
-    return 0;
-    /**/
-
-    sample_code::vesselness( false, dataname, 2900 );
-    sample_code::centreline( true,  dataname );
+    sample_code::vesselness( isDispalyVesselness, dataname, 2900 );
+    sample_code::centreline( isDispalyCenterline, dataname );
     return 0;
 }
 

@@ -309,9 +309,9 @@ void tree_from_critical_points( const ModelSet& models, Graph<Edge, cv::Vec3d>& 
 int main( int argc , char *argv[] )
 {
     // orignal data
-    string dataname  = "../temp/roi16";
+    string dataname  = "../temp/data15";
     // models after model fitting
-    string modelname = "../temp/roi16_269_202_269";
+    string modelname = "../temp/data15_134_113_116";
     // a mask to be ignore during mst computation
     string maskname  = "N/A";
 
@@ -359,7 +359,7 @@ int main( int argc , char *argv[] )
     GLViewer::GLLineModel *model_obj = new GLViewer::GLLineModel( modelset.labelID3d.get_size() );
     model_obj->updatePoints( modelset.tildaP );
     model_obj->updateModel( modelset.lines, modelset.labelID );
-    // vis.objs.push_back( model_obj );
+    vis.objs.push_back( model_obj );
 
     // A mask to be ignored while computing minimum spanning tree
     Image3D<unsigned char> mask;
@@ -369,7 +369,6 @@ int main( int argc , char *argv[] )
     Image3D<short> im_short;
     flag = im_short.load( dataname + ".data" );
     if( !flag ) return 0;
-    im_short.shrink_by_half();
     vis.addObject( im_short,  GLViewer::Volumn::MIP );
     /**/
 
@@ -377,20 +376,17 @@ int main( int argc , char *argv[] )
     Image3D<Vesselness_Sig> vn_sig;
     flag = vn_sig.load( dataname + ".vn_sig" );
     if( !flag ) return 0;
-    Image3D<float> vn_float;
-    vn_sig.copyDimTo( vn_float, 0 );
-    vn_float.shrink_by_half();
-    vis.addObject( vn_float,  GLViewer::Volumn::MIP );
+    vis.addObject( vn_sig,  GLViewer::Volumn::MIP );
     /**/
 
-    //*
+    /*
     Data3D<Vesselness_Sig> vn_sig_et;
     flag = vn_sig_et.load( dataname + ".et.vn_sig" );
     if( !flag ) return 0;
-    //vis.addObject( vn_sig_et,  GLViewer::Volumn::MIP );
+    vis.addObject( vn_sig_et,  GLViewer::Volumn::MIP );
     /**/
 
-    //*
+    /*
     ModelSet modelset_org;
     modelset_org.init_one_model_per_point( vn_sig_et );
     GLViewer::GLLineModel *modelset_org_obj = nullptr;
@@ -401,7 +397,7 @@ int main( int argc , char *argv[] )
     /**/
 
 
-    /*
+    //*
     Graph<Edge, cv::Vec3d> tree1;
     DisjointSet djs1;
     ComputeMST::neighborhood_graph( modelset, mask, tree1, djs1 );
@@ -411,7 +407,7 @@ int main( int argc , char *argv[] )
     vis.objs.push_back( mstobj1 );
     /**/
 
-    /*
+    //*
     Graph<Edge, cv::Vec3d> tree3;
     DisjointSet djs3;
     ComputeMST::from_threshold_graph( modelset, mask, tree3, djs3 );

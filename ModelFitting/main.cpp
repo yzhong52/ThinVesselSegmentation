@@ -50,10 +50,53 @@ int main(int argc, char* argv[])
     Mat temp = Mat(10, 10, CV_8UC3);
     cv::imshow( "", temp );
 
-    const bool isThined = true;
-    const bool isDisplay = true;
-    // experiments::start_levenberg_marquardt("../temp/vessel3d_rd_sp", isThined, isDisplay );
-    experiments::show_levenberg_marquardt_result( "../temp/vessel3d_rd_sp_585_525_892" );
+    // default settings
+    string dataname = "../temp/data15";
+    bool runLevenbergMarquardt = true;
+    bool isThined = true;
+    bool isDisplay = true;
+
+    // Update settings from 'arguments.txt' file
+    ifstream arguments( "arguments.txt" );
+    if( arguments.is_open() )
+    {
+        string temp;
+
+        arguments >> temp;
+        if( temp=="-dataname")
+        {
+            arguments.get(); // remove a white space
+            std::getline( arguments, dataname );
+        }
+
+        arguments >> temp;
+        if( temp=="-runLevenbergMarquardt")
+        {
+            arguments >> runLevenbergMarquardt;
+        }
+
+        arguments >> temp;
+        if( temp=="-isThined")
+        {
+            arguments >> isThined;
+        }
+
+        arguments >> temp;
+        if( temp=="-isDisplay")
+        {
+            arguments >> isDisplay;
+        }
+    }
+
+
+    if( runLevenbergMarquardt ){
+        // Run Levenberg marquardt algorithm
+        experiments::start_levenberg_marquardt( dataname, isThined, isDisplay );
+    } else {
+        // Display result of Levenberg Marquardt only
+        experiments::show_levenberg_marquardt_result( dataname );
+    }
+
     return 0;
 }
 
