@@ -407,7 +407,7 @@ int main( int argc , char *argv[] )
     vis.objs.push_back( mstobj1 );
     /**/
 
-    //*
+    /*
     Graph<Edge, cv::Vec3d> tree3;
     DisjointSet djs3;
     ComputeMST::from_threshold_graph( modelset, mask, tree3, djs3 );

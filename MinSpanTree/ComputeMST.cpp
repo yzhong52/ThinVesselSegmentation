@@ -102,7 +102,7 @@ void ComputeMST::neighborhood_graph( const ModelSet& models,
                                      MST::Graph<MST::Edge, cv::Vec3d>& tree,
                                      DisjointSet& djs )
 {
-    cout << "Compute MST Begin (from neighborhood graph)" << endl;
+    cout << "Compute MST Begin (from neighborhood graph)..." << endl;
 
     Graph<Edge, cv::Vec3d> graph;
     create_graph_nodes( models, graph );
@@ -126,6 +126,13 @@ void ComputeMST::neighborhood_graph( const ModelSet& models,
 
             const Vec3d proj1 = line1->projection( pos1 );
             const Vec3d proj2 = line2->projection( pos2 );
+
+            // Yuchen TODO: REMOVE
+            //*
+            if( proj1[2] < models.labelID3d.SZ()/3 ) continue;
+            if( proj2[2] < models.labelID3d.SZ()/3 ) continue;
+            /**/
+
             const Vec3d direction = proj1 - proj2;
             const double dist = sqrt( direction.dot( direction ) );
 
@@ -138,8 +145,8 @@ void ComputeMST::neighborhood_graph( const ModelSet& models,
 
     // Determine critical points which are connected to at most one
     // other points
-    vector<int> critical_points;
-    vector<int> neighbor_counts( tree.num_nodes(), 0 );
+    vector<unsigned> critical_points;
+    vector<unsigned> neighbor_counts( tree.num_nodes(), 0 );
     for( unsigned int i=0; i<tree.num_edges(); i++ ){
         const Edge &e = tree.get_edge( i );
         neighbor_counts[ e.node1 ]++;
@@ -151,6 +158,8 @@ void ComputeMST::neighborhood_graph( const ModelSet& models,
             critical_points.push_back( i );
         }
     }
+
+    cout << "\t Number of critical points: " << critical_points.size() << endl;
 
     // Add more edges to the graph based on the tree
     graph = tree;
@@ -169,7 +178,7 @@ void ComputeMST::neighborhood_graph( const ModelSet& models,
             cout.flush();
         }
 
-        const int i = critical_points[k];
+        const unsigned i = critical_points[k];
 
         for( unsigned j=0; j<graph.num_nodes(); j++ )
         {
@@ -186,7 +195,7 @@ void ComputeMST::neighborhood_graph( const ModelSet& models,
             const Vec3d& proj2 = graph.get_node( j );
 
             // Yuchen TODO: REMOVE
-            /*
+            //*
             if( proj1[2] < models.labelID3d.SZ()/3 ) continue;
             if( proj2[2] < models.labelID3d.SZ()/3 ) continue;
             /**/
