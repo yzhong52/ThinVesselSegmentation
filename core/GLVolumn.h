@@ -48,10 +48,13 @@ private:
     // Reference to the camera
     GLCamera* ptrCam;
 
+    float scale;
+
 public:
     Volumn(unsigned char* im_data,
            const int& im_x, const int& im_y, const int& im_z,
-           GLCamera* ptrCamera );
+           GLCamera* ptrCamera,
+           float scale = 1.0f );
 
     ~Volumn();
 

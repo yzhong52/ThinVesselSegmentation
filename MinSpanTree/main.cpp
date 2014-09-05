@@ -320,26 +320,16 @@ int main( int argc , char *argv[] )
     if( arguments.is_open() )
     {
         string temp;
-
-        arguments >> temp;
-        if( temp=="-dataname")
-        {
-            arguments.get(); // remove a white space
-            std::getline( arguments, dataname );
-        }
-
-        arguments >> temp;
-        if( temp=="-modelname")
-        {
-            arguments.get(); // remove a white space
-            std::getline( arguments, modelname );
-        }
-
-        arguments >> temp;
-        if( temp=="-maskname" ){
-            arguments.get(); // remove a white space
-            std::getline( arguments, maskname );
-        }
+        do{
+            arguments >> temp;
+            if( temp=="-dataname") {
+                arguments >> dataname;
+            } else if( temp=="-modelname") {
+                arguments >> modelname;
+            } else if ( temp=="-maskname" ){
+                arguments >> maskname;
+            }
+        } while( !arguments.eof() );
     }
 
 
@@ -359,11 +349,12 @@ int main( int argc , char *argv[] )
     GLViewer::GLLineModel *model_obj = new GLViewer::GLLineModel( modelset.labelID3d.get_size() );
     model_obj->updatePoints( modelset.tildaP );
     model_obj->updateModel( modelset.lines, modelset.labelID );
-    vis.objs.push_back( model_obj );
+    // vis.objs.push_back( model_obj );
 
     // A mask to be ignored while computing minimum spanning tree
     Image3D<unsigned char> mask;
     if( maskname!="N/A" ) mask.load( maskname+".data" );
+    vis.addObject( mask,  GLViewer::Volumn::MIP );
 
     //*
     Image3D<short> im_short;
@@ -424,7 +415,7 @@ int main( int argc , char *argv[] )
     vis.objs.push_back( mstobj_org );
     /**/
 
-    vis.display( 1280, 800, 2 );
+    vis.display( 1280, 800, 8 );
 
     return 0;
 }

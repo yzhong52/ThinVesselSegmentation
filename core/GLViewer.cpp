@@ -242,7 +242,9 @@ void reset_projection(void)
     if ( numViewports==1 || numViewports==4 )
     {
         ratio = (GLfloat)width / (GLfloat)height;
-    } else if( numViewports==8 ){
+    }
+    else if( numViewports==8 )
+    {
         ratio = (GLfloat)width / (GLfloat)height / 2;
     }
     else

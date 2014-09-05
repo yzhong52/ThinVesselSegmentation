@@ -117,6 +117,10 @@ public:
     {
         return _size;
     }
+    inline const bool is_empty( void ) const
+    {
+        return get_size_total()==0;
+    }
 
     // getters about values of the data
     virtual const inline T& at( const int& i ) const
@@ -246,6 +250,9 @@ public:
     {
         return (T*) getMat().data;
     }
+
+    // shink image
+    void shrink_by_half(void);
 
 protected:
     // Maximum size of the x, y and z direction respetively.
@@ -735,3 +742,38 @@ void Data3D<T>::remove_margin_to( const cv::Vec3i& size )
     const cv::Vec3i right( (int) ceil(1.0f*(SX()-size[0])/2),  (int) ceil(1.0f*(SY()-size[1])/2), (int) ceil(1.0f*(SZ()-size[2])/2)) ;
     remove_margin( left, right );
 }
+
+
+template<typename T>
+void Data3D<T>::shrink_by_half(void)
+{
+    smart_assert( this->_size_total, "Image data is not set. ");
+
+    cv::Vec3i n_size = (Data3D<T>::_size - cv::Vec3i(1,1,1)) / 2; // TODO: why do I have to minute cv::Vec3i(1,1,1) here?
+    int n_size_slice = n_size[0] * n_size[1];
+    int n_size_total = n_size_slice * n_size[2];
+
+    // We need to add two short number, which may result in overflow.
+    // Therefore, we use CV_64S for safety
+    cv::Mat n_mat = cv::Mat( n_size[2], n_size_slice, Data3D<T>::_mat.type(), cv::Scalar(0) );
+    int i, j, k;
+    for( k=0; k<n_size[2]; k++ )
+    {
+        for( j=0; j<n_size[1]; j++ )
+        {
+            for( i=0; i<n_size[0]; i++ )
+            {
+                n_mat.at<T>(k, j*n_size[0]+i)  = T( 0.25 * Data3D<T>::_mat(2*k,     2 * j * Data3D<T>::_size[0] + 2 * i) );
+                n_mat.at<T>(k, j*n_size[0]+i) += T( 0.25 * Data3D<T>::_mat(2*k,     2 * j * Data3D<T>::_size[0] + 2 * i + 1) );
+                n_mat.at<T>(k, j*n_size[0]+i) += T( 0.25 * Data3D<T>::_mat(2*k + 1, 2 * j * Data3D<T>::_size[0] + 2 * i) );
+                n_mat.at<T>(k, j*n_size[0]+i) += T( 0.25 * Data3D<T>::_mat(2*k + 1, 2 * j * Data3D<T>::_size[0] + 2 * i + 1) );
+            }
+        }
+    }
+    Data3D<T>::_mat = n_mat;
+
+    Data3D<T>::_size = n_size;
+    Data3D<T>::_size_slice = n_size_slice;
+    Data3D<T>::_size_total = n_size_total;
+}
+

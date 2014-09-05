@@ -1,17 +1,14 @@
 #include "GLVolumn.h"
 
+using namespace std;
 
 namespace GLViewer
 {
 
 Volumn::Volumn( unsigned char* im_data,
-                const int& im_x,
-                const int& im_y,
-                const int& im_z, GLCamera* ptrCamera )
-    : sx( im_x )
-    , sy( im_y )
-    , sz( im_z )
-    , ptrCam( ptrCamera )
+                const int& im_x, const int& im_y, const int& im_z,
+                GLCamera* ptrCamera, float s )
+    : sx( im_x ), sy( im_y ), sz( im_z ), ptrCam( ptrCamera ), scale( s )
 {
     /* From wikipedia: Do not forget that all 3 dimensions must be a power
        of 2! so your 2D textures must have the same size and this size be
@@ -27,7 +24,7 @@ Volumn::Volumn( unsigned char* im_data,
     data = new (std::nothrow) unsigned char [ texture_size ];
     if( !data )
     {
-        std::cout << "Unable to allocate memory for OpenGL texture" << std::endl;
+        cout << "Unable to allocate memory for OpenGL texture" << endl;
         return;
     }
 
@@ -38,7 +35,8 @@ Volumn::Volumn( unsigned char* im_data,
         {
             for( int x=0; x<sx; x++ )
             {
-                data[ z*texture_sy*texture_sx + y*texture_sx + x] = im_data[ z*sy*sx + y*sx + x];
+                data[ z*texture_sy*texture_sx + y*texture_sx + x]
+                    = im_data[ z*sy*sx + y*sx + x];
             }
         }
     }
@@ -66,17 +64,17 @@ void Volumn::setRenderMode( RenderMode mode )
         glEnable(GL_BLEND);
         glBlendFunc(GL_ONE, GL_ONE);
         glBlendEquation( GL_MAX_EXT );
-        std::cout << "Volumn Rendeing Mode is set to MIP" << std::endl;
+        cout << "Volumn Rendeing Mode is set to MIP" << endl;
         break;
     case CrossSection:
         glEnable(GL_DEPTH_TEST);
         glDisable(GL_BLEND);
-        std::cout << "Volumn Rendeing Mode is set to CrossSection" << std::endl;
+        cout << "Volumn Rendeing Mode is set to CrossSection" << endl;
         break;
     case Surface:
         glEnable(GL_DEPTH_TEST);
         glDisable(GL_BLEND);
-        std::cout << "Volumn Rendeing Mode is set to Surface" << std::endl;
+        cout << "Volumn Rendeing Mode is set to Surface" << endl;
         break;
     }
     render_mode = mode;
@@ -84,7 +82,8 @@ void Volumn::setRenderMode( RenderMode mode )
 
 
 
-std::vector<cv::Vec3f> Volumn::intersectPoints( const cv::Vec3f& center, const cv::Vec3f& norm )
+std::vector<cv::Vec3f> Volumn::intersectPoints( const cv::Vec3f& center,
+        const cv::Vec3f& norm )
 {
     float t;
     std::vector<cv::Vec3f> result;
@@ -155,11 +154,11 @@ std::vector<cv::Vec3f> Volumn::intersectPoints( const cv::Vec3f& center, const c
     }
     else if( result.size()==3 )
     {
-        // don't need to do anything
+        // This is a triangle. We don't need to do anything.
     }
     else if( result.size()<=6 )
     {
-        // sort them based on signed angle:
+        // Sort them based on signed angle:
         // http://stackoverflow.com/questions/20387282/compute-the-cross-section-of-a-cube
 
         cv::Vec3f centroid(0,0,0);
@@ -265,6 +264,9 @@ void Volumn::render_volumn( const float& dx,
                             const float& dy,
                             const float& dz )
 {
+    glPushMatrix();
+    glScalef( scale, scale, scale );
+
     glBindTexture(GL_TEXTURE_3D, texture);
     glBegin(GL_QUADS);
     for( float i=0.0f; i<=sx-1; i+=dx )
@@ -336,6 +338,8 @@ void Volumn::render_volumn( const float& dx,
     }
     glEnd();
     glBindTexture( GL_TEXTURE_3D, 0 );
+
+    glPopMatrix();
 }
 
 void Volumn::render_outline(void)
@@ -381,9 +385,9 @@ void Volumn::render(void)
         /* Visualizing the data with Maximum Intensity Projection (MIP). */
         glColor3f( 1.0f, 1.0f, 1.0f );
 
-        float dx = this->size_x() / 80;
-        float dy = this->size_y() / 80;
-        float dz = this->size_z() / 80;
+        float dx = this->size_x() / 150;
+        float dy = this->size_y() / 150;
+        float dz = this->size_z() / 150;
 
         /* The number of slices is based on scale. A finner detail is shown
            while we zoom in and vice versa. */
@@ -419,9 +423,12 @@ void Volumn::render(void)
         center[0] = ptrCam->t[0];
         center[1] = ptrCam->t[1];
         center[2] = ptrCam->t[2];
-        vz[0] = ptrCam->vec_x[1]*ptrCam->vec_y[2] - ptrCam->vec_x[2]*ptrCam->vec_y[1];
-        vz[1] = ptrCam->vec_x[2]*ptrCam->vec_y[0] - ptrCam->vec_x[0]*ptrCam->vec_y[2];
-        vz[2] = ptrCam->vec_x[0]*ptrCam->vec_y[1] - ptrCam->vec_x[1]*ptrCam->vec_y[0];
+        vz[0] = ptrCam->vec_x[1]*ptrCam->vec_y[2]
+                - ptrCam->vec_x[2]*ptrCam->vec_y[1];
+        vz[1] = ptrCam->vec_x[2]*ptrCam->vec_y[0]
+                - ptrCam->vec_x[0]*ptrCam->vec_y[2];
+        vz[2] = ptrCam->vec_x[0]*ptrCam->vec_y[1]
+                - ptrCam->vec_x[1]*ptrCam->vec_y[0];
         /* Get the cross section of cube. It can be a point, a line, a triangle,
            a rectangle, a pentagon, a hexagon and etc. */
         std::vector<cv::Vec3f> points = intersectPoints( center, vz );

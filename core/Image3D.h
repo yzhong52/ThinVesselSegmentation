@@ -24,8 +24,6 @@ public:
     inline bool saveData( const std::string& file_name, bool isBigEndian = true );
     //2D display
     inline void showSlice(int i, const std::string& name = "Image Data" );
-    // shink image
-    void shrink_by_half(void);
 
 public:
     ///////////////////////////////////////////////////////////////
@@ -70,7 +68,6 @@ public:
         // convert back to CV_8U
         mat_temp.convertTo(mat_temp, CV_8U);
         return mat_temp;
-        // smart_assert( 0, "deprecated" );
     }
 
     // get one slice of data
@@ -98,7 +95,9 @@ private:
     // Before calling the following function, make sure that the roi_corner[2] are
     // set properly. And then call the function as
     //		set_roi_from_image( roi_corner[0], roi_corner[1], is_roi_set );
-    bool set_roi_from_image(const cv::Vec3i& corner1, const cv::Vec3i& coner2, bool& is_roi_set );
+    bool set_roi_from_image(const cv::Vec3i& corner1,
+                            const cv::Vec3i& coner2,
+                            bool& is_roi_set );
 };
 
 
@@ -467,32 +466,6 @@ void Image3D<T>::showSlice(int i, const std::string& name )
     cv::waitKey(0);
 }
 
-template<typename T>
-void Image3D<T>::shrink_by_half(void)
-{
-    smart_assert( this->_size_total, "Image data is not set. ");
-
-    cv::Vec3i n_size = (Data3D<T>::_size - cv::Vec3i(1,1,1)) / 2; // TODO: why do I have to minute cv::Vec3i(1,1,1) here?
-    int n_size_slice = n_size[0] * n_size[1];
-    int n_size_total = n_size_slice * n_size[2];
-
-    // We need to add two short number, which may result in overflow.
-    // Therefore, we use CV_64S for safety
-    cv::Mat n_mat = cv::Mat( n_size[2], n_size_slice, Data3D<T>::_mat.type(), cv::Scalar(0) );
-    int i, j, k;
-    for( k=0; k<n_size[2]; k++ ) for( j=0; j<n_size[1]; j++ ) for( i=0; i<n_size[0]; i++ )
-            {
-                n_mat.at<T>(k, j*n_size[0]+i)  = T( 0.25 * Data3D<T>::_mat(2*k,     2 * j * Data3D<T>::_size[0] + 2 * i) );
-                n_mat.at<T>(k, j*n_size[0]+i) += T( 0.25 * Data3D<T>::_mat(2*k,     2 * j * Data3D<T>::_size[0] + 2 * i + 1) );
-                n_mat.at<T>(k, j*n_size[0]+i) += T( 0.25 * Data3D<T>::_mat(2*k + 1, 2 * j * Data3D<T>::_size[0] + 2 * i) );
-                n_mat.at<T>(k, j*n_size[0]+i) += T( 0.25 * Data3D<T>::_mat(2*k + 1, 2 * j * Data3D<T>::_size[0] + 2 * i + 1) );
-            }
-    Data3D<T>::_mat = n_mat;
-
-    Data3D<T>::_size = n_size;
-    Data3D<T>::_size_slice = n_size_slice;
-    Data3D<T>::_size_total = n_size_total;
-}
 
 template<typename T>
 bool Image3D<T>::set_roi_from_image(const cv::Vec3i& corner1, const cv::Vec3i& corner2, bool& is_roi_set )
