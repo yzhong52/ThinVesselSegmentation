@@ -378,12 +378,32 @@ void Volumn::render(void)
 {
     if( render_mode == MIP )
     {
-        /* Visualizing the data with Maximum Intensity Projection (MIP).
-           IT is a very expensive visualization technique. The number of
-           slices is based on scale. A finner detail is shown while we zoom
-           in and vice versa. */
+        /* Visualizing the data with Maximum Intensity Projection (MIP). */
         glColor3f( 1.0f, 1.0f, 1.0f );
-        render_volumn();
+
+        float dx = this->size_x() / 80;
+        float dy = this->size_y() / 80;
+        float dz = this->size_z() / 80;
+
+        /* The number of slices is based on scale. A finner detail is shown
+           while we zoom in and vice versa. */
+        dx /= this->ptrCam->scale;
+        dy /= this->ptrCam->scale;
+        dz /= this->ptrCam->scale;
+
+        /* Show more number of slices toward the direction where the
+           camera is looking at. */
+        const cv::Vec3f vx( this->ptrCam->vec_x );
+        const cv::Vec3f vy( this->ptrCam->vec_y );
+        const cv::Vec3f vz = vx.cross( vy );
+        const float sx = std::abs( vz[0] );
+        const float sy = std::abs( vz[1] );
+        const float sz = std::abs( vz[2] );
+        dx = dx * sx + dx * 4 * ( 1- sx );
+        dy = dy * sy + dy * 4 * ( 1- sy );
+        dz = dz * sz + dz * 4 * ( 1- sz );
+
+        render_volumn( dx, dy, dz );
 
         // draw a frame of the volumn
         glColor3f( 0.2f, 0.2f, 0.2f );

@@ -397,7 +397,7 @@ int main( int argc , char *argv[] )
     /**/
 
 
-    /*
+    //*
     Graph<Edge, cv::Vec3d> tree1;
     DisjointSet djs1;
     ComputeMST::neighborhood_graph( modelset, mask, tree1, djs1 );

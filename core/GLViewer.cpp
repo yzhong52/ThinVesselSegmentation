@@ -142,9 +142,9 @@ void mouse_click(int button, int state, int x, int y)
         static int mouse_down_y;
         if(state == GLUT_DOWN)
         {
-            // The camera is already rotating around the center of the scence,
-            // The original rotation speed is zero. Rotatio speed is updated with
-            // mouse click (left button).
+            /* The camera is already rotating around the center of the
+               scence. The original rotation speed is zero. Rotatio speed
+               is updated with mouse click (left button). */
             camera.setNavigationMode( GLCamera::Rotate );
             mouse_pos_x = x;
             mouse_pos_y = y;
@@ -159,14 +159,14 @@ void mouse_click(int button, int state, int x, int y)
             // Double click to stop camera rotation
             if( mouse_down_x==x && mouse_down_y==y )
             {
-                // if the user click and release the mouse at the same point
+                // If the user click and release the mouse at the same point
                 camera.setRotation( 0, 0 ); // stop rotation
             }
         }
     }
     else if(button == GLUT_RIGHT_BUTTON)     // mouse right button
     {
-        // right click to navigate the scene (moving up, down, left or right)
+        // Right click to navigate the scene (moving up, down, left or right)
         if( state == GLUT_DOWN )
         {
             camera.setNavigationMode( GLCamera::MoveAside );
@@ -180,7 +180,7 @@ void mouse_click(int button, int state, int x, int y)
     }
     else if( button==GLUT_MIDDLE_BUTTON )     // center button
     {
-        // click with middle buttong to navigate the scene (forward or backward)
+        // Click with middle buttong to navigate the scene (forward or backward)
         if( state == GLUT_DOWN )
         {
             camera.setNavigationMode( GLCamera::MoveForward );

@@ -51,7 +51,7 @@ private:
 public:
     Volumn(unsigned char* im_data,
            const int& im_x, const int& im_y, const int& im_z,
-           GLCamera* ptrCamera = NULL );
+           GLCamera* ptrCamera );
 
     ~Volumn();
 

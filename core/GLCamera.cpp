@@ -63,12 +63,13 @@ GLCamera::GLCamera(const float& rotate_speed)
     navigationMode = None;
 
     // rotation axis
-    vec_y[0] = 0;
-    vec_y[1] = 1;
-    vec_y[2] = 0;
     vec_x[0] = 1;
     vec_x[1] = 0;
     vec_x[2] = 0;
+
+    vec_y[0] = 0;
+    vec_y[1] = 1;
+    vec_y[2] = 0;
 
     // translation
     t[0] = t[1] = t[2] = 0;

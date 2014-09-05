@@ -154,12 +154,15 @@ void ComputeMST::neighborhood_graph( const ModelSet& models,
     }
 
     for( unsigned i=0; i<neighbor_counts.size(); i++ ){
-        if( neighbor_counts[i]!=1 ) {
+        if( neighbor_counts[i]==1 ) {
             critical_points.push_back( i );
         }
     }
 
-    cout << "\t Number of critical points: " << critical_points.size() << endl;
+    cout << "\t Number of critical points: ";
+    cout << critical_points.size() << endl;
+    cout << "\t Number of nodes in the graph: ";
+    cout << graph.num_nodes() << endl;
 
     // Add more edges to the graph based on the tree
     graph = tree;

@@ -29,7 +29,6 @@ int main( void )
     // Loading data
     Data3D<short> im_short;
     bool flag = im_short.load( "../data/data15.data" );
-    // bool flag = im_short.load( "../temp/vessel3d_rd_sp.data" );
     if( !flag ) return 0;
 
     GLViewerCore viewer;
