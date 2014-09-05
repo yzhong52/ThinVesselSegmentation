@@ -365,7 +365,7 @@ int main( int argc , char *argv[] )
     Image3D<unsigned char> mask;
     if( maskname!="N/A" ) mask.load( maskname+".data" );
 
-    /*
+    //*
     Image3D<short> im_short;
     flag = im_short.load( dataname + ".data" );
     if( !flag ) return 0;
@@ -397,7 +397,7 @@ int main( int argc , char *argv[] )
     /**/
 
 
-    //*
+    /*
     Graph<Edge, cv::Vec3d> tree1;
     DisjointSet djs1;
     ComputeMST::neighborhood_graph( modelset, mask, tree1, djs1 );
@@ -416,7 +416,6 @@ int main( int argc , char *argv[] )
     vis.objs.push_back( mstobj3 );
     /**/
 
-
     /*
     Graph<Edge, cv::Vec3d> tree_ori;
     tree_from_neighborhood( models_org, tree_ori );
@@ -425,7 +424,7 @@ int main( int argc , char *argv[] )
     vis.objs.push_back( mstobj_org );
     /**/
 
-    vis.display( 1280, 800, 3 );
+    vis.display( 1280, 800, 2 );
 
     return 0;
 }

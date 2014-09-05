@@ -1,6 +1,6 @@
 #include <iostream>
 #include "Data3D.h"
-#include "GLViwerCore.h"
+#include "GLViewerCore.h"
 #include "CVPlot.h"
 
 using namespace std;
@@ -8,7 +8,8 @@ using namespace cv;
 
 int main( void )
 {
-    /*/ draw a plot using CVPLOT
+    // draw a plot using CVPLOT
+    /*
     vector<double> func1;
     func1.push_back(5);
     func1.push_back(4);
@@ -28,6 +29,7 @@ int main( void )
     // Loading data
     Data3D<short> im_short;
     bool flag = im_short.load( "../data/data15.data" );
+    // bool flag = im_short.load( "../temp/vessel3d_rd_sp.data" );
     if( !flag ) return 0;
 
     GLViewerCore viewer;

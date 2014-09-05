@@ -162,7 +162,8 @@ void ImageProcessing::dilate( Data3D<unsigned char>& src, const int& ks )
                     {
                         for( k=-ks; k<=ks; k++ )
                         {
-                            if( temp.isValid(x+i,y+j,z+k) ) {
+                            if( temp.isValid(x+i,y+j,z+k) )
+                            {
                                 temp.at(x+i,y+j,z+k) = 255;
                             }
                         }

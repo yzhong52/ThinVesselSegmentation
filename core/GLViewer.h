@@ -25,7 +25,7 @@ extern GLCamera camera;
 // number of viewports
 extern int numViewports;
 
-// given a list of objects, display then using OpenGL
+// Display a given list of 'objects' in a windows of size ['w', 'h']
 void dispay( std::vector<Object*> objects, int w=1280, int h = 720  );
 
 // API for start capture a video clip

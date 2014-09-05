@@ -55,22 +55,26 @@ bool isSaveFrame = false;
 
 void render(void)
 {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	// Clear The Screen And The Depth Buffer
+    // Clear The Screen And The Depth Buffer
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    // Rending objects
     camera.push_matrix();
-
-    // rending objects
-    if( numViewports == 4 )
+    if( numViewports==4 || numViewports==8 )
     {
-        // if there are 4 viewports, display the objects in two rows
-        // each row with 2 columns
-        for( unsigned int i=0; i<2; i++ )
+        // If there are 4 or 8 viewports, display the objects in two rows
+        const unsigned numObjRow = numViewports/2;
+        const unsigned numObjCol = 2;
+        // viewport width and height
+        const unsigned w = width / numObjRow;
+        const unsigned h = height / numObjCol;
+        for( unsigned int j=0; j<numObjCol; j++ )
         {
-            for( unsigned int j=0; j<2; j++ )
+            for( unsigned int i=0; i<numObjRow; i++ )
             {
-                glViewport (width/2*i, height/2*j, width/2, height/2);
+                glViewport(w*i, h*j, w, h);
 
-                unsigned int vp_index = i + 2*(1-j);
+                unsigned int vp_index = i + numObjRow*(1-j);
 
                 for( unsigned int obj_index=0; obj_index<obj.size(); obj_index++ )
                 {
@@ -84,7 +88,7 @@ void render(void)
     }
     else
     {
-        // if there are 1, 2, or 3 view ports, display then in a row
+        // If there are 1, 2, or 3 view ports, display then in a row
         for( int i=0; i<numViewports; i++ )
         {
             // For view port i
@@ -228,15 +232,18 @@ void reset_projection(void)
 {
     // Select The Projection Transformation
     glMatrixMode(GL_PROJECTION);
+
     // Reset The Projection Matrix
     glLoadIdentity();
 
     GLfloat maxVal = max( sx, max(sy, sz) ) * 0.8f;
 
     GLfloat ratio = 1;
-    if ( numViewports==4 )
+    if ( numViewports==1 || numViewports==4 )
     {
         ratio = (GLfloat)width / (GLfloat)height;
+    } else if( numViewports==8 ){
+        ratio = (GLfloat)width / (GLfloat)height / 2;
     }
     else
     {

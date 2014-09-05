@@ -15,7 +15,7 @@ public:
 
     ////////////////////////////////////////////////////
     // Pure virtual functions
-    // you have to implement these virtual functions in order to render it
+    // You have to implement these virtual functions in order to render it
     // with GLViewer
     ////////////////////////////////////////////////////
 

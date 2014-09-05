@@ -92,7 +92,7 @@ void edge_tracing_mst( Data3D<Vesselness_All>& src, Data3D<Vesselness_Sig>& dst,
 // Morphological Operations
 // dilation, erosion, closing
 void dilate(Data3D<unsigned char>& src, const int& k);
-    void erose( Data3D<unsigned char>& src, const int& k);
+void erose( Data3D<unsigned char>& src, const int& k);
 void closing( Data3D<unsigned char>& src, const int& k);
 }
 
