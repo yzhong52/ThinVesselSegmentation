@@ -397,13 +397,13 @@ int main( int argc , char *argv[] )
     /**/
 
 
-    //*
+    /*
     Graph<Edge, cv::Vec3d> tree1;
     DisjointSet djs1;
     ComputeMST::neighborhood_graph( modelset, mask, tree1, djs1 );
     GLViewer::GLMinSpanTree *mstobj1 = nullptr;
     mstobj1 = new GLViewer::GLMinSpanTree( tree1, djs1,
-                                      modelset.labelID3d.get_size(), 5 );
+                                      modelset.labelID3d.get_size(), 3 );
     vis.objs.push_back( mstobj1 );
     /**/
 

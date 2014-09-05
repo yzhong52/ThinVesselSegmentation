@@ -49,6 +49,7 @@
 			</Target>
 		</Build>
 		<Compiler>
+			<Add option="-std=c++11" />
 			<Add option="-fopenmp" />
 			<Add option="-Wno-comment" />
 			<Add option="`pkg-config --cflags opencv`" />
@@ -91,7 +92,7 @@
 		<Unit filename="GLViewer.h">
 			<Option virtualFolder="GLViewer/" />
 		</Unit>
-		<Unit filename="GLViwerCore.h">
+		<Unit filename="GLViewerCore.h">
 			<Option virtualFolder="GLViewer/" />
 		</Unit>
 		<Unit filename="GLVolumn.cpp">

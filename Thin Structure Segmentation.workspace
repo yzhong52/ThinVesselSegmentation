@@ -14,7 +14,9 @@
 			<Depends filename="SparseMatrixCV/SparseMatrixCV.cbp" />
 			<Depends filename="SparseMatrix/SparseMatrix.cbp" />
 		</Project>
-		<Project filename="MinSpanTree/MinSpanTree.cbp" />
+		<Project filename="MinSpanTree/MinSpanTree.cbp">
+			<Depends filename="core/core.cbp" />
+		</Project>
 		<Project filename="AortaSeg/AortaSeg.cbp">
 			<Depends filename="core/core.cbp" />
 		</Project>
