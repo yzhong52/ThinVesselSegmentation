@@ -203,9 +203,10 @@ void ComputeMST::neighborhood_graph( const ModelSet& models,
             if( proj2[2] < models.labelID3d.SZ()/3 ) continue;
             /**/
 
-            if( mask.SZ()!=0 ) {
-                if( mask.at(models.tildaP[i]) || mask.at(models.tildaP[j]) )
+            if( !mask.is_empty() ) {
+                if( mask.at(models.tildaP[i]) || mask.at(models.tildaP[j]) ){
                     continue;
+                }
             }
 
             const double dist = edge_weight_func( linei, proj1, linej, proj2 );

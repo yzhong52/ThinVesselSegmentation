@@ -352,19 +352,19 @@ int main( int argc , char *argv[] )
     // vis.objs.push_back( model_obj );
 
     // A mask to be ignored while computing minimum spanning tree
-    Image3D<unsigned char> mask;
+    Data3D<unsigned char> mask;
     if( maskname!="N/A" ) mask.load( maskname+".data" );
     vis.addObject( mask,  GLViewer::Volumn::MIP );
 
     //*
-    Image3D<short> im_short;
+    Data3D<short> im_short;
     flag = im_short.load( dataname + ".data" );
     if( !flag ) return 0;
     vis.addObject( im_short,  GLViewer::Volumn::MIP );
     /**/
 
     /*
-    Image3D<Vesselness_Sig> vn_sig;
+    Data3D<Vesselness_Sig> vn_sig;
     flag = vn_sig.load( dataname + ".vn_sig" );
     if( !flag ) return 0;
     vis.addObject( vn_sig,  GLViewer::Volumn::MIP );

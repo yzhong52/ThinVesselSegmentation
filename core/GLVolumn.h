@@ -95,15 +95,15 @@ public:
 
     unsigned int size_x() const
     {
-        return sx;
+        return sx * scale;
     }
     unsigned int size_y() const
     {
-        return sy;
+        return sy * scale;
     }
     unsigned int size_z() const
     {
-        return sz;
+        return sz * scale;
     }
 };
 

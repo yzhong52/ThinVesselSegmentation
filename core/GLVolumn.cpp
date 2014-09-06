@@ -264,8 +264,6 @@ void Volumn::render_volumn( const float& dx,
                             const float& dy,
                             const float& dz )
 {
-    glPushMatrix();
-    glScalef( scale, scale, scale );
 
     glBindTexture(GL_TEXTURE_3D, texture);
     glBegin(GL_QUADS);
@@ -339,7 +337,7 @@ void Volumn::render_volumn( const float& dx,
     glEnd();
     glBindTexture( GL_TEXTURE_3D, 0 );
 
-    glPopMatrix();
+
 }
 
 void Volumn::render_outline(void)
@@ -380,6 +378,10 @@ void Volumn::render_outline(void)
 
 void Volumn::render(void)
 {
+    glPushMatrix();
+    glScalef( scale, scale, scale );
+
+
     if( render_mode == MIP )
     {
         /* Visualizing the data with Maximum Intensity Projection (MIP). */
@@ -475,6 +477,8 @@ void Volumn::render(void)
         glColor3f( 0.2f, 0.2f, 0.2f );
         render_outline();
     }
+
+    glPopMatrix();
 }
 
 
