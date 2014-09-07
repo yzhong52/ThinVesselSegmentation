@@ -6,6 +6,7 @@
 
 #include "GLViewer.h"
 #include "MSTGraph.h"
+#include "MSTEdgeExt.h"
 
 namespace GLViewer
 {
@@ -13,7 +14,7 @@ namespace GLViewer
 class GLMinSpanTree : public GLViewer::Object
 {
 public:
-    GLMinSpanTree( const MST::Graph<MST::Edge, cv::Vec3d>& graph,
+    GLMinSpanTree( const MST::Graph<MST::EdgeExt, cv::Vec3d>& graph,
                    const DisjointSet& disjointset,
                    const cv::Vec3i& volume_size,
                    const int number_of_highlisht_branches = 2 );
@@ -44,7 +45,7 @@ public:
         glBlendEquation( GL_MAX_EXT );
     }
 private:
-    const MST::Graph<MST::Edge, cv::Vec3d>& graph;
+    const MST::Graph<MST::EdgeExt, cv::Vec3d>& graph;
     const DisjointSet& djs;
     const cv::Vec3i& size;
 

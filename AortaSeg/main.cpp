@@ -33,6 +33,17 @@ bool generating_segmentation(){
     cout << endl << endl << "Dialating the mask ...";
     cout.flush();
     IP::dilate( mask, 8 );
+
+    cout << endl << endl << "A third of the volume are marked as aorta...";
+    cout.flush();
+    for( int z=0; z<mask.SZ()/4; z++ ){
+        for( int y=0; y<mask.SY(); y++ ) {
+            for( int x=0; x<mask.SX(); x++ ) {
+                mask.at(x,y,z) = 255;
+            }
+        }
+    }
+
     mask.save( maskname );
 
     return true;
@@ -44,19 +55,16 @@ bool validating_segmentation(){
     Image3D<unsigned char> im_mask;
     flag = im_mask.load( maskname );
     if( !flag ) return 0;
-    im_mask.shrink_by_half();
 
     Image3D<short> im_short;
     flag = im_short.load( dataname + ".data" );
     if( !flag ) return 0;
-    im_short.shrink_by_half();
 
     Image3D<Vesselness_Sig> vn_sig;
     vn_sig.load( dataname + ".et.vn_sig" );
     if( !flag ) return 0;
     Image3D<float> vn_float, vn_float2;
     vn_sig.copyDimTo(vn_float, 0 );
-    vn_float.shrink_by_half();
     IP::masking( vn_float, im_mask, vn_float2 );
 
     cout << endl << endl << "Generating image with mask... ";

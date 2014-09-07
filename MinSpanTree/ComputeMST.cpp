@@ -3,7 +3,7 @@
 #include <iostream>
 #include <iomanip>      // std::setprecision
 
-#include "MSTEdge.h"
+#include "MSTEdgeExt.h"
 #include "DisjointSet.h"
 #include "../ModelFitting/Line3DTwoPoint.h"
 #include "../ModelFitting/Neighbour26.h"
@@ -17,13 +17,13 @@ double (*ComputeMST::edge_weight_func)( const Line3D*, const cv::Vec3d&,
     = ComputeMST::edge_weight_func_distance;
 
 void ComputeMST::from_threshold_graph( const ModelSet& models,
-                                      const Data3D<unsigned char>& mask,
-                                       Graph<Edge, cv::Vec3d>& tree,
+                                       const Data3D<unsigned char>& mask,
+                                       Graph<EdgeExt, cv::Vec3d>& tree,
                                        DisjointSet& djs )
 {
     cout << "Compute MST Begin (from_threshold_graph)" << endl;
 
-    Graph<Edge, cv::Vec3d> graph;
+    Graph<EdgeExt, cv::Vec3d> graph;
 
     /// compute the projection point add it to graph
     create_graph_nodes( models, graph );
@@ -55,16 +55,6 @@ void ComputeMST::from_threshold_graph( const ModelSet& models,
             const Vec3d& proj1 = graph.get_node( i );
             const Vec3d& proj2 = graph.get_node( j );
 
-            // Yuchen TODO: REMOVE
-            /*
-            if( proj1[2] < models.labelID3d.SZ()/3 ) continue;
-            if( proj2[2] < models.labelID3d.SZ()/3 ) continue;
-            /**/
-
-            if( mask.SZ()!=0 ) {
-                if( mask.at(models.tildaP[i]) || mask.at(models.tildaP[j]) )
-                    continue;
-            }
 
             const double dist = edge_weight_func( linei, proj1, linej, proj2 );
 
@@ -87,7 +77,9 @@ void ComputeMST::from_threshold_graph( const ModelSet& models,
 
             #pragma omp critical
             {
-                graph.add_edge( Edge(i, j, dist*weight ) );
+                graph.add_edge( EdgeExt(i, j,
+                                     dist*weight,
+                                     std::min(linei->getSigma(), linej->getSigma()) ) );
             }
         }
     }
@@ -99,62 +91,66 @@ void ComputeMST::from_threshold_graph( const ModelSet& models,
 
 void ComputeMST::neighborhood_graph( const ModelSet& models,
                                      const Data3D<unsigned char>& mask,
-                                     MST::Graph<MST::Edge, cv::Vec3d>& tree,
+                                     MST::Graph<MST::EdgeExt, cv::Vec3d>& tree,
                                      DisjointSet& djs )
 {
     cout << "Compute MST Begin (from neighborhood graph)..." << endl;
 
-    Graph<Edge, cv::Vec3d> graph;
+    Graph<EdgeExt, cv::Vec3d> graph;
     create_graph_nodes( models, graph );
 
     for( unsigned i=0; i<models.tildaP.size(); i++ )
     {
         for( int n=0; n<26; n++ )
         {
-            const int& lineid1 = models.labelID[i];
-            const Line3D* line1   = models.lines[lineid1];
+            // Current position
             const cv::Vec3i& pos1 = models.tildaP[i];
 
-            cv::Vec3i pos2;
-            Neighbour26::getNeigbour( n, pos1, pos2 );
-            if ( !models.labelID3d.isValid( pos2 ) ) continue;
+            // Neibhgour position
+            cv::Vec3i pos2 = Neighbour26::at( n ) + pos1;
+            if ( !models.pointID3d.isValid( pos2 ) ) continue;
 
-            const int lineid2 = models.labelID3d.at( pos2 );
-            if ( lineid2==-1 ) continue;
+            const int j = models.pointID3d.at( pos2 );
+            if ( j==-1 ) continue;
 
-            const Line3D* line2   = models.lines[lineid2];
+            const int& lineid1 = models.labelID[ i ];
+            const int& lineid2 = models.labelID[ j ];
 
-            const Vec3d proj1 = line1->projection( pos1 );
-            const Vec3d proj2 = line2->projection( pos2 );
+            const Line3D* line1 = models.lines[lineid1];
+            const Line3D* line2 = models.lines[lineid2];
+            const Vec3d& proj1 = graph.get_node( i );
+            const Vec3d& proj2 = graph.get_node( j );
 
-            // Yuchen TODO: REMOVE
-            //*
-            if( proj1[2] < models.labelID3d.SZ()/3 ) continue;
-            if( proj2[2] < models.labelID3d.SZ()/3 ) continue;
-            /**/
+            const double dist = edge_weight_func( line1,proj1,line2,proj2 );
 
-            const Vec3d direction = proj1 - proj2;
-            const double dist = sqrt( direction.dot( direction ) );
+            /* Discard if the distance between the two projection points are
+               greater than twice the sum of the vessel size */
+            const double threshold = 2.0 * (line1->getSigma() + line2->getSigma());
+            if( dist>threshold ) continue;
 
-            // TODO: line id is equivalent to point id in this case
-            graph.add_edge( Edge(lineid1, lineid2, dist) );
+            graph.add_edge( EdgeExt( i, j, dist,
+                                  std::min(line1->getSigma(), line2->getSigma()) ) );
         }
     }
 
     graph.get_min_span_tree( tree, &djs );
 
+
     // Determine critical points which are connected to at most one
     // other points
     vector<unsigned> critical_points;
     vector<unsigned> neighbor_counts( tree.num_nodes(), 0 );
-    for( unsigned int i=0; i<tree.num_edges(); i++ ){
+    for( unsigned int i=0; i<tree.num_edges(); i++ )
+    {
         const Edge &e = tree.get_edge( i );
         neighbor_counts[ e.node1 ]++;
         neighbor_counts[ e.node2 ]++;
     }
 
-    for( unsigned i=0; i<neighbor_counts.size(); i++ ){
-        if( neighbor_counts[i]==1 ) {
+    for( unsigned i=0; i<neighbor_counts.size(); i++ )
+    {
+        if( neighbor_counts[i]==1 )
+        {
             critical_points.push_back( i );
         }
     }
@@ -183,51 +179,39 @@ void ComputeMST::neighborhood_graph( const ModelSet& models,
 
         const unsigned i = critical_points[k];
 
+        const int& lineidi  = models.labelID[i];
+        const Line3D* linei = models.lines[lineidi];
+        const Vec3d& proj1 = graph.get_node( i );
+
         for( unsigned j=0; j<graph.num_nodes(); j++ )
         {
             if( i==j ) continue;
             if( i<j && neighbor_counts[j]==1 ) continue;
 
-            const int& lineidi  = models.labelID[i];
-            const Line3D* linei = models.lines[lineidi];
-
             const int& lineidj  = models.labelID[j];
             const Line3D* linej = models.lines[lineidj];
-
-            const Vec3d& proj1 = graph.get_node( i );
             const Vec3d& proj2 = graph.get_node( j );
-
-            // Yuchen TODO: REMOVE
-            //*
-            if( proj1[2] < models.labelID3d.SZ()/3 ) continue;
-            if( proj2[2] < models.labelID3d.SZ()/3 ) continue;
-            /**/
-
-            if( !mask.is_empty() ) {
-                if( mask.at(models.tildaP[i]) || mask.at(models.tildaP[j]) ){
-                    continue;
-                }
-            }
 
             const double dist = edge_weight_func( linei, proj1, linej, proj2 );
 
-            /// Discard if the distance between the two projection points are greater than
-            /// twice the sum of the vessel size
+            /* Discard if the distance between the two projection points are
+               greater than twice the sum of the vessel size */
             const double threshold = 2.0 * (linei->getSigma() + linej->getSigma());
             if( dist>threshold ) continue;
 
             #pragma omp critical
             {
-                graph.add_edge( Edge(i, j, dist ) );
+                graph.add_edge( EdgeExt(i, j, dist,
+                                        std::min(linei->getSigma(), linej->getSigma()) ) );
             }
         }
     }
 
     /// build edges
-    std::priority_queue<Edge> edges = graph.get_edges();
+    std::priority_queue<EdgeExt> edges = graph.get_edges();
     while( !edges.empty() && tree.num_edges()<tree.num_nodes()-1 )
     {
-        Edge e = edges.top();
+        EdgeExt e = edges.top();
         const int sid1 = djs.find( e.node1 );
         const int sid2 = djs.find( e.node2 );
         if( sid1 != sid2 )
@@ -240,7 +224,7 @@ void ComputeMST::neighborhood_graph( const ModelSet& models,
 }
 
 void ComputeMST::create_graph_nodes( const ModelSet& models,
-                                     Graph<Edge, cv::Vec3d>& graph )
+                                     Graph<EdgeExt, cv::Vec3d>& graph )
 {
     // compute the projection point add it to graph
     for( unsigned i=0; i<models.tildaP.size(); i++ )
@@ -263,10 +247,11 @@ double ComputeMST::edge_weight_func_distance( const Line3D* line1,
 
     double dist = sqrt( direction.dot( direction ) );
 
-    // This would make the result looks worse!
+    // The following would make the result looks worse!
     // dist -= max(line1->getSigma(), line2->getSigma());
+    // dist = max( dist, 0.0 );
 
-    return max( 0.0, dist );
+    return dist;
 }
 
 double edge_weight_func_distance_and_direction( const Line3D* line1,

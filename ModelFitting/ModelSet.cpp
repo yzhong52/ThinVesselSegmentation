@@ -57,7 +57,9 @@ void ModelSet::serialize( std::string file ) const
 
 bool ModelSet::deserialize( std::string file )
 {
-    // get the file stream
+    labelID3d.load( file + ".labelID3d" );
+
+    // Get the file stream
     std::string modelset_file = file + ".modelset";
     std::ifstream fin( modelset_file );
     if( !fin.is_open() )
@@ -67,7 +69,7 @@ bool ModelSet::deserialize( std::string file )
         return false;
     }
 
-    // deserializing lines
+    // Deserializing lines
     for( unsigned i=0; i<lines.size(); i++ ) delete lines[i];
     lines.clear();
     int num_lines = 0;
@@ -79,24 +81,98 @@ bool ModelSet::deserialize( std::string file )
         lines.push_back( new_model );
     }
 
-
     int num_points = 0;
     fin >> num_points;
     tildaP = vector<Vec3i>( num_points, Vec3i(0,0,0) );
     labelID = vector<int>( num_points, 0 );
+    pointID3d.reset( labelID3d.get_size(), -1 );
     for( int i=0; i<num_points; i++ )
     {
+        // The observe postion of the point
         fin >> tildaP[i][0];
         fin >> tildaP[i][1];
         fin >> tildaP[i][2];
+        // The labeling of the point
         fin >> labelID[i];
+
+        pointID3d.at( tildaP.back() ) = i;
     }
     fin.close();
 
-    labelID3d.load( file + ".labelID3d" );
+
     return true;
 }
 
+bool ModelSet::deserialize( std::string file, const Data3D<unsigned char>& mask )
+{
+
+    labelID3d.load( file + ".labelID3d" );
+    smart_assert( labelID3d.get_size()==mask.get_size(), "Size should match. ");
+    #pragma omp parallel for
+    for( int z = 0; z < mask.SZ(); z++ )
+    {
+        for( int y = 0; y < mask.SY(); y++ )
+        {
+            for( int x = 0; x < mask.SX(); x++ )
+            {
+                if( mask.at(x,y,z) )
+                {
+                    labelID3d.at(x,y,z) = -1;
+                }
+            }
+        }
+    }
+
+    // Get the file stream
+    std::string modelset_file = file + ".modelset";
+    std::ifstream fin( modelset_file );
+    if( !fin.is_open() )
+    {
+        cout << "The following serialization file is not found: ";
+        cout << "'" << modelset_file << "'" << endl;
+        return false;
+    }
+
+    // Deserializing lines
+    for( unsigned i=0; i<lines.size(); i++ ) delete lines[i];
+    lines.clear();
+    int num_lines = 0;
+    fin >> num_lines;
+    for( int i=0; i<num_lines; i++ )
+    {
+        Line3DTwoPoint* new_model = new Line3DTwoPoint();
+        new_model->deserialize( fin );
+        lines.push_back( new_model );
+    }
+
+    tildaP.clear();
+    labelID.clear();
+    pointID3d.reset( labelID3d.get_size(), -1 );
+    int num_points = 0;
+    fin >> num_points;
+    for( int i=0; i<num_points; i++ )
+    {
+        // The observe postion of the point
+        Vec3i p;
+        fin >> p[0];
+        fin >> p[1];
+        fin >> p[2];
+
+        // The labeling of the point
+        int l;
+        fin >> l;
+
+        if( !mask.at(p) )
+        {
+            pointID3d.at( p ) = tildaP.size();
+            tildaP.push_back( p );
+            labelID.push_back( l );
+        }
+    }
+    fin.close();
+
+    return true;
+}
 
 
 void ModelSet::init_one_model_per_point( const Data3D<Vesselness_Sig>& vn_sig, const float& threshold )

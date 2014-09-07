@@ -5,7 +5,9 @@
 		<Project filename="RingsReduction/RingsReduction.cbp">
 			<Depends filename="core/core.cbp" />
 		</Project>
-		<Project filename="Vesselness/Vesselness.cbp" />
+		<Project filename="Vesselness/Vesselness.cbp">
+			<Depends filename="core/core.cbp" />
+		</Project>
 		<Project filename="EigenDecomp/EigenDecomp.cbp" />
 		<Project filename="SparseMatrixCV/SparseMatrixCV.cbp" />
 		<Project filename="SparseMatrix/SparseMatrix.cbp" />

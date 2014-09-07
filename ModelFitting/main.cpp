@@ -61,38 +61,36 @@ int main(int argc, char* argv[])
     if( arguments.is_open() )
     {
         string temp;
-
-        arguments >> temp;
-        if( temp=="-dataname")
+        do
         {
-            arguments.get(); // remove a white space
-            std::getline( arguments, dataname );
+            arguments >> temp;
+            if( temp=="-dataname")
+            {
+                arguments >> dataname;
+            }
+            else if( temp=="-runLevenbergMarquardt")
+            {
+                arguments >> runLevenbergMarquardt;
+            }
+            else if( temp=="-isThined")
+            {
+                arguments >> isThined;
+            }
+            else if( temp=="-isDisplay")
+            {
+                arguments >> isDisplay;
+            }
         }
-
-        arguments >> temp;
-        if( temp=="-runLevenbergMarquardt")
-        {
-            arguments >> runLevenbergMarquardt;
-        }
-
-        arguments >> temp;
-        if( temp=="-isThined")
-        {
-            arguments >> isThined;
-        }
-
-        arguments >> temp;
-        if( temp=="-isDisplay")
-        {
-            arguments >> isDisplay;
-        }
+        while( !arguments.eof() );
     }
 
-
-    if( runLevenbergMarquardt ){
+    if( runLevenbergMarquardt )
+    {
         // Run Levenberg marquardt algorithm
         experiments::start_levenberg_marquardt( dataname, isThined, isDisplay );
-    } else {
+    }
+    else
+    {
         // Display result of Levenberg Marquardt only
         experiments::show_levenberg_marquardt_result( dataname );
     }

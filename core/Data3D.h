@@ -391,7 +391,7 @@ bool Data3D<T>::load( const std::string& file_name )
 template <typename T>
 bool Data3D<T>::load( const std::string& file_name, const cv::Vec3i& size, bool isBigEndian, bool isLoadPartial )
 {
-    std::cout << "Loading Data '" << file_name << "'" << std::endl;
+    std::cout << "Loading data '" << file_name << "'" << std::endl;
 
     // Resize of the data and also allocate memory
     reset( size );
@@ -403,8 +403,8 @@ bool Data3D<T>::load( const std::string& file_name, const cv::Vec3i& size, bool 
     unsigned long long size_read = fread_big( _mat.data, sizeof(T), _size_total, pFile);
 
     fgetc( pFile );
-    // if we haven't read the end of the file
-    // and if we specify that we only want to load part of the data (isLoadPartial)
+    // If we haven't reached the end of the file (feof(pFile))
+    // or haven't specify that only to load part of the data (isLoadPartial)
     if( !feof(pFile) && !isLoadPartial )
     {
         fclose(pFile);
@@ -413,13 +413,15 @@ bool Data3D<T>::load( const std::string& file_name, const cv::Vec3i& size, bool 
     }
     fclose(pFile);
 
-    // if the size we read is not as big as the size we expected, fail
+    // If the size we read is not as big as the size we expected, loading fail.
     smart_return( size_read==_size_total*sizeof(T),
                   "Data size is incorrect (too big)", false );
 
     if( isBigEndian )
     {
-        smart_return( sizeof(T)==2, "Datatype does not support big endian.", false );
+        smart_return( sizeof(T)==2,
+                      "Datatype does not support big endian.",
+                      false );
         // swap the data
         unsigned char* temp = _mat.data;
         for(int i=0; i<_size_total; i++)

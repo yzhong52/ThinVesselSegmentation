@@ -11,7 +11,7 @@ using namespace MST;
 namespace GLViewer
 {
 
-GLMinSpanTree::GLMinSpanTree( const MST::Graph<MST::Edge, cv::Vec3d>& g,
+GLMinSpanTree::GLMinSpanTree( const MST::Graph<MST::EdgeExt, cv::Vec3d>& g,
                               const DisjointSet& djset,
                               const cv::Vec3i& s,
                               const int num_highlights )
@@ -100,7 +100,7 @@ void GLMinSpanTree::render( void )
         std::unordered_map<int, Vec3b>::const_iterator it = colors.find( index );
         if( it==colors.end() )
         {
-            glColor3ub(50,50,50);
+            glColor3ub(25,25,25);
         }
         else
         {

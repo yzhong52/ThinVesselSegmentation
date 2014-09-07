@@ -92,6 +92,9 @@
 		<Unit filename="GLViewer.h">
 			<Option virtualFolder="GLViewer/" />
 		</Unit>
+		<Unit filename="GLViewerCore.cpp">
+			<Option virtualFolder="GLViewer/" />
+		</Unit>
 		<Unit filename="GLViewerCore.h">
 			<Option virtualFolder="GLViewer/" />
 		</Unit>

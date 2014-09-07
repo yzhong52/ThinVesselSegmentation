@@ -44,15 +44,13 @@ int main(void)
     if( arguments.is_open() )
     {
         string temp;
-
-        arguments >> temp;
-        if( temp=="-dataname")
-        {
-            arguments.get(); // remove a white space
-            std::getline( arguments, dataname );
-        }
+        do{
+            arguments >> temp;
+            if( temp=="-dataname") {
+                arguments >> dataname;
+            }
+        } while( !arguments.eof() );
     }
-
 
     sample_code::vesselness( isDispalyVesselness, dataname, 2900 );
     sample_code::centreline( isDispalyCenterline, dataname );
@@ -94,13 +92,10 @@ int sample_code::vesselness( bool isDisplay, string dataname, short threshold )
     // If you want to visualize the data using Maximum-Intensity Projection
     if( isDisplay )
     {
-        im_short_orig.remove_margin_to(Vec3i(100,100,100));
-
         viewer.addObject( im_short_orig,  GLViewer::Volumn::MIP );
-        //viewer.addObject( im_short,  GLViewer::Volumn::MIP );
-        vn_sig.remove_margin_to(Vec3i(100,100,100));
+        viewer.addObject( im_short,  GLViewer::Volumn::MIP );
         viewer.addObject( vn_sig,  GLViewer::Volumn::MIP );
-        //viewer.addDiretionObject( vn_sig );
+        viewer.addDiretionObject( vn_sig );
         viewer.display(800, 600, 4);
     }
 

@@ -15,19 +15,36 @@ class Vesselness_Sig;
 class ModelSet
 {
 public:
-    // a group of 3D data points to be fit into line models
+    // A group of 3D data points to be fit into line models and their
+    // corresponding labeling
     std::vector<cv::Vec3i> tildaP;
-
-    // the corresponding labeling of the 3D data points
-    // (same size of tildaP.size())
     std::vector<int> labelID;
+    /*Todo: since the above two have the same size, it is better to put them
+      into one big vector<std::pair<Vec3i, int> > or something similar. */
 
-    // line models
+    // Line models
     std::vector<Line3D*> lines;
 
-    // The indexing of the data points in the 3D volume
-    // (for fast accessing under certain conditions)
+    /* The labeling of 3D data points. '-1' indicates that it is a background
+       label. For example, to get the line of point 'p', do the following:
+           if( labelID3d.at(p) != -1 ){
+               Line3D* l = lines[ labelID3d.at(p) ];
+           }
+       This is used in Model Fitting.
+       TODO: it is redundant with pointID3d, see if you can remove this.
+    */
     Data3D<int> labelID3d;
+
+    /* The position of the current point in tildaP vector. '-1' indicates
+       that it is a background label. For example, to get the line of
+       point 'p', do the following:
+           if( pointID3d.at(p) != -1 ) {
+               assert( tildaP[ pointID3d.at(p) ] == p );
+               int lineid = lableID[ pointID3d.at(p) ];
+               Line3D* l = lines[ lineid ];
+           }
+       */
+    Data3D<int> pointID3d;
 
     inline int get_data_size();
 
@@ -37,6 +54,8 @@ public:
     /// Serialization & Deserialization
     void serialize( std::string file ) const;
     bool deserialize( std::string file );
+    // A point 'p' is ignored if mask.at(p)!=0.
+    bool deserialize( std::string file, const Data3D<unsigned char>& mask );
 
     ////////////////////////////////////////////////////////////////
     // Model Initialization

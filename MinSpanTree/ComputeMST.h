@@ -6,7 +6,7 @@
 
 namespace MST
 {
-class Edge;
+class EdgeExt;
 template<class EdgeType, class NodeType> class Graph;
 }
 
@@ -18,13 +18,13 @@ public:
 /// 3. Discard a pair if the distance between them is greater than a certain threshold.
 ///    The threshold is computed automatically based on the thickness of the vessels.
     static void from_threshold_graph( const ModelSet& models,
-                                     const Data3D<unsigned char>& mask,
-                                      MST::Graph<MST::Edge, cv::Vec3d>& tree,
+                                      const Data3D<unsigned char>& mask,
+                                      MST::Graph<MST::EdgeExt, cv::Vec3d>& tree,
                                       DisjointSet& djs );
 
     static void neighborhood_graph( const ModelSet& models,
-                                   const Data3D<unsigned char>& mask,
-                                    MST::Graph<MST::Edge, cv::Vec3d>& tree,
+                                    const Data3D<unsigned char>& mask,
+                                    MST::Graph<MST::EdgeExt, cv::Vec3d>& tree,
                                     DisjointSet& djs );
 
     // TODO: different options of computing distance edge weights
@@ -60,10 +60,10 @@ private:
             const cv::Vec3d& proj2);
 
     static void create_graph_nodes( const ModelSet& models,
-                                    MST::Graph<MST::Edge, cv::Vec3d>& graph );
+                                    MST::Graph<MST::EdgeExt, cv::Vec3d>& graph );
 
     static void add_graph_edge( const ModelSet& models,
-                                MST::Graph<MST::Edge, cv::Vec3d>& graph,
+                                MST::Graph<MST::EdgeExt, cv::Vec3d>& graph,
                                 const int& index1, const int index2 );
 };
 
