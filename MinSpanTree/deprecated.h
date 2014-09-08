@@ -1,5 +1,3 @@
-
-
 void tree_from_critical_points( const ModelSet& models, Graph<Edge, cv::Vec3d>& tree )
 {
     Graph<Edge, cv::Vec3d> graph;

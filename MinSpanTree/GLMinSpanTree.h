@@ -44,12 +44,34 @@ public:
         glBlendFunc(GL_ONE, GL_ONE);
         glBlendEquation( GL_MAX_EXT );
     }
+
+    virtual void keyboard( unsigned char k );
+
 private:
+    typedef cv::Vec3b Color3b;
+
+    struct MapElement
+    {
+        int rank;
+        Color3b color;
+        MapElement( const int& r, const Color3b& c )
+            : rank(r), color(c) {}
+    };
+
     const MST::Graph<MST::EdgeExt, cv::Vec3d>& graph;
     const DisjointSet& djs;
+
+    // Size of the volumn
     const cv::Vec3i& size;
 
-    std::unordered_map<int, cv::Vec3b> colors;
+    std::unordered_map<int, MapElement> color_map;
+
+    float sigma_min, sigma_max, sigma_range;
+
+    /* branch_bit indicates which branch to show. For example,
+           "branch_bit&(1<<i)!=0": branch i will be displayed.
+       This value can be altered at run time.  */
+    int branch_bit;
 };
 
 }// end of namespace

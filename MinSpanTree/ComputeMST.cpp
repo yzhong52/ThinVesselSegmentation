@@ -57,11 +57,7 @@ void ComputeMST::from_threshold_graph( const ModelSet& models,
 
 
             const double dist = edge_weight_func( linei, proj1, linej, proj2 );
-
-            /// Discard if the distance between the two projection points are greater than
-            /// twice the sum of the vessel size
-            const double threshold = 2.0 * (linei->getSigma() + linej->getSigma());
-            if( dist>threshold ) continue;
+            if( dist>get_threshold(linei, linej) ) continue;
 
             /// Weight is between [0.5-1] after this manipulation
             double weight = 1.0;
@@ -78,8 +74,8 @@ void ComputeMST::from_threshold_graph( const ModelSet& models,
             #pragma omp critical
             {
                 graph.add_edge( EdgeExt(i, j,
-                                     dist*weight,
-                                     std::min(linei->getSigma(), linej->getSigma()) ) );
+                                        dist*weight,
+                                        std::min(linei->getSigma(), linej->getSigma()) ) );
             }
         }
     }
@@ -121,20 +117,15 @@ void ComputeMST::neighborhood_graph( const ModelSet& models,
             const Vec3d& proj1 = graph.get_node( i );
             const Vec3d& proj2 = graph.get_node( j );
 
-            const double dist = edge_weight_func( line1,proj1,line2,proj2 );
-
-            /* Discard if the distance between the two projection points are
-               greater than twice the sum of the vessel size */
-            const double threshold = 2.0 * (line1->getSigma() + line2->getSigma());
-            if( dist>threshold ) continue;
+            const double dist = edge_weight_func( line1,proj1,line1,proj2 );
+            if( dist>get_threshold(line1,line2) ) continue;
 
             graph.add_edge( EdgeExt( i, j, dist,
-                                  std::min(line1->getSigma(), line2->getSigma()) ) );
+                                     std::min(line1->getSigma(), line2->getSigma()) ) );
         }
     }
 
     graph.get_min_span_tree( tree, &djs );
-
 
     // Determine critical points which are connected to at most one
     // other points
@@ -193,11 +184,7 @@ void ComputeMST::neighborhood_graph( const ModelSet& models,
             const Vec3d& proj2 = graph.get_node( j );
 
             const double dist = edge_weight_func( linei, proj1, linej, proj2 );
-
-            /* Discard if the distance between the two projection points are
-               greater than twice the sum of the vessel size */
-            const double threshold = 2.0 * (linei->getSigma() + linej->getSigma());
-            if( dist>threshold ) continue;
+            if( dist>get_threshold(linei, linej) ) continue;
 
             #pragma omp critical
             {
@@ -235,23 +222,6 @@ void ComputeMST::create_graph_nodes( const ModelSet& models,
         const Vec3d proj = line1->projection( pos1 );
         graph.add_node( proj );
     }
-}
-
-
-double ComputeMST::edge_weight_func_distance( const Line3D* line1,
-        const cv::Vec3d& proj1,
-        const Line3D* line2,
-        const cv::Vec3d& proj2 )
-{
-    const Vec3d direction = proj1 - proj2;
-
-    double dist = sqrt( direction.dot( direction ) );
-
-    // The following would make the result looks worse!
-    // dist -= max(line1->getSigma(), line2->getSigma());
-    // dist = max( dist, 0.0 );
-
-    return dist;
 }
 
 double edge_weight_func_distance_and_direction( const Line3D* line1,

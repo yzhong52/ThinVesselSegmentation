@@ -28,7 +28,7 @@ int main( int argc , char *argv[] )
     string maskname  = "N/A";
 
     // Update dataname and modelname from 'arguments.txt' file
-    ifstream arguments( "arguments.txt" );
+    ifstream arguments( "argumen1ts.txt" );
     if( arguments.is_open() )
     {
         string temp;
@@ -68,9 +68,12 @@ int main( int argc , char *argv[] )
 
     // Loading models
     ModelSet modelset;
-    if( mask.is_empty() ){
+    if( mask.is_empty() )
+    {
         flag = modelset.deserialize( modelname );
-    } else {
+    }
+    else
+    {
         flag = modelset.deserialize( modelname, mask );
     }
     if( !flag ) return 0;
@@ -118,7 +121,7 @@ int main( int argc , char *argv[] )
     ComputeMST::neighborhood_graph( modelset, mask, tree1, djs1 );
     GLViewer::GLMinSpanTree *mstobj1 = nullptr;
     mstobj1 = new GLViewer::GLMinSpanTree( tree1, djs1,
-                                           modelset.labelID3d.get_size(), 1 );
+                                           modelset.labelID3d.get_size(), 3 );
     vis.objs.push_back( mstobj1 );
     /**/
 

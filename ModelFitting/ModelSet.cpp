@@ -95,7 +95,7 @@ bool ModelSet::deserialize( std::string file )
         // The labeling of the point
         fin >> labelID[i];
 
-        pointID3d.at( tildaP.back() ) = i;
+        pointID3d.at( tildaP[i] ) = i;
     }
     fin.close();
 

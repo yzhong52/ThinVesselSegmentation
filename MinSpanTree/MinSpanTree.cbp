@@ -75,6 +75,7 @@
 		<Unit filename="MSTEdgeExt.cpp" />
 		<Unit filename="MSTEdgeExt.h" />
 		<Unit filename="MSTGraph.h" />
+		<Unit filename="deprecated.h" />
 		<Unit filename="example.h" />
 		<Unit filename="main.cpp" />
 		<Extensions>

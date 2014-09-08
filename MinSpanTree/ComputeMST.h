@@ -3,6 +3,7 @@
 
 #include "MSTGraph.h"
 #include "../ModelFitting/ModelSet.h"
+#include "../ModelFitting/Line3D.h"
 
 namespace MST
 {
@@ -50,7 +51,7 @@ private:
     static double (*edge_weight_func)( const Line3D*, const cv::Vec3d&,
                                        const Line3D*, const cv::Vec3d& );
 
-    static double edge_weight_func_distance( const Line3D* line1,
+    inline static double edge_weight_func_distance( const Line3D* line1,
             const cv::Vec3d& proj1,
             const Line3D* line2,
             const cv::Vec3d& proj2 );
@@ -65,6 +66,34 @@ private:
     static void add_graph_edge( const ModelSet& models,
                                 MST::Graph<MST::EdgeExt, cv::Vec3d>& graph,
                                 const int& index1, const int index2 );
+
+    inline static double get_threshold( const Line3D* line1, const Line3D* line2 );
+
 };
+
+double ComputeMST::get_threshold( const Line3D* line1,
+                                 const Line3D* line2 )
+{
+    /* Discard if the distance between the two projection points are
+       greater than twice the sum of the vessel size */
+    return 0.5 * (line1->getSigma() + line2->getSigma());
+}
+
+double ComputeMST::edge_weight_func_distance( const Line3D* line1,
+        const cv::Vec3d& proj1,
+        const Line3D* line2,
+        const cv::Vec3d& proj2 )
+{
+    const cv::Vec3d direction = proj1 - proj2;
+
+    double dist = sqrt( direction.dot( direction ) );
+
+    // TODO: to be futhure considered whether this is a good or not.
+    dist -= std::max(line1->getSigma(), line2->getSigma());
+    dist = std::max( dist, 0.0 );
+    /**/
+
+    return dist;
+}
 
 #endif // COMPUTEMST_H
