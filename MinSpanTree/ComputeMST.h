@@ -75,8 +75,8 @@ double ComputeMST::get_threshold( const Line3D* line1,
                                  const Line3D* line2 )
 {
     /* Discard if the distance between the two projection points are
-       greater than twice the sum of the vessel size */
-    return 0.5 * (line1->getSigma() + line2->getSigma());
+       greater than (0.6, 0.62) the sum of the vessel size. */
+    return 0.6*(line1->getSigma() + line2->getSigma());
 }
 
 double ComputeMST::edge_weight_func_distance( const Line3D* line1,

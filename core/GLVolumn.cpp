@@ -387,9 +387,9 @@ void Volumn::render(void)
         /* Visualizing the data with Maximum Intensity Projection (MIP). */
         glColor3f( 1.0f, 1.0f, 1.0f );
 
-        float dx = this->size_x() / 200.0f;
-        float dy = this->size_y() / 200.0f;
-        float dz = this->size_z() / 200.0f;
+        float dx = this->size_x() / 250.0f;
+        float dy = this->size_y() / 250.0f;
+        float dz = this->size_z() / 250.0f;
 
         /* The number of slices is based on scale. A finner detail is shown
            while we zoom in and vice versa. */

@@ -73,7 +73,7 @@ GLCamera::GLCamera(const float& rotate_speed)
 
     // translation
     t[0] = t[1] = t[2] = 0;
-    translate_speed = 0.2f;
+    translate_speed = 0.5f;
 }
 
 

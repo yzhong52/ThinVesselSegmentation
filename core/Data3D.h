@@ -26,6 +26,8 @@ public:
     // Copy Constructor
     template <class T2>
     Data3D( const Data3D<T2>& src );
+    // Data3D( const Data3D<T>& src );
+
     // Assign Constructor
     const Data3D<T>& operator=( const Data3D<T>& src );
 
@@ -201,11 +203,11 @@ public:
     }
 
 public:
-    // copy data of dimension i to a new Image3D structure
-    // e.g. this is useful when trying to visualize vesselness which is
-    // a multidimensional data structure
-    // Yuchen: p.s. I have no idea how to move the funciton body out the class
-    // definition nicely. Let me figure it later maybe.
+    /* copy data of dimension i to a new Image3D structure
+       e.g. this is useful when trying to visualize vesselness which is
+       a multidimensional data structure
+       Yuchen: p.s. I have no idea how to move the funciton body out the
+       class definition nicely. Let me figure it later maybe. */
     template<typename T2>
     void copyDimTo( Data3D<T2>& dst, int dim ) const
     {
@@ -316,11 +318,31 @@ Data3D<T>::Data3D( const Data3D<T2>& src )
     }
 }
 
+/*
+template<typename T>
+Data3D<T>::Data3D( const Data3D<T>& src ){
+    // resize
+    this->resize( src.get_size() );
+
+    // copy the data over
+    cv::MatIterator_<T>       this_it;
+    cv::MatConstIterator_<T> src_it;
+    for( this_it = this->getMat().begin(), src_it = src.getMat().begin();
+            this_it < this->getMat().end(),   src_it < src.getMat().end();
+            this_it++, src_it++ )
+    {
+        *(this_it) = *(src_it);
+    }
+}
+/**/
+
+
 template<typename T>
 const Data3D<T>& Data3D<T>::operator=( const Data3D<T>& src )
 {
     // resize
     this->resize( src.get_size() );
+
     // copy the data over
     cv::MatIterator_<T>       this_it;
     cv::MatConstIterator_<T> src_it;
@@ -688,11 +710,9 @@ bool Data3D<T>::remove_margin( const cv::Vec3i& margin1, const cv::Vec3i& margin
     for( int i=0; i<3; i++ )
     {
         n_size[i] = _size[i] - margin1[i] - margin2[i];
-        if( n_size[i] <= 0 )
-        {
-            std::cout << "Margin is too big. Remove margin failed. " << std::endl;
-            return false;
-        }
+        smart_return( n_size[i]>0,
+                      "Margin is too big. Remove margin failed. ",
+                      false );
     }
 
     // allocate memory for new data

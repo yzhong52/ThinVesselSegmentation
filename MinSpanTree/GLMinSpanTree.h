@@ -17,13 +17,14 @@ public:
     GLMinSpanTree( const MST::Graph<MST::EdgeExt, cv::Vec3d>& graph,
                    const DisjointSet& disjointset,
                    const cv::Vec3i& volume_size,
-                   const int number_of_highlisht_branches = 2 );
+                   const int& min_num_nodes = 2,
+                   const int& max_num_highlights = 25 );
 
     virtual ~GLMinSpanTree();
 
     virtual void render( void );
 
-    // size of the object
+    // volumn size of the object
     virtual unsigned int size_x(void) const
     {
         return size[0];
@@ -54,8 +55,7 @@ private:
     {
         int rank;
         Color3b color;
-        MapElement( const int& r, const Color3b& c )
-            : rank(r), color(c) {}
+        MapElement( const int& r, const Color3b& c ) : rank(r), color(c) {}
     };
 
     const MST::Graph<MST::EdgeExt, cv::Vec3d>& graph;
@@ -68,10 +68,10 @@ private:
 
     float sigma_min, sigma_max, sigma_range;
 
-    /* branch_bit indicates which branch to show. For example,
-           "branch_bit&(1<<i)!=0": branch i will be displayed.
-       This value can be altered at run time.  */
-    int branch_bit;
+    /* 'branch_display' indicates which branch to show. For example,
+           "branch_display==0": branch i will be displayed. However,
+        the three most important branches are alwasy shown. */
+    int branch_display;
 };
 
 }// end of namespace

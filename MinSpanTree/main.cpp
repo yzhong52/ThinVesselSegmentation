@@ -16,8 +16,6 @@ using namespace MST;
 using namespace cv;
 
 
-
-
 int main( int argc , char *argv[] )
 {
     // orignal data
@@ -28,7 +26,7 @@ int main( int argc , char *argv[] )
     string maskname  = "N/A";
 
     // Update dataname and modelname from 'arguments.txt' file
-    ifstream arguments( "argumen1ts.txt" );
+    ifstream arguments( "arguments.txt" );
     if( arguments.is_open() )
     {
         string temp;
@@ -66,6 +64,22 @@ int main( int argc , char *argv[] )
     if( maskname!="N/A" ) mask.load( maskname+".data" );
     //vis.addObject( mask,  GLViewer::Volumn::MIP );
 
+    //*
+    Data3D<short> im_short;
+    flag = im_short.load( dataname + ".data" );
+    if( !flag ) return 0;
+    vis.addObject( im_short,  GLViewer::Volumn::MIP );
+    im_short.reset(); // releasing memory
+    /**/
+
+    //*
+    Data3D<Vesselness_Sig> vn_sig;
+    flag = vn_sig.load( dataname + ".vn_sig" );
+    if( !flag ) return 0;
+    vis.addObject( vn_sig,  GLViewer::Volumn::MIP );
+    vn_sig.reset(); // releasing memory
+    /**/
+
     // Loading models
     ModelSet modelset;
     if( mask.is_empty() )
@@ -84,24 +98,10 @@ int main( int argc , char *argv[] )
     vis.objs.push_back( model_obj );
 
     //*
-    Data3D<short> im_short;
-    flag = im_short.load( dataname + ".data" );
-    if( !flag ) return 0;
-    vis.addObject( im_short,  GLViewer::Volumn::MIP );
-    /**/
-
-    /*
-    Data3D<Vesselness_Sig> vn_sig;
-    flag = vn_sig.load( dataname + ".vn_sig" );
-    if( !flag ) return 0;
-    vis.addObject( vn_sig,  GLViewer::Volumn::MIP );
-    /**/
-
-    /*
     Data3D<Vesselness_Sig> vn_sig_et;
     flag = vn_sig_et.load( dataname + ".et.vn_sig" );
     if( !flag ) return 0;
-    vis.addObject( vn_sig_et,  GLViewer::Volumn::MIP );
+    //vis.addObject( vn_sig_et,  GLViewer::Volumn::MIP );
     /**/
 
     /*
@@ -121,11 +121,12 @@ int main( int argc , char *argv[] )
     ComputeMST::neighborhood_graph( modelset, mask, tree1, djs1 );
     GLViewer::GLMinSpanTree *mstobj1 = nullptr;
     mstobj1 = new GLViewer::GLMinSpanTree( tree1, djs1,
-                                           modelset.labelID3d.get_size(), 3 );
+                                           modelset.labelID3d.get_size(),
+                                           130, 23 );
     vis.objs.push_back( mstobj1 );
     /**/
 
-    vis.display( 1280, 800, 4 );
+    vis.display( 900, 680, 4 );
 
     return 0;
 }
