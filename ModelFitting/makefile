@@ -2,27 +2,25 @@
 include ../makefile-common.make
 
 # define any directories containing header files other than /usr/include
-INCLUDES  = -I ./
-INCLUDES += -I ../
 INCLUDES += -I ../Vesselness
 INCLUDES += -I ../core
+INCLUDES += -I ..
 
 # define library paths in addition to /usr/lib
 #   if I wanted to include libraries not in /usr/lib I'd specify
 #   their path using -Lpath, something like:
-LFLAGS  = -L ./
-LFLAGS += -L ../libs
+LFLAGS += -L../libs/Release
 LFLAGS += `pkg-config --libs opencv` -Wl,--no-as-needed -pthread
 
 # define any libraries to link into executable:
 #   if I want to link in libraries (libx.so or libx.a) I use the -llibname 
 #   option, something like (this will link in libmylib.so and libm.so:
-LIBS  = libSparseMatrixCV.a libSparseMatrix.a
-LIBS += -lGL -lGLU -lglut -lGLEW
+LIBS += -lSparseMatrixCV -lSparseMatrix
+#LIBS += -lGL -lGLU -lglut -lGLEW
 
 # define the cpp source files
-SRCS  = Line3D.cpp Line3DTwoPoint.cpp LevenburgMaquart.cpp EnergyFunctions.cpp init_models.cpp
-# SRCS += GLLineModel.cpp GLViwerModel.cpp 
+SRCS  = Line3D.cpp Line3DTwoPoint.cpp LevenbergMarquardt.cpp EnergyFunctions.cpp init_models.cpp
+SRCS += ModelSet.cpp
 
 # define the C object files 
 #
@@ -39,8 +37,6 @@ OBJS = $(SRCS:%.cpp=./obj/%.o)
 TARGET = ../bin/modelfitting
 
 all: $(CBLAS_OBJS) $(OBJS)
-	mkdir -p ../bin
-	mkdir -p ./obj
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(INCLUDES) $(OBJS) main_nvis.cpp -o $(TARGET) $(LFLAGS) $(LIBS)
 
 # Yuchen: these following command will compile the other cpp files in the project

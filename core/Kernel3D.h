@@ -34,7 +34,7 @@ public:
     }
 
     // setters
-    void reset( const cv::Vec3i& n_size, cv::Scalar scalar = cv::Scalar(0));
+    void reset( const cv::Vec3i& n_size );
 private:
     // minimun and maximum possition
     cv::Vec3i min_p, max_p, center;
@@ -87,9 +87,9 @@ Kernel3D<T>::Kernel3D( const cv::Vec3i& n_size )
 
 
 template<typename T>
-void Kernel3D<T>::reset( const cv::Vec3i& n_size, cv::Scalar scalar )
+void Kernel3D<T>::reset( const cv::Vec3i& n_size )
 {
-    Data3D<T>::reset( n_size );
+    Data3D<T>::reset( n_size, 0 );
 
     for( int i=0; i<3; i++ )
     {

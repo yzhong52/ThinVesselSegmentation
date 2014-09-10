@@ -36,9 +36,9 @@ public:
 
     // c'tor
     SparseMatrix( unsigned num_rows, unsigned num_cols,
-                  const std::vector<double> non_zero_value,
-                  const std::vector<unsigned> col_index,
-                  const std::vector<unsigned> row_pointer );
+                  const std::vector<double>&   non_zero_value,
+                  const std::vector<unsigned>& col_index,
+                  const std::vector<unsigned>& row_pointer );
 
     // c'tor: copy constructor
     SparseMatrix( const SparseMatrix& matrix );
@@ -66,9 +66,9 @@ public:
 protected:
 
     bool updateData( unsigned num_rows, unsigned num_cols,
-                     const std::vector<double> non_zero_value,
-                     const std::vector<unsigned> col_index,
-                     const std::vector<unsigned> row_pointer );
+                     const std::vector<double>& non_zero_value,
+                     const std::vector<unsigned>& col_index,
+                     const std::vector<unsigned>& row_pointer );
     bool updateData(  unsigned num_rows, unsigned num_cols,
                       const double non_zero_value[],
                       const unsigned col_index[],
@@ -103,4 +103,12 @@ public:
 
     // return the diaganal matrix
     SparseMatrix diag() const;
+
+    /////////////////////////////////////////////////////////////////
+    // friends function for liner sover
+    // // // // // // // // // // // // // // // // // // // // // //
+    enum Options { BICGSQ, SUPERLU };
+    friend void mult( const SparseMatrix& A, const double *v, double *w );
+    friend void solve( const SparseMatrix& A, const double* B, double* X,
+                       double acuracy = 1e-3, Options o = BICGSQ );
 };

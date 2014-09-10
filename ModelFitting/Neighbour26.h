@@ -6,7 +6,7 @@
 
 class Neighbour26
 {
-    cv::Vec3d offset[26];
+    cv::Vec3i offset[26];
     cv::Vec3d offset_f[26];
     std::vector<cv::Vec3i> cross_section[13];
 
@@ -16,18 +16,17 @@ class Neighbour26
     inline static Neighbour26& getInstance();
 public:
 
-    inline static const cv::Vec3d& at( int index );
-    inline static const std::vector<cv::Vec3i>& getCrossSection( int index )
-    {
-        smart_assert( index>=0 && index<13, "Invalid index" );
-        return getInstance().cross_section[ index ];
-    }
-
-
+    inline static const cv::Vec3i& at( int index );
+    inline static const std::vector<cv::Vec3i>& getCrossSection( int index );
     inline static void at( int index, int& x, int& y, int& z );
 
-    inline static void getNeigbour( int index, const cv::Vec3i& pos, cv::Vec3i& neigbour );
-    inline static void getNeigbour( int index, const int& old_x, const int& old_y, const int& old_z,
+    inline static void getNeigbour( int index,
+                                    const cv::Vec3i& pos,
+                                    cv::Vec3i& neigbour );
+    inline static void getNeigbour( int index,
+                                    const int& old_x,
+                                    const int& old_y,
+                                    const int& old_z,
                                     int& x, int& y, int& z );
 };
 
@@ -71,13 +70,17 @@ inline Neighbour26& Neighbour26::getInstance()
     return instance;
 }
 
-inline const cv::Vec3d& Neighbour26::at( int index )
+inline const cv::Vec3i& Neighbour26::at( int index )
 {
     smart_assert( index>=0 && index<26, "Invalid index" );
     return getInstance().offset[index];
 }
 
-
+inline const std::vector<cv::Vec3i>& Neighbour26::getCrossSection( int index )
+{
+    smart_assert( index>=0 && index<13, "Invalid index" );
+    return getInstance().cross_section[ index ];
+}
 
 
 inline void Neighbour26::at( int index, int& x, int& y, int& z )

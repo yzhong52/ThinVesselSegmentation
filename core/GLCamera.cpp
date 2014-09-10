@@ -63,39 +63,22 @@ GLCamera::GLCamera(const float& rotate_speed)
     navigationMode = None;
 
     // rotation axis
-    vec_y[0] = 0;
-    vec_y[1] = 1;
-    vec_y[2] = 0;
     vec_x[0] = 1;
     vec_x[1] = 0;
     vec_x[2] = 0;
 
+    vec_y[0] = 0;
+    vec_y[1] = 1;
+    vec_y[2] = 0;
+
     // translation
     t[0] = t[1] = t[2] = 0;
-    translate_speed = 0.2f;
-
-    elapsedTick = 0;
+    translate_speed = 0.5f;
 }
 
 
 GLCamera::~GLCamera(void)
 {
-}
-
-
-
-void GLCamera::zoomIn(void)
-{
-    translate_speed /= 1.01f;
-    // rotate_speed  *= 1.01f;
-    scale *= 1.01f;
-}
-
-void GLCamera::zoomOut(void)
-{
-    translate_speed /= 0.99f;
-    // rotate_speed  *= 0.99f;
-    scale *= 0.99f;
 }
 
 
@@ -119,7 +102,9 @@ void GLCamera::rotate_scene(void)
     // compute and print the elapsed time in millisec
     elapsed = 1000.0*(t2.QuadPart-t1.QuadPart)/frequency.QuadPart;
     t1 = t2;
+
 #else // if Linux/Mac OS
+
     static timeval t1, t2;
     // get current time
     gettimeofday(&t2, NULL);

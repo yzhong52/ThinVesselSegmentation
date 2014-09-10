@@ -1,8 +1,10 @@
 #pragma once
 
+#include <vector>
 #include "Image3D.h"
 #include "Kernel3D.h"
-#include <vector>
+#include "smart_assert.h"
+
 
 class Vesselness;
 class Vesselness_Sig;
@@ -12,40 +14,40 @@ class Vesselness_All;
 namespace ImageProcessing
 {
 ///////////////////////////////////////////////////////////////////////////
-// Image Histogram
+// IMAGE HISTOGRAM
 void histogram( Data3D<short>& imageData,
                 cv::Mat_<double>& range, cv::Mat_<double>& hist, int number_of_bins = 512 );
 cv::Mat histogram_with_opencv( Data3D<short>& imageData, int number_of_bins = 512 );
 void histogram_for_slice( Image3D<short>& imageData );
 
 ///////////////////////////////////////////////////////////////////////////
-// convolution of 3d datas
+// CONVOLUTION 3D
 template<typename T1, typename T2, typename T3>
 void conv3( const Data3D<T1>& src, Data3D<T2>& dst, const Kernel3D<T3>& kernel );
-
 ///////////////////////////////////////////////////////////////////////////
-// gaussian blur 3d
-template<typename T1, typename T2>
-bool GaussianBlur3D( const Data3D<T1>& src, Data3D<T2>& dst, int ksize, double sigma );
-
-///////////////////////////////////////////////////////////////////////////
-// median filter
-template<typename T1, typename T2>
-bool medianBlur3D( const Data3D<T1>& src, Data3D<T2>& dst, int ksize);
-
-///////////////////////////////////////////////////////////////////////////
-// mean filter
-template<typename T1, typename T2>
-bool meanBlur3D( const Data3D<T1>& src, Data3D<T2>& dst, int ksize);
-
-///////////////////////////////////////////////////////////////////////////
-// Convolution in 3 phrases (along direction orientation)
+// CONVOLUTION OF DIFFERENT ORIENTATIONS 3D
 template<typename T1, typename T2, typename T3 >
 bool filter3D_X( const Data3D<T1>& src, Data3D<T2>& dst, const Kernel3D<T3>& kx );
 template<typename T1, typename T2, typename T3 >
 bool filter3D_Y( const Data3D<T1>& src, Data3D<T2>& dst, const Kernel3D<T3>& ky );
 template<typename T1, typename T2, typename T3 >
 bool filter3D_Z( const Data3D<T1>& src, Data3D<T2>& dst, const Kernel3D<T3>& kz );
+
+///////////////////////////////////////////////////////////////////////////
+// GAUSSIAN BLUR 3D
+template<typename T1, typename T2>
+bool GaussianBlur3D( const Data3D<T1>& src, Data3D<T2>& dst, int ksize, double sigma = 0.0 );
+
+///////////////////////////////////////////////////////////////////////////
+// MEDIAN FILTER
+template<typename T1, typename T2>
+bool medianBlur3D( const Data3D<T1>& src, Data3D<T2>& dst, int ksize);
+
+///////////////////////////////////////////////////////////////////////////
+// MEAN FILTER
+template<typename T1, typename T2>
+bool meanBlur3D( const Data3D<T1>& src, Data3D<T2>& dst, int ksize);
+
 
 ///////////////////////////////////////////////////////////////////////////
 // normalize the data
@@ -57,13 +59,13 @@ template<typename T>
 void quad_normalize( Data3D<T>& data, T norm_max = 1);
 
 ///////////////////////////////////////////////////////////////////////////
-// threshold the data
+// THRESHOLDING
 // threshold the data and return a binary mask
 template<typename T>
-void threshold( const Data3D<T>& src, Data3D<unsigned char>& dst, T thresh );
+void threshold( const Data3D<T>& src, Data3D<unsigned char>& mask, T thresh );
 // threshold the data and return a binary mask and of a set of locations
 template<typename T>
-void threshold( const Data3D<T>& src, Data3D<unsigned char>& dst, std::vector<cv::Vec3i>& pos, T thresh );
+void threshold( const Data3D<T>& src, Data3D<unsigned char>& mask, std::vector<cv::Vec3i>& pos, T thresh );
 // threshold the data and return a index map (dst) and of a set of locations
 template<typename T>
 void threshold( const Data3D<T>& src, Data3D<int>& indeces, std::vector<cv::Vec3i>& pos, T thresh );
@@ -75,7 +77,12 @@ template<typename T>
 void threshold( Data3D<T>& src, T thresh );
 
 ///////////////////////////////////////////////////////////////////////////
-// Non-maximum suppression
+// FILTERING WITH A GIVEN MASK
+template<typename T>
+void masking( const Data3D<T>& src, const Data3D<unsigned char>& mask, Data3D<T>& dst );
+
+///////////////////////////////////////////////////////////////////////////
+// NON-MAXIMUM SUPPRESSION
 void non_max_suppress( const Data3D<Vesselness_Sig>& src, Data3D<Vesselness_Sig>& dst );
 void edge_tracing( Data3D<Vesselness_Sig>& src, Data3D<Vesselness_Sig>& dst, const float& thres1 = 0.85f, const float& thres2 = 0.10f );
 void dir_tracing( Data3D<Vesselness_All>& src, Data3D<Vesselness_Sig>& res_dt );
@@ -84,12 +91,36 @@ void edge_tracing_mst( Data3D<Vesselness_All>& src, Data3D<Vesselness_Sig>& dst,
 ///////////////////////////////////////////////////////////////////////////
 // Morphological Operations
 // dilation, erosion, closing
-void dilation(Data3D<unsigned char>& src, const int& k);
-void erosion( Data3D<unsigned char>& src, const int& k);
+void dilate(Data3D<unsigned char>& src, const int& k);
+void erose( Data3D<unsigned char>& src, const int& k);
 void closing( Data3D<unsigned char>& src, const int& k);
 }
 
 namespace IP = ImageProcessing;
+
+template<typename T>
+void ImageProcessing::masking( const Data3D<T>& src,
+                               const Data3D<unsigned char>& mask,
+                               Data3D<T>& dst )
+{
+    smart_assert( src.get_size()==mask.get_size(),
+                  "Image size should match mask size" );
+
+    if( &dst!=&src ) dst = src;
+
+    int x, y, z;
+    cv::Vec<T, 2> min_max = src.get_min_max_value();
+    for( z = 0; z < src.get_size_z(); z++ )
+    {
+        for( y = 0; y < src.get_size_y(); y++ )
+        {
+            for( x = 0; x < src.get_size_x(); x++ )
+            {
+                if( mask.at(x,y,z) ) dst.at(x,y,z) = min_max[0];
+            }
+        }
+    }
+}
 
 template<typename T1, typename T2, typename T3>
 void ImageProcessing::conv3( const Data3D<T1>& src, Data3D<T2>& dst, const Kernel3D<T3>& kernel )
@@ -159,67 +190,61 @@ bool ImageProcessing::GaussianBlur3D( const Data3D<T1>& src, Data3D<T2>& dst, in
 
     // gaussian on x-direction
     Data3D<T2> tmp1( src.get_size(), T2(0) ); // the data will be set to zero
-    #pragma omp parallel
-    {
-        #pragma omp for
-        for( int z=spos[2]; z<epos[2]; z++ ) for( int y=spos[1]; y<epos[1]; y++ ) for( int x=spos[0]; x<epos[0]; x++ )
+    #pragma omp parallel for
+    for( int z=spos[2]; z<epos[2]; z++ ) for( int y=spos[1]; y<epos[1]; y++ ) for( int x=spos[0]; x<epos[0]; x++ )
+            {
+                double sum = 0.0;
+                for( int i=0; i<ksize; i++)
                 {
-                    double sum = 0.0;
-                    for( int i=0; i<ksize; i++)
+                    int x2 = x+i-hsize;
+                    if( x2>=0 && x2<epos[0] )
                     {
-                        int x2 = x+i-hsize;
-                        if( x2>=0 && x2<epos[0] )
-                        {
-                            tmp1.at(x, y, z) += T2( gk.at<double>(i) * src.at(x2, y, z) );
-                            sum += gk.at<double>(i);
-                        }
+                        tmp1.at(x, y, z) = T2( gk.at<double>(i) * src.at(x2, y, z) + tmp1.at(x, y, z));
+                        sum += gk.at<double>(i);
                     }
-                    tmp1.at(x, y, z) = T2( tmp1.at(x, y, z)/sum );
                 }
-    }
+                tmp1.at(x, y, z) = T2( tmp1.at(x, y, z)/sum );
+            }
+
 
     // gaussian on y-direction
     Data3D<T2> tmp2( src.get_size(), T2(0) ); // the data will be set to zero
-    #pragma omp parallel
-    {
-        #pragma omp for
-        for( int z=spos[2]; z<epos[2]; z++ ) for( int y=spos[1]; y<epos[1]; y++ ) for( int x=spos[0]; x<epos[0]; x++ )
+    #pragma omp parallel for
+    for( int z=spos[2]; z<epos[2]; z++ ) for( int y=spos[1]; y<epos[1]; y++ ) for( int x=spos[0]; x<epos[0]; x++ )
+            {
+                double sum = 0.0;
+                for( int i=0; i<ksize; i++)
                 {
-                    double sum = 0.0;
-                    for( int i=0; i<ksize; i++)
+                    int y2 = y+i-hsize;
+                    if( y2>=0 && y2<epos[1] )
                     {
-                        int y2 = y+i-hsize;
-                        if( y2>=0 && y2<epos[1] )
-                        {
-                            tmp2.at(x, y, z) += T2( gk.at<double>(i) * tmp1.at(x, y2, z) );
-                            sum += gk.at<double>(i);
-                        }
+                        tmp2.at(x, y, z) = T2( gk.at<double>(i) * tmp1.at(x, y2, z) + tmp2.at(x, y, z));
+                        sum += gk.at<double>(i);
                     }
-                    tmp2.at(x, y, z) = T2( tmp2.at(x, y, z)/sum );
                 }
-    }
+                tmp2.at(x, y, z) = T2( tmp2.at(x, y, z)/sum );
+            }
+
     tmp1.reset(); // tmp1 is no long in use. release memory
 
     // gaussian on z-direction
     dst.reset( src.get_size() );
-    #pragma omp parallel
-    {
-        #pragma omp for
-        for( int z=spos[2]; z<epos[2]; z++ ) for( int y=spos[1]; y<epos[1]; y++ ) for( int x=spos[0]; x<epos[0]; x++ )
+    #pragma omp parallel for
+    for( int z=spos[2]; z<epos[2]; z++ ) for( int y=spos[1]; y<epos[1]; y++ ) for( int x=spos[0]; x<epos[0]; x++ )
+            {
+                double sum = 0.0;
+                for( int i=0; i<ksize; i++)
                 {
-                    double sum = 0.0;
-                    for( int i=0; i<ksize; i++)
+                    int z2 = z+i-hsize;
+                    if( z2>=0 && z2<epos[2] )
                     {
-                        int z2 = z+i-hsize;
-                        if( z2>=0 && z2<epos[2] )
-                        {
-                            dst.at(x, y, z) += T2( gk.at<double>(i) * tmp2.at(x, y, z2) );
-                            sum += gk.at<double>(i);
-                        }
+                        dst.at(x, y, z) = T2( dst.at(x, y, z) + gk.at<double>(i) * tmp2.at(x, y, z2) );
+                        sum += gk.at<double>(i);
                     }
-                    dst.at(x, y, z) = T2( dst.at(x, y, z)/sum );
                 }
-    }
+                dst.at(x, y, z) = T2( dst.at(x, y, z)/sum );
+            }
+
     return true;
 }
 
@@ -279,9 +304,10 @@ bool ImageProcessing::meanBlur3D( const Data3D<T1>& src, Data3D<T2>& dst, int ks
 template<typename T1, typename T2, typename T3 >
 bool ImageProcessing::filter3D_X( const Data3D<T1>& src, Data3D<T2>& dst, const Kernel3D<T3>& kx )
 {
-    smart_return( (&src)!=(&dst), "src and dst should be different.", false );
+    smart_return( (void*)&src!=(void*)&dst,
+                  "src and dst should be different.", false );
     smart_return( kx.get_size_x()>0 && kx.get_size_y()==1 && kx.get_size_z()==1,
-                        "kernel size should be (X,1,1) where X > 0", false );
+                  "kernel size should be (X,1,1) where X > 0", false );
 
     dst.reset( src.get_size() );
 
@@ -296,7 +322,7 @@ bool ImageProcessing::filter3D_X( const Data3D<T1>& src, Data3D<T2>& dst, const 
                 {
                     int x2 = x+i-hsize;
                     if( x2<0 || x2>=size[0] ) continue;
-                    dst.at(x, y, z) += T2( kx.at(i,0,0) * src.at(x2, y, z) );
+                    dst.at(x, y, z) = T2( dst.at(x, y, z) + kx.at(i,0,0) * src.at(x2, y, z) );
                     sum += kx.at(i,0,0);
                 }
                 dst.at(x, y, z) = T2( dst.at(x, y, z)/sum );
@@ -305,11 +331,12 @@ bool ImageProcessing::filter3D_X( const Data3D<T1>& src, Data3D<T2>& dst, const 
 }
 
 template<typename T1, typename T2, typename T3 >
-bool ImageProcessing::filter3D_Y( const Data3D<T1>& src, Data3D<T2>& dst, const Kernel3D<T3>& ky )
+bool ImageProcessing::filter3D_Y( const Data3D<T1>& src, Data3D<T2>& dst,
+                                  const Kernel3D<T3>& ky )
 {
     smart_return( (&src)!=(&dst), "src and dst should be different.", false );
     smart_return( ky.get_size_x()==1 && ky.get_size_y()>0 && ky.get_size_z()==1,
-                        "kernel size should be (1,Y,1) where Y > 0", false );
+                  "kernel size should be (1,Y,1) where Y > 0", false );
 
     dst.reset( src.get_size() );
 
@@ -324,7 +351,7 @@ bool ImageProcessing::filter3D_Y( const Data3D<T1>& src, Data3D<T2>& dst, const 
                 {
                     int y2 = y+i-hsize;
                     if( y2<0 || y2>=size[1] ) continue;
-                    dst.at(x, y, z) += T2( ky.at(0,i,0) * src.at(x, y2, z) );
+                    dst.at(x, y, z) = T2( dst.at(x, y, z) + ky.at(0,i,0) * src.at(x, y2, z) );
                     sum += ky.at(0,i,0);
                 }
                 dst.at(x, y, z) = T2( dst.at(x, y, z)/sum );
@@ -338,7 +365,7 @@ bool ImageProcessing::filter3D_Z( const Data3D<T1>& src, Data3D<T2>& dst, const 
 {
     smart_return( (&src)!=(&dst), "src and dst should be different.", false );
     smart_return( kz.get_size_x()==1 && kz.get_size_y()==1 && kz.get_size_z()>0,
-                        "kernel size should be (1,1,Z) where Z > 0 ", false );
+                  "kernel size should be (1,1,Z) where Z > 0 ", false );
 
     dst.reset( src.get_size() );
 
@@ -353,7 +380,7 @@ bool ImageProcessing::filter3D_Z( const Data3D<T1>& src, Data3D<T2>& dst, const 
                 {
                     int z2 = z+i-hsize;
                     if( z2<0 || z2>=size[2] ) continue;
-                    dst.at(x, y, z) += T2( kz.at(0,0,i) * src.at(x, y, z2) );
+                    dst.at(x, y, z) = T2( dst.at(x, y, z) + kz.at(0,0,i) * src.at(x, y, z2) );
                     sum += kz.at(0,0,i);
                 }
                 dst.at(x, y, z) = T2( dst.at(x, y, z)/sum );
@@ -403,35 +430,35 @@ void ImageProcessing::quad_normalize( Data3D<T>& data, T norm_max )
 // threshold the data
 // threshold the data and return a binary mask
 template<typename T>
-void ImageProcessing::threshold( const Data3D<T>& src, Data3D<unsigned char>& dst, T thresh )
+void ImageProcessing::threshold( const Data3D<T>& src, Data3D<unsigned char>& mask, T thresh )
 {
     int x,y,z;
-    dst.reset( src.get_size() );
+    mask.reset( src.get_size() );
     for(z=0; z<src.SZ(); z++) for (y=0; y<src.SY(); y++) for(x=0; x<src.SX(); x++)
             {
-                dst.at(x,y,z) = src.at(x,y,z) > thresh ? 255 : 0;
+                mask.at(x,y,z) = src.at(x,y,z) > thresh ? 255 : 0;
             }
 }
 // threshold the data and return a binary mask and of a set of locations
 template<typename T>
-void ImageProcessing::threshold( const Data3D<T>& src, Data3D<unsigned char>& dst,
+void ImageProcessing::threshold( const Data3D<T>& src, Data3D<unsigned char>& mask,
                                  std::vector<cv::Vec3i>& pos, T thresh )
 {
     int x,y,z;
-    dst.reset( src.get_size() );
+    mask.reset( src.get_size() );
     for(z=0; z<src.SZ(); z++) for (y=0; y<src.SY(); y++) for(x=0; x<src.SX(); x++)
             {
                 if( src.at(x,y,z) > thresh )
                 {
-                    dst.at(x,y,z) = 255;
+                    mask.at(x,y,z) = 255;
                     pos.push_back( cv::Vec3i(x,y,z) );
                 }
             }
 }
 // threshold the data and return a index map (dst) and of a set of locations
 template<typename T>
-void ImageProcessing::threshold( const Data3D<T>& src, Data3D<int>& indeces, std::vector<cv::Vec3i>& pos,
-                                 T thresh )
+void ImageProcessing::threshold( const Data3D<T>& src, Data3D<int>& indeces,
+                                 std::vector<cv::Vec3i>& pos, T thresh )
 {
     int x,y,z;
     indeces.reset( src.get_size() );
@@ -456,7 +483,7 @@ void ImageProcessing::threshold( const Data3D<T>& src, Data3D<T>& dst, T thresh 
     if( &src!=&dst ) dst.reset( src.get_size() );
     for(z=0; z<src.SZ(); z++) for (y=0; y<src.SY(); y++) for(x=0; x<src.SX(); x++)
             {
-                dst.at(x,y,z) = src.at(x,y,z) > thresh ? src.at(x,y,z) : 0;
+                dst.at(x,y,z) = src.at(x,y,z) > thresh ? src.at(x,y,z) : thresh;
             }
 }
 // threshold the data and suppress the point to zero if it is below threshold

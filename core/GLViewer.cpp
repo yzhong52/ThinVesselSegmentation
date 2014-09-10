@@ -6,16 +6,7 @@
 using namespace std;
 
 #include <time.h>
-
-/////////////////////////////////////
-// Glut Library
-#include <GL/glut.h>
-
-#if _MSC_VER && !__INTEL_COMPILER
-#pragma comment(lib, "freeglut.lib")
-#endif
-
-
+#include <GL/glut.h> // Glut Library
 #include "GLVideoSaver.h"
 
 namespace GLViewer
@@ -23,14 +14,20 @@ namespace GLViewer
 
 // an array of objects that need to be render
 vector<Object*> obj;
-// maximum number of viewports supported by the viewer
-const int maxNumViewports = 4;
+
+// maximum number of viewports supported
+const int maxNumViewports = 9;
+
+// maximum number of objects suported
+const int maxNumObjects = 9;
+
 // number of viewports that is currently available
 int numViewports = 1;
-// isDisplayObject[i][j] indicates that whether or not display object i in viewport j
-vector<bool> isDisplayObject[maxNumViewports];
 
-// Size of the data
+// isDisplayObject[i][j] indicates that whether or not display object i in viewport j
+bool isDisplayObj[maxNumViewports][maxNumObjects];
+
+// Size of the 3D data
 unsigned sx = 0;
 unsigned sy = 0;
 unsigned sz = 0;
@@ -38,7 +35,7 @@ unsigned sz = 0;
 /////////////////////////////////////////
 // Camera Controls by Mouse
 ///////////////////////
-GLCamera cam;
+GLCamera camera;
 int mouse_pos_x = 0;
 int mouse_pos_y = 0;
 
@@ -50,48 +47,63 @@ int height = 720;
 
 VideoSaver* videoSaver = NULL;
 
+// Whether or not display the axis in the scene
 bool isAxis = false;
 
+// Whether or not to take a screen shot from the current rendering result
 bool isSaveFrame = false;
 
 void render(void)
 {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	// Clear The Screen And The Depth Buffer
+    // Clear The Screen And The Depth Buffer
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    cam.push_matrix();
-    // rending viewports
-    if( numViewports == 4 )
+    // Rending objects
+    camera.push_matrix();
+    if( numViewports==4 || numViewports==8 )
     {
-        // if there are 4 viewports, display the objects in two rows
-        // each row with 2 columns
-        for( unsigned int i=0; i<2; i++ ) for( unsigned int j=0; j<2; j++ )
+        // If there are 4 or 8 viewports, display the objects in two rows
+        const unsigned numObjRow = numViewports/2;
+        const unsigned numObjCol = 2;
+        // viewport width and height
+        const unsigned w = width / numObjRow;
+        const unsigned h = height / numObjCol;
+        for( unsigned int j=0; j<numObjCol; j++ )
+        {
+            for( unsigned int i=0; i<numObjRow; i++ )
             {
-                glViewport (width/2*i, height/2*j, width/2, height/2);
-                unsigned int obj_index = i+2*(1-j);
-                if( obj_index < obj.size() ) obj[obj_index]->render();
-                else                         obj[0]->render();
+                glViewport(w*i, h*j, w, h);
+
+                unsigned int vp_index = i + numObjRow*(1-j);
+
+                for( unsigned int obj_index=0; obj_index<obj.size(); obj_index++ )
+                {
+                    if( isDisplayObj[vp_index][obj_index] ) obj[obj_index]->render();
+                }
 
                 // draw rotation axis
-                if( isAxis ) cam.draw_axis();
+                if( isAxis ) camera.draw_axis();
             }
+        }
     }
     else
     {
+        // If there are 1, 2, or 3 view ports, display then in a row
         for( int i=0; i<numViewports; i++ )
         {
-            // For viewport i
+            // For view port i
             glViewport (i*width/numViewports, 0, width/numViewports, height);
             for( unsigned int j=0; j<obj.size(); j++ )
             {
-                if( isDisplayObject[i][j] ) obj[j]->render();
+                if( isDisplayObj[i][j] ) obj[j]->render();
             }
 
             // draw rotation axis
-            if( isAxis ) cam.draw_axis();
+            if( isAxis ) camera.draw_axis();
         }
     }
-    cam.pop_matrix();
-    cam.rotate_scene();
+    camera.pop_matrix();
+    camera.rotate_scene();
 
     // saving frame buffer as video
     if( videoSaver )
@@ -112,9 +124,12 @@ void render(void)
 void startCaptureVideo( int maxNumFrames )
 {
     static int index = 0;
+
     stringstream videoName;
     videoName << "output/video" << ++index << ".avi";
+
     cout << "Begin to create video '" << videoName.str() << "'" << endl;
+
     if( !videoSaver ) videoSaver = new VideoSaver();
     videoSaver->init(width, height, videoName.str(), maxNumFrames );
 }
@@ -127,7 +142,10 @@ void mouse_click(int button, int state, int x, int y)
         static int mouse_down_y;
         if(state == GLUT_DOWN)
         {
-            cam.setNavigationMode( GLCamera::Rotate );
+            /* The camera is already rotating around the center of the
+               scence. The original rotation speed is zero. Rotatio speed
+               is updated with mouse click (left button). */
+            camera.setNavigationMode( GLCamera::Rotate );
             mouse_pos_x = x;
             mouse_pos_y = y;
             mouse_down_x = x;
@@ -135,111 +153,136 @@ void mouse_click(int button, int state, int x, int y)
         }
         else if( state == GLUT_UP )
         {
-            // stop tracking mouse move for rotating
-            cam.setNavigationMode( GLCamera::None );
-            // Stop the rotation immediately no matter what
-            // if the user click and release the mouse at the
-            // same point
+            // stop tracking mouse move for rotation
+            camera.setNavigationMode( GLCamera::None );
+
+            // Double click to stop camera rotation
             if( mouse_down_x==x && mouse_down_y==y )
             {
-                cam.setRotation( 0, 0 ); // stop rotation
+                // If the user click and release the mouse at the same point
+                camera.setRotation( 0, 0 ); // stop rotation
             }
         }
     }
     else if(button == GLUT_RIGHT_BUTTON)     // mouse right button
     {
+        // Right click to navigate the scene (moving up, down, left or right)
         if( state == GLUT_DOWN )
         {
-            cam.setNavigationMode( GLCamera::MoveAside );
+            camera.setNavigationMode( GLCamera::MoveAside );
             mouse_pos_x = x;
             mouse_pos_y = y;
         }
         else
         {
-            cam.setNavigationMode( GLCamera::None );
+            camera.setNavigationMode( GLCamera::None );
         }
     }
     else if( button==GLUT_MIDDLE_BUTTON )     // center button
     {
+        // Click with middle buttong to navigate the scene (forward or backward)
         if( state == GLUT_DOWN )
         {
-            cam.setNavigationMode( GLCamera::MoveForward );
+            camera.setNavigationMode( GLCamera::MoveForward );
             mouse_pos_x = x;
             mouse_pos_y = y;
         }
         else
         {
-            cam.setNavigationMode( GLCamera::None );
+            camera.setNavigationMode( GLCamera::None );
         }
     }
-    else if ( button==3 )     // mouse wheel scrolling up
+    else if ( button==3 )
     {
-        cam.zoomIn();
+        // mouse wheel scrolling up to zoom in
+        camera.zoomIn();
     }
-    else if ( button==4 )     // mouse wheel scrooling down
+    else if ( button==4 )
     {
-        cam.zoomOut();
+        // mouse wheel scrooling down to zoom out
+        camera.zoomOut();
     }
 }
 
-// the mouse_move function will only be called when at least one button of the mouse id down
+// the mouse_move function will only be called when at least one button of the
+// mouse is holded down
 void mouse_move(int x, int y)
 {
-    if( cam.getNavigationMode() == GLCamera::Rotate )
+    if( camera.getNavigationMode() == GLCamera::Rotate )
     {
-        cam.setRotation( 1.0f*(x - mouse_pos_x), 1.0f*(y - mouse_pos_y) );
+        camera.setRotation( 1.0f*(x - mouse_pos_x), 1.0f*(y - mouse_pos_y) );
         glutPostRedisplay();
     }
-    else if( cam.getNavigationMode() == GLCamera::MoveAside )
+    else if( camera.getNavigationMode() == GLCamera::MoveAside )
     {
-        cam.translate_aside( x - mouse_pos_x, y - mouse_pos_y );
+        camera.translate_aside( x - mouse_pos_x, y - mouse_pos_y );
     }
-    else if( cam.getNavigationMode()==GLCamera::MoveForward )
+    else if( camera.getNavigationMode()==GLCamera::MoveForward )
     {
-        cam.translate_forward( x - mouse_pos_x, y - mouse_pos_y );
+        camera.translate_forward( x - mouse_pos_x, y - mouse_pos_y );
     }
-    mouse_pos_x = x; // update mouse location
-    mouse_pos_y = y; // update mouse location
+
+    // update mouse position
+    mouse_pos_x = x;
+    mouse_pos_y = y;
 }
 
 
 void reset_projection(void)
 {
-    glMatrixMode(GL_PROJECTION);						// Select The Projection Matrix
-    glLoadIdentity();									// Reset The Projection Matrix
+    // Select The Projection Transformation
+    glMatrixMode(GL_PROJECTION);
+
+    // Reset The Projection Matrix
+    glLoadIdentity();
+
     GLfloat maxVal = max( sx, max(sy, sz) ) * 0.8f;
 
     GLfloat ratio = 1;
-    if ( numViewports==4 ) ratio = (GLfloat)width / (GLfloat)height;
-    else                   ratio = (GLfloat)width / (GLfloat)height / numViewports;
+    if ( numViewports==1 || numViewports==4 )
+    {
+        ratio = (GLfloat)width / (GLfloat)height;
+    }
+    else if( numViewports==8 )
+    {
+        ratio = (GLfloat)width / (GLfloat)height / 2;
+    }
+    else
+    {
+        ratio = (GLfloat)width / (GLfloat)height / numViewports;
+    }
 
     glOrtho( -maxVal*ratio, maxVal*ratio, -maxVal, maxVal, -maxVal, maxVal);
-    glMatrixMode(GL_MODELVIEW);
+
+    glMatrixMode(GL_MODELVIEW);     // Select The Model Transformation
+    glutPostRedisplay();
 }
 
 void reset_modelview(void)
 {
-    cam.resetModelview( (GLfloat)sx, (GLfloat)sy, (GLfloat)sz );
+    camera.resetModelview( (GLfloat)sx, (GLfloat)sy, (GLfloat)sz );
     glutPostRedisplay();
 }
 
 void reshape(int w, int h)
 {
+    // limit the minimum size of the windows
     width = max(50, w);
     height = max(50, h);
 
-    reset_projection(); // Reset Projection
-
-    glutPostRedisplay();
+    // Reset Projection Transformation
+    reset_projection();
 }
-
 
 void keyboard(unsigned char key, int x, int y)
 {
+    // use number key 1~9 to control which object to display
     if( key >= '1' && key <= '9' )
     {
+        // object index
         unsigned int index = key - '1';
-        if( index >= isDisplayObject[numViewports-1].size() )  return;
+
+        if( index >= obj.size() )  return;
 
         if (glutGetModifiers() == GLUT_ACTIVE_ALT )
         {
@@ -247,7 +290,9 @@ void keyboard(unsigned char key, int x, int y)
         }
         else
         {
-            isDisplayObject[numViewports-1][index] = !isDisplayObject[numViewports-1][index];
+            isDisplayObj[numViewports-1][index] = !isDisplayObj[numViewports-1][index];
+            cout << ((isDisplayObj[numViewports-1][index]) ? "Display " : "Hide ");
+            cout << "object " << index << " in view port " << numViewports-1 << endl;
         }
     }
 
@@ -261,18 +306,19 @@ void keyboard(unsigned char key, int x, int y)
         // toggle on/off the axis
         isAxis = !isAxis;
         break;
-        //case '\t': // TODO: Fix it before you uncommend this block of code
-        //	numViewports = (numViewports+1) % maxNumViewports;
-        //	reset_projection();
-        //	break;
+    case '\t':
+        // increment the number of viewports: 1, 2, 3...
+        numViewports = numViewports % maxNumViewports + 1;
+        reset_projection();
+        break;
     case 's':
     case 'S':
         isSaveFrame = true;
         break;
 
-        /////////////////////////////
-        // saving video
-        /////////////////////////////
+    /////////////////////////////
+    // saving video
+    /////////////////////////////
     case 'v':
     case 'V':
         if( !videoSaver || videoSaver->isDone() )
@@ -293,9 +339,9 @@ void keyboard(unsigned char key, int x, int y)
     }
 }
 
-void go( vector<Object*> objects, int w, int h )
+void dispay( vector<Object*> objects, int w, int h )
 {
-    cam.setNavigationMode( GLCamera::Rotate );
+    camera.setNavigationMode( GLCamera::Rotate );
 
     width = w;
     height = h;
@@ -305,20 +351,23 @@ void go( vector<Object*> objects, int w, int h )
         std::cerr << "No Objects For Rendering... " << std::endl;
         return;
     }
+    else if( objects.size()> maxNumObjects )
+    {
+        std::cerr << "Too many objects to visulized... " << std::endl;
+        return;
+    }
+
 
     obj = objects;
 
+    std::fill( isDisplayObj[0],
+               isDisplayObj[0]+sizeof(isDisplayObj)*sizeof(isDisplayObj[0][0]),
+               false );
     for( unsigned int i=0; i<maxNumViewports; i++ )
     {
-        isDisplayObject[i].resize( objects.size(), false );
-        if( i < objects.size() )   // put the i-th object in the i-th viewport
-        {
-            isDisplayObject[i][i] = true;
-        }
-        else
-        {
-            isDisplayObject[i][0] = true;
-        }
+        // put the i-th object in the i-th viewport
+        if( i < objects.size() ) isDisplayObj[i][i] = true;
+        else isDisplayObj[i][0] = true;
     }
 
     ///////////////////////////////////////////////
@@ -345,8 +394,8 @@ void go( vector<Object*> objects, int w, int h )
 
 
     // Global Inits - Antialiasing
-    glEnable (GL_LINE_SMOOTH);
-    glHint (GL_LINE_SMOOTH_HINT, GL_NICEST );
+    glEnable( GL_LINE_SMOOTH );
+    glHint( GL_LINE_SMOOTH_HINT, GL_NICEST );
     // The order of the following settings do matters
     // Setting up the size of the scence
     for( unsigned int i=0; i<obj.size(); i++ )
@@ -362,7 +411,7 @@ void go( vector<Object*> objects, int w, int h )
     reset_modelview();
 
     // Initial Rotation (Do as you want ); Now it is faciton the x-y plane
-    cam.rotate_x(-90); // rotate around x-axis for 90 degrees
+    camera.rotate_x(-90); // rotate around x-axis for 90 degrees
 
     cout << "Redenring Begin..." << endl;
     cout << "======================= Instructions =======================" << endl;
@@ -379,7 +428,8 @@ void go( vector<Object*> objects, int w, int h )
     cout << "       v/V               - toggle start/stop saving video" << endl;
     cout << "       ESC               - Exit " << endl;
 
-    glutMainLoop(); // No Code Will Be Executed After This Line
+    // Enter glut main loop: No Code Will Be Executed After This Line!
+    glutMainLoop();
 }
 
 }

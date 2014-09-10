@@ -5,44 +5,51 @@
 #
 ####################################
 
-echo "\n"
+# Preparing the directories and files
+mkdir -p bin libs
+cp send_email.py ./bin/send_email.py
+
+echo ""
 echo "####################################"
 echo "# Compiling Vesselness"
 echo "####################################"
-echo "\n"
-
+echo ""
 cd ./Vesselness
-make clean
+#make clean
+mkdir -p bin obj
 make
 
-echo "\n"
+
+echo ""
 echo "####################################"
 echo "# Compiling SparseMatrix"
 echo "####################################"
-echo "\n"
-
+echo ""
 cd ../SparseMatrix
-make clean
+#make clean
+mkdir -p bin obj
 make
 
-echo "\n"
+
+echo ""
 echo "####################################"
 echo "# Compiling SparseMatrixCV"
 echo "####################################"
-echo "\n"
-
+echo ""
 cd ../SparseMatrixCV
-make clean
+#make clean
+mkdir -p bin obj
 make
 
-echo "\n"
+
+echo ""
 echo "####################################"
 echo "# Compiling ModelFitting"
 echo "####################################"
-echo "\n"
-
+echo ""
 cd ../ModelFitting
-make clean
+#make clean
+mkdir -p bin obj
 make
 
 

@@ -8,7 +8,7 @@ using namespace std;
 SparseMatrixData::SparseMatrixData( unsigned num_rows, unsigned num_cols )
     : ncol( num_cols ), nrow( num_rows )
 {
-
+    // an empty matrix
 }
 
 SparseMatrixData::SparseMatrixData( unsigned num_rows, unsigned num_cols, const double non_zero_value[],
@@ -18,7 +18,6 @@ SparseMatrixData::SparseMatrixData( unsigned num_rows, unsigned num_cols, const 
     // N==0, then this is a zero matrix, then don't allocate matrix data
     if( N != 0 )
     {
-
         datarow.nnz = N;
 
         // non-zero values
@@ -71,7 +70,7 @@ void SparseMatrixData::getRow(unsigned& N, const double*& nzval, const unsigned 
             ncol,						// number of rows
             nrow,						// number of cols
             datacol.nnz, datacol.nzval, datacol.rowind, datacol.colptr,
-            datarow.nnz, datarow.nzval, datarow.colind, datarow.rowptr );                  // row pointers
+            datarow.nnz, datarow.nzval, datarow.colind, datarow.rowptr ); // row pointers
     }
 
     N = datarow.nnz;

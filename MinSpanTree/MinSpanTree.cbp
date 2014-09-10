@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="MinSpanTree" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/MinSpanTree" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+				<Linker>
+					<Add directory="../libs/Debug" />
+				</Linker>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/MinSpanTree" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option parameters="&lt; arguments.txt" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add directory="../libs/Release" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-std=c++11" />
+			<Add option="-Wall" />
+			<Add option="-fexceptions" />
+			<Add option="-Wno-comment" />
+			<Add option="-fopenmp" />
+			<Add option="-Wno-unused-result" />
+			<Add directory="../Vesselness" />
+			<Add directory="../core" />
+		</Compiler>
+		<Linker>
+			<Add option="`pkg-config --libs opencv`" />
+			<Add option="-Wl,--no-as-needed" />
+			<Add option="-pthread" />
+			<Add library="libGL.a" />
+			<Add library="libglut.a" />
+			<Add library="libcore.a" />
+			<Add library="libGLEW.a" />
+			<Add library="libgomp.a" />
+			<Add library="libGLU.a" />
+		</Linker>
+		<Unit filename="../ModelFitting/GLLineModel.cpp" />
+		<Unit filename="../ModelFitting/GLLineModel.h" />
+		<Unit filename="../ModelFitting/GLViwerModel.h" />
+		<Unit filename="../ModelFitting/Line3D.cpp" />
+		<Unit filename="../ModelFitting/Line3D.h" />
+		<Unit filename="../ModelFitting/Line3DTwoPoint.cpp" />
+		<Unit filename="../ModelFitting/Line3DTwoPoint.h" />
+		<Unit filename="../ModelFitting/ModelSet.cpp" />
+		<Unit filename="../ModelFitting/ModelSet.h" />
+		<Unit filename="../ModelFitting/Neighbour26.h" />
+		<Unit filename="ComputeMST.cpp" />
+		<Unit filename="ComputeMST.h" />
+		<Unit filename="DisjointSet.cpp" />
+		<Unit filename="DisjointSet.h" />
+		<Unit filename="GLMinSpanTree.cpp" />
+		<Unit filename="GLMinSpanTree.h" />
+		<Unit filename="MSTEdge.cpp" />
+		<Unit filename="MSTEdge.h" />
+		<Unit filename="MSTEdgeExt.cpp" />
+		<Unit filename="MSTEdgeExt.h" />
+		<Unit filename="MSTGraph.h" />
+		<Unit filename="deprecated.h" />
+		<Unit filename="example.h" />
+		<Unit filename="main.cpp" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<lib_finder disable_auto="1" />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

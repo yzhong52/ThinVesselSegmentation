@@ -4,11 +4,11 @@ using namespace std;
 
 // The following not supported by g++
 #if _MSC_VER && !__INTEL_COMPILER
-    #ifdef _DEBUG
-        #pragma comment(lib,"../x64/Debug/SparseMatrix.lib")
-    #else
-        #pragma comment(lib,"../x64/Release/SparseMatrix.lib")
-    #endif
+#ifdef _DEBUG
+#pragma comment(lib,"../x64/Debug/SparseMatrix.lib")
+#else
+#pragma comment(lib,"../x64/Release/SparseMatrix.lib")
+#endif
 #endif
 
 SparseMatrixCV::SparseMatrixCV( unsigned nrow, unsigned ncol, const unsigned index[][2], const double value[], unsigned N )
@@ -33,9 +33,9 @@ SparseMatrixCV::SparseMatrixCV( unsigned nrow, unsigned ncol, const unsigned ind
     std::sort( initdata.begin(), initdata.end() );
 
 
-    double* non_zero_value  = new double[N];
-    unsigned* col_index  = new unsigned[N];
-    unsigned* row_pointer = new unsigned[nrow+1];
+    vector<double> non_zero_value(N);
+    vector<unsigned> col_index(N);
+    vector<unsigned> row_pointer(nrow+1);
 
     int previous_row = -1;
     for( unsigned i=0; i<N; i++ )
@@ -50,7 +50,7 @@ SparseMatrixCV::SparseMatrixCV( unsigned nrow, unsigned ncol, const unsigned ind
     row_pointer[nrow] = N;
 
     // re-constuct the matrix with give data
-    this->updateData( nrow, ncol, non_zero_value, col_index, row_pointer, N );
+    this->updateData( nrow, ncol, non_zero_value, col_index, row_pointer );
 
     // we don't need to release the data, the memroy is used in the matrix data
     //delete[] row_pointer;
@@ -134,3 +134,14 @@ void SparseMatrixCV::convertTo( cv::Mat_<double>& m )
         }
     }
 }
+
+
+void solve( const SparseMatrixCV& A, const cv::Mat_<double>& B,
+            cv::Mat_<double>& X, double acuracy,
+            SparseMatrix::Options o )
+{
+    X = cv::Mat_<double>::zeros( A.row(), 1 );
+
+    solve(A, (double*)B.data, (double*)X.data, acuracy, o);
+}
+

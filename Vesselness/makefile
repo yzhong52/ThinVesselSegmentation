@@ -2,8 +2,6 @@
 include ../makefile-common.make
 
 # define any directories containing header files other than /usr/include
-INCLUDES  = -I ./
-INCLUDES += -I ../
 INCLUDES += -I ../core
 
 # define any libraries to link into executable:
@@ -14,7 +12,6 @@ INCLUDES += -I ../core
 
 # define the cpp source files
 SRCS  = VesselnessTypes.cpp VesselDetector.cpp ImageProcessing-Vesselness.cpp
-# SRCS += GLLineModel.cpp GLViwerModel.cpp 
 
 # define the C object files 
 #
@@ -34,6 +31,9 @@ all: $(CBLAS_OBJS) $(OBJS)
 	mkdir -p ../bin
 	mkdir -p ./obj
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(INCLUDES) $(OBJS) main_nvis.cpp -o $(TARGET) $(LFLAGS) $(LIBS)
+
+run:  
+	$(TARGET)
 
 # Yuchen: these following command will compile the other cpp files in the project
 # For example, if there is a file SparseMatrix.cpp in the current directory, it will 

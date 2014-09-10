@@ -4,7 +4,15 @@
 	<Project>
 		<Option title="SparseMatrix" />
 		<Option pch_mode="2" />
-		<Option compiler="gnu_gcc_compiler_x64" />
+		<Option compiler="gcc" />
+		<MakeCommands>
+			<Build command="" />
+			<CompileFile command="" />
+			<Clean command="" />
+			<DistClean command="" />
+			<AskRebuildNeeded command="" />
+			<SilentBuild command=" &gt; $(CMD_NULL)" />
+		</MakeCommands>
 		<Build>
 			<Target title="Debug">
 				<Option output="../libs/Debug/SparseMatrix" prefix_auto="1" extension_auto="1" />
@@ -18,6 +26,7 @@
 					<Add option="-Wall" />
 					<Add option="-g" />
 					<Add directory="../SparseMatrix" />
+					<Add directory="include" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -32,6 +41,7 @@
 					<Add option="-std=c++11" />
 					<Add option="-Wall" />
 					<Add directory="../SparseMatrix" />
+					<Add directory="include" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -43,20 +53,20 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option use_console_runner="0" />
 				<Compiler>
 					<Add option="-std=c++11" />
 					<Add option="-Wextra" />
 					<Add option="-Wall" />
 					<Add option="-g" />
-					<Add directory="../dependencies/gtest-1.7.0/include" />
+					<Add directory="../libs/gtest/include" />
 					<Add directory="../SparseMatrix" />
+					<Add directory="include" />
 				</Compiler>
 				<Linker>
 					<Add library="libgtest.a" />
 					<Add library="libgomp.a" />
 					<Add library="libpthread.a" />
-					<Add directory="../dependencies/gtest-1.7.0/x64-mingw32-w64" />
+					<Add directory="../libs/gtest" />
 				</Linker>
 			</Target>
 		</Build>
@@ -77,6 +87,7 @@
 		</Unit>
 		<Unit filename="CBLAS/f2c.h" />
 		<Unit filename="CBLAS/slu_Cnames.h" />
+		<Unit filename="SparseMatrix-lsover.cpp" />
 		<Unit filename="SparseMatrix.cpp" />
 		<Unit filename="SparseMatrix.h" />
 		<Unit filename="SparseMatrixData.cpp" />

@@ -23,9 +23,14 @@ public:
     Data3D( const cv::Vec3i& n_size, const T& value );
     // Constructor from file
     Data3D( const std::string& filename );
-    // Copy Constructor - extremely similar to the copyTo function
+    // Copy Constructor
     template <class T2>
     Data3D( const Data3D<T2>& src );
+    // Data3D( const Data3D<T>& src );
+
+    // Assign Constructor
+    const Data3D<T>& operator=( const Data3D<T>& src );
+
     // Destructor
     virtual ~Data3D(void) { }
 
@@ -114,6 +119,10 @@ public:
     {
         return _size;
     }
+    inline const bool is_empty( void ) const
+    {
+        return get_size_total()==0;
+    }
 
     // getters about values of the data
     virtual const inline T& at( const int& i ) const
@@ -157,11 +166,14 @@ public:
 
     // loading/saving data from/to file
     bool load( const std::string& file_name );
-    bool load( const std::string& file_name, const cv::Vec3i& size, bool isBigEndian=true, bool isLoadPartial=false );
+    bool load( const std::string& file_name, const cv::Vec3i& size,
+               bool isBigEndian=true, bool isLoadPartial=false );
     bool save( const std::string& file_name, const std::string& log = "",
                bool saveInfo = true, bool isBigEndian = false ) const;
-    void show( const std::string& window_name = "Show 3D Data by Slice", int current_slice = 0 ) const;
-    void show( const std::string& window_name, int current_slice, T max_value, T min_value ) const;
+    void show( const std::string& window_name = "Show 3D Data by Slice",
+               int current_slice = 0 ) const;
+    void show( const std::string& window_name, int current_slice,
+               T max_value, T min_value ) const;
 
     // overwrite operators
     template<typename T1, typename T2>
@@ -191,11 +203,11 @@ public:
     }
 
 public:
-    // copy data of dimension i to a new Image3D structure
-    // e.g. this is useful when trying to visualize vesselness which is
-    // a multidimensional data structure
-    // Yuchen: p.s. I have no idea how to move the funciton body out the class
-    // definition nicely. Let me figure it later maybe.
+    /* copy data of dimension i to a new Image3D structure
+       e.g. this is useful when trying to visualize vesselness which is
+       a multidimensional data structure
+       Yuchen: p.s. I have no idea how to move the funciton body out the
+       class definition nicely. Let me figure it later maybe. */
     template<typename T2>
     void copyDimTo( Data3D<T2>& dst, int dim ) const
     {
@@ -241,6 +253,9 @@ public:
         return (T*) getMat().data;
     }
 
+    // shink image
+    void shrink_by_half(void);
+
 protected:
     // Maximum size of the x, y and z direction respetively.
     cv::Vec3i _size;
@@ -284,7 +299,7 @@ Data3D<T>::Data3D( const std::string& filename )
     }
 }
 
-// Copy Constructor - extremely similar to the copyTo function
+// Copy Constructor
 template<typename T>
 template<typename T2>
 Data3D<T>::Data3D( const Data3D<T2>& src )
@@ -302,6 +317,45 @@ Data3D<T>::Data3D( const Data3D<T2>& src )
         *(this_it) = T( *(src_it) );
     }
 }
+
+/*
+template<typename T>
+Data3D<T>::Data3D( const Data3D<T>& src ){
+    // resize
+    this->resize( src.get_size() );
+
+    // copy the data over
+    cv::MatIterator_<T>       this_it;
+    cv::MatConstIterator_<T> src_it;
+    for( this_it = this->getMat().begin(), src_it = src.getMat().begin();
+            this_it < this->getMat().end(),   src_it < src.getMat().end();
+            this_it++, src_it++ )
+    {
+        *(this_it) = *(src_it);
+    }
+}
+/**/
+
+
+template<typename T>
+const Data3D<T>& Data3D<T>::operator=( const Data3D<T>& src )
+{
+    // resize
+    this->resize( src.get_size() );
+
+    // copy the data over
+    cv::MatIterator_<T>       this_it;
+    cv::MatConstIterator_<T> src_it;
+    for( this_it = this->getMat().begin(), src_it = src.getMat().begin();
+            this_it < this->getMat().end(),   src_it < src.getMat().end();
+            this_it++, src_it++ )
+    {
+        *(this_it) = *(src_it);
+    }
+
+    return *this;
+}
+
 
 template <typename T>
 bool Data3D<T>::save( const std::string& file_name, const std::string& log, bool saveInfo, bool isBigEndian ) const
@@ -359,20 +413,20 @@ bool Data3D<T>::load( const std::string& file_name )
 template <typename T>
 bool Data3D<T>::load( const std::string& file_name, const cv::Vec3i& size, bool isBigEndian, bool isLoadPartial )
 {
-    std::cout << "Loading Data '" << file_name << "'" << std::endl;
+    std::cout << "Loading data '" << file_name << "'" << std::endl;
 
-    // reset size of the data
+    // Resize of the data and also allocate memory
     reset( size );
 
-    // loading data from file
+    // Loading data from file
     FILE* pFile=fopen( file_name.c_str(), "rb" );
     smart_return( pFile!=0, "File not found", false );
 
     unsigned long long size_read = fread_big( _mat.data, sizeof(T), _size_total, pFile);
 
     fgetc( pFile );
-    // if we haven't read the end of the file
-    // and if we specify that we only want to load part of the data (isLoadPartial)
+    // If we haven't reached the end of the file (feof(pFile))
+    // or haven't specify that only to load part of the data (isLoadPartial)
     if( !feof(pFile) && !isLoadPartial )
     {
         fclose(pFile);
@@ -381,13 +435,15 @@ bool Data3D<T>::load( const std::string& file_name, const cv::Vec3i& size, bool 
     }
     fclose(pFile);
 
-    // if the size we read is not as big as the size we expected, fail
+    // If the size we read is not as big as the size we expected, loading fail.
     smart_return( size_read==_size_total*sizeof(T),
                   "Data size is incorrect (too big)", false );
 
     if( isBigEndian )
     {
-        smart_return( sizeof(T)==2, "Datatype does not support big endian.", false );
+        smart_return( sizeof(T)==2,
+                      "Datatype does not support big endian.",
+                      false );
         // swap the data
         unsigned char* temp = _mat.data;
         for(int i=0; i<_size_total; i++)
@@ -412,7 +468,7 @@ void Data3D<T>::show(const std::string& window_name, int current_slice, T min_va
         typeid(T)==typeid(int)||
         typeid(T)==typeid(unsigned char)||
         typeid(T)==typeid(unsigned short),
-        "Datatype cannot be visualized." );
+        "Data type cannot be visualized." );
 
     cv::namedWindow( window_name.c_str(), CV_WINDOW_AUTOSIZE );
 
@@ -430,7 +486,7 @@ void Data3D<T>::show(const std::string& window_name, int current_slice, T min_va
     if( current_slice > SZ() ) current_slice = SZ();
     do
     {
-        cv::Mat  mat_temp = _mat.row(current_slice).reshape( 0, get_height() ).clone();
+        cv::Mat mat_temp = _mat.row(current_slice).reshape( 0, get_height() ).clone();
         // change the data type from whatever dataype it is to float for computation
         mat_temp.convertTo(mat_temp, CV_32F);
         // normalize the data range from whatever it is to [0, 255];
@@ -582,8 +638,7 @@ const Data3D<T>& operator*=( Data3D<T>& left, const T2& right )
 template<typename T1, typename T2, typename T3>
 bool subtract3D( const Data3D<T1>& src1, const Data3D<T2>& src2, Data3D<T3>& dst )
 {
-    smart_return( src1.get_size()==src2.get_size(),
-                        "Source sizes are supposed to be cv::Matched.", false);
+    smart_return( src1.get_size()==src2.get_size(), "Sizes should match.", false);
 
     if( dst.get_size() != src1.get_size() )
     {
@@ -597,7 +652,7 @@ bool subtract3D( const Data3D<T1>& src1, const Data3D<T2>& src2, Data3D<T3>& dst
         {
             for( x=0; x<src1.get_size_x(); x++ )
             {
-                dst.at(x,y,z) = src1.at(x,y,z) - src2.at(x,y,z);
+                dst.at(x,y,z) = T3(src1.at(x,y,z) - src2.at(x,y,z));
             }
         }
     }
@@ -655,11 +710,9 @@ bool Data3D<T>::remove_margin( const cv::Vec3i& margin1, const cv::Vec3i& margin
     for( int i=0; i<3; i++ )
     {
         n_size[i] = _size[i] - margin1[i] - margin2[i];
-        if( n_size[i] <= 0 )
-        {
-            std::cout << "Margin is too big. Remove margin failed. " << std::endl;
-            return false;
-        }
+        smart_return( n_size[i]>0,
+                      "Margin is too big. Remove margin failed. ",
+                      false );
     }
 
     // allocate memory for new data
@@ -711,3 +764,38 @@ void Data3D<T>::remove_margin_to( const cv::Vec3i& size )
     const cv::Vec3i right( (int) ceil(1.0f*(SX()-size[0])/2),  (int) ceil(1.0f*(SY()-size[1])/2), (int) ceil(1.0f*(SZ()-size[2])/2)) ;
     remove_margin( left, right );
 }
+
+
+template<typename T>
+void Data3D<T>::shrink_by_half(void)
+{
+    smart_assert( this->_size_total, "Image data is not set. ");
+
+    cv::Vec3i n_size = (Data3D<T>::_size - cv::Vec3i(1,1,1)) / 2; // TODO: why do I have to minute cv::Vec3i(1,1,1) here?
+    int n_size_slice = n_size[0] * n_size[1];
+    int n_size_total = n_size_slice * n_size[2];
+
+    // We need to add two short number, which may result in overflow.
+    // Therefore, we use CV_64S for safety
+    cv::Mat n_mat = cv::Mat( n_size[2], n_size_slice, Data3D<T>::_mat.type(), cv::Scalar(0) );
+    int i, j, k;
+    for( k=0; k<n_size[2]; k++ )
+    {
+        for( j=0; j<n_size[1]; j++ )
+        {
+            for( i=0; i<n_size[0]; i++ )
+            {
+                n_mat.at<T>(k, j*n_size[0]+i)  = T( 0.25 * Data3D<T>::_mat(2*k,     2 * j * Data3D<T>::_size[0] + 2 * i) );
+                n_mat.at<T>(k, j*n_size[0]+i) += T( 0.25 * Data3D<T>::_mat(2*k,     2 * j * Data3D<T>::_size[0] + 2 * i + 1) );
+                n_mat.at<T>(k, j*n_size[0]+i) += T( 0.25 * Data3D<T>::_mat(2*k + 1, 2 * j * Data3D<T>::_size[0] + 2 * i) );
+                n_mat.at<T>(k, j*n_size[0]+i) += T( 0.25 * Data3D<T>::_mat(2*k + 1, 2 * j * Data3D<T>::_size[0] + 2 * i + 1) );
+            }
+        }
+    }
+    Data3D<T>::_mat = n_mat;
+
+    Data3D<T>::_size = n_size;
+    Data3D<T>::_size_slice = n_size_slice;
+    Data3D<T>::_size_total = n_size_total;
+}
+

@@ -1,39 +1,12 @@
-# define some Makefile variables for the compiler and compiler flags
-# to use Makefile variables later in the Makefile: $()
-#
-#  -g    adds debugging information to the executable file
-#  -Wall turns on most, but not all, compiler warnings
-#  -pg   adds profiling information to the executable file
-#  -m64  compile for 64-bit
-#  -Wno-comment disable warnings about multiline comments
-CFLAGS = -Wall -m64 -fopenmp -Wno-comment -O2
-
-# for C++ define  CC = g++
-#  -m64  compile for 64 bits
-CC = g++ -std=c++0x 
-
-# for c compiler
-CCC = gcc
-
-# archive (compile to lib*.a)
-AR = ar -r -s
+# Inlcude general makefile settings
+include ../makefile-common.make
 
 # define any directories containing header files other than /usr/include
-INCLUDES  = -I ./
 INCLUDES += -I ./CBLAS
 
-# define library paths in addition to /usr/lib
-#   if I wanted to include libraries not in /usr/lib I'd specify
-#   their path using -Lpath, something like:
-LFLAGS  = -L ./
-
-# define any libraries to link into executable:
-#   if I want to link in libraries (libx.so or libx.a) I use the -llibname 
-#   option, something like (this will link in libmylib.so and libm.so:
-# LIBS = 
-
 # define the cpp source files
-SRCS = SparseMatrix.cpp SparseMatrixData.cpp
+SRCS = SparseMatrix.cpp SparseMatrixData.cpp SparseMatrix-lsover.cpp
+SRCS_CBLAS = daxpy.c dcopy.c ddot.c dscal.c 
 
 # define the C object files 
 #
@@ -46,26 +19,20 @@ SRCS = SparseMatrix.cpp SparseMatrixData.cpp
 # $(SRCS:.cpp=.o) 
 OBJS = $(SRCS:%.cpp=./obj/%.o) 
 
-CBLAS_SRCS = daxpy.c dcopy.c ddot.c dscal.c 
-
 # Yuchen: For compiling CBLAS files. CBLAS is library for Basic Linear Algebra Subprograms
 # The following files are downloaded from:
 #  - http://www.netlib.org/clapack/cblas/
 # They will be compile to CBLAS_ddot.o, CBLAS_daxpy.o, and etc. 
-CBLAS_OBJS = $(CBLAS_SRCS:%.c=./obj/CBLAS_%.o) 
+OBJS_CBLAS = $(SRCS_CBLAS:%.c=./obj/CBLAS_%.o) 
 
 # define the executable file 
-TARGET = ../libs/libSparseMatrix.a
+TARGET = ../libs/Release/libSparseMatrix.a
 
-# Yuchen: The remove command.
-# It is for Windoes only. Under Linux, ti will be something 
-# like the following (which is not tested): 
-#	rm -f
-RM = rm -f
+all: BUILD_DIR $(OBJS_CBLAS) $(OBJS)
+	$(AR) $(TARGET) $(OBJS) $(OBJS_CBLAS)
 
-all: $(CBLAS_OBJS) $(OBJS)
-	mkdir -p ../libs
-	$(AR) $(TARGET) $(OBJS)
+BUILD_DIR: 
+	mkdir -p ../libs/Release/
 
 # Yuchen: these following command will compile the other cpp files in the project
 # For example, if there is a file SparseMatrix.cpp in the current directory, it will 

@@ -15,7 +15,7 @@
 				<Compiler>
 					<Add option="-std=c++11" />
 					<Add option="-g" />
-					<Add option="-fopenmp" />
+					<Add directory="include" />
 				</Compiler>
 				<Linker>
 					<Add directory="../libs/Debug" />
@@ -29,8 +29,7 @@
 				<Compiler>
 					<Add option="-O2" />
 					<Add option="-std=c++11" />
-					<Add option="-fopenmp" />
-					<Add option="-Wno-unused-result" />
+					<Add directory="include" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -41,6 +40,9 @@
 		<Compiler>
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
+			<Add option="-Wno-comment" />
+			<Add option="-fopenmp" />
+			<Add option="-Wno-unused-result" />
 			<Add directory="../Vesselness" />
 			<Add directory="../core" />
 			<Add directory="../" />
@@ -60,19 +62,20 @@
 		</Linker>
 		<Unit filename="EnergyFunctions.cpp" />
 		<Unit filename="GLLineModel.cpp" />
-		<Unit filename="LevenburgMaquart.cpp" />
-		<Unit filename="LevenburgMaquart.h" />
+		<Unit filename="LevenbergMarquardt.cpp" />
+		<Unit filename="LevenbergMarquardt.h" />
 		<Unit filename="Line3D.cpp" />
 		<Unit filename="Line3D.h" />
 		<Unit filename="Line3DTwoPoint.cpp" />
 		<Unit filename="Line3DTwoPoint.h" />
+		<Unit filename="ModelSet.cpp" />
 		<Unit filename="ModelSet.h" />
 		<Unit filename="Neighbour26.h" />
 		<Unit filename="SyntheticData.h" />
 		<Unit filename="init_models.cpp" />
 		<Unit filename="init_models.h" />
 		<Unit filename="main.cpp" />
-		<Unit filename="targetver.h" />
+		<Unit filename="serializer.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />

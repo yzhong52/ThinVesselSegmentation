@@ -60,10 +60,10 @@ void VideoSaver::init(int w, int h, string filename, int maxNumFrames )
     cout << " - Frame Size: " << width << " by " << height << endl;
 
     outputVideo = new cv::VideoWriter( video_file_name,
-                                       -1/*CV_FOURCC('M','S','V','C')*/, /*Yuchen: I don't understand this. */
-                                       fps,                    /*Yuchen: Frame Rate */
-                                       cv::Size( width, height ),  /*Yuchen: Frame Size of the Video  */
-                                       true);                      /*Yuchen: Is Color                 */
+                                       CV_FOURCC('M', 'J', 'P', 'G'), /*Yuchen: I don't understand this. */
+                                       fps,                           /*Yuchen: Frame Rate               */
+                                       cv::Size( width, height ),     /*Yuchen: Frame Size of the Video  */
+                                       true);                         /*Yuchen: Is Color                 */
     if (!outputVideo->isOpened())
     {
         cout  << "Could not open the output video '" << video_file_name << "'. " << endl;
@@ -88,6 +88,7 @@ void VideoSaver::saveBuffer(void)
 
     current_frame++;
     cout << '\r' << " - Current Frame: " << current_frame << "\t";
+    cout.flush();
 
     if ( current_frame==total_frames || state==isAboutToStop )
     {

@@ -5,6 +5,7 @@
 		<Option title="core" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
+		<Option virtualFolders="GLViewer/;" />
 		<Build>
 			<Target title="Debug">
 				<Option output="../libs/Debug/core" prefix_auto="1" extension_auto="1" />
@@ -15,6 +16,7 @@
 				<Compiler>
 					<Add option="-Wall" />
 					<Add option="-g" />
+					<Add directory="../core" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -27,6 +29,7 @@
 				<Compiler>
 					<Add option="-Wall" />
 					<Add option="-O2" />
+					<Add directory="../core" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -41,12 +44,15 @@
 				<Compiler>
 					<Add option="-Wall" />
 					<Add option="-g" />
+					<Add directory="../core" />
 				</Compiler>
 			</Target>
 		</Build>
 		<Compiler>
+			<Add option="-std=c++11" />
 			<Add option="-fopenmp" />
 			<Add option="-Wno-comment" />
+			<Add option="`pkg-config --cflags opencv`" />
 		</Compiler>
 		<Linker>
 			<Add option="`pkg-config --libs opencv`" />
@@ -56,18 +62,48 @@
 			<Add library="libgomp.a" />
 			<Add library="libglut.a" />
 		</Linker>
+		<Unit filename="CVPlot.cpp" />
+		<Unit filename="CVPlot.h" />
 		<Unit filename="Data3D.h" />
-		<Unit filename="GLCamera.cpp" />
-		<Unit filename="GLCamera.h" />
-		<Unit filename="GLCenterLine.cpp" />
-		<Unit filename="GLCenterLine.h" />
-		<Unit filename="GLVideoSaver.cpp" />
-		<Unit filename="GLVideoSaver.h" />
-		<Unit filename="GLViewer.cpp" />
-		<Unit filename="GLViewer.h" />
-		<Unit filename="GLViwerCore.h" />
-		<Unit filename="GLVolumn.cpp" />
-		<Unit filename="GLVolumn.h" />
+		<Unit filename="GLCamera.cpp">
+			<Option virtualFolder="GLViewer/" />
+		</Unit>
+		<Unit filename="GLCamera.h">
+			<Option virtualFolder="GLViewer/" />
+		</Unit>
+		<Unit filename="GLCenterLine.cpp">
+			<Option virtualFolder="GLViewer/" />
+		</Unit>
+		<Unit filename="GLCenterLine.h">
+			<Option virtualFolder="GLViewer/" />
+		</Unit>
+		<Unit filename="GLObject.h">
+			<Option virtualFolder="GLViewer/" />
+		</Unit>
+		<Unit filename="GLVideoSaver.cpp">
+			<Option virtualFolder="GLViewer/" />
+		</Unit>
+		<Unit filename="GLVideoSaver.h">
+			<Option virtualFolder="GLViewer/" />
+		</Unit>
+		<Unit filename="GLViewer.cpp">
+			<Option virtualFolder="GLViewer/" />
+		</Unit>
+		<Unit filename="GLViewer.h">
+			<Option virtualFolder="GLViewer/" />
+		</Unit>
+		<Unit filename="GLViewerCore.cpp">
+			<Option virtualFolder="GLViewer/" />
+		</Unit>
+		<Unit filename="GLViewerCore.h">
+			<Option virtualFolder="GLViewer/" />
+		</Unit>
+		<Unit filename="GLVolumn.cpp">
+			<Option virtualFolder="GLViewer/" />
+		</Unit>
+		<Unit filename="GLVolumn.h">
+			<Option virtualFolder="GLViewer/" />
+		</Unit>
 		<Unit filename="Image3D.h" />
 		<Unit filename="ImageProcessing.cpp" />
 		<Unit filename="ImageProcessing.h" />

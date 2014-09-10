@@ -1,11 +1,6 @@
-// ModelFitting.cpp : Defines the entry point for the console application.
-//
 #define _USE_MATH_DEFINES
 #include <math.h>
-#include "Line3D.h"
-
-
-#include <iomanip> // For multithreading
+#include <iomanip> // For multi-threading
 
 #include <opencv2/core/core.hpp>
 #include <assert.h>
@@ -13,136 +8,208 @@
 #include <limits>
 #include <thread> // C++11
 
+#include "Line3D.h"
 #include "Data3D.h"
 #include "Line3DTwoPoint.h"
-#include "LevenburgMaquart.h"
+#include "LevenbergMarquardt.h"
 #include "SyntheticData.h"
 #include "ImageProcessing.h"
 #include "Timer.h"
 #include "Neighbour26.h"
 #include "SparseMatrix/SparseMatrix.h"
 #include "ModelSet.h"
-#include "init_models.h"
+#include "init_models.h" // TODO: remove this!
 #include "GLLineModel.h"
+#include "serializer.h"
+#include "GLViwerModel.h"
+#include "make_dir.h"
 
 using namespace std;
 
 const double DATA_COST = 1.0;
-const double PAIRWISE_SMOOTH = 7.0;
+const double PAIRWISE_SMOOTH = 20.0;
 const double DATA_COST2 = DATA_COST * DATA_COST;
 const double PAIRWISE_SMOOTH2 = PAIRWISE_SMOOTH * PAIRWISE_SMOOTH;
 
-// thead for visualization
-std::thread visualization_thread;
-
-#define IS_VISUAL
-#ifdef IS_VISUAL // add visualization model
-#include "GLViwerModel.h"
-
-GLViwerModel vis;
-// thread function for rendering
-void visualization_func( int numViewports )
-{
-    vis.go( 1280, 768, numViewports );
-}
-
-// function template default type C++11
-template<class T1, class T2=char, class T3=char>
-void initViwer( const vector<cv::Vec3i>& dataPoints,
-                const vector<Line3D*>& lines, const vector<int>& labelings,
-                const Data3D<T1>* im1,
-                const Data3D<T2>* im2 = nullptr,
-                const Data3D<T3>* im3 = nullptr)
-{
-    vis.addObject( *im1 );
-
-    if( im2 ) vis.addObject( *im2 );
-    if( im3 ) vis.addObject( *im3 );
-
-    GLViewer::GLLineModel *model = new GLViewer::GLLineModel( im1->get_size() );
-    model->updatePoints( dataPoints );
-    model->updateModel( lines, labelings );
-    vis.objs.push_back( model );
-
-    int numViewports = 2;
-    numViewports += (im2!=nullptr);
-    numViewports += (im3!=nullptr);
-
-    // create visualiztion thread
-    visualization_thread = std::thread(visualization_func, numViewports );
-
-}
-
-#else
-
-// function template default type C++11
-template<class T1, class T2=char, class T3=char>
-void initViwer( const vector<cv::Vec3i>& dataPoints,
-                const vector<Line3D*>& lines, const vector<int>& labelings,
-                const Data3D<T1>* im1,
-                const Data3D<T2>* im2 = nullptr,
-                const Data3D<T3>* im3 = nullptr ){ }
-#endif
 
 namespace experiments
 {
+void start_levenberg_marquardt( const string& dataname = "../temp/data15",
+                                const bool& isThined = true,
+                                const bool& isDisplay = false,
+                                Vec3i crop_size = Vec3i(-1,-1,-1) );
 
-void start_levernberg_marquart( const string& dataname = "data15", bool isDisplay = false )
-{
-    // Vesselness measure with sigma
-    Image3D<Vesselness_Sig> vn_et_sig;
-    vn_et_sig.load( dataname + ".et.vn_sig" );
-
-    // threshold the data and put the data points into a vector
-    Data3D<int> labelID3d;
-    vector<cv::Vec3i> tildaP;
-    ModelSet<Line3D> model;
-    vector<int> labelID;
-    each_model_per_point( vn_et_sig, labelID3d, tildaP, model, labelID );
-    cout << "Number of data points: " << tildaP.size() << endl;
-
-    if( isDisplay ){
-        // create a thread for rendering
-        Data3D<Vesselness_Sig> vn_sig( dataname + ".vn_sig" );
-        Data3D<short> im_short( dataname + ".data" );
-        initViwer( tildaP, model.models, labelID, &im_short, &vn_sig, &vn_et_sig );
-    }
-
-    // Levenberg-Marquart
-    LevenburgMaquart lm( tildaP, labelID, model, labelID3d );
-    lm.reestimate( 4000, LevenburgMaquart::Quadratic, dataname );
+void show_levenberg_marquardt_result( const string& serialized_dataname );
 }
-}
-
 
 int main(int argc, char* argv[])
 {
-    Mat temp = Mat(200, 200, CV_8UC3);
+    make_dir( "../temp" );
+
+    // Force the linking of OpenCV
+    Mat temp = Mat(10, 10, CV_8UC3);
     cv::imshow( "", temp );
 
-    experiments::start_levernberg_marquart("data15", true);
+    // default settings
+    string dataname = "../temp/data15";
+    bool runLevenbergMarquardt = true;
+    bool isThined = true;
+    bool isDisplay = true;
 
-    cout << "Main Thread is Done. " << endl;
-    visualization_thread.join();
+    // Update settings from 'arguments.txt' file
+    ifstream arguments( "arguments.txt" );
+    if( arguments.is_open() )
+    {
+        string temp;
+        do
+        {
+            arguments >> temp;
+            if( temp=="-dataname")
+            {
+                arguments >> dataname;
+            }
+            else if( temp=="-runLevenbergMarquardt")
+            {
+                arguments >> runLevenbergMarquardt;
+            }
+            else if( temp=="-isThined")
+            {
+                arguments >> isThined;
+            }
+            else if( temp=="-isDisplay")
+            {
+                arguments >> isDisplay;
+            }
+        }
+        while( !arguments.eof() );
+    }
+
+    if( runLevenbergMarquardt )
+    {
+        // Run Levenberg marquardt algorithm
+        experiments::start_levenberg_marquardt( dataname, isThined, isDisplay );
+    }
+    else
+    {
+        // Display result of Levenberg Marquardt only
+        experiments::show_levenberg_marquardt_result( dataname );
+    }
+
     return 0;
 }
 
 
+////////////////////////////////////////////////////////////////////////////////////////////
+// For visualization
+////////////////////////////////////////////////////////////////////////////////////////////
+
+GLViwerModel vis;
+
+// thread function for rendering
+void visualization_func( int numViewports )
+{
+    vis.display( 1280, 768, numViewports );
+}
+
+// function template default type is only available in C++11
+template<class T1=char, class T2=char, class T3=char>
+std::thread initViwer( const ModelSet& modelset,
+                       const Data3D<T1>* im1 = nullptr,
+                       const Data3D<T2>* im2 = nullptr,
+                       const Data3D<T3>* im3 = nullptr )
+{
+    if( im1 ) vis.addObject( *im1 );
+    if( im2 ) vis.addObject( *im2 );
+    if( im3 ) vis.addObject( *im3 );
+
+    GLViewer::GLLineModel *model = new GLViewer::GLLineModel( modelset.labelID3d.get_size() );
+    model->updatePoints( modelset.tildaP );
+    model->updateModel( modelset.lines, modelset.labelID );
+    vis.objs.push_back( model );
+
+    // compute the number of view ports to use
+    int numViewports = 1;
+    numViewports += (im1!=nullptr);
+    numViewports += (im2!=nullptr);
+    numViewports += (im3!=nullptr);
+
+    // create a thread for visualization
+    return std::thread( visualization_func, numViewports );
+}
 
 
 
+////////////////////////////////////////////////////////////////////////////////////////////
+// Experiments
+////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace experiments
+{
+void start_levenberg_marquardt( const string& dataname,
+                                const bool& isThined,
+                                const bool& isDisplay,
+                                Vec3i crop_size )
+{
+    const string datafile = dataname;
+
+    // Vesselness measure with sigma
+    Image3D<Vesselness_Sig> vn_sig;
+    vn_sig.load( datafile + (isThined?".et":"") + ".vn_sig" );
+
+    if( crop_size[0]>0 )
+    {
+        crop_size[0] = std::min( crop_size[0], vn_sig.SX() );
+        crop_size[1] = std::min( crop_size[1], vn_sig.SY() );
+        crop_size[2] = std::min( crop_size[2], vn_sig.SZ() );
+        vn_sig.remove_margin_to( crop_size );
+    }
+
+    stringstream serialized_datafile_stream;
+    serialized_datafile_stream << datafile << "_";
+    serialized_datafile_stream << vn_sig.SX() << "_";
+    serialized_datafile_stream << vn_sig.SY() << "_";
+    serialized_datafile_stream << vn_sig.SZ();
+    const string serialized_dataname = serialized_datafile_stream.str();
+
+    // threshold the data and put the data points into a vector
+    ModelSet model;
+    bool flag = model.deserialize( serialized_dataname );
+    if( !flag ) model.init_one_model_per_point( vn_sig );
 
 
+    cout << "Number of data points: " << model.tildaP.size() << endl;
 
-//// TODO: not compatible with MinGW?
-//CreateDirectory(L"./output", NULL);
+    std::thread visualization_thread;
+    if( isDisplay )
+    {
+        //Load original data and vesselness data for rendering
+        // Data3D<short> im_short( datafile + ".data" );
+        //Data3D<Vesselness_Sig> vn_sig( datafile + ".vn_sig" );
+        visualization_thread = initViwer( model, &vn_sig );
+    }
 
-//////////////////////////////////////////////////
-// Loading serialized data
-//////////////////////////////////////////////////
-//model.deserialize<Line3DTwoPoint>( "output/Line3DTwoPoint.model" );
-//if( lines.size()!=dataPoints.size() ) {
-//	cout << "Number of models is not corret. " << endl;
-//	cout << "Probably because of errors while deserializing the data. " << endl;
-//	return 0;
-//}
+    // Levenberg Marquardt
+    LevenbergMarquardt lm( model.tildaP, model.labelID, model, model.labelID3d );
+    lm.reestimate( 400, LevenbergMarquardt::Quadratic, serialized_dataname );
+
+    if( visualization_thread.joinable() ) visualization_thread.join();
+    // code after this line won't be executed because 'exit(0)' is executed by glut
+}
+
+
+void show_levenberg_marquardt_result( const string& serialized_dataname )
+{
+    // threshold the data and put the data points into a vector
+    ModelSet model;
+    bool flag = model.deserialize( serialized_dataname );
+    if( !flag ) return;
+
+    std::thread visualization_thread = initViwer( model );
+
+    if( visualization_thread.joinable() ) visualization_thread.join();
+    // code after this line won't be executed because 'exit(0)' is executed by glut
+}
+
+}
+
+
