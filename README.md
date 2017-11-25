@@ -70,7 +70,7 @@ Modules
         viewer.go(600, 400, 2);
         ```
 
--   **ModelFitting (Levenberg Marquardt)**
+-   **ModelFitting (Levenberg Marquardt algorithm)**
 
     Fitting geometric models (lines) to the 3D vessel data using Levenberg-Marquardt algorithm. 
 
@@ -157,11 +157,20 @@ Requirements
 
 	    `export LD_LIBRARY_PATH=/usr/local/lib/`
 
-	    `/usr/local/lib` is where the OpenCV libs are located. You could double check by viewing the output of `pkg-config --libs opencv`. 
+	    `/usr/local/lib` is where the OpenCV libs are located. You could double check by
+	    
+	    ```
+	    pkg-config --libs opencv
+	    ```
 
 	6. **Code::Blocks**
 
 
--  **Windows coming soon**
+-  **Windows**
 
+    All the code was written in C++. So it shouldn't be hard to modify and adapt to Windows. As a matter of fact, earlier version of the development was under Windows. 
+
+----
+
+Some of the results was eventually published in this paper [Thin Structure Estimation with Curvature Regularization](http://www.csd.uwo.ca/~yuri/Papers/iccv15_thin.pdf). Please check it out :) 
  
