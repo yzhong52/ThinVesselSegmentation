@@ -173,4 +173,9 @@ Requirements
 ----
 
 Some of the results was eventually published in this paper [Thin Structure Estimation with Curvature Regularization](http://www.csd.uwo.ca/~yuri/Papers/iccv15_thin.pdf). Please check it out :) 
+
+<p align="center"> 
+	<img src="vessels.png"/>
+</p>
+
  
